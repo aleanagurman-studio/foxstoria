@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Письма из прошлого — FoxStoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+    <nav class="nav-main">
+      <a href="stories-interactive.html">Интерактивные</a>
+      <a href="stories-linear.html" class="active">Линейные</a>
+      <a href="authors.html">Авторы</a>
+      <a href="search.html">Поиск</a>
+    </nav>
+    <div class="header-actions">
+      <a href="story-linear.html" class="btn btn-ghost">К карточке работы</a>
+    </div>
+  </header>
+
+  <div class="reader">
+    <article class="reader-stage">
+      <div class="reader-image linear">
+        <div class="reader-music">Линейная история · без ветвлений</div>
+      </div>
+      <div class="reader-body">
+        <div class="reader-kicker">Глава <span id="num">1</span> из 3 · 16+</div>
+        <h1 id="chapter-title"></h1>
+        <p class="reader-text" id="chapter-text"></p>
+        <div class="divider"></div>
+        <div class="reader-nav">
+          <button class="btn btn-outline" id="prev">Предыдущая</button>
+          <button class="btn btn-primary" id="next">Следующая глава</button>
+        </div>
+      </div>
+    </article>
+
+    <aside class="reader-side card-ornament">
+      <h2>Письма из прошлого</h2>
+      <p>Автор: Звёздная пыль</p>
+      <div class="progress-line"><span id="progress" style="width:33%"></span></div>
+      <p>Главы</p>
+      <ul>
+        <li>1. Конверт</li>
+        <li>2. Адрес, которого нет</li>
+        <li>3. Последняя строка</li>
+      </ul>
+      <p>Линейное чтение: сюжет один, выборов нет.</p>
+    </aside>
+  </div>
+
+  <script src="site.js"></script>
+  <script>
+    const chapters = [
+      {
+        title: "Конверт",
+        text: "Письмо пришло без марки — только имя, выведенное чернилами, которые уже выцвели. Вы открываете его на кухне, где ещё пахнет утром. «Если ты это читаешь, значит, я всё-таки решилась написать». Дальше — три страницы чужого почерка и один адрес."
+      },
+      {
+        title: "Адрес, которого нет",
+        text: "Дом на карте есть. На улице — пустырь и старая липа. Соседка говорит, что здесь когда-то жила женщина с рыжими волосами и привычкой оставлять письма в книгах. Вы находите в корнях липы второй конверт. Он адресован вам."
+      },
+      {
+        title: "Последняя строка",
+        text: "«Не ищи меня. Ищи, кем ты стала без меня». Вы складываете письма в ящик стола. История линейная: у неё одна дорога и одна тишина в конце. Но после последней строки всё равно хочется перечитать первую."
+      }
+    ];
+    let i = 0;
+    function render() {
+      const c = chapters[i];
+      document.getElementById("num").textContent = String(i + 1);
+      document.getElementById("chapter-title").textContent = c.title;
+      document.getElementById("chapter-text").textContent = c.text;
+      document.getElementById("progress").style.width = ((i + 1) / chapters.length) * 100 + "%";
+      document.getElementById("prev").disabled = i === 0;
+      document.getElementById("next").textContent = i === chapters.length - 1 ? "В каталог" : "Следующая глава";
+    }
+    document.getElementById("prev").onclick = () => { if (i > 0) { i -= 1; render(); } };
+    document.getElementById("next").onclick = () => {
+      if (i < chapters.length - 1) { i += 1; render(); }
+      else location.href = "stories-linear.html";
+    };
+    render();
+  </script>
+</body>
+</html>
