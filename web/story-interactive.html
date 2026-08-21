@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тени прошлого — FoxStoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+    <nav class="nav-main">
+      <a href="stories-interactive.html" class="active">Интерактивные</a>
+      <a href="stories-linear.html">Линейные</a>
+      <a href="authors.html">Авторы</a>
+      <a href="search.html">Поиск</a>
+    </nav>
+    <div class="header-actions">
+      <a href="stories-interactive.html" class="btn btn-ghost">К каталогу</a>
+    </div>
+  </header>
+
+  <div class="reader">
+    <article class="reader-stage">
+      <div class="reader-image" id="scene-art">
+        <div class="reader-music">Фоновая музыка · Туманное утро</div>
+        <div class="hero-sparkles" aria-hidden="true"></div>
+      </div>
+      <div class="reader-body">
+        <div class="reader-kicker">Интерактивная новелла · 18+</div>
+        <h1 id="scene-title">Перекрёсток</h1>
+        <p class="reader-text" id="scene-text"></p>
+        <div class="choices" id="choices"></div>
+        <div class="reader-nav">
+          <button class="btn btn-outline" id="restart">Начать сначала</button>
+        </div>
+      </div>
+    </article>
+
+    <aside class="reader-side card-ornament">
+      <h2>Тени прошлого</h2>
+      <p>Автор: Лунный странник</p>
+      <div class="progress-line"><span id="progress" style="width:25%"></span></div>
+      <p>Ваш путь</p>
+      <ul id="path-list"></ul>
+      <div class="divider"></div>
+      <p>3 концовки · 12 сцен · тестовая работа</p>
+    </aside>
+  </div>
+
+  <script src="site.js"></script>
+  <script>
+    const scenes = {
+      start: {
+        title: "Перекрёсток",
+        text: "Дождь стих, но мостовая ещё блестит. Слева — тёплый свет кафе. Справа — тёмный силуэт парка. Позади — шаги, которые вы уже слышали однажды.",
+        progress: 25,
+        choices: [
+          { label: "Пойти в кафе", next: "cafe" },
+          { label: "Пойти в парк", next: "park" }
+        ]
+      },
+      cafe: {
+        title: "Разговор в кафе",
+        text: "За стойкой кипит кофе. Человек из прошлого поднимает взгляд — и улыбается так, будто вы не пропадали все эти годы. «Ты всё-таки пришла», — говорит он.",
+        progress: 60,
+        choices: [
+          { label: "Спросить, что случилось тогда", next: "truth" },
+          { label: "Сказать, что вам пора уходить", next: "leave" }
+        ]
+      },
+      park: {
+        title: "Прогулка в парке",
+        text: "Фонари качаются на ветру. На лавке лежит раскрытая книга — та самая, которую вы потеряли зимой. На полях чужой почерк: «Не ищи правду в кафе».",
+        progress: 60,
+        choices: [
+          { label: "Всё равно пойти в кафе", next: "cafe" },
+          { label: "Уйти, не оборачиваясь", next: "leave" }
+        ]
+      },
+      truth: {
+        title: "Концовка: правда",
+        text: "Он рассказывает всё. Не красиво — честно. Город становится тише. Вы не прощаете сразу, но в первый раз за долгое время дышите свободно. Это одна из трёх концовок.",
+        progress: 100,
+        choices: []
+      },
+      leave: {
+        title: "Концовка: уход",
+        text: "Вы выходите на улицу. Дождь начинается снова. История не заканчивается — просто вы выбираете не знать её до конца. Это тоже концовка.",
+        progress: 100,
+        choices: []
+      }
+    };
+
+    const path = [];
+    function render(id) {
+      const scene = scenes[id];
+      path.push(scene.title);
+      document.getElementById("scene-title").textContent = scene.title;
+      document.getElementById("scene-text").textContent = scene.text;
+      document.getElementById("progress").style.width = scene.progress + "%";
+      document.getElementById("path-list").innerHTML = path.map((p) => `<li>${p}</li>`).join("");
+      const box = document.getElementById("choices");
+      box.innerHTML = "";
+      scene.choices.forEach((c) => {
+        const b = document.createElement("button");
+        b.className = "choice-btn";
+        b.textContent = c.label;
+        b.onclick = () => render(c.next);
+        box.appendChild(b);
+      });
+    }
+    document.getElementById("restart").onclick = () => { path.length = 0; render("start"); };
+    render("start");
+  </script>
+</body>
+</html>

@@ -11,7 +11,10 @@
 </head>
 <body>
   <header class="header">
-    <a href="index.html" class="logo"><span class="logo-text">Fox<span>Storia</span></span></a>
+    <a href="index.html" class="logo">
+      <svg class="logo-mark" aria-hidden="true"><use href="#i-fox-head"></use></svg>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
     <nav class="nav-main">
       <a href="stories-interactive.html">Интерактивные</a>
       <a href="stories-linear.html" class="active">Линейные</a>
@@ -44,6 +47,9 @@
         <h1>Линейные истории</h1>
         <p>Классическое чтение без ветвлений — главы и повествование</p>
       </header>
+      <div class="divider" aria-hidden="true">
+        <svg class="ico"><use href="#i-moon"></use></svg>
+      </div>
       <div class="type-tabs">
         <a href="stories-interactive.html" class="type-tab">Интерактивные</a>
         <a href="stories-linear.html" class="type-tab active">Линейные</a>
@@ -56,7 +62,12 @@
         <a href="#" class="sort-btn">По прочтениям</a>
       </div>
       <div class="stories-grid">
-        <article class="story-card"><div class="story-cover cover-3"><span class="story-type-badge">Линейная</span></div><div class="story-title">Письма из прошлого</div><div class="story-meta">Драма · Романтика</div><div class="story-stats"><span class="rating">★ 4.7</span><span class="age-badge">16+</span></div></article>
+        <a href="story-linear.html" class="story-card">
+          <div class="story-cover cover-3"><span class="story-type-badge">Линейная</span></div>
+          <div class="story-title">Письма из прошлого</div>
+          <div class="story-meta">Драма · Романтика</div>
+          <div class="story-stats"><span class="rating">★ 4.7</span><span class="age-badge">16+</span></div>
+        </a>
         <article class="story-card"><div class="story-cover cover-4"><span class="story-type-badge">Линейная</span></div><div class="story-title">Город без сна</div><div class="story-meta">Мистика · Драма</div><div class="story-stats"><span class="rating">★ 4.6</span><span class="age-badge">16+</span></div></article>
         <article class="story-card"><div class="story-cover cover-5"><span class="story-type-badge">Линейная</span></div><div class="story-title">Последний вагон</div><div class="story-meta">Драма</div><div class="story-stats"><span class="rating">★ 4.5</span><span class="age-badge">12+</span></div></article>
       </div>
