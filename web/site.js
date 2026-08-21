@@ -21,6 +21,14 @@ const ICON_SPRITE = `<svg xmlns="http://www.w3.org/2000/svg" style="position:abs
   document.documentElement.prepend(wrap);
 })();
 
+(function ensureStyles() {
+  if (document.querySelector('link[href="styles.css"], link[href$="/styles.css"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "styles.css";
+  document.head.appendChild(link);
+})();
+
 document.addEventListener("click", (event) => {
   const toggle = event.target.closest("#theme-toggle");
   if (!toggle) return;
