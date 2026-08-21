@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoxStoria — Интерактивные истории</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23C85A3D'/><text x='16' y='22' text-anchor='middle' font-size='18'>🦊</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+        <circle cx="18" cy="18" r="18" fill="#F8E9E4"/>
+        <path d="M10 22c0-5 3.5-9 8-9s8 4 8 9" fill="#C85A3D"/>
+        <path d="M8 14l3 2 2-4 2 4 3-2-1 5H9l-1-5z" fill="#C85A3D"/>
+        <circle cx="14" cy="19" r="1.5" fill="#292624"/>
+        <circle cx="22" cy="19" r="1.5" fill="#292624"/>
+        <path d="M16 21.5c1 1 3 1 4 0" stroke="#292624" stroke-width="1" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+
+    <nav class="nav-main">
+      <a href="stories-interactive.html">Интерактивные</a>
+      <a href="stories-linear.html">Линейные</a>
+      <a href="authors.html">Авторы</a>
+      <a href="search.html">Поиск</a>
+    </nav>
+
+    <form class="search-bar" action="search.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input type="search" name="q" placeholder="Найти историю, автора или тег…">
+    </form>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="theme-toggle" aria-label="Переключить тему">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+      <button class="icon-btn" aria-label="Настройки">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </button>
+      <a href="#" class="btn btn-ghost">Войти</a>
+      <a href="#" class="btn btn-primary">Регистрация</a>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html" class="active">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Главная
+        </a>
+        <a href="stories-interactive.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Интерактивные
+        </a>
+        <a href="stories-linear.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Линейные
+        </a>
+        <a href="authors.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Авторы
+        </a>
+        <a href="search.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          Поиск
+        </a>
+        <a href="editor.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          Подарки авторам
+        </a>
+      </nav>
+
+      <div>
+        <div class="sidebar-section-title">Жанры</div>
+        <div class="genres-list">
+          <a href="#">Фэнтези</a>
+          <a href="#">Романтика</a>
+          <a href="#">Драма</a>
+          <a href="#">Мистика</a>
+          <a href="#">Приключения</a>
+          <a href="#">Sci-Fi</a>
+          <a href="#">Хоррор</a>
+          <a href="#">Повседневность</a>
+          <a href="#">Показать все ▾</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title">Популярные теги</div>
+        <div class="tags-cloud">
+          <a href="#" class="tag">Любовь</a>
+          <a href="#" class="tag">Академия</a>
+          <a href="#" class="tag">Вампиры</a>
+          <a href="#" class="tag">Магия</a>
+          <a href="#" class="tag">Дружба</a>
+          <a href="#" class="tag">Детектив</a>
+          <a href="#" class="tag">Выбор</a>
+          <a href="#" class="tag">18+</a>
+          <a href="#" class="tag">Симулятор</a>
+        </div>
+      </div>
+
+      <div class="sidebar-fox" aria-hidden="true">
+        <svg width="180" height="140" viewBox="0 0 180 140" fill="none">
+          <ellipse cx="90" cy="120" rx="70" ry="12" fill="#E6E1DC" opacity="0.5"/>
+          <path d="M60 95c-5-25 5-55 30-60 25 5 35 35 30 60-8 5-20 8-30 8s-22-3-30-8z" fill="#C85A3D"/>
+          <path d="M55 45 L45 20 L65 38 Z" fill="#C85A3D"/>
+          <path d="M125 45 L135 20 L115 38 Z" fill="#C85A3D"/>
+          <path d="M75 38 L90 28 L105 38 L100 50 L80 50 Z" fill="#F8E9E4"/>
+          <circle cx="78" cy="62" r="4" fill="#292624"/>
+          <circle cx="102" cy="62" r="4" fill="#292624"/>
+          <ellipse cx="90" cy="72" rx="5" ry="3" fill="#292624"/>
+          <path d="M120 90 Q145 85 155 70 Q150 95 130 100 Z" fill="#B94C32"/>
+          <circle cx="50" cy="100" r="4" fill="#C9923E" opacity="0.7"/>
+          <circle cx="130" cy="105" r="3" fill="#C9923E" opacity="0.5"/>
+          <path d="M30 110 Q35 100 40 108" stroke="#5E8F6E" stroke-width="2" fill="none"/>
+          <path d="M150 108 Q155 98 160 106" stroke="#5E8F6E" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+          <h1>Истории, где выбор&nbsp;— это&nbsp;сюжет</h1>
+          <p>Интерактивные новеллы от талантливых авторов. Влияйте на судьбу героев и открывайте новые концовки.</p>
+          <div class="hero-actions">
+            <a href="search.html" class="btn btn-primary">Найти историю</a>
+            <a href="editor.html" class="btn btn-outline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              Стать автором
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Popular -->
+      <section class="section">
+        <div class="section-header">
+          <h2>Популярное сейчас</h2>
+          <a href="stories-interactive.html" class="section-link">Смотреть все →</a>
+        </div>
+        <div class="stories-row">
+
+          <article class="story-card">
+            <div class="story-cover cover-1">
+              <span class="story-rank">1</span>
+            </div>
+            <div class="story-title">Тени прошлого</div>
+            <div class="story-meta">Драма · Мистика</div>
+            <div class="story-stats">
+              <span class="rating">★ 4.9</span>
+              <span class="age-badge">18+</span>
+            </div>
+          </article>
+
+          <article class="story-card">
+            <div class="story-cover cover-2">
+              <span class="story-rank">2</span>
+            </div>
+            <div class="story-title">Лесная тропа</div>
+            <div class="story-meta">Фэнтези · Приключения</div>
+            <div class="story-stats">
+              <span class="rating">★ 4.8</span>
+              <span class="age-badge">12+</span>
+            </div>
+          </article>
+
+          <article class="story-card">
+            <div class="story-cover cover-3">
+              <span class="story-rank">3</span>
+            </div>
+            <div class="story-title">Кофе на рассвете</div>
+            <div class="story-meta">Романтика · Повседн.</div>
+            <div class="story-stats">
+              <span class="rating">★ 4.7</span>
+              <span class="age-badge">16+</span>
+            </div>
+          </article>
+
+          <article class="story-card">
+            <div class="story-cover cover-4">
+              <span class="story-rank">4</span>
+            </div>
+            <div class="story-title">Звёздный путь</div>
+            <div class="story-meta">Sci-Fi · Драма</div>
+            <div class="story-stats">
+              <span class="rating">★ 4.6</span>
+              <span class="age-badge">12+</span>
+            </div>
+          </article>
+
+          <article class="story-card">
+            <div class="story-cover cover-5">
+              <span class="story-rank">5</span>
+            </div>
+            <div class="story-title">Тайна особняка</div>
+            <div class="story-meta">Хоррор · Мистика</div>
+            <div class="story-stats">
+              <span class="rating">★ 4.8</span>
+              <span class="age-badge">18+</span>
+            </div>
+          </article>
+
+          <article class="story-card">
+            <div class="story-cover cover-6">
+              <span class="story-rank">6</span>
+            </div>
+            <div class="story-title">Академия магии</div>
+            <div class="story-meta">Фэнтези · Симулятор</div>
+            <div class="story-stats">
+              <span class="rating">★ 4.9</span>
+              <span class="age-badge">12+</span>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- New + Readers choice -->
+      <div class="two-col">
+        <section class="section">
+          <div class="section-header">
+            <h2>Новинки</h2>
+            <a href="#" class="section-link">Все →</a>
+          </div>
+          <div class="stories-row">
+            <article class="story-card">
+              <div class="story-cover cover-4">
+                <span class="badge-new">New</span>
+              </div>
+              <div class="story-title">Последний поезд</div>
+              <div class="story-meta">Драма · Мистика</div>
+              <div class="story-stats"><span class="rating">★ 4.5</span></div>
+            </article>
+            <article class="story-card">
+              <div class="story-cover cover-2">
+                <span class="badge-new">New</span>
+              </div>
+              <div class="story-title">Сад за стеной</div>
+              <div class="story-meta">Романтика · Фэнтези</div>
+              <div class="story-stats"><span class="rating">★ 4.6</span></div>
+            </article>
+            <article class="story-card">
+              <div class="story-cover cover-5">
+                <span class="badge-new">New</span>
+              </div>
+              <div class="story-title">Ночной дозор</div>
+              <div class="story-meta">Хоррор · Выбор</div>
+              <div class="story-stats"><span class="rating">★ 4.4</span></div>
+            </article>
+            <article class="story-card">
+              <div class="story-cover cover-3">
+                <span class="badge-new">New</span>
+              </div>
+              <div class="story-title">Письма из прошлого</div>
+              <div class="story-meta">Драма · Романтика</div>
+              <div class="story-stats"><span class="rating">★ 4.7</span></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Выбор читателей</h2>
+          </div>
+          <article class="featured-card">
+            <div class="featured-cover cover-1"></div>
+            <div class="featured-info">
+              <h3>Песня ветра</h3>
+              <p>Мир, где каждый выбор меняет судьбу. Пройдите путь героини через древний лес и раскройте тайну, скрытую веками.</p>
+              <div class="featured-stats">
+                <span><strong>32.1K</strong> прохождений</span>
+                <span class="rating">★ 4.9</span>
+                <span class="age-badge">16+</span>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <!-- Collections -->
+      <section class="section">
+        <div class="section-header">
+          <h2>Подборки для вас</h2>
+          <a href="#" class="section-link">Все подборки →</a>
+        </div>
+        <div class="collections-row">
+          <a href="#" class="collection-card">
+            <div class="collection-icon">💕</div>
+            <div>
+              <h3>Истории о любви</h3>
+              <p>42 истории</p>
+            </div>
+          </a>
+          <a href="#" class="collection-card">
+            <div class="collection-icon">🌙</div>
+            <div>
+              <h3>Тёмное фэнтези</h3>
+              <p>28 историй</p>
+            </div>
+          </a>
+          <a href="#" class="collection-card">
+            <div class="collection-icon">✨</div>
+            <div>
+              <h3>Академия и магия</h3>
+              <p>35 историй</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section class="features-bar">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div>
+            <h4>Тысячи историй</h4>
+            <p>Бесплатные и платные интерактивные новеллы</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div>
+            <h4>Интерактивный выбор</h4>
+            <p>Влияйте на сюжет и открывайте концовки</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/></svg>
+          </div>
+          <div>
+            <h4>Поддержка авторов</h4>
+            <p>Подарки, покупки и подписки</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div>
+            <h4>На всех устройствах</h4>
+            <p>Web, Android и iOS — один прогресс</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar-right">
+
+      <div class="widget widget-welcome">
+        <h3>Добро пожаловать в мир историй</h3>
+        <p>Читайте, выбирайте, поддерживайте авторов</p>
+        <div class="widget-welcome-actions">
+          <a href="#" class="btn btn-primary">Присоединиться</a>
+          <a href="#" class="btn btn-outline">Войти</a>
+        </div>
+        <svg class="widget-fox-peek" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+          <circle cx="50" cy="40" r="28" fill="#F8E9E4"/>
+          <path d="M30 50c-3-15 3-30 20-32 17 2 23 17 20 32-5 3-12 5-20 5s-15-2-20-5z" fill="#C85A3D"/>
+          <path d="M28 28 L22 12 L36 24 Z" fill="#C85A3D"/>
+          <path d="M72 28 L78 12 L64 24 Z" fill="#C85A3D"/>
+          <circle cx="42" cy="42" r="3" fill="#292624"/>
+          <circle cx="58" cy="42" r="3" fill="#292624"/>
+        </svg>
+      </div>
+
+      <div class="widget">
+        <div class="widget-title">Топ авторов</div>
+        <div class="author-item">
+          <span class="author-rank">1</span>
+          <div class="author-avatar cover-1"></div>
+          <div class="author-info">
+            <div class="author-name">Лунный странник</div>
+            <div class="author-stats"><span>★ 4.9</span><span>📚 12</span></div>
+          </div>
+        </div>
+        <div class="author-item">
+          <span class="author-rank">2</span>
+          <div class="author-avatar cover-2"></div>
+          <div class="author-info">
+            <div class="author-name">Тёмный лес</div>
+            <div class="author-stats"><span>★ 4.8</span><span>📚 8</span></div>
+          </div>
+        </div>
+        <div class="author-item">
+          <span class="author-rank">3</span>
+          <div class="author-avatar cover-4"></div>
+          <div class="author-info">
+            <div class="author-name">Звёздная пыль</div>
+            <div class="author-stats"><span>★ 4.7</span><span>📚 15</span></div>
+          </div>
+        </div>
+        <div class="author-item">
+          <span class="author-rank">4</span>
+          <div class="author-avatar cover-5"></div>
+          <div class="author-info">
+            <div class="author-name">Архив теней</div>
+            <div class="author-stats"><span>★ 4.6</span><span>📚 6</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-title">Объявления</div>
+        <div class="announce-item">
+          <div class="announce-icon">🎁</div>
+          <div>
+            <h4>Подарки авторам</h4>
+            <p>Поддержите любимых авторов виртуальными подарками</p>
+          </div>
+        </div>
+        <div class="announce-item">
+          <div class="announce-icon">🏆</div>
+          <div>
+            <h4>Новые достижения</h4>
+            <p>Зарабатывайте бейджи за прохождение историй</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget widget-book" aria-hidden="true">
+        <svg width="120" height="80" viewBox="0 0 120 80" fill="none">
+          <rect x="30" y="20" width="50" height="40" rx="3" fill="#F8E9E4" stroke="#E6E1DC"/>
+          <path d="M55 20 L55 60" stroke="#E6E1DC"/>
+          <rect x="35" y="28" width="16" height="2" fill="#C85A3D" opacity="0.5"/>
+          <rect x="35" y="34" width="12" height="2" fill="#C85A3D" opacity="0.3"/>
+          <path d="M75 35 Q85 25 90 35 L88 55 Q83 60 75 55 Z" fill="#F1EFEB" stroke="#E6E1DC"/>
+          <path d="M78 38 L78 50" stroke="#C85A3D" stroke-width="1.5"/>
+          <ellipse cx="83" cy="52" rx="8" ry="3" fill="#E6E1DC"/>
+          <circle cx="20" cy="65" r="3" fill="#C9923E" opacity="0.6"/>
+          <circle cx="100" cy="62" r="2.5" fill="#C9923E" opacity="0.4"/>
+        </svg>
+      </div>
+
+    </aside>
+  </div>
+
+  <script src="site.js"></script>
+</body>
+</html>

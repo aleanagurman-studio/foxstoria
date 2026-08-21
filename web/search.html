@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Поиск — FoxStoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+    <nav class="nav-main">
+      <a href="stories-interactive.html">Интерактивные</a>
+      <a href="stories-linear.html">Линейные</a>
+      <a href="authors.html">Авторы</a>
+      <a href="search.html" class="active">Поиск</a>
+    </nav>
+    <form class="search-bar" action="search.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" name="q" placeholder="Найти историю, автора или тег…">
+    </form>
+    <div class="header-actions">
+      <button class="icon-btn" id="theme-toggle" aria-label="Тема">☾</button>
+      <a href="#" class="btn btn-ghost">Войти</a>
+      <a href="#" class="btn btn-primary">Регистрация</a>
+    </div>
+  </header>
+
+  <div class="layout catalog">
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html">Главная</a>
+        <a href="stories-interactive.html">Интерактивные</a>
+        <a href="stories-linear.html">Линейные</a>
+        <a href="authors.html">Авторы</a>
+        <a href="search.html" class="active">Поиск</a>
+        <a href="editor.html">Редактор</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <header class="page-header">
+        <h1>Поиск работ</h1>
+        <p>Фильтры по типу, жанру, возрасту и доступу. Данные пока макетные — бэкенд не нужен.</p>
+      </header>
+
+      <form class="filter-panel" action="search.html">
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label for="q">Название</label>
+            <input id="q" name="q" type="search" placeholder="Название истории…">
+          </div>
+          <div class="filter-group">
+            <label for="story_type">Тип</label>
+            <select id="story_type" name="type">
+              <option value="">Любой</option>
+              <option value="interactive">Интерактивная</option>
+              <option value="linear">Линейная</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="genre">Жанр</label>
+            <select id="genre" name="genre">
+              <option value="">Любой</option>
+              <option>Фэнтези</option>
+              <option>Романтика</option>
+              <option>Драма</option>
+              <option>Мистика</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="age">Возраст</label>
+            <select id="age" name="age">
+              <option value="">Любой</option>
+              <option>12+</option>
+              <option>16+</option>
+              <option>18+</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="paid">Доступ</label>
+            <select id="paid" name="paid">
+              <option value="">Любой</option>
+              <option value="free">Бесплатные</option>
+              <option value="paid">Платные</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button type="submit" class="btn btn-primary">Найти</button>
+          <a href="search.html" class="btn btn-outline">Сбросить</a>
+        </div>
+      </form>
+
+      <div class="stories-grid">
+        <article class="story-card"><div class="story-cover cover-1"><span class="story-type-badge">Интерактив</span></div><div class="story-title">Тени прошлого</div><div class="story-meta">Драма · Мистика</div><div class="story-stats"><span class="rating">★ 4.9</span><span class="age-badge">18+</span></div></article>
+        <article class="story-card"><div class="story-cover cover-2"><span class="story-type-badge">Интерактив</span></div><div class="story-title">Лесная тропа</div><div class="story-meta">Фэнтези</div><div class="story-stats"><span class="rating">★ 4.8</span><span class="age-badge">12+</span></div></article>
+        <article class="story-card"><div class="story-cover cover-3"><span class="story-type-badge">Линейная</span></div><div class="story-title">Письма из прошлого</div><div class="story-meta">Драма · Романтика</div><div class="story-stats"><span class="rating">★ 4.7</span><span class="age-badge">16+</span></div></article>
+        <article class="story-card"><div class="story-cover cover-4"><span class="story-type-badge">Линейная</span></div><div class="story-title">Город без сна</div><div class="story-meta">Мистика</div><div class="story-stats"><span class="rating">★ 4.6</span><span class="age-badge">16+</span></div></article>
+      </div>
+    </main>
+  </div>
+  <script src="site.js"></script>
+</body>
+</html>
