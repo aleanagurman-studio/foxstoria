@@ -1,10 +1,37 @@
-from app.models.entities import Author, Genre, Story, StoryGenre, StoryStatus, StoryType
+from app.models.entities import Author, AuthorPlan, Genre, Story, StoryGenre, StoryStatus, StoryType
+from app.models.studio import (
+    AiJob,
+    AiJobKind,
+    AiJobStatus,
+    Chapter,
+    Character,
+    NoteFolder,
+    Scene,
+    SceneChoice,
+    StoryNote,
+    SummarySource,
+    TimelineEdge,
+    TimelineEvent,
+)
 
 __all__ = [
+    "AiJob",
+    "AiJobKind",
+    "AiJobStatus",
     "Author",
+    "AuthorPlan",
+    "Chapter",
+    "Character",
     "Genre",
+    "NoteFolder",
+    "Scene",
+    "SceneChoice",
     "Story",
     "StoryGenre",
+    "StoryNote",
     "StoryStatus",
     "StoryType",
+    "SummarySource",
+    "TimelineEdge",
+    "TimelineEvent",
 ]

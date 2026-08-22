@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кабинет автора — FoxStoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="studio.css">
+  <script src="site.js"></script>
+</head>
+<body class="studio-page">
+
+  <header class="editor-header">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+    <div class="story-title-block">
+      <div class="story-title-row">
+        <h1>Тени прошлого</h1>
+      </div>
+      <span class="story-save-status">Только для автора · черновик</span>
+    </div>
+    <div class="studio-type">
+      <button class="studio-type-btn active" data-type="interactive">Интерактивная</button>
+      <button class="studio-type-btn" data-type="linear">Линейная</button>
+    </div>
+    <a href="editor.html" class="btn btn-primary">Открыть редактор</a>
+  </header>
+
+  <div class="studio-layout">
+    <aside class="studio-nav" aria-label="Кабинет истории">
+      <p class="studio-nav-kicker">Моя история</p>
+
+      <div class="studio-group">
+        <button class="studio-item" data-view="editor">Редактор</button>
+        <a class="studio-sub" href="editor.html">Главы</a>
+        <a class="studio-sub" href="editor.html">Сцены</a>
+        <button class="studio-sub" data-view="publish">Публикация</button>
+      </div>
+
+      <div class="studio-group">
+        <button class="studio-item" data-view="timeline">Хронология</button>
+        <button class="studio-sub" data-view="timeline">Временная шкала / дерево</button>
+      </div>
+
+      <div class="studio-group">
+        <button class="studio-item" data-view="characters">Персонажи</button>
+        <button class="studio-sub" data-view="characters" data-char="alex">Алекс</button>
+        <button class="studio-sub" data-view="characters" data-char="masha">Маша</button>
+        <button class="studio-sub" data-view="characters" data-char="nikita">Никита</button>
+        <button class="studio-sub studio-add" data-view="characters" data-char="new">+ Новый персонаж</button>
+      </div>
+
+      <div class="studio-group">
+        <button class="studio-item" data-view="notes">Заметки</button>
+        <button class="studio-sub" data-view="notes" data-folder="plot">Сюжет</button>
+        <button class="studio-sub" data-view="notes" data-folder="ideas">Идеи</button>
+        <button class="studio-sub" data-view="notes" data-folder="dialogues">Диалоги</button>
+        <button class="studio-sub" data-view="notes" data-folder="future">Будущие события</button>
+      </div>
+
+      <div class="studio-group">
+        <button class="studio-item" data-view="stats">Статистика</button>
+        <button class="studio-item" data-view="settings">Настройки истории</button>
+      </div>
+
+      <p class="studio-private">Читатели этого не видят</p>
+    </aside>
+
+    <main class="studio-main">
+
+      <section class="studio-view" id="view-editor">
+        <h2>Редактор</h2>
+        <p class="studio-lead">Главы и сцены — это то, что пойдёт в публикацию. Хронология и персонажи живут рядом, но остаются в кабинете.</p>
+        <div class="studio-cards">
+          <article class="studio-card">
+            <h3>Глава 1 · Перекрёсток</h3>
+            <p>3 сцены · сводка вручную</p>
+            <label class="studio-label">Краткое содержание (для себя)</label>
+            <textarea>Дождь, кафе или парк. Алекс узнаёт Машу.</textarea>
+          </article>
+          <article class="studio-card">
+            <h3>Глава 2 · Ветки</h3>
+            <p>Plus: ИИ может собрать сводку и найти имена</p>
+            <div class="studio-ai-box">
+              <span class="studio-pill">Plus</span>
+              Алекс, Маша. Выбор на перекрёстке ведёт в кафе или в парк. Никита пока не появляется.
+              <button class="btn btn-outline" type="button">Принять и править</button>
+            </div>
+          </article>
+        </div>
+        <a href="editor.html" class="btn btn-primary">Граф сцен</a>
+      </section>
+
+      <section class="studio-view" id="view-publish" hidden>
+        <h2>Публикация</h2>
+        <p class="studio-lead">На карточку работы уходит только опубликованный текст. Библия персонажей и заметки остаются здесь.</p>
+        <ul class="studio-list">
+          <li>Черновик · виден только вам</li>
+          <li>Модерация</li>
+          <li>Опубликовано на карточке истории</li>
+        </ul>
+      </section>
+
+      <section class="studio-view" id="view-timeline" hidden>
+        <h2>Хронология</h2>
+        <p class="studio-lead" id="timeline-lead">Для интерактивной истории шкала ветвится: это время мира, а не порядок чтения.</p>
+
+        <div id="timeline-interactive" class="timeline-tree">
+          <div class="t-node start">День 1 · Дождь</div>
+          <div class="t-split">
+            <div class="t-branch">
+              <span class="t-label">кафе</span>
+              <div class="t-node">Разговор с Машей</div>
+              <div class="t-node">Правда о прошлом</div>
+            </div>
+            <div class="t-branch">
+              <span class="t-label">парк</span>
+              <div class="t-node">Книга на лавке</div>
+              <div class="t-node">Уход без ответа</div>
+            </div>
+          </div>
+        </div>
+
+        <ol id="timeline-linear" class="timeline-line" hidden>
+          <li><b>Утро.</b> Конверт без марки.</li>
+          <li><b>День.</b> Адрес, которого нет.</li>
+          <li><b>Вечер.</b> Последняя строка.</li>
+        </ol>
+      </section>
+
+      <section class="studio-view" id="view-characters" hidden>
+        <h2>Персонажи</h2>
+        <p class="studio-lead">Карточки героев только для автора. Plus может предлагать факты из текста — вы подтверждаете сами.</p>
+        <div class="char-layout">
+          <article class="studio-card char-card" data-char-card="alex">
+            <h3>Алекс</h3>
+            <p class="muted">Главный · 28 лет</p>
+            <p>Молчит, пока не спросят. Боится кафе на углу. Не носит часов.</p>
+            <p class="muted">Черты: сдержанный, помнит даты, плохо врёт.</p>
+          </article>
+          <article class="studio-card char-card" data-char-card="masha">
+            <h3>Маша</h3>
+            <p class="muted">Ключевая</p>
+            <p>Приходит раньше, уходит, не прощаясь. Знает тот дождь лучше Алекса.</p>
+            <p class="muted">Черты: прямая, не прощает вранья, любит горький кофе.</p>
+          </article>
+          <article class="studio-card char-card" data-char-card="nikita">
+            <h3>Никита</h3>
+            <p class="muted">Пока за кадром</p>
+            <p>Имя всплывает в письме. Авторская пометка: не показывать до главы 3.</p>
+            <div class="studio-ai-box">
+              <span class="studio-pill">Plus · черновик ИИ</span>
+              В сцене «Парк» есть «он». Похоже на Никиту. Добавить в био?
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="studio-view" id="view-notes" hidden>
+        <h2>Заметки</h2>
+        <p class="studio-lead">Четыре папки. Можно привязать к персонажу или сцене.</p>
+        <div class="studio-cards" id="notes-list">
+          <article class="studio-card" data-note="plot">
+            <h3>Сюжет</h3>
+            <p>Перекрёсток — ложная развилка. Правда одна, пути разные.</p>
+          </article>
+          <article class="studio-card" data-note="ideas">
+            <h3>Идеи</h3>
+            <p>Если читатель трижды выберет кафе — дать четвёртую реплику Маши.</p>
+          </article>
+          <article class="studio-card" data-note="dialogues">
+            <h3>Диалоги</h3>
+            <p>«Ты всё-таки пришла» — не менять. Это якорь.</p>
+          </article>
+          <article class="studio-card" data-note="future">
+            <h3>Будущие события</h3>
+            <p>Никита появляется только в концовке «правда».</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="studio-view" id="view-stats" hidden>
+        <h2>Статистика</h2>
+        <div class="studio-stats">
+          <div><b>12</b> сцен</div>
+          <div><b>38</b> выборов</div>
+          <div><b>3</b> концовки</div>
+          <div><b>3</b> персонажа в библии</div>
+        </div>
+      </section>
+
+      <section class="studio-view" id="view-settings" hidden>
+        <h2>Настройки истории</h2>
+        <p class="studio-lead">Тип истории задаёт вид хронологии. Сменить тип после публикации нельзя.</p>
+        <ul class="studio-list">
+          <li>Тип: интерактивная или линейная</li>
+          <li>Возраст, жанры, обложка — уходят на карточку</li>
+          <li>ИИ-сводки: тариф Plus, можно выключить по полям персонажа</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  <script src="studio.js"></script>
+</body>
+</html>

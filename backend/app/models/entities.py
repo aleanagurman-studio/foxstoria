@@ -29,6 +29,13 @@ class StoryStatus(str, enum.Enum):
     ARCHIVED = "archived"
 
 
+class AuthorPlan(str, enum.Enum):
+    """Plus unlocks AI chapter summaries and character extraction."""
+
+    FREE = "free"
+    PLUS = "plus"
+
+
 class Author(Base):
     __tablename__ = "authors"
 
@@ -40,6 +47,9 @@ class Author(Base):
     rating_avg: Mapped[float] = mapped_column(Float, default=0.0)
     story_count: Mapped[int] = mapped_column(Integer, default=0)
     follower_count: Mapped[int] = mapped_column(Integer, default=0)
+    plan: Mapped[AuthorPlan] = mapped_column(
+        Enum(AuthorPlan, native_enum=False), default=AuthorPlan.FREE
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     stories: Mapped[list["Story"]] = relationship(back_populates="author")
@@ -97,4 +107,19 @@ class Story(Base):
     author: Mapped["Author"] = relationship(back_populates="stories")
     genres: Mapped[list["Genre"]] = relationship(
         secondary="story_genres", back_populates="stories"
+    )
+    chapters: Mapped[list["Chapter"]] = relationship(
+        back_populates="story", cascade="all, delete-orphan"
+    )
+    scenes: Mapped[list["Scene"]] = relationship(
+        back_populates="story", cascade="all, delete-orphan"
+    )
+    characters: Mapped[list["Character"]] = relationship(
+        back_populates="story", cascade="all, delete-orphan"
+    )
+    notes: Mapped[list["StoryNote"]] = relationship(
+        back_populates="story", cascade="all, delete-orphan"
+    )
+    timeline_events: Mapped[list["TimelineEvent"]] = relationship(
+        back_populates="story", cascade="all, delete-orphan"
     )

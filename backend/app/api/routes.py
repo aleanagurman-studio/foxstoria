@@ -20,6 +20,9 @@ from app.schemas import (
 
 router = APIRouter(prefix="/api")
 
+# Public catalog only. Author studio (characters, notes, timeline, summaries)
+# is never returned from these routes.
+
 
 def _sort_clause(sort: StorySort):
     mapping = {
