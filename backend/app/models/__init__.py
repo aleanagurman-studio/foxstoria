@@ -1,3 +1,22 @@
+from app.models.account import (
+    Block,
+    Collection,
+    CollectionItem,
+    DirectMessage,
+    Follow,
+    FollowTarget,
+    MessageParticipant,
+    MessageThread,
+    PollOption,
+    PostKind,
+    ProfilePost,
+    SocialLink,
+    StoryCredit,
+    StoryCreditRole,
+    StoryLike,
+    UserSettings,
+    ViewHistory,
+)
 from app.models.entities import Author, AuthorPlan, Genre, Story, StoryGenre, StoryStatus, StoryType
 from app.models.studio import (
     AiJob,
@@ -15,6 +34,23 @@ from app.models.studio import (
 )
 
 __all__ = [
+    "Block",
+    "Collection",
+    "CollectionItem",
+    "DirectMessage",
+    "Follow",
+    "FollowTarget",
+    "MessageParticipant",
+    "MessageThread",
+    "PollOption",
+    "PostKind",
+    "ProfilePost",
+    "SocialLink",
+    "StoryCredit",
+    "StoryCreditRole",
+    "StoryLike",
+    "UserSettings",
+    "ViewHistory",
     "AiJob",
     "AiJobKind",
     "AiJobStatus",

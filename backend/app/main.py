@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
 from app.config import settings
 from app.database import Base, engine
-from app.models import Author, Chapter, Character, Genre, Scene, Story  # noqa: F401
+from app.models import Author, Chapter, Character, Collection, Genre, Scene, Story  # noqa: F401
 
 
 @asynccontextmanager

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кабинет автора — FoxStoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="account.css">
+  <script src="site.js"></script>
+</head>
+<body class="account-page">
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+    <nav class="nav-main">
+      <a href="index.html">Главная</a>
+      <a href="stories-interactive.html">Каталог</a>
+    </nav>
+    <div class="header-actions">
+      <button class="circle-btn" id="theme-toggle" aria-label="Тема"><svg class="ico"><use href="#i-moon"></use></svg></button>
+    </div>
+  </header>
+  <div class="account-layout">
+    <aside class="account-side">
+      <p class="side-kicker">Личное меню</p>
+      <a href="profile.html">Профиль</a>
+      <a href="messages.html">Сообщения</a>
+      <a href="author-home.html" class="active">Кабинет автора</a>
+      <a href="library.html">Кабинет читателя</a>
+      <a href="settings.html">Настройки</a>
+    </aside>
+    <main class="account-main">
+      <h1 style="font-family:var(--font-display);margin-bottom:8px">Кабинет автора</h1>
+      <p class="profile-meta" style="margin-bottom:20px">Список работ, отзывы и вход в редактор, хронологию и заметки по каждой истории.</p>
+
+      <article class="account-card">
+        <div class="work-row" style="border:none;padding:0">
+          <div class="thumb cover-1"></div>
+          <div style="flex:1">
+            <strong>Тени прошлого</strong>
+            <p class="profile-meta">Черновик · интерактивная · 12 сцен</p>
+          </div>
+          <a href="studio.html" class="btn btn-primary">Открыть кабинет истории</a>
+        </div>
+      </article>
+
+      <article class="account-card">
+        <div class="work-row" style="border:none;padding:0">
+          <div class="thumb cover-3"></div>
+          <div style="flex:1">
+            <strong>Письма из прошлого</strong>
+            <p class="profile-meta">Вы редактор · линейная</p>
+          </div>
+          <a href="studio.html" class="btn btn-outline">Заметки и правки</a>
+        </div>
+      </article>
+
+      <h2 style="font-size:1.1rem;margin:28px 0 12px">Отзывы на ваши работы</h2>
+      <article class="account-card">
+        <p>«Ветка парка сильнее кафе. Жду Никиту.»</p>
+        <p class="profile-meta">К Тени прошлого · вчера</p>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

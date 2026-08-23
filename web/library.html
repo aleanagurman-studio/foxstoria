@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кабинет читателя — FoxStoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="account.css">
+  <script src="site.js"></script>
+</head>
+<body class="account-page">
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+    <nav class="nav-main">
+      <a href="index.html">Главная</a>
+      <a href="stories-interactive.html">Каталог</a>
+    </nav>
+    <div class="header-actions">
+      <button class="circle-btn" id="theme-toggle" aria-label="Тема"><svg class="ico"><use href="#i-moon"></use></svg></button>
+    </div>
+  </header>
+  <div class="account-layout">
+    <aside class="account-side">
+      <p class="side-kicker">Личное меню</p>
+      <a href="profile.html">Профиль</a>
+      <a href="messages.html">Сообщения</a>
+      <a href="author-home.html">Кабинет автора</a>
+      <a href="library.html" class="active">Кабинет читателя</a>
+      <a href="settings.html">Настройки</a>
+    </aside>
+    <main class="account-main">
+      <h1 style="font-family:var(--font-display);margin-bottom:8px">Кабинет читателя</h1>
+      <p class="profile-meta" style="margin-bottom:20px">Подписки, лайки, история и ваши сборники. Этого не видно на публичном профиле, кроме открытых сборников.</p>
+
+      <div class="account-tabs">
+        <button type="button" class="active" data-tab="authors">Авторы</button>
+        <button type="button" data-tab="works">Работы</button>
+        <button type="button" data-tab="likes">Лайки</button>
+        <button type="button" data-tab="history">История</button>
+        <button type="button" data-tab="packs">Мои сборники</button>
+      </div>
+
+      <section id="tab-authors">
+        <a href="profile.html" class="work-row">
+          <div class="thumb cover-4" style="border-radius:50%;height:40px;width:40px"></div>
+          <div><strong>Звёздная пыль</strong><p class="profile-meta">15 работ · подписка</p></div>
+        </a>
+      </section>
+      <section id="tab-works" hidden>
+        <a href="story-linear.html" class="work-row">
+          <div class="thumb cover-3"></div>
+          <div><strong>Письма из прошлого</strong><p class="profile-meta">Следите за обновлениями</p></div>
+        </a>
+      </section>
+      <section id="tab-likes" hidden>
+        <a href="story-interactive.html" class="work-row">
+          <div class="thumb cover-1"></div>
+          <div><strong>Тени прошлого</strong><p class="profile-meta">В избранном</p></div>
+        </a>
+      </section>
+      <section id="tab-history" hidden>
+        <a href="read-interactive.html" class="work-row">
+          <div class="thumb cover-1"></div>
+          <div><strong>Тени прошлого</strong><p class="profile-meta">Глава 1 · 25% · сегодня</p></div>
+        </a>
+      </section>
+      <section id="tab-packs" hidden>
+        <article class="account-card">
+          <h3>Дождь и письма</h3>
+          <p class="profile-meta">Открытый сборник · 2 работы</p>
+        </article>
+        <article class="account-card">
+          <h3>Черновик на потом</h3>
+          <p class="profile-meta">Только вы · 0 работ</p>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script>
+    document.querySelectorAll(".account-tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".account-tabs button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        ["authors", "works", "likes", "history", "packs"].forEach((name) => {
+          const el = document.getElementById("tab-" + name);
+          if (el) el.hidden = name !== btn.dataset.tab;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

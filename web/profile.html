@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Лунный странник — профиль — FoxStoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="account.css">
+  <script src="site.js"></script>
+</head>
+<body class="account-page">
+  <header class="header">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-text">Fox<span>Storia</span></span>
+    </a>
+    <nav class="nav-main">
+      <a href="index.html">Главная</a>
+      <a href="stories-interactive.html">Каталог</a>
+      <a href="authors.html">Авторы</a>
+    </nav>
+    <div class="header-actions">
+      <button class="circle-btn" id="theme-toggle" aria-label="Тема"><svg class="ico"><use href="#i-moon"></use></svg></button>
+    </div>
+  </header>
+
+  <div class="account-layout">
+    <aside class="account-side">
+      <p class="side-kicker">Личное меню</p>
+      <a href="profile.html" class="active">Профиль</a>
+      <a href="messages.html">Сообщения</a>
+      <a href="author-home.html">Кабинет автора</a>
+      <a href="library.html">Кабинет читателя</a>
+      <a href="settings.html">Настройки</a>
+    </aside>
+
+    <main class="account-main">
+      <section class="profile-hero">
+        <div class="profile-ava cover-1" aria-hidden="true"></div>
+        <div>
+          <h1>Лунный странник</h1>
+          <p class="profile-meta">@moonwander · 12.4K подписчиков</p>
+          <p class="profile-bio">Пишу ветвящиеся новеллы о памяти и выборе. Днём читаю чужие письма, ночью — свои черновики.</p>
+          <div class="profile-links">
+            <a href="#">Telegram</a>
+            <a href="#">VK</a>
+            <a href="#">Сайт</a>
+          </div>
+        </div>
+        <button class="btn btn-primary" type="button">Подписаться</button>
+      </section>
+
+      <div class="profile-stats">
+        <div><b>2</b><span>работы</span></div>
+        <div><b>14.5K</b><span>лайков</span></div>
+        <div><b>1.2K</b><span>отзывов</span></div>
+        <div><b>27</b><span>глав</span></div>
+      </div>
+
+      <div class="account-tabs" role="tablist">
+        <button type="button" class="active" data-tab="works">Работы</button>
+        <button type="button" data-tab="credits">Соавтор / редактор</button>
+        <button type="button" data-tab="packs">Сборники</button>
+        <button type="button" data-tab="feed">Лента</button>
+      </div>
+
+      <section id="tab-works">
+        <a href="story-interactive.html" class="work-row">
+          <div class="thumb cover-1"></div>
+          <div>
+            <strong>Тени прошлого</strong>
+            <p class="profile-meta">Автор · интерактивная · 18+</p>
+          </div>
+        </a>
+      </section>
+
+      <section id="tab-credits" hidden>
+        <a href="story-linear.html" class="work-row">
+          <div class="thumb cover-3"></div>
+          <div>
+            <strong>Письма из прошлого</strong>
+            <p class="profile-meta">Редактор · линейная · 16+</p>
+          </div>
+        </a>
+      </section>
+
+      <section id="tab-packs" hidden>
+        <article class="account-card">
+          <h3>Дождь и письма</h3>
+          <p class="profile-meta">Сборник читателя · 2 работы · открытый</p>
+        </article>
+      </section>
+
+      <section id="tab-feed" hidden>
+        <article class="feed-post">
+          <div class="kind">Анонс</div>
+          <p>Глава 3 «Тени прошлого» выйдет в пятницу. В ветке парка появится Никита.</p>
+          <p class="profile-meta">2 дня назад</p>
+        </article>
+        <article class="feed-post">
+          <div class="kind">Голосование</div>
+          <p>Какую концовку разобрать в разборе?</p>
+          <div class="poll-row"><span>Правда в кафе</span><b>62%</b></div>
+          <div class="poll-row"><span>Уход без ответа</span><b>38%</b></div>
+          <p class="profile-meta">Неделя назад · 840 голосов</p>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script>
+    document.querySelectorAll(".account-tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".account-tabs button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        ["works", "credits", "packs", "feed"].forEach((name) => {
+          document.getElementById("tab-" + name).hidden = name !== btn.dataset.tab;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

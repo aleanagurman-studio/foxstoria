@@ -29,6 +29,52 @@ const ICON_SPRITE = `<svg xmlns="http://www.w3.org/2000/svg" style="position:abs
   document.head.appendChild(link);
 })();
 
+(function ensureAccountStyles() {
+  if (document.querySelector('link[href="account.css"], link[href$="/account.css"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "account.css";
+  document.head.appendChild(link);
+})();
+
+document.addEventListener("DOMContentLoaded", function mountAccountMenu() {
+  const actions = document.querySelector(".header-actions") || document.querySelector(".editor-header");
+  if (!actions || document.getElementById("account-menu")) return;
+
+  actions.querySelectorAll("a.btn-ghost, a.btn-primary").forEach((el) => {
+    const text = el.textContent.replace(/\s+/g, " ").trim();
+    if (text === "Войти" || text === "Регистрация") el.hidden = true;
+  });
+
+  const wrap = document.createElement("div");
+  wrap.className = "account-menu";
+  wrap.id = "account-menu";
+  wrap.innerHTML = `
+    <button type="button" class="account-menu-btn" aria-expanded="false" aria-label="Профиль">
+      <span class="header-avatar" aria-hidden="true"></span>
+    </button>
+    <div class="account-dd">
+      <div class="dd-kicker">Аккаунт</div>
+      <a href="profile.html">Профиль</a>
+      <a href="messages.html">Сообщения</a>
+      <a href="author-home.html">Кабинет автора</a>
+      <a href="library.html">Кабинет читателя</a>
+      <a href="settings.html">Настройки</a>
+    </div>`;
+  actions.appendChild(wrap);
+
+  const btn = wrap.querySelector(".account-menu-btn");
+  btn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const open = wrap.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  document.addEventListener("click", () => {
+    wrap.classList.remove("open");
+    btn.setAttribute("aria-expanded", "false");
+  });
+});
+
 document.addEventListener("click", (event) => {
   const toggle = event.target.closest("#theme-toggle");
   if (!toggle) return;
