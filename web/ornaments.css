@@ -1,0 +1,169 @@
+/* Foxtoria ornament pack — used on every page */
+
+.orn-ico {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  object-fit: contain;
+  vertical-align: -0.2em;
+  flex-shrink: 0;
+}
+.orn-ico-lg { width: 28px; height: 28px; }
+
+#ornament-layer {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+#ornament-layer img { position: absolute; user-select: none; }
+.orn-corner-tl { top: 68px; left: 6px; width: 92px; opacity: 0.42; }
+.orn-moon-tr { top: 70px; right: 10px; width: 78px; opacity: 0.4; }
+.orn-star-tr { top: 148px; right: 88px; width: 22px; opacity: 0.55; }
+.orn-spark-bl { bottom: 28px; left: 18px; width: 42px; opacity: 0.35; }
+.orn-tail-br { bottom: -6px; right: 8px; width: 72px; opacity: 0.5; }
+.orn-leaf-ml { top: 46%; left: 10px; width: 28px; opacity: 0.28; }
+
+.header,
+.layout,
+.work-page,
+.account-layout,
+.studio-layout,
+.reader,
+.editor-layout,
+.main {
+  position: relative;
+  z-index: 1;
+}
+
+.divider {
+  min-height: 36px;
+  background: url("assets/ornaments/33_line_star_divider.svg") center / min(420px, 92%) no-repeat;
+}
+.divider::before,
+.divider::after,
+.divider .ico { display: none !important; }
+
+.divider.dotted {
+  background-image: url("assets/ornaments/34_dotted_star_divider.svg");
+}
+
+.divider-tail {
+  width: min(280px, 80%);
+  height: 56px;
+  margin: 8px auto 28px;
+  background: url("assets/ornaments/35_curly_divider.svg") center / contain no-repeat;
+}
+
+.ribbon {
+  width: 18px;
+  height: 28px;
+  background: url("assets/ornaments/32_bookmark_orange.svg") center / contain no-repeat;
+  clip-path: none;
+  box-shadow: none;
+}
+.ribbon .ico { display: none; }
+
+.work-bookmark {
+  width: 22px;
+  height: 32px;
+  background: url("assets/ornaments/32_bookmark_orange.svg") center / contain no-repeat;
+  clip-path: none;
+}
+
+.hero-sparkles {
+  width: 88px;
+  height: 88px;
+  background: url("assets/ornaments/moon-stars.svg") center / contain no-repeat;
+}
+.hero-sparkles .ico { display: none; }
+
+.sidebar-fox {
+  min-height: 110px;
+  background: url("assets/ornaments/01_fox_tailmark.svg") center / contain no-repeat;
+}
+.sidebar-fox .ico { display: none; }
+
+.card-ornament::before,
+.card-ornament::after {
+  width: 36px;
+  height: 36px;
+  background: url("assets/ornaments/frame-moon-corner.svg") no-repeat center / contain;
+  opacity: 0.55;
+}
+
+.quote-card::before {
+  width: 22px;
+  height: 22px;
+  background: url("assets/ornaments/moon-stars.svg") center / contain no-repeat;
+}
+
+.graph-card .fox-wrap {
+  width: 70px;
+  height: 90px;
+  background: url("assets/ornaments/01_fox_tailmark.svg") right bottom / contain no-repeat;
+}
+
+.logo-mark {
+  background-image: url("assets/ornaments/01_fox_tailmark.svg");
+}
+
+.profile-ava {
+  position: relative;
+}
+.profile-ava::after {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  background: url("assets/ornaments/41_moon_wreath.svg") center / contain no-repeat;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.hero .hero-bg {
+  background-image:
+    url("assets/ornaments/39_orange_scribble.svg"),
+    url("assets/ornaments/40_dotted_orbit.svg");
+  background-repeat: no-repeat;
+  background-position: right 8% top 10%, left 6% bottom 8%;
+  background-size: 160px, 120px;
+  opacity: 0.35;
+}
+
+.btn-primary .orn-book {
+  width: 20px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.circle-btn[aria-label="В избранное"] .ico { display: none; }
+.circle-btn[aria-label="В избранное"] {
+  background-image: url("assets/ornaments/32_bookmark_orange.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 18px;
+}
+
+.work-stats .orn-ico { width: 16px; height: 16px; }
+
+.author-card,
+.account-card,
+.studio-card,
+.work-card {
+  position: relative;
+}
+.collection-card {
+  background-image: url("assets/ornaments/08_open_book.svg");
+  background-repeat: no-repeat;
+  background-position: right 12px bottom 8px;
+  background-size: 56px;
+}
+
+body.editor-page #ornament-layer { display: none; }
+
+@media (max-width: 800px) {
+  .orn-corner-tl,
+  .orn-moon-tr,
+  .orn-leaf-ml { display: none; }
+}

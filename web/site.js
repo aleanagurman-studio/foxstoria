@@ -37,6 +37,14 @@ const ICON_SPRITE = `<svg xmlns="http://www.w3.org/2000/svg" style="position:abs
   document.head.appendChild(link);
 })();
 
+(function ensureOrnamentStyles() {
+  if (document.querySelector('link[href="ornaments.css"], link[href$="/ornaments.css"]')) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "ornaments.css";
+  document.head.appendChild(link);
+})();
+
 document.addEventListener("DOMContentLoaded", function mountAccountMenu() {
   const actions = document.querySelector(".header-actions") || document.querySelector(".editor-header");
   if (!actions || document.getElementById("account-menu")) return;
@@ -81,4 +89,46 @@ document.addEventListener("click", (event) => {
   const html = document.documentElement;
   const isDark = html.getAttribute("data-theme") === "dark";
   html.setAttribute("data-theme", isDark ? "light" : "dark");
+});
+
+document.addEventListener("DOMContentLoaded", function decorateOrnaments() {
+  if (document.getElementById("ornament-layer")) return;
+  const layer = document.createElement("div");
+  layer.id = "ornament-layer";
+  layer.setAttribute("aria-hidden", "true");
+  layer.innerHTML = `
+    <img class="orn-corner-tl" src="assets/ornaments/frame-moon-corner.svg" alt="">
+    <img class="orn-moon-tr" src="assets/ornaments/moon-stars.svg" alt="">
+    <img class="orn-star-tr" src="assets/ornaments/09_star_orange.svg" alt="">
+    <img class="orn-spark-bl" src="assets/ornaments/14_sparkle_cluster.svg" alt="">
+    <img class="orn-tail-br" src="assets/ornaments/01_fox_tailmark.svg" alt="">
+    <img class="orn-leaf-ml" src="assets/ornaments/15_leaves_orange.svg" alt="">`;
+  document.body.appendChild(layer);
+
+  document.querySelectorAll(".section-header h2").forEach((heading, index) => {
+    if (heading.parentElement.querySelector(".orn-section")) return;
+    const img = document.createElement("img");
+    img.className = "orn-ico orn-section";
+    img.alt = "";
+    img.src = index % 2 === 0
+      ? "assets/ornaments/09_star_orange.svg"
+      : "assets/ornaments/38_feather.svg";
+    heading.prepend(img);
+  });
+
+  document.querySelectorAll(".divider-tail").forEach((el) => {
+    if (el.nextElementSibling && el.nextElementSibling.classList.contains("orn-vine")) return;
+    const vine = document.createElement("img");
+    vine.className = "orn-vine";
+    vine.alt = "";
+    vine.src = "assets/ornaments/36_botanical_vine.svg";
+    vine.style.cssText = "display:block;width:min(420px,86%);height:36px;margin:0 auto 24px;object-fit:contain;opacity:0.7";
+    el.after(vine);
+  });
+
+  document.querySelectorAll(".circle-btn[aria-label='Ещё'], button.circle-btn").forEach((btn) => {
+    if (btn.id === "theme-toggle") return;
+    if (btn.textContent.trim() !== "⋯") return;
+    btn.innerHTML = '<img class="orn-ico" src="assets/ornaments/03_more.svg" alt="">';
+  });
 });
