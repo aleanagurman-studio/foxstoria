@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мои истории — FoxStoria</title>
+  <title>Моя лента — FoxStoria</title>
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,24 +30,21 @@
     </aside>
     <main class="main page-main">
       <header class="page-header">
-        <h1>Мои истории</h1>
-        <p>Работы, где вы автор, соавтор или редактор.</p>
+        <h1>Моя лента</h1>
+        <p>Обновления блогов, авторов, отдельных работ и сборников, на которые вы подписаны. Можно смотреть всё сразу или по категориям.</p>
       </header>
       <div class="account-tabs" data-account-tabs>
-        <button type="button" class="active" data-tab="all">Все</button>
-        <button type="button" data-tab="author">Автор</button>
-        <button type="button" data-tab="coauthor">Соавтор</button>
-        <button type="button" data-tab="editor">Редактор</button>
+        <button type="button" class="active" data-tab="all">Вся лента</button>
+        <button type="button" data-tab="authors">Авторы</button>
+        <button type="button" data-tab="blogs">Блоги</button>
+        <button type="button" data-tab="works">Работы</button>
+        <button type="button" data-tab="packs">Сборники</button>
       </div>
-      <section id="tab-all">
-        <div class="empty-feed">
-          <p>Когда появится первая история, она откроется отсюда в кабинет и редактор.</p>
-          <p><a href="studio.html" class="btn btn-primary">Новая история</a></p>
-        </div>
-      </section>
-      <section id="tab-author" hidden><div class="empty-feed"><p>Здесь будут истории, где вы указаны автором.</p></div></section>
-      <section id="tab-coauthor" hidden><div class="empty-feed"><p>Здесь будут истории, где вы соавтор.</p></div></section>
-      <section id="tab-editor" hidden><div class="empty-feed"><p>Здесь будут истории, которые вы редактируете.</p></div></section>
+      <section id="tab-all"><div class="empty-feed"><p>Лента подписок появится, когда вы начнёте следить за авторами, работами и сборниками.</p></div></section>
+      <section id="tab-authors" hidden><div class="empty-feed"><p>Обновления авторов, на которых вы подписаны, появятся здесь.</p></div></section>
+      <section id="tab-blogs" hidden><div class="empty-feed"><p>Новые записи из блогов авторов появятся здесь.</p></div></section>
+      <section id="tab-works" hidden><div class="empty-feed"><p>Главы и правки по отслеживаемым работам появятся здесь.</p></div></section>
+      <section id="tab-packs" hidden><div class="empty-feed"><p>Обновления сборников, на которые вы подписаны, появятся здесь.</p></div></section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>

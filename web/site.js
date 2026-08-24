@@ -69,6 +69,27 @@ function hydrateUserLinks(root = document) {
   });
 }
 
+function currentTab(file = currentPage()) {
+  const have = new URLSearchParams(location.search).get("tab");
+  if (have) return have;
+  if (file === "library.html") return "likes";
+  if (file === "feed.html" || file === "replies.html" || file === "reviews.html" || file === "author-home.html") return "all";
+  return "";
+}
+
+function ddOn(href) {
+  try {
+    const url = new URL(href, location.href);
+    const file = url.pathname.split("/").pop() || "index.html";
+    if (currentPage() !== file) return "";
+    const want = url.searchParams.get("tab");
+    if (want) return want === currentTab(file) ? " class=\"active\"" : "";
+    return " class=\"active\"";
+  } catch {
+    return "";
+  }
+}
+
 function headerMarkup() {
   const page = currentPage();
   const on = (href) => (page === href ? " active" : "");
@@ -117,12 +138,12 @@ function headerMarkup() {
               <strong>Ивент</strong>
               <span>Осенний марафон историй уже открыт</span>
             </a>
-            <a href="library.html">
-              <strong>Кабинет читателя</strong>
+            <a href="feed.html">
+              <strong>Моя лента</strong>
               <span>Работа из подписок вышла из черновика</span>
             </a>
-            <a href="author-home.html">
-              <strong>Кабинет автора</strong>
+            <a href="reviews.html">
+              <strong>Отзывы</strong>
               <span>Новый отзыв к вашей истории</span>
             </a>
           </div>
@@ -144,19 +165,23 @@ function headerMarkup() {
           <img src="assets/deco/fox.svg" alt="">
         </button>
         <div class="account-dd" hidden>
-          <a href="index.html">Главное</a>
-          <a href="stories-interactive.html">Интерактивные</a>
-          <a href="stories-linear.html">Линейные</a>
-          <a href="authors.html">Авторы</a>
-          <a href="collections.html">Сборники</a>
-          <a href="news.html">Новости</a>
-          <a href="news.html?compose=1" data-owner-only hidden>Новый пост</a>
+          <a href="feed.html"${ddOn("feed.html")}>Моя лента</a>
+          <a href="blog.html"${ddOn("blog.html")}>Мой блог</a>
+          <a href="profile.html"${ddOn("profile.html")}>Мой профиль</a>
+          <a href="replies.html"${ddOn("replies.html")}>Комментарии</a>
           <span class="dd-sep"></span>
-          <a href="profile.html">Мой профиль</a>
-          <a href="messages.html">Сообщения</a>
-          <a href="author-home.html">Кабинет автора</a>
-          <a href="library.html">Кабинет читателя</a>
-          <a href="settings.html">Настройки</a>
+          <a href="studio.html"${ddOn("studio.html")}>Новая история</a>
+          <a href="author-home.html"${ddOn("author-home.html")}>Мои истории</a>
+          <a href="reviews.html"${ddOn("reviews.html")}>Отзывы</a>
+          <a href="changes.html"${ddOn("changes.html")}>Изменения</a>
+          <span class="dd-sep"></span>
+          <a href="library.html?tab=likes"${ddOn("library.html?tab=likes")}>Понравившиеся</a>
+          <a href="library.html?tab=packs"${ddOn("library.html?tab=packs")}>Сборники</a>
+          <a href="library.html?tab=authors"${ddOn("library.html?tab=authors")}>Любимые авторы</a>
+          <a href="library.html?tab=read"${ddOn("library.html?tab=read")}>Прочитанные работы</a>
+          <span class="dd-sep"></span>
+          <a href="support.html"${ddOn("support.html")}>Написать в поддержку</a>
+          <a href="settings.html"${ddOn("settings.html")}>Настройки</a>
           <button type="button" class="dd-signout" data-signout>Выйти</button>
         </div>
       </div>
@@ -343,16 +368,39 @@ document.addEventListener("DOMContentLoaded", function messagesPage() {
 });
 
 document.addEventListener("DOMContentLoaded", function accountTabs() {
-  const tabs = document.querySelectorAll(".account-tabs [data-tab]");
-  if (!tabs.length) return;
-  tabs.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      tabs.forEach((other) => other.classList.toggle("active", other === btn));
-      [...tabs].forEach((tab) => {
-        const name = tab.getAttribute("data-tab");
-        const panel = document.getElementById("tab-" + name);
-        if (panel) panel.hidden = name !== btn.getAttribute("data-tab");
+  document.querySelectorAll(".account-tabs").forEach((nav) => {
+    const tabs = [...nav.querySelectorAll("[data-tab]")];
+    if (!tabs.length) return;
+    const syncUrl = nav.hasAttribute("data-account-tabs");
+    const names = tabs.map((tab) => tab.getAttribute("data-tab"));
+    function show(name, push) {
+      tabs.forEach((tab) => tab.classList.toggle("active", tab.getAttribute("data-tab") === name));
+      names.forEach((id) => {
+        const panel = document.getElementById("tab-" + id);
+        if (panel) panel.hidden = id !== name;
       });
+      if (syncUrl && push) {
+        const url = new URL(location.href);
+        url.searchParams.set("tab", name);
+        history.replaceState({}, "", url.pathname + url.search + url.hash);
+      }
+    }
+    const fromUrl = syncUrl ? new URLSearchParams(location.search).get("tab") : "";
+    const initial = names.includes(fromUrl) ? fromUrl : names[0];
+    show(initial, false);
+    tabs.forEach((btn) => {
+      btn.addEventListener("click", () => show(btn.getAttribute("data-tab"), true));
     });
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function supportForm() {
+  const form = document.querySelector("[data-support-form]");
+  if (!form) return;
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    form.hidden = true;
+    const done = document.querySelector("[data-support-done]");
+    if (done) done.hidden = false;
   });
 });

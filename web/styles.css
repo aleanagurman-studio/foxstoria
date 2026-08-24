@@ -395,7 +395,9 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  width: 220px;
+  width: 268px;
+  max-height: min(72vh, 580px);
+  overflow: auto;
   padding: 10px;
   background: var(--white);
   border: 1px solid var(--border);
@@ -413,6 +415,7 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   height: 1px;
   margin: 6px 8px;
   background: var(--sand);
+  flex-shrink: 0;
 }
 
 .account-dd a {
@@ -423,7 +426,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   color: var(--chestnut-dark);
 }
 
-.account-dd a:hover { background: var(--paper); color: var(--fox); }
+.account-dd a:hover,
+.account-dd a.active { background: var(--paper); color: var(--fox); }
 
 .dd-signout {
   padding: 8px 10px;
@@ -898,6 +902,7 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   flex: 1 0 100%;
   min-height: 72px;
   display: grid;
+  gap: 12px;
   place-items: start;
   text-align: left;
   padding: 4px 0 12px;
@@ -2318,6 +2323,21 @@ textarea {
 
 .settings-block input[type="password"],
 .settings-block input[type="email"] { width: 100%; margin-bottom: 10px; }
+
+.settings-block[data-support-form] label {
+  display: grid;
+  gap: 8px;
+  justify-content: stretch;
+  border-bottom: 0;
+  margin-bottom: 12px;
+}
+
+.settings-block[data-support-form] input,
+.settings-block[data-support-form] textarea {
+  width: 100%;
+  margin: 0;
+  resize: vertical;
+}
 
 .msg-layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; min-height: 420px; }
 

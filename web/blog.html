@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мои истории — FoxStoria</title>
+  <title>Мой блог — FoxStoria</title>
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,24 +30,13 @@
     </aside>
     <main class="main page-main">
       <header class="page-header">
-        <h1>Мои истории</h1>
-        <p>Работы, где вы автор, соавтор или редактор.</p>
+        <h1>Мой блог</h1>
+        <p>Личный блог: анонсы, заметки и голосования. Подписчики увидят записи в своей ленте.</p>
       </header>
-      <div class="account-tabs" data-account-tabs>
-        <button type="button" class="active" data-tab="all">Все</button>
-        <button type="button" data-tab="author">Автор</button>
-        <button type="button" data-tab="coauthor">Соавтор</button>
-        <button type="button" data-tab="editor">Редактор</button>
+      <div class="empty-feed">
+        <p>Здесь появятся ваши записи. Блог есть у каждого пользователя, не только у авторов.</p>
+        <p><button type="button" class="btn btn-primary" disabled>Новая запись</button></p>
       </div>
-      <section id="tab-all">
-        <div class="empty-feed">
-          <p>Когда появится первая история, она откроется отсюда в кабинет и редактор.</p>
-          <p><a href="studio.html" class="btn btn-primary">Новая история</a></p>
-        </div>
-      </section>
-      <section id="tab-author" hidden><div class="empty-feed"><p>Здесь будут истории, где вы указаны автором.</p></div></section>
-      <section id="tab-coauthor" hidden><div class="empty-feed"><p>Здесь будут истории, где вы соавтор.</p></div></section>
-      <section id="tab-editor" hidden><div class="empty-feed"><p>Здесь будут истории, которые вы редактируете.</p></div></section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
