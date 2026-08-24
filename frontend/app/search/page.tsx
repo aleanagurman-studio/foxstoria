@@ -1,15 +1,20 @@
 import Link from "next/link";
 import { StoryCard } from "@/components/cards";
 import { CatalogLayout, EmptyState, SiteHeader } from "@/components/layout";
-import { fetchStories, fetchTaxonomy } from "@/lib/api";
+import { TaxChecklist } from "@/components/tax-checklist";
+import { asSlugList, fetchStories, fetchTaxonomy } from "@/lib/api";
 
 interface SearchPageProps {
   searchParams: Promise<{
     q?: string;
-    genre?: string;
-    format?: string;
-    warning?: string;
-    kink?: string;
+    genre?: string | string[];
+    genres?: string | string[];
+    format?: string | string[];
+    formats?: string | string[];
+    warning?: string | string[];
+    warnings?: string | string[];
+    kink?: string | string[];
+    kinks?: string | string[];
     story_type?: string;
     age_rating?: string;
     is_paid?: string;
@@ -21,13 +26,17 @@ interface SearchPageProps {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const taxonomy = await fetchTaxonomy();
+  const genres = [...asSlugList(params.genres), ...asSlugList(params.genre)];
+  const formats = [...asSlugList(params.formats), ...asSlugList(params.format)];
+  const warnings = [...asSlugList(params.warnings), ...asSlugList(params.warning)];
+  const kinks = [...asSlugList(params.kinks), ...asSlugList(params.kink)];
 
   const stories = await fetchStories({
     q: params.q,
-    genre: params.genre,
-    format: params.format,
-    warning: params.warning,
-    kink: params.kink,
+    genres,
+    formats,
+    warnings,
+    kinks,
     story_type: params.story_type as "linear" | "interactive" | undefined,
     age_rating: params.age_rating,
     is_paid: params.is_paid === "true" ? true : params.is_paid === "false" ? false : undefined,
@@ -42,7 +51,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <CatalogLayout activePath="/search">
         <header className="page-header">
           <h1>Поиск работ</h1>
-          <p>Фильтры по типу, жанрам, предупреждениям, формату и возрасту. Кинки — только у 18+.</p>
+          <p>Базовые фильтры сверху. Ниже — расширенный поиск: можно отметить несколько жанров, форматов, предупреждений и кинков.</p>
         </header>
 
         <form className="filter-panel" action="/search" method="get">
@@ -57,50 +66,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <option value="">Любой</option>
                 <option value="interactive">Интерактивная</option>
                 <option value="linear">Линейная</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="genre">Жанр</label>
-              <select id="genre" name="genre" defaultValue={params.genre ?? ""}>
-                <option value="">Любой</option>
-                {taxonomy.genres.map((g) => (
-                  <option key={g.id} value={g.slug}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="format">Формат</label>
-              <select id="format" name="format" defaultValue={params.format ?? ""}>
-                <option value="">Любой</option>
-                {taxonomy.formats.map((item) => (
-                  <option key={item.id} value={item.slug}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="warning">Предупреждение</label>
-              <select id="warning" name="warning" defaultValue={params.warning ?? ""}>
-                <option value="">Любое</option>
-                {taxonomy.warnings.map((item) => (
-                  <option key={item.id} value={item.slug}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="kink">Кинк</label>
-              <select id="kink" name="kink" defaultValue={params.kink ?? ""}>
-                <option value="">Любой</option>
-                {taxonomy.kinks.map((item) => (
-                  <option key={item.id} value={item.slug}>
-                    {item.name}
-                  </option>
-                ))}
               </select>
             </div>
             <div className="filter-group">
@@ -138,7 +103,31 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </select>
             </div>
           </div>
-          <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+
+          <section className="filter-advanced">
+            <h2>Расширенный поиск</h2>
+            <p>Работа попадёт в выдачу, если в ней есть хотя бы один выбранный пункт в каждой группе. Кинки учитываются у работ 18+.</p>
+            <div className="filter-advanced-grid">
+              <div className="filter-group filter-group-wide">
+                <label>Жанры</label>
+                <TaxChecklist name="genres" items={taxonomy.genres} selected={genres} placeholder="Найти жанр…" />
+              </div>
+              <div className="filter-group filter-group-wide">
+                <label>Форматы</label>
+                <TaxChecklist name="formats" items={taxonomy.formats} selected={formats} placeholder="Найти формат…" />
+              </div>
+              <div className="filter-group filter-group-wide">
+                <label>Предупреждения</label>
+                <TaxChecklist name="warnings" items={taxonomy.warnings} selected={warnings} placeholder="Найти предупреждение…" />
+              </div>
+              <div className="filter-group filter-group-wide">
+                <label>Кинки</label>
+                <TaxChecklist name="kinks" items={taxonomy.kinks} selected={kinks} placeholder="Найти кинк…" />
+              </div>
+            </div>
+          </section>
+
+          <div className="filter-actions">
             <button type="submit" className="btn btn-primary">Найти</button>
             <Link href="/search" className="btn btn-outline">Сбросить</Link>
           </div>

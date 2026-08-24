@@ -162,6 +162,40 @@ function sortWorks(works, sort) {
   return copy.sort((a, b) => (b.plays || 0) - (a.plays || 0) || (b.rating || 0) - (a.rating || 0));
 }
 
+function slugsFromParams(params, plural, singular) {
+  return [
+    ...new Set(
+      [...params.getAll(plural), ...(singular ? params.getAll(singular) : [])]
+        .flatMap((value) => String(value).split(","))
+        .map((slug) => slug.trim())
+        .filter(Boolean)
+    ),
+  ];
+}
+
+function workSlugs(work, keys) {
+  for (const key of keys) {
+    const value = work[key];
+    if (!value) continue;
+    if (Array.isArray(value)) {
+      return value.map((item) => (typeof item === "string" ? item : item.slug)).filter(Boolean);
+    }
+    if (typeof value === "string") {
+      return value
+        .split(",")
+        .map((slug) => slug.trim())
+        .filter(Boolean);
+    }
+  }
+  return [];
+}
+
+function matchesAnySlug(work, keys, selected) {
+  if (!selected.length) return true;
+  const set = new Set(workSlugs(work, keys));
+  return selected.some((slug) => set.has(slug));
+}
+
 function renderCatalogGrid(allWorks) {
   const root = document.querySelector("[data-feed='catalog']");
   if (!root) return;
@@ -187,6 +221,26 @@ function renderCatalogGrid(allWorks) {
   if (status === "in_progress") works = works.filter((work) => !work.is_completed);
   const size = params.get("size");
   if (size) works = works.filter((work) => work.work_size === size);
+  const genreSlugs = slugsFromParams(params, "genres", "genre");
+  const formatSlugs = slugsFromParams(params, "formats", "format");
+  const warningSlugs = slugsFromParams(params, "warnings", "warning");
+  const kinkSlugs = slugsFromParams(params, "kinks", "kink");
+  if (genreSlugs.length) {
+    works = works.filter((work) => matchesAnySlug(work, ["genres", "genre_slugs", "genre"], genreSlugs));
+  }
+  if (formatSlugs.length) {
+    works = works.filter((work) => matchesAnySlug(work, ["formats", "format_slugs", "format"], formatSlugs));
+  }
+  if (warningSlugs.length) {
+    works = works.filter((work) => matchesAnySlug(work, ["warnings", "warning_slugs", "warning"], warningSlugs));
+  }
+  if (kinkSlugs.length) {
+    works = works.filter((work) => {
+      const age = work.age || work.age_rating;
+      if (age !== "18+") return false;
+      return matchesAnySlug(work, ["kinks", "kink_slugs", "kink"], kinkSlugs);
+    });
+  }
   const empty =
     type === "linear"
       ? "Линейные истории появятся здесь после публикации."

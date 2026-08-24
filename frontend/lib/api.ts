@@ -74,10 +74,23 @@ export interface AuthorListResponse {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-export async function fetchStories(params: Record<string, string | number | boolean | undefined> = {}) {
+export function asSlugList(value?: string | string[]): string[] {
+  if (!value) return [];
+  const parts = Array.isArray(value) ? value : [value];
+  return [...new Set(parts.flatMap((item) => item.split(",")).map((slug) => slug.trim()).filter(Boolean))];
+}
+
+export async function fetchStories(
+  params: Record<string, string | number | boolean | string[] | undefined> = {}
+) {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== "") search.set(key, String(value));
+    if (value === undefined || value === "") continue;
+    if (Array.isArray(value)) {
+      if (value.length) search.set(key, value.join(","));
+      continue;
+    }
+    search.set(key, String(value));
   }
   const res = await fetch(`${API_BASE}/api/stories?${search}`, { next: { revalidate: 30 } });
   if (!res.ok) return { items: [], total: 0, page: 1, page_size: 20 } satisfies StoryListResponse;

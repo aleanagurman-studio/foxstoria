@@ -45,6 +45,22 @@ router = APIRouter(prefix="/api")
 # description, author notes, status, size.
 
 
+def _parse_slugs(*values: str | list[str] | None) -> list[str]:
+    slugs: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if value is None:
+            continue
+        parts = value if isinstance(value, list) else [value]
+        for part in parts:
+            for slug in str(part).split(","):
+                slug = slug.strip()
+                if slug and slug not in seen:
+                    seen.add(slug)
+                    slugs.append(slug)
+    return slugs
+
+
 def _sort_clause(sort: StorySort):
     mapping = {
         StorySort.POPULAR: Story.play_count.desc(),
@@ -139,9 +155,13 @@ async def list_stories(
     db: Annotated[AsyncSession, Depends(get_db)],
     story_type: StoryType | None = None,
     genre: str | None = None,
+    genres: Annotated[list[str] | None, Query()] = None,
     work_format: str | None = Query(None, alias="format"),
+    formats: Annotated[list[str] | None, Query()] = None,
     warning: str | None = None,
+    warnings: Annotated[list[str] | None, Query()] = None,
     kink: str | None = None,
+    kinks: Annotated[list[str] | None, Query()] = None,
     fandom: str | None = None,
     romance: RomanceOrientation | None = None,
     age_rating: AgeRating | None = None,
@@ -166,14 +186,18 @@ async def list_stories(
         query = query.where(Story.is_completed == is_completed)
     if q:
         query = query.where(Story.title.ilike(f"%{q}%"))
-    if genre:
-        query = query.join(Story.genres).where(Genre.slug == genre)
-    if work_format:
-        query = query.join(Story.formats).where(WorkFormat.slug == work_format)
-    if warning:
-        query = query.join(Story.warnings).where(ContentWarning.slug == warning)
-    if kink:
-        query = query.join(Story.kinks).where(Kink.slug == kink)
+    genre_slugs = _parse_slugs(genre, genres)
+    format_slugs = _parse_slugs(work_format, formats)
+    warning_slugs = _parse_slugs(warning, warnings)
+    kink_slugs = _parse_slugs(kink, kinks)
+    if genre_slugs:
+        query = query.where(Story.genres.any(Genre.slug.in_(genre_slugs)))
+    if format_slugs:
+        query = query.where(Story.formats.any(WorkFormat.slug.in_(format_slugs)))
+    if warning_slugs:
+        query = query.where(Story.warnings.any(ContentWarning.slug.in_(warning_slugs)))
+    if kink_slugs:
+        query = query.where(Story.kinks.any(Kink.slug.in_(kink_slugs)))
     if fandom:
         query = query.join(Story.fandom).where(Fandom.slug == fandom)
 

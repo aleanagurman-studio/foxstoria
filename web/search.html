@@ -35,7 +35,7 @@
     <main class="main page-main">
       <header class="page-header">
         <h1>Поиск работ</h1>
-        <p>Фильтры по типу, фандому, направленности, жанрам, предупреждениям и формату. Кинки — только у 18+.</p>
+        <p>Базовые фильтры сверху. Ниже — расширенный поиск: можно отметить несколько жанров, форматов, предупреждений и кинков, хоть все сразу.</p>
       </header>
       <form class="filter-panel" action="search.html">
         <div class="filter-grid">
@@ -52,34 +52,10 @@
             </select>
           </div>
           <div class="filter-group">
-            <label for="genre">Жанр</label>
-            <select id="genre" name="genre" data-tax-select="genres" data-empty="Любой">
-              <option value="">Любой</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="format">Формат</label>
-            <select id="format" name="format" data-tax-select="formats" data-empty="Любой">
-              <option value="">Любой</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="warning">Предупреждение</label>
-            <select id="warning" name="warning" data-tax-select="warnings" data-empty="Любое">
-              <option value="">Любое</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="kink-filter">Кинк</label>
-            <select id="kink-filter" name="kink" data-tax-select="kinks" data-empty="Любой">
-              <option value="">Любой</option>
-            </select>
-          </div>
-          <div class="filter-group">
             <label for="fandom">Фандом</label>
             <select id="fandom" name="fandom">
               <option value="">Любой</option>
-              <option>Ориджинал</option>
+              <option value="original">Ориджинал</option>
             </select>
           </div>
           <div class="filter-group">
@@ -119,6 +95,29 @@
             </select>
           </div>
         </div>
+
+        <section class="filter-advanced">
+          <h2>Расширенный поиск</h2>
+          <p>Работа попадёт в выдачу, если в ней есть хотя бы один выбранный пункт в каждой группе. Кинки учитываются у работ 18+.</p>
+          <div class="filter-advanced-grid">
+            <div class="filter-group filter-group-wide">
+              <label>Жанры</label>
+              <div class="tax-picker" data-tax-picker="genres" data-name="genres" data-list="all" data-placeholder="Найти жанр…"></div>
+            </div>
+            <div class="filter-group filter-group-wide">
+              <label>Форматы</label>
+              <div class="tax-picker" data-tax-picker="formats" data-name="formats" data-list="all" data-placeholder="Найти формат…"></div>
+            </div>
+            <div class="filter-group filter-group-wide">
+              <label>Предупреждения</label>
+              <div class="tax-picker" data-tax-picker="warnings" data-name="warnings" data-list="all" data-placeholder="Найти предупреждение…"></div>
+            </div>
+            <div class="filter-group filter-group-wide">
+              <label>Кинки</label>
+              <div class="tax-picker" data-tax-picker="kinks" data-name="kinks" data-list="all" data-placeholder="Найти кинк…"></div>
+            </div>
+          </div>
+        </section>
         <div class="filter-actions">
           <button type="submit" class="btn btn-primary">Найти</button>
           <a href="search.html" class="btn btn-outline">Сбросить</a>
