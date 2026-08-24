@@ -229,6 +229,7 @@
   }
 
   let posts = [];
+  let activeCat = "all";
 
   function saveOverlay(mutator) {
     const overlay = loadJson(STORE, { extras: [], edits: {}, deleted: [] });
@@ -448,14 +449,38 @@
       </article>`;
   }
 
+  function visiblePosts() {
+    if (activeCat === "all") return posts;
+    return posts.filter((post) => (post.category || "") === activeCat);
+  }
+
   function renderFeed() {
     const feed = document.getElementById("news-feed");
     if (!feed) return;
+    const list = visiblePosts();
     if (!posts.length) {
       feed.innerHTML = `<div class="empty-feed"><p>Пока нет записей.</p></div>`;
       return;
     }
-    feed.innerHTML = posts.map(cardHTML).join("");
+    if (!list.length) {
+      feed.innerHTML = `<div class="empty-feed"><p>В этой рубрике пока нет записей.</p></div>`;
+      return;
+    }
+    feed.innerHTML = list.map(cardHTML).join("");
+  }
+
+  function bindCats() {
+    const nav = document.querySelector(".news-cats");
+    if (!nav) return;
+    nav.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-news-cat]");
+      if (!btn) return;
+      activeCat = btn.getAttribute("data-news-cat") || "all";
+      nav.querySelectorAll("[data-news-cat]").forEach((item) => {
+        item.classList.toggle("is-on", item === btn);
+      });
+      renderFeed();
+    });
   }
 
   function openCompose(post) {
@@ -719,6 +744,7 @@
     if (!document.getElementById("news-feed")) return;
     renderFeed();
     bindFeed();
+    bindCats();
     bindCompose();
     document.querySelector("[data-open-compose]")?.addEventListener("click", () => openCompose(null));
     const params = new URLSearchParams(location.search);

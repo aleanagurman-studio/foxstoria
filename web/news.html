@@ -30,11 +30,25 @@
       </div>
     </aside>
     <main class="main page-main">
-      <header class="page-header">
-        <h1>Новости</h1>
-        <p>Оповещения о важных обновлениях сайта и ивентах.</p>
-        <p><button type="button" class="btn btn-primary" data-owner-only hidden data-open-compose>Новый пост</button></p>
+      <header class="news-hero">
+        <div class="news-hero-copy">
+          <h1>Новости</h1>
+          <p>Оповещения о важных обновлениях сайта и ивентах.</p>
+          <p class="news-hero-actions">
+            <button type="button" class="btn btn-primary" data-owner-only hidden data-open-compose>Новый пост</button>
+          </p>
+        </div>
+        <div class="news-hero-art" aria-hidden="true">
+          <img src="assets/brand/news-desk.png" alt="">
+        </div>
       </header>
+
+      <nav class="news-cats" aria-label="Рубрики новостей">
+        <button type="button" class="news-cat-btn is-on" data-news-cat="all">Все новости</button>
+        <button type="button" class="news-cat-btn" data-news-cat="Анонсы">Анонсы</button>
+        <button type="button" class="news-cat-btn" data-news-cat="Обновления">Обновления</button>
+        <button type="button" class="news-cat-btn" data-news-cat="Ивенты">Ивенты</button>
+      </nav>
 
       <section class="news-compose" id="news-compose" hidden>
         <h2>Новый пост</h2>
@@ -43,9 +57,9 @@
             <div class="filter-group">
               <label for="news-category">Рубрика</label>
               <select id="news-category" name="category">
+                <option>Анонсы</option>
                 <option>Обновления</option>
                 <option>Ивенты</option>
-                <option>Анонсы</option>
               </select>
             </div>
             <div class="filter-group filter-group-wide">
