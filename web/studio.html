@@ -227,6 +227,25 @@
             </div>
             <p class="studio-hint">Без рейтинга — обычный текст. 16+ — лёгкие намёки. 18+ — соответствующий контент.</p>
           </div>
+          <div>
+            <label class="studio-label">Жанры</label>
+            <div class="tax-picker" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…" data-selected="drama,mistika"></div>
+            <p class="studio-hint">Несколько жанров из таблицы. Старые метки больше не используются.</p>
+          </div>
+          <div>
+            <label class="studio-label">Предупреждения</label>
+            <div class="tax-picker" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…"></div>
+          </div>
+          <div>
+            <label class="studio-label">Формат работы</label>
+            <div class="tax-picker" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…"></div>
+            <p class="studio-hint">Необязательно. Стихи, письма, чаты и другие формы текста.</p>
+          </div>
+          <div id="kink-fields" hidden>
+            <label class="studio-label">Кинки</label>
+            <div class="tax-picker" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…"></div>
+            <p class="studio-hint">Только для работ 18+.</p>
+          </div>
           <div class="studio-form-row">
             <div>
               <label class="studio-label" for="work-fandom">Фандом</label>
@@ -276,6 +295,7 @@
       </section>
     </main>
   </div>
+  <script src="taxonomy.js"></script>
   <script src="studio.js"></script>
 </body>
 </html>

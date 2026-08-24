@@ -11,10 +11,20 @@ export interface AuthorBrief {
   story_count: number;
 }
 
-export interface Genre {
+export interface Label {
   id: number;
   name: string;
   slug: string;
+  description?: string | null;
+}
+
+export interface Genre extends Label {}
+
+export interface Taxonomy {
+  genres: Label[];
+  formats: Label[];
+  warnings: Label[];
+  kinks: Label[];
 }
 
 export interface Story {
@@ -84,8 +94,15 @@ export async function fetchAuthors(params: Record<string, string | number | unde
   return res.json() as Promise<AuthorListResponse>;
 }
 
+export async function fetchTaxonomy() {
+  const res = await fetch(`${API_BASE}/api/taxonomy`, { next: { revalidate: 3600 } });
+  if (!res.ok) {
+    return { genres: [], formats: [], warnings: [], kinks: [] } satisfies Taxonomy;
+  }
+  return res.json() as Promise<Taxonomy>;
+}
+
 export async function fetchGenres() {
-  const res = await fetch(`${API_BASE}/api/genres`, { next: { revalidate: 3600 } });
-  if (!res.ok) return [] as Genre[];
-  return res.json() as Promise<Genre[]>;
+  const taxonomy = await fetchTaxonomy();
+  return taxonomy.genres;
 }

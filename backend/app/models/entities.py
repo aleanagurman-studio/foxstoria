@@ -96,8 +96,9 @@ class Genre(Base):
     __tablename__ = "genres"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(64), unique=True)
-    slug: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(128), unique=True)
+    slug: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     stories: Mapped[list["Story"]] = relationship(
         secondary="story_genres", back_populates="genres"
@@ -110,6 +111,71 @@ class StoryGenre(Base):
 
     story_id: Mapped[int] = mapped_column(ForeignKey("stories.id", ondelete="CASCADE"), primary_key=True)
     genre_id: Mapped[int] = mapped_column(ForeignKey("genres.id", ondelete="CASCADE"), primary_key=True)
+
+
+class WorkFormat(Base):
+    __tablename__ = "work_formats"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), unique=True)
+    slug: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    stories: Mapped[list["Story"]] = relationship(
+        secondary="story_formats", back_populates="formats"
+    )
+
+
+class StoryFormat(Base):
+    __tablename__ = "story_formats"
+    __table_args__ = (UniqueConstraint("story_id", "format_id"),)
+
+    story_id: Mapped[int] = mapped_column(ForeignKey("stories.id", ondelete="CASCADE"), primary_key=True)
+    format_id: Mapped[int] = mapped_column(ForeignKey("work_formats.id", ondelete="CASCADE"), primary_key=True)
+
+
+class ContentWarning(Base):
+    __tablename__ = "content_warnings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), unique=True)
+    slug: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    stories: Mapped[list["Story"]] = relationship(
+        secondary="story_warnings", back_populates="warnings"
+    )
+
+
+class StoryWarning(Base):
+    __tablename__ = "story_warnings"
+    __table_args__ = (UniqueConstraint("story_id", "warning_id"),)
+
+    story_id: Mapped[int] = mapped_column(ForeignKey("stories.id", ondelete="CASCADE"), primary_key=True)
+    warning_id: Mapped[int] = mapped_column(ForeignKey("content_warnings.id", ondelete="CASCADE"), primary_key=True)
+
+
+class Kink(Base):
+    """Only attached to 18+ works."""
+
+    __tablename__ = "kinks"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), unique=True)
+    slug: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    stories: Mapped[list["Story"]] = relationship(
+        secondary="story_kinks", back_populates="kinks"
+    )
+
+
+class StoryKink(Base):
+    __tablename__ = "story_kinks"
+    __table_args__ = (UniqueConstraint("story_id", "kink_id"),)
+
+    story_id: Mapped[int] = mapped_column(ForeignKey("stories.id", ondelete="CASCADE"), primary_key=True)
+    kink_id: Mapped[int] = mapped_column(ForeignKey("kinks.id", ondelete="CASCADE"), primary_key=True)
 
 
 class Fandom(Base):
@@ -169,6 +235,15 @@ class Story(Base):
     fandom: Mapped["Fandom"] = relationship(back_populates="stories")
     genres: Mapped[list["Genre"]] = relationship(
         secondary="story_genres", back_populates="stories"
+    )
+    formats: Mapped[list["WorkFormat"]] = relationship(
+        secondary="story_formats", back_populates="stories"
+    )
+    warnings: Mapped[list["ContentWarning"]] = relationship(
+        secondary="story_warnings", back_populates="stories"
+    )
+    kinks: Mapped[list["Kink"]] = relationship(
+        secondary="story_kinks", back_populates="stories"
     )
     credits: Mapped[list["StoryCredit"]] = relationship(
         cascade="all, delete-orphan"

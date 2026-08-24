@@ -55,11 +55,6 @@ export function SiteHeader({ activeNav }: { activeNav?: string }) {
 }
 
 export function CatalogSidebar({ activePath }: { activePath?: string }) {
-  const genres = [
-    "Фэнтези", "Романтика", "Драма", "Мистика",
-    "Приключения", "Sci-Fi", "Хоррор", "Повседневность",
-  ];
-
   return (
     <aside className="sidebar-left">
       <nav className="sidebar-nav">
@@ -73,17 +68,6 @@ export function CatalogSidebar({ activePath }: { activePath?: string }) {
         <Link href="/authors" className={activePath === "/authors" ? "active" : ""}>Авторы</Link>
         <Link href="/search" className={activePath === "/search" ? "active" : ""}>Поиск</Link>
       </nav>
-
-      <div style={{ marginTop: 28 }}>
-        <div className="sidebar-section-title">Жанры</div>
-        <div className="genres-list">
-          {genres.map((g) => (
-            <Link key={g} href={`/search?genre=${encodeURIComponent(g.toLowerCase())}`}>
-              {g}
-            </Link>
-          ))}
-        </div>
-      </div>
 
       <div style={{ marginTop: 20 }}>
         <div className="sidebar-section-title">Тип работы</div>

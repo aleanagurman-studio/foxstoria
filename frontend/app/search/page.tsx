@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { StoryCard } from "@/components/cards";
 import { CatalogLayout, EmptyState, SiteHeader } from "@/components/layout";
-import { fetchGenres, fetchStories } from "@/lib/api";
+import { fetchStories, fetchTaxonomy } from "@/lib/api";
 
 interface SearchPageProps {
   searchParams: Promise<{
     q?: string;
     genre?: string;
+    format?: string;
+    warning?: string;
+    kink?: string;
     story_type?: string;
     age_rating?: string;
     is_paid?: string;
@@ -17,11 +20,14 @@ interface SearchPageProps {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
-  const genres = await fetchGenres();
+  const taxonomy = await fetchTaxonomy();
 
   const stories = await fetchStories({
     q: params.q,
     genre: params.genre,
+    format: params.format,
+    warning: params.warning,
+    kink: params.kink,
     story_type: params.story_type as "linear" | "interactive" | undefined,
     age_rating: params.age_rating,
     is_paid: params.is_paid === "true" ? true : params.is_paid === "false" ? false : undefined,
@@ -36,7 +42,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <CatalogLayout activePath="/search">
         <header className="page-header">
           <h1>Поиск работ</h1>
-          <p>Фильтры по типу, жанру, возрасту и статусу публикации</p>
+          <p>Фильтры по типу, жанрам, предупреждениям, формату и возрасту. Кинки — только у 18+.</p>
         </header>
 
         <form className="filter-panel" action="/search" method="get">
@@ -57,9 +63,42 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <label htmlFor="genre">Жанр</label>
               <select id="genre" name="genre" defaultValue={params.genre ?? ""}>
                 <option value="">Любой</option>
-                {genres.map((g) => (
+                {taxonomy.genres.map((g) => (
                   <option key={g.id} value={g.slug}>
                     {g.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="format">Формат</label>
+              <select id="format" name="format" defaultValue={params.format ?? ""}>
+                <option value="">Любой</option>
+                {taxonomy.formats.map((item) => (
+                  <option key={item.id} value={item.slug}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="warning">Предупреждение</label>
+              <select id="warning" name="warning" defaultValue={params.warning ?? ""}>
+                <option value="">Любое</option>
+                {taxonomy.warnings.map((item) => (
+                  <option key={item.id} value={item.slug}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label htmlFor="kink">Кинк</label>
+              <select id="kink" name="kink" defaultValue={params.kink ?? ""}>
+                <option value="">Любой</option>
+                {taxonomy.kinks.map((item) => (
+                  <option key={item.id} value={item.slug}>
+                    {item.name}
                   </option>
                 ))}
               </select>
@@ -68,9 +107,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <label htmlFor="age_rating">Возраст</label>
               <select id="age_rating" name="age_rating" defaultValue={params.age_rating ?? ""}>
                 <option value="">Любой</option>
-                {["6+", "12+", "16+", "18+"].map((a) => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
+                <option value="none">Без рейтинга</option>
+                <option value="16+">16+</option>
+                <option value="18+">18+</option>
               </select>
             </div>
             <div className="filter-group">

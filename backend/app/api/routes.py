@@ -10,14 +10,17 @@ from app.database import get_db
 from app.models import (
     AgeRating,
     Author,
+    ContentWarning,
     Fandom,
     Genre,
+    Kink,
     RomanceOrientation,
     Story,
     StoryCredit,
     StoryCreditRole,
     StoryStatus,
     StoryType,
+    WorkFormat,
     work_size_for_chapters,
 )
 from app.schemas import (
@@ -26,10 +29,12 @@ from app.schemas import (
     AuthorListResponse,
     FandomBrief,
     GenreBrief,
+    LabelBrief,
     StoryCreate,
     StoryListItem,
     StoryListResponse,
     StorySort,
+    TaxonomyResponse,
 )
 
 router = APIRouter(prefix="/api")
@@ -84,6 +89,9 @@ def _story_item(story: Story) -> StoryListItem:
         editor=editor,
         coauthors=coauthors,
         genres=[GenreBrief.model_validate(g) for g in story.genres],
+        formats=[LabelBrief.model_validate(item) for item in story.formats],
+        warnings=[LabelBrief.model_validate(item) for item in story.warnings],
+        kinks=[LabelBrief.model_validate(item) for item in story.kinks] if story.age_rating == AgeRating.EIGHTEEN else [],
         published_at=story.published_at,
     )
 
@@ -92,6 +100,9 @@ def _story_load():
     return (
         selectinload(Story.author),
         selectinload(Story.genres),
+        selectinload(Story.formats),
+        selectinload(Story.warnings),
+        selectinload(Story.kinks),
         selectinload(Story.fandom),
         selectinload(Story.credits).selectinload(StoryCredit.author),
     )
@@ -100,6 +111,15 @@ def _story_load():
 @router.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@router.get("/taxonomy", response_model=TaxonomyResponse)
+async def list_taxonomy(db: AsyncSession = Depends(get_db)):
+    genres = (await db.execute(select(Genre).order_by(Genre.name))).scalars().all()
+    formats = (await db.execute(select(WorkFormat).order_by(WorkFormat.name))).scalars().all()
+    warnings = (await db.execute(select(ContentWarning).order_by(ContentWarning.name))).scalars().all()
+    kinks = (await db.execute(select(Kink).order_by(Kink.name))).scalars().all()
+    return TaxonomyResponse(genres=genres, formats=formats, warnings=warnings, kinks=kinks)
 
 
 @router.get("/genres", response_model=list[GenreBrief])
@@ -119,6 +139,9 @@ async def list_stories(
     db: Annotated[AsyncSession, Depends(get_db)],
     story_type: StoryType | None = None,
     genre: str | None = None,
+    work_format: str | None = Query(None, alias="format"),
+    warning: str | None = None,
+    kink: str | None = None,
     fandom: str | None = None,
     romance: RomanceOrientation | None = None,
     age_rating: AgeRating | None = None,
@@ -145,6 +168,12 @@ async def list_stories(
         query = query.where(Story.title.ilike(f"%{q}%"))
     if genre:
         query = query.join(Story.genres).where(Genre.slug == genre)
+    if work_format:
+        query = query.join(Story.formats).where(WorkFormat.slug == work_format)
+    if warning:
+        query = query.join(Story.warnings).where(ContentWarning.slug == warning)
+    if kink:
+        query = query.join(Story.kinks).where(Kink.slug == kink)
     if fandom:
         query = query.join(Story.fandom).where(Fandom.slug == fandom)
 
@@ -205,9 +234,21 @@ async def create_story(payload: StoryCreate, db: AsyncSession = Depends(get_db))
         status=StoryStatus.PUBLISHED,
     )
 
+    if payload.kink_slugs and payload.age_rating != AgeRating.EIGHTEEN:
+        raise HTTPException(status_code=400, detail="Kinks are only allowed on 18+ works")
+
     if payload.genre_slugs:
         genres_result = await db.execute(select(Genre).where(Genre.slug.in_(payload.genre_slugs)))
         story.genres = list(genres_result.scalars().all())
+    if payload.format_slugs:
+        formats_result = await db.execute(select(WorkFormat).where(WorkFormat.slug.in_(payload.format_slugs)))
+        story.formats = list(formats_result.scalars().all())
+    if payload.warning_slugs:
+        warnings_result = await db.execute(select(ContentWarning).where(ContentWarning.slug.in_(payload.warning_slugs)))
+        story.warnings = list(warnings_result.scalars().all())
+    if payload.kink_slugs:
+        kinks_result = await db.execute(select(Kink).where(Kink.slug.in_(payload.kink_slugs)))
+        story.kinks = list(kinks_result.scalars().all())
 
     db.add(story)
     await db.flush()

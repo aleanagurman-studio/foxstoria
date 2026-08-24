@@ -30,12 +30,17 @@ class AuthorBrief(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class GenreBrief(BaseModel):
+class LabelBrief(BaseModel):
     id: int
     name: str
     slug: str
+    description: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class GenreBrief(LabelBrief):
+    pass
 
 
 class FandomBrief(BaseModel):
@@ -76,6 +81,9 @@ class StoryListItem(BaseModel):
     editor: AuthorBrief | None = None
     coauthors: list[AuthorBrief] = Field(default_factory=list)
     genres: list[GenreBrief]
+    formats: list[LabelBrief] = Field(default_factory=list)
+    warnings: list[LabelBrief] = Field(default_factory=list)
+    kinks: list[LabelBrief] = Field(default_factory=list)
     published_at: datetime | None
 
     model_config = {"from_attributes": True}
@@ -106,6 +114,13 @@ class AuthorListResponse(BaseModel):
     total: int
 
 
+class TaxonomyResponse(BaseModel):
+    genres: list[LabelBrief]
+    formats: list[LabelBrief]
+    warnings: list[LabelBrief]
+    kinks: list[LabelBrief]
+
+
 class StoryCreate(BaseModel):
     title: str = Field(min_length=1, max_length=256)
     description: str | None = None
@@ -118,6 +133,9 @@ class StoryCreate(BaseModel):
     editor_id: int | None = None
     coauthor_ids: list[int] = Field(default_factory=list)
     genre_slugs: list[str] = Field(default_factory=list)
+    format_slugs: list[str] = Field(default_factory=list)
+    warning_slugs: list[str] = Field(default_factory=list)
+    kink_slugs: list[str] = Field(default_factory=list)
     cover_url: str | None = None
     is_paid: bool = False
     price: int | None = None
