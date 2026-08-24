@@ -3,483 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FoxStoria — Интерактивные истории</title>
+  <title>FoxStoria — Истории, в которых выбор имеет значение</title>
+  <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="ornaments.css">
   <script src="site.js"></script>
+  <script src="catalog.js" defer></script>
 </head>
 <body>
 
-  <!-- Header -->
   <header class="header">
     <a href="index.html" class="logo">
-      <span class="logo-mark" aria-hidden="true"></span>
-      <span class="logo-text">Fox<span>Storia</span></span>
+      <img src="assets/brand/logo.png" alt="">
+      <span>FoxStoria</span>
     </a>
 
     <nav class="nav-main">
-      <a href="stories-interactive.html">Интерактивные</a>
-      <a href="stories-linear.html">Линейные</a>
+      <a href="stories-interactive.html">Истории</a>
       <a href="authors.html">Авторы</a>
-      <a href="search.html">Поиск</a>
+      <a href="search.html">Сборники</a>
+      <a href="search.html">Блог</a>
     </nav>
 
     <form class="search-bar" action="search.html">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-      </svg>
-      <input type="search" name="q" placeholder="Найти историю, автора или тег…">
+      <img class="ink" src="assets/brand/search.png" alt="">
+      <input type="search" name="q" placeholder="Найти историю или автора…">
     </form>
 
     <div class="header-actions">
-      <button class="circle-btn" id="theme-toggle" aria-label="Переключить тему">
-        <svg class="ico"><use href="#i-moon"></use></svg>
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="Переключить тему">
+        <img class="ink" src="assets/brand/moon.png" alt="">
       </button>
-      <a href="#" class="circle-btn" aria-label="В избранное">
-        <svg class="ico"><use href="#i-bookmark"></use></svg>
-      </a>
-      <a href="#" class="btn btn-ghost">Войти</a>
-      <a href="#" class="btn btn-primary">
-        <svg class="ico"><use href="#i-book"></use></svg>
-        Регистрация
+      <a href="library.html" class="icon-btn" aria-label="Закладки">
+        <img class="ink" src="assets/brand/bookmark.png" alt="">
       </a>
     </div>
   </header>
 
   <div class="layout">
-
-    <!-- Left Sidebar -->
     <aside class="sidebar-left">
       <nav class="sidebar-nav">
         <a href="index.html" class="active">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          Главная
+          <img class="ink" src="assets/brand/paw.png" alt=""> Главное
         </a>
         <a href="stories-interactive.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          Интерактивные
+          <img class="ink" src="assets/brand/sparkle.png" alt=""> Интерактивные
         </a>
         <a href="stories-linear.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Линейные
+          <img class="ink" src="assets/brand/book.png" alt=""> Линейные
         </a>
         <a href="authors.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Авторы
-        </a>
-        <a href="search.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-          Поиск
+          <img class="ink" src="assets/brand/leaf.png" alt=""> Авторы
         </a>
         <a href="profile.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Профиль
+          <img class="ink" src="assets/brand/profile.png" alt=""> Профиль
         </a>
         <a href="author-home.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-          Кабинет автора
+          <img class="ink" src="assets/brand/upload.png" alt=""> Кабинет автора
         </a>
         <a href="library.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          Кабинет читателя
-        </a>
-        <a href="editor.html">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-          Подарки авторам
+          <img class="ink" src="assets/brand/bookmark.png" alt=""> Кабинет читателя
         </a>
       </nav>
 
       <div>
-        <div class="sidebar-section-title">Фандомы</div>
-        <div class="genres-list">
-          <a href="search.html">Ориджинал</a>
-          <a href="search.html">Архив луны</a>
-        </div>
-      </div>
-
-      <div>
-        <div class="sidebar-section-title">Жанры</div>
-        <div class="genres-list">
-          <a href="#">Фэнтези</a>
-          <a href="#">Романтика</a>
-          <a href="#">Драма</a>
-          <a href="#">Мистика</a>
-          <a href="#">Приключения</a>
-          <a href="#">Sci-Fi</a>
-          <a href="#">Хоррор</a>
-          <a href="#">Повседневность</a>
-          <a href="#">Показать все ▾</a>
-        </div>
-      </div>
-
-      <div>
         <div class="sidebar-section-title">Популярные теги</div>
         <div class="tags-cloud">
-          <a href="#" class="tag">Любовь</a>
-          <a href="#" class="tag">Академия</a>
-          <a href="#" class="tag">Вампиры</a>
-          <a href="#" class="tag">Магия</a>
-          <a href="#" class="tag">Дружба</a>
-          <a href="#" class="tag">Джен</a>
-          <a href="#" class="tag">Гет</a>
-          <a href="#" class="tag">Слэш</a>
-          <a href="#" class="tag">Фемслэш</a>
-          <a href="#" class="tag">16+</a>
-          <a href="#" class="tag">18+</a>
+          <a href="search.html" class="tag">Любовь</a>
+          <a href="search.html" class="tag">Магия</a>
+          <a href="search.html" class="tag">Детектив</a>
+          <a href="search.html" class="tag">Фэнтези</a>
+          <a href="search.html" class="tag">Драма</a>
+          <a href="search.html" class="tag">Джен</a>
+          <a href="search.html" class="tag">Гет</a>
+          <a href="search.html" class="tag">Слэш</a>
+          <a href="search.html" class="tag">16+</a>
+          <a href="search.html" class="tag">Ориджинал</a>
         </div>
       </div>
 
-      <div class="sidebar-fox" aria-hidden="true">
-        <svg class="ico" viewBox="0 0 48 32"><use href="#i-fox-sleep"></use></svg>
+      <div class="sidebar-ornament" aria-hidden="true">
+        <img class="ink" src="assets/brand/wreath.png" alt="">
       </div>
     </aside>
 
-    <!-- Main -->
     <main class="main">
-
-      <!-- Hero -->
       <section class="hero">
-        <div class="hero-bg"></div>
-        <div class="hero-sparkles" aria-hidden="true">
-          <svg class="ico"><use href="#i-spark"></use></svg>
-          <svg class="ico"><use href="#i-spark"></use></svg>
-          <svg class="ico"><use href="#i-moon"></use></svg>
-        </div>
         <div class="hero-content">
-          <h1>Истории, где выбор&nbsp;— это&nbsp;сюжет</h1>
-          <p>Интерактивные новеллы от талантливых авторов. Влияйте на судьбу героев и открывайте новые концовки.</p>
+          <h1>Истории, в которых<br>выбор действительно<br>имеет значение</h1>
+          <p>Интерактивные и линейные новеллы в тёплом книжном мире. Читайте, выбирайте путь и открывайте новые концовки.</p>
           <div class="hero-actions">
-            <a href="story-interactive.html" class="btn btn-primary">Тест: интерактивная</a>
-            <a href="story-linear.html" class="btn btn-outline">Тест: линейная</a>
+            <a href="search.html" class="btn btn-primary">Найти историю</a>
+            <a href="author-home.html" class="btn btn-ghost">Стать автором</a>
           </div>
         </div>
       </section>
 
-      <div class="divider" aria-hidden="true">
-        <svg class="ico"><use href="#i-spark"></use></svg>
-      </div>
-
-      <!-- Popular -->
       <section class="section">
         <div class="section-header">
           <h2>Популярное сейчас</h2>
-          <a href="stories-interactive.html" class="section-link">Смотреть все →</a>
+          <div class="section-tools">
+            <button type="button" class="icon-btn" data-scroll="#popular-feed" data-dir="prev" aria-label="Назад">
+              <img class="ink" src="assets/brand/prev.png" alt="">
+            </button>
+            <button type="button" class="icon-btn" data-scroll="#popular-feed" data-dir="next" aria-label="Вперёд">
+              <img class="ink" src="assets/brand/next.png" alt="">
+            </button>
+            <a href="search.html" class="section-link">Смотреть все</a>
+          </div>
         </div>
-        <div class="stories-row">
-
-          <article class="story-card">
-            <div class="story-cover cover-1">
-              <span class="story-rank">1</span>
-              <span class="ribbon"></span>
-            </div>
-            <div class="story-title"><a href="story-interactive.html">Тени прошлого</a></div>
-            <div class="story-meta">Ориджинал · Джен · драма</div>
-            <div class="story-stats">
-              <span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.9</span>
-              <span class="age-badge">16+</span>
-              <span class="status-badge">в процессе</span>
-            </div>
-          </article>
-
-          <article class="story-card">
-            <div class="story-cover cover-2">
-              <span class="story-rank">2</span>
-            </div>
-            <div class="story-title">Лесная тропа</div>
-            <div class="story-meta">Ориджинал · Джен · фэнтези</div>
-            <div class="story-stats">
-              <span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.8</span>
-              <span class="age-badge">без рейтинга</span>
-              <span class="status-badge">в процессе</span>
-            </div>
-          </article>
-
-          <article class="story-card">
-            <div class="story-cover cover-3">
-              <span class="story-rank">3</span>
-            </div>
-            <div class="story-title">Кофе на рассвете</div>
-            <div class="story-meta">Ориджинал · Гет · романтика</div>
-            <div class="story-stats">
-              <span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.7</span>
-              <span class="age-badge">16+</span>
-              <span class="status-badge">мини</span>
-            </div>
-          </article>
-
-          <article class="story-card">
-            <div class="story-cover cover-4">
-              <span class="story-rank">4</span>
-            </div>
-            <div class="story-title">Звёздный путь</div>
-            <div class="story-meta">Ориджинал · Джен · sci-fi</div>
-            <div class="story-stats">
-              <span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.6</span>
-              <span class="age-badge">без рейтинга</span>
-              <span class="status-badge">в процессе</span>
-            </div>
-          </article>
-
-          <article class="story-card">
-            <div class="story-cover cover-5">
-              <span class="story-rank">5</span>
-            </div>
-            <div class="story-title">Тайна особняка</div>
-            <div class="story-meta">Ориджинал · Гет · хоррор</div>
-            <div class="story-stats">
-              <span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.8</span>
-              <span class="age-badge age-18">18+</span>
-              <span class="status-badge">миди</span>
-            </div>
-          </article>
-
-          <article class="story-card">
-            <div class="story-cover cover-6">
-              <span class="story-rank">6</span>
-            </div>
-            <div class="story-title">Академия магии</div>
-            <div class="story-meta">Ориджинал · Слэш · фэнтези</div>
-            <div class="story-stats">
-              <span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.9</span>
-              <span class="age-badge">16+</span>
-              <span class="status-badge">в процессе</span>
-            </div>
-          </article>
-
-        </div>
+        <div class="stories-row" id="popular-feed" data-feed="popular"></div>
       </section>
 
-      <svg class="divider-tail" viewBox="0 0 40 24" aria-hidden="true"><use href="#i-fox-tail"></use></svg>
-
-      <!-- New + Readers choice -->
       <div class="two-col">
         <section class="section">
           <div class="section-header">
             <h2>Новинки</h2>
-            <a href="#" class="section-link">Все →</a>
+            <a href="search.html" class="section-link">Все</a>
           </div>
-          <div class="stories-row">
-            <article class="story-card">
-              <div class="story-cover cover-4">
-                <span class="badge-new">New</span>
-              </div>
-              <div class="story-title">Последний поезд</div>
-              <div class="story-meta">Ориджинал · Джен · 16+</div>
-              <div class="story-stats"><span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.5</span><span class="status-badge">в процессе</span></div>
-            </article>
-            <article class="story-card">
-              <div class="story-cover cover-2">
-                <span class="badge-new">New</span>
-              </div>
-              <div class="story-title">Сад за стеной</div>
-              <div class="story-meta">Ориджинал · Фемслэш · 16+</div>
-              <div class="story-stats"><span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.6</span><span class="status-badge">в процессе</span></div>
-            </article>
-            <article class="story-card">
-              <div class="story-cover cover-5">
-                <span class="badge-new">New</span>
-              </div>
-              <div class="story-title">Ночной дозор</div>
-              <div class="story-meta">Ориджинал · Джен · 18+</div>
-              <div class="story-stats"><span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.4</span><span class="status-badge">в процессе</span></div>
-            </article>
-          <article class="story-card">
-            <div class="story-cover cover-3">
-              <span class="badge-new">New</span>
-            </div>
-            <div class="story-title"><a href="story-linear.html">Письма из прошлого</a></div>
-              <div class="story-meta">Ориджинал · Гет · 16+</div>
-              <div class="story-stats"><span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.7</span><span class="status-badge">мини</span></div>
-            </article>
-          </div>
+          <div class="stories-row" data-feed="latest"></div>
         </section>
 
         <section class="section">
           <div class="section-header">
             <h2>Выбор читателей</h2>
           </div>
-          <article class="featured-card card-ornament">
-            <div class="featured-cover cover-1"></div>
-            <div class="featured-info">
-              <h3>Песня ветра</h3>
-              <p>Мир, где каждый выбор меняет судьбу. Пройдите путь героини через древний лес и раскройте тайну, скрытую веками.</p>
-              <div class="featured-stats">
-                <span>Ориджинал · Гет</span>
-                <span><strong>32.1K</strong> прохождений</span>
-                <span class="rating"><svg class="ico"><use href="#i-spark"></use></svg> 4.9</span>
-                <span class="age-badge">16+</span>
-                <span class="status-badge">в процессе</span>
-              </div>
-            </div>
-          </article>
+          <div data-feed="featured"></div>
         </section>
       </div>
 
-      <div class="divider dotted" aria-hidden="true">
-        <svg class="ico"><use href="#i-paw"></use></svg>
-      </div>
-
-      <!-- Collections -->
       <section class="section">
         <div class="section-header">
           <h2>Подборки для вас</h2>
-          <a href="#" class="section-link">Все подборки →</a>
+          <a href="search.html" class="section-link">Все подборки</a>
         </div>
         <div class="collections-row">
-          <a href="#" class="collection-card">
-            <div class="collection-icon"><svg class="ico"><use href="#i-heart"></use></svg></div>
+          <a href="search.html" class="collection-card">
+            <img class="ink" src="assets/brand/heart.png" alt="">
             <div>
               <h3>Истории о любви</h3>
-              <p>42 истории</p>
+              <p>Появится вместе с каталогом</p>
             </div>
           </a>
-          <a href="#" class="collection-card">
-            <div class="collection-icon"><svg class="ico"><use href="#i-moon"></use></svg></div>
+          <a href="search.html" class="collection-card">
+            <img class="ink" src="assets/brand/moon.png" alt="">
             <div>
               <h3>Тёмное фэнтези</h3>
-              <p>28 историй</p>
+              <p>Появится вместе с каталогом</p>
             </div>
           </a>
-          <a href="#" class="collection-card">
-            <div class="collection-icon"><svg class="ico"><use href="#i-spark"></use></svg></div>
+          <a href="search.html" class="collection-card">
+            <img class="ink" src="assets/brand/sparkle.png" alt="">
             <div>
               <h3>Академия и магия</h3>
-              <p>35 историй</p>
+              <p>Появится вместе с каталогом</p>
             </div>
           </a>
         </div>
       </section>
 
-      <!-- Features -->
       <section class="features-bar">
         <div class="feature-item">
-          <div class="feature-icon">
-            <svg class="ico ico-lg"><use href="#i-book"></use></svg>
-          </div>
+          <img class="ink" src="assets/brand/book.png" alt="">
           <div>
             <h4>Тысячи историй</h4>
-            <p>Бесплатные и платные интерактивные новеллы</p>
+            <p>Интерактивные и линейные новеллы в одном месте</p>
           </div>
         </div>
         <div class="feature-item">
-          <div class="feature-icon">
-            <svg class="ico ico-lg"><use href="#i-fox-tail"></use></svg>
-          </div>
+          <img class="ink" src="assets/brand/sparkle.png" alt="">
           <div>
             <h4>Интерактивный выбор</h4>
             <p>Влияйте на сюжет и открывайте концовки</p>
           </div>
         </div>
         <div class="feature-item">
-          <div class="feature-icon">
-            <svg class="ico ico-lg"><use href="#i-heart"></use></svg>
-          </div>
+          <img class="ink" src="assets/brand/heart.png" alt="">
           <div>
             <h4>Поддержка авторов</h4>
             <p>Подарки, покупки и подписки</p>
           </div>
         </div>
         <div class="feature-item">
-          <div class="feature-icon">
-            <svg class="ico ico-lg"><use href="#i-spark"></use></svg>
-          </div>
+          <img class="ink" src="assets/brand/paw.png" alt="">
           <div>
             <h4>На всех устройствах</h4>
-            <p>Web, Android и iOS — один прогресс</p>
+            <p>Один прогресс на web, Android и iOS</p>
           </div>
         </div>
       </section>
-
     </main>
 
-    <!-- Right Sidebar -->
     <aside class="sidebar-right">
-
       <div class="widget widget-welcome">
-        <svg class="welcome-decor" aria-hidden="true"><use href="#i-spark"></use></svg>
+        <img class="welcome-fox" src="assets/brand/fox-peek.jpg" alt="">
         <h3>Добро пожаловать в мир историй</h3>
-        <p>Читайте, выбирайте, поддерживайте авторов</p>
+        <p>Читайте, выбирайте путь и поддерживайте авторов</p>
         <div class="widget-welcome-actions">
-          <a href="#" class="btn btn-primary">
-            <svg class="ico"><use href="#i-paw"></use></svg>
-            Присоединиться
-          </a>
-          <a href="#" class="btn btn-soft">
-            <svg class="ico"><use href="#i-book"></use></svg>
-            Войти
-          </a>
+          <a href="#" class="btn btn-primary">Присоединиться</a>
+          <a href="#" class="btn btn-ghost">Войти</a>
         </div>
-        <svg class="widget-fox-peek" viewBox="0 0 48 32" aria-hidden="true"><use href="#i-fox-sleep"></use></svg>
       </div>
 
       <div class="widget">
         <div class="widget-title">
-          <svg class="ico"><use href="#i-leaf"></use></svg>
+          <img class="ink" src="assets/brand/leaf.png" alt="">
           Топ авторов
         </div>
-        <div class="author-item">
-          <span class="author-rank">1</span>
-          <div class="author-avatar cover-1"></div>
-          <div class="author-info">
-            <div class="author-name">Лунный странник</div>
-            <div class="author-stats"><span><svg class="ico"><use href="#i-spark"></use></svg> 4.9</span><span>12</span></div>
-          </div>
-        </div>
-        <div class="author-item">
-          <span class="author-rank">2</span>
-          <div class="author-avatar cover-2"></div>
-          <div class="author-info">
-            <div class="author-name">Тёмный лес</div>
-            <div class="author-stats"><span><svg class="ico"><use href="#i-spark"></use></svg> 4.8</span><span>8</span></div>
-          </div>
-        </div>
-        <div class="author-item">
-          <span class="author-rank">3</span>
-          <div class="author-avatar cover-4"></div>
-          <div class="author-info">
-            <div class="author-name">Звёздная пыль</div>
-            <div class="author-stats"><span><svg class="ico"><use href="#i-spark"></use></svg> 4.7</span><span>15</span></div>
-          </div>
-        </div>
-        <div class="author-item">
-          <span class="author-rank">4</span>
-          <div class="author-avatar cover-5"></div>
-          <div class="author-info">
-            <div class="author-name">Архив теней</div>
-            <div class="author-stats"><span><svg class="ico"><use href="#i-spark"></use></svg> 4.6</span><span>6</span></div>
-          </div>
-        </div>
+        <div data-feed="authors"></div>
       </div>
 
       <div class="widget">
         <div class="widget-title">
-          <svg class="ico"><use href="#i-moon"></use></svg>
+          <img class="ink" src="assets/brand/bell.png" alt="">
           Объявления
         </div>
         <div class="announce-item">
-          <div class="pendant"><svg class="ico"><use href="#i-heart"></use></svg></div>
+          <img class="ink" src="assets/brand/heart.png" alt="">
           <div>
             <h4>Подарки авторам</h4>
             <p>Поддержите любимых авторов виртуальными подарками</p>
           </div>
         </div>
         <div class="announce-item">
-          <div class="pendant"><svg class="ico"><use href="#i-spark"></use></svg></div>
+          <img class="ink" src="assets/brand/sparkle.png" alt="">
           <div>
             <h4>Новые достижения</h4>
-            <p>Зарабатывайте бейджи за прохождение историй</p>
+            <p>Бейджи за прохождение историй появятся вместе с кабинетом читателя</p>
           </div>
         </div>
       </div>
-
-      <div class="widget widget-book" aria-hidden="true">
-        <div class="divider-tail"></div>
-      </div>
-
     </aside>
   </div>
+
+  <footer class="page-footer">
+    <img src="assets/brand/banner-footer.jpg" alt="">
+  </footer>
+
+  <button type="button" class="to-top" id="to-top" aria-label="Наверх" hidden>
+    <img class="ink" src="assets/brand/chevron.png" alt="">
+  </button>
+
+  <script>
+    const toTop = document.getElementById("to-top");
+    window.addEventListener("scroll", () => {
+      toTop.hidden = window.scrollY < 400;
+    });
+    toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  </script>
 </body>
 </html>
