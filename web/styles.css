@@ -498,7 +498,7 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   overflow: hidden;
   background: var(--backing);
   border-radius: 20px;
-  padding: 22px 96px 20px 22px;
+  padding: 22px 0 20px 22px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -531,6 +531,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 }
 
 .welcome-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -549,11 +551,13 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .welcome-fox {
   position: absolute;
-  right: 0;
+  left: calc(22px + 168px - 8px);
   bottom: 0;
-  height: 220px;
-  width: 120px;
-  object-fit: cover;
+  z-index: 0;
+  height: 250px;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
   object-position: left bottom;
   pointer-events: none;
 }
