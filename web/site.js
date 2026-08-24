@@ -70,13 +70,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   if (!header) return;
   header.innerHTML = headerMarkup();
   syncAuthChrome();
-  if (document.querySelector(".layout") && !document.querySelector(".page-corner")) {
-    const corner = document.createElement("div");
-    corner.className = "page-corner";
-    corner.setAttribute("aria-hidden", "true");
-    corner.innerHTML = '<img src="assets/deco/уголок.svg" alt="">';
-    document.body.appendChild(corner);
-  }
+  document.querySelectorAll(".page-corner").forEach((el) => el.remove());
 
   const footer = document.querySelector(".page-footer");
   if (footer && !footer.querySelector(".footer-inner")) {

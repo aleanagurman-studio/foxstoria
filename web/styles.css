@@ -406,28 +406,6 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .sidebar-ornament { display: none; }
 
-.page-corner {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 300px;
-  height: 300px;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 6;
-}
-
-.page-corner img {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 300px;
-  height: 414px;
-  max-width: none;
-  object-fit: cover;
-  object-position: left bottom;
-}
-
 .sidebar-nav a {
   display: flex;
   align-items: center;
@@ -507,6 +485,11 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   grid-template-columns: minmax(0, 1fr) 300px;
   gap: 24px;
   align-items: start;
+  overflow: visible;
+}
+
+.hero-row:has(#welcome-card:not([hidden])) {
+  padding-right: 128px;
 }
 
 .hero-row:has(#welcome-card[hidden]) {
@@ -515,10 +498,11 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .welcome-card {
   position: relative;
-  overflow: hidden;
+  z-index: 2;
+  overflow: visible;
   background: var(--paper);
   border-radius: 20px;
-  padding: 22px 108px 20px 22px;
+  padding: 22px 22px 20px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -565,11 +549,11 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .welcome-fox {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  height: 188px;
+  left: calc(100% - 8px);
+  right: auto;
+  bottom: -10px;
+  height: 198px;
   width: auto;
-  transform: scaleX(-1);
   pointer-events: none;
 }
 
@@ -756,6 +740,24 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   font-size: 14px;
 }
 
+.home-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 36px 48px;
+  align-items: start;
+}
+
+.home-main {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  min-width: 0;
+}
+
+.news-col .tile-grid {
+  grid-template-columns: 1fr;
+}
+
 .two-col {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
@@ -852,6 +854,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 }
 
 .features-bar {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
@@ -993,9 +997,10 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .page-footer {
   position: relative;
-  margin-top: 0;
-  overflow: hidden;
-  background: var(--cream);
+  min-height: 220px;
+  margin-top: -48px;
+  overflow: visible;
+  background: transparent;
 }
 
 .page-footer::after {
@@ -1007,9 +1012,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   background: linear-gradient(
     90deg,
     var(--cream) 0%,
-    var(--cream) 28%,
-    color-mix(in srgb, var(--cream) 78%, transparent) 48%,
-    color-mix(in srgb, var(--cream) 22%, transparent) 72%,
+    color-mix(in srgb, var(--cream) 88%, transparent) 38%,
+    color-mix(in srgb, var(--cream) 28%, transparent) 62%,
     transparent 100%
   );
 }
@@ -1020,8 +1024,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   right: 0;
   bottom: 0;
   z-index: 0;
-  width: min(920px, 70vw);
-  height: 320px;
+  height: 280px;
+  width: min(620px, 48vw);
   max-width: none;
   pointer-events: none;
   object-fit: cover;
@@ -1033,10 +1037,11 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   z-index: 2;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   gap: 20px 48px;
-  padding: 18px 32px 16px 176px;
-  max-width: 900px;
+  min-height: 220px;
+  padding: 40px 40px 28px;
+  max-width: 64%;
 }
 
 .footer-copy {
@@ -1118,18 +1123,22 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
     padding: 16px;
   }
   .sidebar-left { display: none; }
+  .home-split,
   .two-col,
   .features-bar,
   .collections-row,
   .tile-grid { grid-template-columns: 1fr; }
   .hero { padding: 28px 22px; min-height: 260px; background-position: 70% center; }
-  .hero-row { grid-template-columns: 1fr; }
+  .hero-row,
+  .hero-row:has(#welcome-card:not([hidden])) {
+    grid-template-columns: 1fr;
+    padding-right: 0;
+  }
   .hero-content { max-width: 100%; }
-  .page-corner { width: 180px; height: 180px; }
-  .page-corner img { width: 180px; height: 248px; }
+  .welcome-card { margin: 0 80px 12px 0; }
   .footer-art,
-  .footer-art-img { width: min(100%, 420px); height: 180px; }
-  .footer-inner { padding: 16px 20px 14px; }
+  .footer-art-img { max-width: min(100%, 420px); height: 180px; }
+  .footer-inner { padding: 28px 20px 20px; max-width: none; min-height: 180px; }
 }
 
 /* Shared leftovers used by other pages until they are restyled */
