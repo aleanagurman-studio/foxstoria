@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="site.js"></script>
+  <script src="news.js"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -31,16 +32,49 @@
     <main class="main page-main">
       <header class="page-header">
         <h1>Новости</h1>
-        <p>Записи блога. Маленькая обложка слева — тексты появятся позже.</p>
+        <p>Оповещения о важных обновлениях сайта и ивентах.</p>
+        <p><button type="button" class="btn btn-primary" data-owner-only hidden data-open-compose>Новый пост</button></p>
       </header>
-      <div class="tile-grid">
-        <article class="tile-card"><div class="tile-image"><img src="assets/deco/leaf.svg" alt=""></div><div><h3>Новость</h3><p>Обложка появится вместе с текстом</p></div></article>
-        <article class="tile-card"><div class="tile-image"><img src="assets/deco/перо.svg" alt=""></div><div><h3>Новость</h3><p>Обложка появится вместе с текстом</p></div></article>
-        <article class="tile-card"><div class="tile-image"><img src="assets/deco/sparcle.svg" alt=""></div><div><h3>Новость</h3><p>Обложка появится вместе с текстом</p></div></article>
-        <article class="tile-card"><div class="tile-image"><img src="assets/deco/heart.svg" alt=""></div><div><h3>Новость</h3><p>Обложка появится вместе с текстом</p></div></article>
-        <article class="tile-card"><div class="tile-image"><img src="assets/deco/paw.svg" alt=""></div><div><h3>Новость</h3><p>Обложка появится вместе с текстом</p></div></article>
-        <article class="tile-card"><div class="tile-image"><img src="assets/deco/fox.svg" alt=""></div><div><h3>Новость</h3><p>Обложка появится вместе с текстом</p></div></article>
-      </div>
+
+      <section class="news-compose" id="news-compose" hidden>
+        <h2>Новый пост</h2>
+        <form>
+          <div class="filter-grid">
+            <div class="filter-group">
+              <label for="news-category">Рубрика</label>
+              <select id="news-category" name="category">
+                <option>Обновления</option>
+                <option>Ивенты</option>
+                <option>Анонсы</option>
+              </select>
+            </div>
+            <div class="filter-group filter-group-wide">
+              <label for="news-title">Название</label>
+              <input id="news-title" name="title" type="text" required placeholder="Новая версия редактора…">
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Обложка</label>
+            <input type="file" accept="image/*" data-cover-input>
+            <img data-cover-preview alt="" hidden>
+          </div>
+          <div class="filter-group">
+            <label>Текст</label>
+            <div class="news-editor-toolbar">
+              <label class="btn btn-outline">Вставить картинку в текст
+                <input type="file" accept="image/*" hidden data-insert-image>
+              </label>
+            </div>
+            <div id="news-editor" class="news-editor" contenteditable="true" data-placeholder="Текст поста. Картинку можно вставить в любое место."></div>
+          </div>
+          <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">Опубликовать</button>
+            <button type="button" class="btn btn-outline" data-cancel>Отмена</button>
+          </div>
+        </form>
+      </section>
+
+      <div id="news-feed" class="news-feed"></div>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>

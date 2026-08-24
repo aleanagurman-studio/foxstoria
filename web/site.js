@@ -9,6 +9,10 @@ function isSignedIn() {
   return localStorage.getItem("foxtoria-signed-in") === "1";
 }
 
+function isSiteOwner() {
+  return isSignedIn();
+}
+
 function currentPage() {
   const file = location.pathname.split("/").pop();
   return file && file !== "" ? file : "index.html";
@@ -57,6 +61,7 @@ function headerMarkup() {
           <a href="authors.html">Авторы</a>
           <a href="collections.html">Сборники</a>
           <a href="news.html">Новости</a>
+          <a href="news.html?compose=1" data-owner-only hidden>Новый пост</a>
           <span class="dd-sep"></span>
           <a href="profile.html">Мой профиль</a>
           <a href="messages.html">Сообщения</a>
@@ -125,6 +130,9 @@ function syncAuthChrome() {
   if (guest) guest.hidden = signed;
   if (menu) menu.hidden = !signed;
   if (welcome) welcome.hidden = signed;
+  document.querySelectorAll("[data-owner-only]").forEach((el) => {
+    el.hidden = !isSiteOwner();
+  });
 }
 
 document.addEventListener("click", (event) => {
