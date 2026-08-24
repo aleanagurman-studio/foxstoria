@@ -100,10 +100,49 @@
     return [...extra, ...fromFile].sort((a, b) => String(b.date).localeCompare(String(a.date)));
   }
 
+  function commentId() {
+    return `c-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function localComments(postId) {
+    const all = loadJson(COMMENTS, {});
+    const list = all[postId] || [];
+    let dirty = false;
+    const next = list.map((item) => {
+      if (item.id) return item;
+      dirty = true;
+      return { ...item, id: commentId() };
+    });
+    if (dirty) {
+      all[postId] = next;
+      saveJson(COMMENTS, all);
+    }
+    return next;
+  }
+
   function commentsFor(id) {
-    const seed = posts.find((post) => post.id === id)?.comments || [];
-    const extra = loadJson(COMMENTS, {})[id] || [];
-    return [...seed, ...extra];
+    const seed = (posts.find((post) => post.id === id)?.comments || []).map((item, index) => ({
+      ...item,
+      id: item.id || `seed-${id}-${index}`,
+    }));
+    return [...seed, ...localComments(id)];
+  }
+
+  function isOwnComment(item) {
+    return signed() && item.author === "Вы";
+  }
+
+  function saveLocalComments(postId, list) {
+    const all = loadJson(COMMENTS, {});
+    all[postId] = list;
+    saveJson(COMMENTS, all);
+  }
+
+  function refreshComments(card, id) {
+    const list = card.querySelector("[data-comment-list]");
+    if (list) list.innerHTML = renderComments(id);
+    const count = card.querySelector("[data-open-comments] span");
+    if (count) count.textContent = String(commentCount(id));
   }
 
   function commentAvatar(item) {
@@ -212,18 +251,59 @@
     if (!items.length) return `<p class="news-comment-empty">Пока нет комментариев. Напишите первый.</p>`;
     return `<div class="news-comment-list">${items
       .map((item) => {
-        const own = item.own || item.author === "Вы";
+        const own = isOwnComment(item);
+        const stamp = `${item.edited ? "изм. " : ""}${item.when || ""}`;
         return `
-        <article class="news-comment${own ? " is-own" : ""}">
+        <article class="news-comment${own ? " is-own" : ""}" data-comment-id="${escapeHtml(item.id)}">
           <img class="news-comment-ava" src="${escapeHtml(commentAvatar(item))}" alt="">
           <div class="news-comment-bubble">
-            <strong>${escapeHtml(item.author || "Читатель")}</strong>
+            <div class="news-comment-head">
+              <strong>${escapeHtml(item.author || "Читатель")}</strong>
+              ${
+                own
+                  ? `<span class="news-comment-tools">
+                      <button type="button" data-comment-edit>Изменить</button>
+                      <button type="button" data-comment-delete>Удалить</button>
+                    </span>`
+                  : ""
+              }
+            </div>
             <p>${escapeHtml(item.text)}</p>
-            <time>${escapeHtml(item.when || "")}</time>
+            <time>${escapeHtml(stamp)}</time>
           </div>
         </article>`;
       })
       .join("")}</div>`;
+  }
+
+  function beginCommentEdit(article) {
+    if (article.querySelector("[data-comment-save]")) return;
+    const bubble = article.querySelector(".news-comment-bubble");
+    const p = bubble?.querySelector("p");
+    const tools = bubble?.querySelector(".news-comment-tools");
+    const time = bubble?.querySelector("time");
+    if (!p || !bubble) return;
+    p.hidden = true;
+    if (tools) tools.hidden = true;
+    if (time) time.hidden = true;
+    article.classList.add("is-editing");
+    const form = document.createElement("form");
+    form.setAttribute("data-comment-save", "");
+    form.className = "news-comment-edit";
+    const ta = document.createElement("textarea");
+    ta.name = "text";
+    ta.required = true;
+    ta.rows = 3;
+    ta.value = p.textContent || "";
+    const actions = document.createElement("div");
+    actions.className = "news-comment-edit-actions";
+    actions.innerHTML = `
+      <button type="submit" class="news-text-link">Сохранить</button>
+      <button type="button" class="news-text-link" data-comment-cancel>Отмена</button>`;
+    form.append(ta, actions);
+    p.after(form);
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
   }
 
   function cardHTML(post) {
@@ -369,6 +449,24 @@
         expandCard(card, true);
         return;
       }
+      if (event.target.closest("[data-comment-edit]")) {
+        beginCommentEdit(event.target.closest(".news-comment"));
+        return;
+      }
+      if (event.target.closest("[data-comment-cancel]")) {
+        refreshComments(card, id);
+        return;
+      }
+      if (event.target.closest("[data-comment-delete]")) {
+        const commentId = event.target.closest(".news-comment")?.getAttribute("data-comment-id");
+        if (!commentId || !confirm("Удалить комментарий?")) return;
+        saveLocalComments(
+          id,
+          localComments(id).filter((item) => item.id !== commentId)
+        );
+        refreshComments(card, id);
+        return;
+      }
       if (event.target.closest("[data-edit]")) {
         const post = posts.find((item) => item.id === id);
         openCompose(post);
@@ -386,6 +484,24 @@
       }
     });
     feed.addEventListener("submit", (event) => {
+      const editForm = event.target.closest("[data-comment-save]");
+      if (editForm) {
+        event.preventDefault();
+        const card = editForm.closest(".news-post");
+        const article = editForm.closest(".news-comment");
+        const id = card.getAttribute("data-id");
+        const commentId = article?.getAttribute("data-comment-id");
+        const text = editForm.text.value.trim();
+        if (!text || !commentId) return;
+        saveLocalComments(
+          id,
+          localComments(id).map((item) =>
+            item.id === commentId ? { ...item, text, edited: true, when: formatCommentWhen() } : item
+          )
+        );
+        refreshComments(card, id);
+        return;
+      }
       const form = event.target.closest("[data-comment-form]");
       if (!form) return;
       event.preventDefault();
@@ -393,21 +509,18 @@
       const id = card.getAttribute("data-id");
       const text = form.text.value.trim();
       if (!text) return;
-      const all = loadJson(COMMENTS, {});
-      all[id] = [
-        ...(all[id] || []),
+      saveLocalComments(id, [
+        ...localComments(id),
         {
+          id: commentId(),
           author: "Вы",
           own: true,
           avatar: "assets/deco/fox.svg",
           text,
           when: formatCommentWhen(),
         },
-      ];
-      saveJson(COMMENTS, all);
-      card.querySelector("[data-comment-list]").innerHTML = renderComments(id);
-      const count = card.querySelector("[data-open-comments] span");
-      if (count) count.textContent = String(commentCount(id));
+      ]);
+      refreshComments(card, id);
       form.reset();
     });
   }
