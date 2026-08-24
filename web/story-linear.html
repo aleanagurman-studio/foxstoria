@@ -29,12 +29,12 @@
         <span class="genre-pill">ДРАМА</span>
         <h1>Письма из прошлого</h1>
         <div class="work-author-row">
-          <a href="profile.html">Звёздная пыль</a>
+          <a href="profile.html" data-user-name="Звёздная пыль">Звёздная пыль</a>
           <a href="#" class="sub">Подписаться</a>
         </div>
         <dl class="work-sheet">
-          <div><dt>Автор</dt><dd>Звёздная пыль</dd></div>
-          <div><dt>Редактор</dt><dd><a href="profile.html">Лунный странник</a></dd></div>
+          <div><dt>Автор</dt><dd data-user-name="Звёздная пыль">Звёздная пыль</dd></div>
+          <div><dt>Редактор</dt><dd><a href="profile.html" data-user-name="Лунный странник">Лунный странник</a></dd></div>
           <div><dt>Соавтор</dt><dd class="empty">нет</dd></div>
           <div><dt>Возраст</dt><dd>16+</dd></div>
           <div><dt>Фандом</dt><dd>Ориджинал</dd></div>
@@ -81,9 +81,9 @@
     <section class="work-lower">
       <div>
         <div class="work-card">
-          <div class="author-name">Звёздная пыль</div>
+          <div class="author-name" data-user-name="Звёздная пыль">Звёздная пыль</div>
           <p class="profile-meta">Пишет линейные новеллы в письмах.</p>
-          <a href="authors.html" class="section-link">К авторам</a>
+          <a href="profile.html" class="section-link" data-user-name="Звёздная пыль">К профилю</a>
         </div>
         <div class="work-card quote-card">«Если ты это читаешь, значит, я всё-таки решилась написать.»</div>
       </div>
@@ -112,7 +112,28 @@
           <p class="work-desc">Конверт без марки, адрес, которого нет, и три главы без развилок.</p>
         </div>
         <div data-work-panel="comments" hidden>
-          <p class="profile-meta">Комментарии появятся после аккаунтов.</p>
+          <div class="news-comment-list">
+            <article class="news-comment">
+              <img class="news-comment-ava" src="assets/brand/fox-peek.jpg" alt="">
+              <div class="news-comment-bubble">
+                <div class="news-comment-head">
+                  <strong data-user-name="Лиса с фонарём">Лиса с фонарём</strong>
+                </div>
+                <p>Письма читаются на одном дыхании. Спасибо за третью главу.</p>
+                <time>18/08/26</time>
+              </div>
+            </article>
+            <article class="news-comment">
+              <img class="news-comment-ava" src="assets/brand/logo-fox.png" alt="">
+              <div class="news-comment-bubble">
+                <div class="news-comment-head">
+                  <strong data-user-name="Звёздная пыль">Звёздная пыль</strong>
+                </div>
+                <p>Рада, что конверт нашёлся. Следующие письма будут короче.</p>
+                <time>18/08/26</time>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
       <div>

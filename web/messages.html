@@ -44,18 +44,30 @@
       </header>
       <div class="msg-layout">
         <div class="msg-list">
-          <button type="button" class="msg-item active">
-            <b>Лиса с фонарём</b>
+          <div class="msg-item active" data-thread="lisa">
+            <b data-user-name="Лиса с фонарём">Лиса с фонарём</b>
             <span>Спасибо за редактор — ветки больше не путаются.</span>
-          </button>
-          <button type="button" class="msg-item">
-            <b>Никита</b>
+          </div>
+          <div class="msg-item" data-thread="nikita">
+            <b data-user-name="Никита">Никита</b>
             <span>Когда открывается осенний марафон?</span>
-          </button>
+          </div>
         </div>
-        <div class="msg-thread">
-          <p class="msg-bubble">Спасибо за редактор — ветки больше не путаются.</p>
-          <p class="msg-bubble mine">Рада, что зашло. Если найдёте сбой, напишите сюда.</p>
+        <div class="msg-panes">
+          <div class="msg-thread" data-thread="lisa">
+            <div class="msg-thread-head">
+              <b data-user-name="Лиса с фонарём">Лиса с фонарём</b>
+            </div>
+            <p class="msg-bubble">Спасибо за редактор — ветки больше не путаются.</p>
+            <p class="msg-bubble mine">Рада, что зашло. Если найдёте сбой, напишите сюда.</p>
+          </div>
+          <div class="msg-thread" data-thread="nikita" hidden>
+            <div class="msg-thread-head">
+              <b data-user-name="Никита">Никита</b>
+            </div>
+            <p class="msg-bubble">Когда открывается осенний марафон?</p>
+            <p class="msg-bubble mine">С 1 сентября. Анонс уже в новостях.</p>
+          </div>
         </div>
       </div>
     </main>

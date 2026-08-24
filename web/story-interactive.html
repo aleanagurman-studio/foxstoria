@@ -29,11 +29,11 @@
         <span class="genre-pill">ДРАМА</span>
         <h1>Тени прошлого</h1>
         <div class="work-author-row">
-          <a href="profile.html">Лунный странник</a>
+          <a href="profile.html" data-user-name="Лунный странник">Лунный странник</a>
           <a href="#" class="sub">Подписаться</a>
         </div>
         <dl class="work-sheet">
-          <div><dt>Автор</dt><dd><a href="profile.html">Лунный странник</a></dd></div>
+          <div><dt>Автор</dt><dd><a href="profile.html" data-user-name="Лунный странник">Лунный странник</a></dd></div>
           <div><dt>Редактор</dt><dd class="empty">нет</dd></div>
           <div><dt>Соавтор</dt><dd class="empty">нет</dd></div>
           <div><dt>Возраст</dt><dd>16+</dd></div>
@@ -79,9 +79,9 @@
     <section class="work-lower">
       <div>
         <div class="work-card">
-          <div class="author-name">Лунный странник</div>
+          <div class="author-name" data-user-name="Лунный странник">Лунный странник</div>
           <p class="profile-meta">Драма и мистика. Пишет ветвящиеся новеллы о памяти и выборе.</p>
-          <a href="profile.html" class="section-link">К профилю</a>
+          <a href="profile.html" class="section-link" data-user-name="Лунный странник">К профилю</a>
         </div>
         <div class="work-card quote-card">«Небо было тёмным, когда начался дождь — и выбор ещё не был сделан.»</div>
       </div>
@@ -112,7 +112,28 @@
           <p class="work-desc">Город после дождя. Знакомое лицо на перекрёстке. Каждый выбор ведёт к другой правде.</p>
         </div>
         <div data-work-panel="comments" hidden>
-          <p class="profile-meta">Комментарии появятся после аккаунтов.</p>
+          <div class="news-comment-list">
+            <article class="news-comment">
+              <img class="news-comment-ava" src="assets/brand/welcome-fox.jpg" alt="">
+              <div class="news-comment-bubble">
+                <div class="news-comment-head">
+                  <strong data-user-name="Никита">Никита</strong>
+                </div>
+                <p>Кафе или парк — всё равно возвращаюсь к прологу.</p>
+                <time>24/08/26</time>
+              </div>
+            </article>
+            <article class="news-comment">
+              <img class="news-comment-ava" src="assets/brand/fox-peek.jpg" alt="">
+              <div class="news-comment-bubble">
+                <div class="news-comment-head">
+                  <strong data-user-name="Лиса с фонарём">Лиса с фонарём</strong>
+                </div>
+                <p>Третья концовка стоит того, чтобы пройти заново.</p>
+                <time>24/08/26</time>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
       <div>

@@ -291,13 +291,13 @@
         <img class="news-comment-ava" src="${escapeHtml(commentAvatar(item))}" alt="">
         <div class="news-comment-bubble">
           <div class="news-comment-head">
-            <strong>${escapeHtml(item.author || "Читатель")}</strong>
+            <strong>${userNameLink(item.author || "Читатель")}</strong>
             ${commentTools(item)}
           </div>
           ${
             parent
               ? `<div class="news-comment-quote">
-                  <strong>${escapeHtml(parent.author || "Читатель")}</strong>
+                  <strong>${userNameLink(parent.author || "Читатель")}</strong>
                   <span>${escapeHtml(truncateComment(parent.text))}</span>
                 </div>`
               : ""
@@ -351,8 +351,7 @@
       hint.setAttribute("data-reply-hint", "");
       form.prepend(hint);
     }
-    hint.innerHTML = `<span>Ответ для <strong></strong></span><button type="button" class="news-text-link" data-reply-cancel>Отмена</button>`;
-    hint.querySelector("strong").textContent = author;
+    hint.innerHTML = `<span>Ответ для ${userNameLink(author)}</span><button type="button" class="news-text-link" data-reply-cancel>Отмена</button>`;
     const ta = form.querySelector("textarea");
     ta?.focus();
     form.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -554,6 +553,7 @@
     feed.addEventListener("click", (event) => {
       const card = event.target.closest(".news-post");
       if (!card) return;
+      if (event.target.closest("a.user-link")) return;
       const id = card.getAttribute("data-id");
       if (event.target.closest("[data-save]")) {
         toggleSaved(id);

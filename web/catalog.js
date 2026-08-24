@@ -104,7 +104,7 @@ function renderAuthors(authors) {
     .slice(0, 5)
     .map(
       (author, index) => `
-      <a class="author-item" href="${escapeHtml(author.href || "authors.html")}">
+      <a class="author-item" href="${escapeHtml(author.href || profileHref(author.display_name))}">
         <span class="author-rank">${index + 1}</span>
         <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
         <span class="author-info">
@@ -260,7 +260,7 @@ function renderAuthorsGrid(authors) {
   root.innerHTML = authors
     .map(
       (author) => `
-      <a class="author-card" href="${escapeHtml(author.href || "profile.html")}">
+      <a class="author-card" href="${escapeHtml(author.href || profileHref(author.display_name))}">
         <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
         <span>
           <span class="author-name">${escapeHtml(author.display_name)}</span>

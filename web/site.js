@@ -18,6 +18,57 @@ function currentPage() {
   return file && file !== "" ? file : "index.html";
 }
 
+function profileSlug(name) {
+  return (
+    String(name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/ё/g, "е")
+      .replace(/[^a-zа-я0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "") || "user"
+  );
+}
+
+function isOwnUserName(name) {
+  const value = String(name || "").trim();
+  return !value || value === "Вы" || value === "Я";
+}
+
+function profileHref(name) {
+  if (isOwnUserName(name)) return "profile.html";
+  const display = String(name).trim();
+  const params = new URLSearchParams();
+  params.set("u", profileSlug(display));
+  params.set("n", display);
+  return `profile.html?${params.toString()}`;
+}
+
+function userNameLink(name, className = "user-link") {
+  const label = String(name || "Читатель").trim() || "Читатель";
+  const safe = (value) =>
+    String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  const cls = className ? ` class="${safe(className)}"` : "";
+  return `<a${cls} href="${safe(profileHref(label))}">${safe(label)}</a>`;
+}
+
+function hydrateUserLinks(root = document) {
+  root.querySelectorAll("[data-user-name]").forEach((el) => {
+    const name = (el.getAttribute("data-user-name") || el.textContent || "").trim();
+    if (!name) return;
+    if (el.tagName === "A") {
+      el.href = profileHref(name);
+      el.classList.add("user-link");
+      if (!el.textContent.trim()) el.textContent = name;
+      return;
+    }
+    el.innerHTML = userNameLink(name);
+  });
+}
+
 function headerMarkup() {
   const page = currentPage();
   const on = (href) => (page === href ? " active" : "");
@@ -250,6 +301,43 @@ document.addEventListener("DOMContentLoaded", function workTabs() {
       document.querySelectorAll("[data-work-panel]").forEach((panel) => {
         panel.hidden = panel.getAttribute("data-work-panel") !== name;
       });
+    });
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function publicProfile() {
+  hydrateUserLinks();
+  if (currentPage() !== "profile.html") return;
+  const params = new URLSearchParams(location.search);
+  const slug = (params.get("u") || "").trim();
+  const name = (params.get("n") || "").trim();
+  if (!slug && !name) return;
+  const display = name || slug.replace(/-/g, " ");
+  const handle = slug || profileSlug(display);
+  const title = document.querySelector(".profile-hero h1");
+  const meta = document.querySelector(".profile-meta");
+  if (title) title.textContent = display;
+  if (meta) meta.textContent = `@${handle}`;
+  const bio = document.querySelector(".profile-bio");
+  if (bio) bio.textContent = "Публичный профиль появится вместе с аккаунтами.";
+  document.title = `${display} — профиль — FoxStoria`;
+  const subnav = document.querySelector(".account-subnav");
+  if (subnav) subnav.hidden = true;
+  document.querySelector('.sidebar-nav a[href="profile.html"]')?.classList.remove("active");
+});
+
+document.addEventListener("DOMContentLoaded", function messagesPage() {
+  if (currentPage() !== "messages.html") return;
+  const list = document.querySelector(".msg-list");
+  if (!list) return;
+  list.addEventListener("click", (event) => {
+    if (event.target.closest("a")) return;
+    const item = event.target.closest(".msg-item");
+    if (!item) return;
+    const id = item.getAttribute("data-thread");
+    list.querySelectorAll(".msg-item").forEach((el) => el.classList.toggle("active", el === item));
+    document.querySelectorAll(".msg-thread").forEach((pane) => {
+      pane.hidden = pane.getAttribute("data-thread") !== id;
     });
   });
 });
