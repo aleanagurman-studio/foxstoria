@@ -17,7 +17,20 @@ from app.models.account import (
     UserSettings,
     ViewHistory,
 )
-from app.models.entities import Author, AuthorPlan, Genre, Story, StoryGenre, StoryStatus, StoryType
+from app.models.entities import (
+    AgeRating,
+    Author,
+    AuthorPlan,
+    Fandom,
+    Genre,
+    RomanceOrientation,
+    Story,
+    StoryGenre,
+    StoryStatus,
+    StoryType,
+    WorkSize,
+    work_size_for_chapters,
+)
 from app.models.studio import (
     AiJob,
     AiJobKind,
@@ -38,6 +51,7 @@ __all__ = [
     "Collection",
     "CollectionItem",
     "DirectMessage",
+    "Fandom",
     "Follow",
     "FollowTarget",
     "MessageParticipant",
@@ -51,6 +65,7 @@ __all__ = [
     "StoryLike",
     "UserSettings",
     "ViewHistory",
+    "AgeRating",
     "AiJob",
     "AiJobKind",
     "AiJobStatus",
@@ -60,6 +75,7 @@ __all__ = [
     "Character",
     "Genre",
     "NoteFolder",
+    "RomanceOrientation",
     "Scene",
     "SceneChoice",
     "Story",
@@ -70,4 +86,6 @@ __all__ = [
     "SummarySource",
     "TimelineEdge",
     "TimelineEvent",
+    "WorkSize",
+    "work_size_for_chapters",
 ]

@@ -29,6 +29,43 @@ class StoryStatus(str, enum.Enum):
     ARCHIVED = "archived"
 
 
+class AgeRating(str, enum.Enum):
+    """Public age mark. No 12+: either unmarked, 16+ hints, or 18+ content."""
+
+    NONE = "none"
+    SIXTEEN = "16+"
+    EIGHTEEN = "18+"
+
+
+class RomanceOrientation(str, enum.Enum):
+    SLASH = "slash"  # M/M
+    FEMSLASH = "femslash"  # F/F
+    HET = "het"  # M/F
+    GEN = "gen"  # no romance
+
+
+class WorkSize(str, enum.Enum):
+    """Set only after the work is completed. Counted in chapters."""
+
+    MINI = "mini"  # 1–20
+    MIDI = "midi"  # 21–50
+    MAXI = "maxi"  # 51+
+
+
+MINI_MAX_CHAPTERS = 20
+MIDI_MAX_CHAPTERS = 50
+
+
+def work_size_for_chapters(chapter_count: int | None) -> WorkSize | None:
+    if not chapter_count or chapter_count < 1:
+        return None
+    if chapter_count <= MINI_MAX_CHAPTERS:
+        return WorkSize.MINI
+    if chapter_count <= MIDI_MAX_CHAPTERS:
+        return WorkSize.MIDI
+    return WorkSize.MAXI
+
+
 class AuthorPlan(str, enum.Enum):
     """Plus unlocks AI chapter summaries and character extraction."""
 
@@ -75,6 +112,18 @@ class StoryGenre(Base):
     genre_id: Mapped[int] = mapped_column(ForeignKey("genres.id", ondelete="CASCADE"), primary_key=True)
 
 
+class Fandom(Base):
+    """Required on every work. Original works use the «Ориджинал» fandom."""
+
+    __tablename__ = "fandoms"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), unique=True)
+    slug: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+
+    stories: Mapped[list["Story"]] = relationship(back_populates="fandom")
+
+
 class Story(Base):
     __tablename__ = "stories"
 
@@ -82,6 +131,7 @@ class Story(Base):
     title: Mapped[str] = mapped_column(String(256), index=True)
     slug: Mapped[str] = mapped_column(String(256), unique=True, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    author_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     cover_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     story_type: Mapped[StoryType] = mapped_column(
         Enum(StoryType, native_enum=False), index=True
@@ -89,7 +139,18 @@ class Story(Base):
     status: Mapped[StoryStatus] = mapped_column(
         Enum(StoryStatus, native_enum=False), default=StoryStatus.DRAFT, index=True
     )
-    age_rating: Mapped[str] = mapped_column(String(8), default="12+")
+    age_rating: Mapped[AgeRating] = mapped_column(
+        Enum(AgeRating, native_enum=False), default=AgeRating.NONE, index=True
+    )
+    romance: Mapped[RomanceOrientation] = mapped_column(
+        Enum(RomanceOrientation, native_enum=False),
+        default=RomanceOrientation.GEN,
+        index=True,
+    )
+    fandom_id: Mapped[int] = mapped_column(ForeignKey("fandoms.id"), index=True)
+    work_size: Mapped[WorkSize | None] = mapped_column(
+        Enum(WorkSize, native_enum=False), nullable=True
+    )
     is_paid: Mapped[bool] = mapped_column(default=False)
     price: Mapped[int | None] = mapped_column(Integer, nullable=True)
     rating_avg: Mapped[float] = mapped_column(Float, default=0.0)
@@ -105,8 +166,12 @@ class Story(Base):
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     author: Mapped["Author"] = relationship(back_populates="stories")
+    fandom: Mapped["Fandom"] = relationship(back_populates="stories")
     genres: Mapped[list["Genre"]] = relationship(
         secondary="story_genres", back_populates="stories"
+    )
+    credits: Mapped[list["StoryCredit"]] = relationship(
+        cascade="all, delete-orphan"
     )
     chapters: Mapped[list["Chapter"]] = relationship(
         back_populates="story", cascade="all, delete-orphan"

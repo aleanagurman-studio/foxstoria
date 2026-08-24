@@ -66,7 +66,7 @@
 
       <div class="studio-group">
         <button class="studio-item" data-view="stats">Статистика</button>
-        <button class="studio-item" data-view="settings">Настройки истории</button>
+        <button class="studio-item" data-view="settings">Карточка работы</button>
       </div>
 
       <p class="studio-private">Читатели этого не видят</p>
@@ -101,9 +101,9 @@
         <h2>Публикация</h2>
         <p class="studio-lead">На карточку работы уходит только опубликованный текст. Библия персонажей и заметки остаются здесь.</p>
         <ul class="studio-list">
-          <li>Черновик · виден только вам</li>
-          <li>Модерация</li>
-          <li>Опубликовано на карточке истории</li>
+          <li>Карточка работы: название, автор, редактор, соавтор, возраст, фандом, направленность, описание, примечание, статус, размер</li>
+          <li>Тип: интерактивная или линейная. Сменить тип после публикации нельзя</li>
+          <li>ИИ-сводки: тариф Plus, можно выключить по полям персонажа</li>
         </ul>
       </section>
 
@@ -196,13 +196,82 @@
       </section>
 
       <section class="studio-view" id="view-settings" hidden>
-        <h2>Настройки истории</h2>
-        <p class="studio-lead">Тип истории задаёт вид хронологии. Сменить тип после публикации нельзя.</p>
-        <ul class="studio-list">
-          <li>Тип: интерактивная или линейная</li>
-          <li>Возраст, жанры, обложка — уходят на карточку</li>
-          <li>ИИ-сводки: тариф Plus, можно выключить по полям персонажа</li>
-        </ul>
+        <h2>Карточка работы</h2>
+        <p class="studio-lead">Эти строки уходят на публичную карточку у любой работы — линейной и интерактивной. Размер считается сам, и только когда вы ставите «завершена».</p>
+        <form class="studio-form" id="work-card-form">
+          <div>
+            <label class="studio-label" for="work-title">Название</label>
+            <input id="work-title" name="title" value="Тени прошлого" required>
+          </div>
+          <div class="studio-form-row">
+            <div>
+              <label class="studio-label" for="work-author">Автор</label>
+              <input id="work-author" name="author" value="Лунный странник" required>
+            </div>
+            <div>
+              <label class="studio-label" for="work-editor">Редактор</label>
+              <input id="work-editor" name="editor" placeholder="необязательно">
+            </div>
+          </div>
+          <div>
+            <label class="studio-label" for="work-coauthor">Соавтор</label>
+            <input id="work-coauthor" name="coauthor" placeholder="необязательно">
+          </div>
+          <div>
+            <span class="studio-label">Возрастной рейтинг</span>
+            <div class="studio-radios">
+              <label><input type="radio" name="age" value="none"> Без рейтинга</label>
+              <label><input type="radio" name="age" value="16+" checked> 16+</label>
+              <label><input type="radio" name="age" value="18+"> 18+</label>
+            </div>
+            <p class="studio-hint">Без рейтинга — обычный текст. 16+ — лёгкие намёки. 18+ — соответствующий контент.</p>
+          </div>
+          <div class="studio-form-row">
+            <div>
+              <label class="studio-label" for="work-fandom">Фандом</label>
+              <select id="work-fandom" name="fandom" required>
+                <option value="original" selected>Ориджинал</option>
+                <option value="archive-moon">Архив луны</option>
+              </select>
+              <p class="studio-hint">Обязательное поле. Для своих миров выбирайте «Ориджинал».</p>
+            </div>
+            <div>
+              <label class="studio-label" for="work-romance">Направленность</label>
+              <select id="work-romance" name="romance" required>
+                <option value="gen" selected>Джен — без романтической линии</option>
+                <option value="het">Гет — M/F</option>
+                <option value="slash">Слэш — M/M</option>
+                <option value="femslash">Фемслэш — F/F</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="studio-label" for="work-desc">Описание работы</label>
+            <textarea id="work-desc" name="description">Город после дождя. Знакомое лицо на перекрёстке. Каждый выбор ведёт к другой правде — и к одной из трёх концовок.</textarea>
+          </div>
+          <div>
+            <label class="studio-label" for="work-notes">Примечание автора</label>
+            <textarea id="work-notes" name="author_notes">Ветки кафе и парка читаются независимо. Никиту в описании не спойлерить.</textarea>
+          </div>
+          <div>
+            <span class="studio-label">Статус</span>
+            <div class="studio-radios">
+              <label><input type="radio" name="status" value="in_progress" checked> В процессе</label>
+              <label><input type="radio" name="status" value="completed"> Завершена</label>
+            </div>
+          </div>
+          <div class="studio-form-row">
+            <div>
+              <label class="studio-label" for="work-chapters">Число глав</label>
+              <input id="work-chapters" name="chapters" type="number" min="1" value="12">
+            </div>
+            <div>
+              <span class="studio-label">Размер</span>
+              <div class="studio-size-preview" id="work-size">После завершения: мини — до 20 глав, миди — до 50, макси — дальше.</div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Сохранить карточку</button>
+        </form>
       </section>
     </main>
   </div>

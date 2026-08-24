@@ -132,3 +132,18 @@ document.addEventListener("DOMContentLoaded", function decorateOrnaments() {
     btn.innerHTML = '<img class="orn-ico" src="assets/ornaments/03_more.svg" alt="">';
   });
 });
+
+document.addEventListener("DOMContentLoaded", function workTabs() {
+  const tabs = document.querySelectorAll(".chapter-tabs a[data-panel]");
+  if (!tabs.length) return;
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", (event) => {
+      event.preventDefault();
+      const name = tab.getAttribute("data-panel");
+      tabs.forEach((other) => other.classList.toggle("active", other === tab));
+      document.querySelectorAll("[data-work-panel]").forEach((panel) => {
+        panel.hidden = panel.getAttribute("data-work-panel") !== name;
+      });
+    });
+  });
+});

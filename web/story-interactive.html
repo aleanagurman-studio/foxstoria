@@ -65,6 +65,40 @@
           <span class="verify" title="Проверенный автор">✓</span>
           <a href="#" class="sub">Подписаться</a>
         </div>
+        <dl class="work-sheet">
+          <div>
+            <dt>Автор</dt>
+            <dd><a href="profile.html">Лунный странник</a></dd>
+          </div>
+          <div>
+            <dt>Редактор</dt>
+            <dd class="empty">нет</dd>
+          </div>
+          <div>
+            <dt>Соавтор</dt>
+            <dd class="empty">нет</dd>
+          </div>
+          <div>
+            <dt>Возраст</dt>
+            <dd>16+</dd>
+          </div>
+          <div>
+            <dt>Фандом</dt>
+            <dd>Ориджинал</dd>
+          </div>
+          <div>
+            <dt>Направленность</dt>
+            <dd>Джен</dd>
+          </div>
+          <div>
+            <dt>Статус</dt>
+            <dd>В процессе</dd>
+          </div>
+          <div>
+            <dt>Размер</dt>
+            <dd class="empty">после завершения</dd>
+          </div>
+        </dl>
         <div class="work-stats">
           <span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -84,12 +118,16 @@
           Город после дождя. Знакомое лицо на перекрёстке. Каждый выбор ведёт к другой правде —
           и к одной из трёх концовок. Тестовая интерактивная работа FoxStoria: кафе, парк и то, что ждёт за ними.
         </p>
+        <aside class="work-notes">
+          <strong>Примечание автора</strong>
+          Ветки кафе и парка читаются независимо. Никиту в описании не спойлерить.
+        </aside>
         <div class="work-tags">
           <a href="search.html">мистика</a>
           <a href="search.html">выбор</a>
           <a href="search.html">драма</a>
-          <a href="search.html">тайны</a>
-          <a href="search.html" class="more">+</a>
+          <a href="search.html">джен</a>
+          <a href="search.html">16+</a>
         </div>
         <div class="work-cta">
           <a href="read-interactive.html" class="btn btn-primary">
@@ -145,10 +183,11 @@
 
       <div class="work-card">
         <div class="chapter-tabs">
-          <a href="#" class="active">Главы</a>
-          <a href="#">Описание</a>
-          <a href="#">Комментарии 892</a>
+          <a href="#" class="active" data-panel="chapters">Главы</a>
+          <a href="#" data-panel="about">Описание</a>
+          <a href="#" data-panel="comments">Комментарии 892</a>
         </div>
+        <div data-work-panel="chapters">
         <div class="chapter-row active">
           <span class="ch-num">1</span>
           <div>
@@ -173,6 +212,18 @@
           <span class="ch-lock" aria-label="Закрыто">🔒</span>
         </div>
         <p style="margin-top:14px"><a href="read-interactive.html" class="section-link">Показать все главы (12) →</a></p>
+        </div>
+        <div class="work-desc-block" data-work-panel="about" hidden>
+          <p>Город после дождя. Знакомое лицо на перекрёстке. Каждый выбор ведёт к другой правде — и к одной из трёх концовок.</p>
+          <aside class="work-notes">
+            <strong>Примечание автора</strong>
+            Ветки кафе и парка читаются независимо. Никиту в описании не спойлерить.
+          </aside>
+          <p class="profile-meta">Фандом: Ориджинал · Направленность: Джен · 16+ · в процессе. Размер появится, когда работа будет завершена.</p>
+        </div>
+        <div data-work-panel="comments" hidden>
+          <p style="color:var(--text-secondary);padding:12px 0">Комментарии появятся после аккаунтов. Макет: 892 отзыва.</p>
+        </div>
       </div>
 
       <div>
@@ -193,14 +244,14 @@
             <div class="similar-thumb cover-3"></div>
             <div>
               <strong>Письма из прошлого</strong>
-              <p>Линейная · 16+</p>
+              <p>Ориджинал · Гет · 16+ · мини</p>
             </div>
           </a>
           <a href="stories-interactive.html" class="similar-item">
             <div class="similar-thumb cover-2"></div>
             <div>
               <strong>Лесная тропа</strong>
-              <p>Фэнтези · 12+</p>
+              <p>Ориджинал · Джен · без рейтинга</p>
             </div>
           </a>
           <a href="stories-interactive.html" class="section-link">Смотреть все</a>

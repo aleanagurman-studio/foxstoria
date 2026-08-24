@@ -49,4 +49,34 @@
   });
 
   showView("editor");
+
+  const form = document.getElementById("work-card-form");
+  const sizeBox = document.getElementById("work-size");
+  const chapterInput = document.getElementById("work-chapters");
+
+  function sizeLabel(count) {
+    if (!count || count < 1) return "укажите число глав";
+    if (count <= 20) return "мини";
+    if (count <= 50) return "миди";
+    return "макси";
+  }
+
+  function refreshSize() {
+    if (!sizeBox || !form) return;
+    const completed = form.status.value === "completed";
+    const count = Number(chapterInput.value);
+    if (!completed) {
+      sizeBox.textContent = "Размер появится после завершения. Мини — до 20 глав, миди — до 50, макси — дальше.";
+      return;
+    }
+    sizeBox.textContent = `${sizeLabel(count)} · ${count || 0} ${count === 1 ? "глава" : "глав"}`;
+  }
+
+  form?.addEventListener("change", refreshSize);
+  form?.addEventListener("input", refreshSize);
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    refreshSize();
+  });
+  refreshSize();
 })();

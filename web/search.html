@@ -46,7 +46,7 @@
     <main class="main">
       <header class="page-header">
         <h1>Поиск работ</h1>
-        <p>Фильтры по типу, жанру, возрасту и доступу. Данные пока макетные — бэкенд не нужен.</p>
+        <p>Фильтры по типу, фандому, направленности, возрасту и статусу. Размер есть только у завершённых работ.</p>
       </header>
       <div class="divider" aria-hidden="true">
         <svg class="ico"><use href="#i-spark"></use></svg>
@@ -77,20 +77,47 @@
             </select>
           </div>
           <div class="filter-group">
-            <label for="age">Возраст</label>
-            <select id="age" name="age">
+            <label for="fandom">Фандом</label>
+            <select id="fandom" name="fandom">
               <option value="">Любой</option>
-              <option>12+</option>
-              <option>16+</option>
-              <option>18+</option>
+              <option>Ориджинал</option>
+              <option>Архив луны</option>
             </select>
           </div>
           <div class="filter-group">
-            <label for="paid">Доступ</label>
-            <select id="paid" name="paid">
+            <label for="romance">Направленность</label>
+            <select id="romance" name="romance">
+              <option value="">Любая</option>
+              <option value="gen">Джен</option>
+              <option value="het">Гет</option>
+              <option value="slash">Слэш</option>
+              <option value="femslash">Фемслэш</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="age">Возраст</label>
+            <select id="age" name="age">
               <option value="">Любой</option>
-              <option value="free">Бесплатные</option>
-              <option value="paid">Платные</option>
+              <option value="none">Без рейтинга</option>
+              <option value="16+">16+</option>
+              <option value="18+">18+</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="status">Статус</label>
+            <select id="status" name="status">
+              <option value="">Любой</option>
+              <option value="in_progress">В процессе</option>
+              <option value="completed">Завершена</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="size">Размер</label>
+            <select id="size" name="size">
+              <option value="">Любой</option>
+              <option value="mini">Мини — до 20 глав</option>
+              <option value="midi">Миди — до 50 глав</option>
+              <option value="maxi">Макси</option>
             </select>
           </div>
         </div>
@@ -101,10 +128,10 @@
       </form>
 
       <div class="stories-grid">
-        <article class="story-card"><div class="story-cover cover-1"><span class="story-type-badge">Интерактив</span></div><div class="story-title">Тени прошлого</div><div class="story-meta">Драма · Мистика</div><div class="story-stats"><span class="rating">★ 4.9</span><span class="age-badge">18+</span></div></article>
-        <article class="story-card"><div class="story-cover cover-2"><span class="story-type-badge">Интерактив</span></div><div class="story-title">Лесная тропа</div><div class="story-meta">Фэнтези</div><div class="story-stats"><span class="rating">★ 4.8</span><span class="age-badge">12+</span></div></article>
-        <article class="story-card"><div class="story-cover cover-3"><span class="story-type-badge">Линейная</span></div><div class="story-title">Письма из прошлого</div><div class="story-meta">Драма · Романтика</div><div class="story-stats"><span class="rating">★ 4.7</span><span class="age-badge">16+</span></div></article>
-        <article class="story-card"><div class="story-cover cover-4"><span class="story-type-badge">Линейная</span></div><div class="story-title">Город без сна</div><div class="story-meta">Мистика</div><div class="story-stats"><span class="rating">★ 4.6</span><span class="age-badge">16+</span></div></article>
+        <a href="story-interactive.html" class="story-card"><div class="story-cover cover-1"><span class="story-type-badge">Интерактив</span></div><div class="story-title">Тени прошлого</div><div class="story-meta">Ориджинал · Джен · Лунный странник</div><div class="story-stats"><span class="rating">★ 4.9</span><span class="age-badge">16+</span><span class="status-badge">в процессе</span></div></a>
+        <article class="story-card"><div class="story-cover cover-2"><span class="story-type-badge">Интерактив</span></div><div class="story-title">Лесная тропа</div><div class="story-meta">Ориджинал · Джен</div><div class="story-stats"><span class="rating">★ 4.8</span><span class="age-badge">без рейтинга</span><span class="status-badge">в процессе</span></div></article>
+        <a href="story-linear.html" class="story-card"><div class="story-cover cover-3"><span class="story-type-badge">Линейная</span></div><div class="story-title">Письма из прошлого</div><div class="story-meta">Ориджинал · Гет · Звёздная пыль</div><div class="story-stats"><span class="rating">★ 4.7</span><span class="age-badge">16+</span><span class="status-badge">мини</span></div></a>
+        <article class="story-card"><div class="story-cover cover-4"><span class="story-type-badge">Линейная</span></div><div class="story-title">Город без сна</div><div class="story-meta">Ориджинал · Джен</div><div class="story-stats"><span class="rating">★ 4.6</span><span class="age-badge">16+</span><span class="status-badge">в процессе</span></div></article>
       </div>
     </main>
   </div>

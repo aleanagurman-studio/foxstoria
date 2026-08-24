@@ -63,6 +63,9 @@ class StoryCredit(Base):
     story_id: Mapped[int] = mapped_column(ForeignKey("stories.id", ondelete="CASCADE"), index=True)
     role: Mapped[StoryCreditRole] = mapped_column(Enum(StoryCreditRole, native_enum=False))
 
+    author: Mapped["Author"] = relationship(foreign_keys=[author_id])
+    story: Mapped["Story"] = relationship(foreign_keys=[story_id], back_populates="credits")
+
 
 class Follow(Base):
     """Reader cabinet: follow an author or a work."""
