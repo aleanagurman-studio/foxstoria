@@ -46,6 +46,44 @@ function headerMarkup() {
         <img class="theme-moon" src="assets/deco/moon.svg" alt="">
         <img class="theme-day" src="assets/deco/день.svg" alt="">
       </button>
+      <div class="header-inbox" id="header-inbox" hidden>
+        <div class="header-alert">
+          <button type="button" class="header-alert-btn" id="notif-toggle" aria-label="Оповещения" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6.2 9.1c0-3.3 2.6-5.9 5.8-5.9s5.8 2.6 5.8 5.9v1.7c0 1.4.5 2.7 1.3 3.7l.6.7c.5.6.1 1.6-.7 1.6H5c-.8 0-1.2-1-.7-1.6l.6-.7c.8-1 1.3-2.3 1.3-3.7V9.1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M10 18.4a2.1 2.1 0 0 0 4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M12 18.8v1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span class="header-alert-dot" data-notif-dot hidden></span>
+          </button>
+          <div class="header-alert-dd" id="notif-feed" hidden>
+            <p class="header-alert-kicker">Оповещения</p>
+            <a href="news.html#editor-update">
+              <strong>Обновление сайта</strong>
+              <span>Новая версия редактора историй</span>
+            </a>
+            <a href="news.html#autumn-event">
+              <strong>Ивент</strong>
+              <span>Осенний марафон историй уже открыт</span>
+            </a>
+            <a href="library.html">
+              <strong>Кабинет читателя</strong>
+              <span>Работа из подписок вышла из черновика</span>
+            </a>
+            <a href="author-home.html">
+              <strong>Кабинет автора</strong>
+              <span>Новый отзыв к вашей истории</span>
+            </a>
+          </div>
+        </div>
+        <a class="header-alert-btn" id="mail-toggle" href="messages.html" aria-label="Личные сообщения">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.4" y="5.8" width="17.2" height="12.4" rx="2.2" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M4.2 7.4 12 13.1l7.8-5.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="header-alert-dot" data-mail-dot hidden></span>
+        </a>
+      </div>
       <div class="header-auth" id="header-guest">
         <a href="profile.html" class="btn btn-ghost" data-signin>Войти</a>
         <a href="profile.html" class="btn btn-primary" data-signin>Регистрация</a>
@@ -105,34 +143,80 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   const menu = document.getElementById("account-menu");
   const btn = menu?.querySelector(".account-menu-btn");
   const dd = menu?.querySelector(".account-dd");
+  const notifBtn = document.getElementById("notif-toggle");
+  const notifFeed = document.getElementById("notif-feed");
+
+  function closeAccount() {
+    if (!dd) return;
+    dd.hidden = true;
+    menu?.classList.remove("open");
+    btn?.setAttribute("aria-expanded", "false");
+  }
+
+  function closeNotif() {
+    if (!notifFeed) return;
+    notifFeed.hidden = true;
+    notifBtn?.setAttribute("aria-expanded", "false");
+  }
+
   if (btn && dd) {
     btn.addEventListener("click", (event) => {
       event.stopPropagation();
+      closeNotif();
       const open = dd.hidden;
       dd.hidden = !open;
       menu.classList.toggle("open", open);
       btn.setAttribute("aria-expanded", open ? "true" : "false");
     });
   }
+  if (notifBtn && notifFeed) {
+    notifBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      closeAccount();
+      const open = notifFeed.hidden;
+      notifFeed.hidden = !open;
+      notifBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) {
+        localStorage.setItem("foxtoria-notif-read", "1");
+        syncInboxDots();
+      }
+    });
+    notifFeed.addEventListener("click", (event) => event.stopPropagation());
+  }
+  document.getElementById("mail-toggle")?.addEventListener("click", () => {
+    localStorage.setItem("foxtoria-mail-read", "1");
+  });
+  if (currentPage() === "messages.html") {
+    localStorage.setItem("foxtoria-mail-read", "1");
+  }
   document.addEventListener("click", () => {
-    if (!dd) return;
-    dd.hidden = true;
-    menu?.classList.remove("open");
-    btn?.setAttribute("aria-expanded", "false");
+    closeAccount();
+    closeNotif();
   });
 });
+
+function syncInboxDots() {
+  const signed = isSignedIn();
+  const notifDot = document.querySelector("[data-notif-dot]");
+  const mailDot = document.querySelector("[data-mail-dot]");
+  if (notifDot) notifDot.hidden = !signed || localStorage.getItem("foxtoria-notif-read") === "1";
+  if (mailDot) mailDot.hidden = !signed || localStorage.getItem("foxtoria-mail-read") === "1";
+}
 
 function syncAuthChrome() {
   const guest = document.getElementById("header-guest");
   const menu = document.getElementById("account-menu");
+  const inbox = document.getElementById("header-inbox");
   const welcome = document.getElementById("welcome-card");
   const signed = isSignedIn();
   if (guest) guest.hidden = signed;
   if (menu) menu.hidden = !signed;
+  if (inbox) inbox.hidden = !signed;
   if (welcome) welcome.hidden = signed;
   document.querySelectorAll("[data-owner-only]").forEach((el) => {
     el.hidden = !isSiteOwner();
   });
+  syncInboxDots();
 }
 
 document.addEventListener("click", (event) => {
