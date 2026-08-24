@@ -69,9 +69,29 @@
   }
 
   function formatCommentWhen(date = new Date()) {
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${date.getDate()} ${MONTHS[date.getMonth()]}, ${hours}:${minutes}`;
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const yy = String(date.getFullYear()).slice(-2);
+    return `${dd}/${mm}/${yy}`;
+  }
+
+  function displayCommentWhen(item) {
+    const stamp = normalizeCommentDate(item.when);
+    return item.edited ? `изм. ${stamp}` : stamp;
+  }
+
+  function normalizeCommentDate(when) {
+    const value = String(when || "").trim();
+    if (/^\d{2}\/\d{2}\/\d{2}$/.test(value)) return value;
+    const named = value.match(/(\d{1,2})\s+([а-яё]+)/i);
+    if (named) {
+      const month = MONTHS.findIndex((name) => name === named[2] || name.startsWith(named[2].slice(0, 3)));
+      const year = Number((value.match(/20\d{2}/) || ["2026"])[0]);
+      if (month >= 0) return formatCommentWhen(new Date(year, month, Number(named[1])));
+    }
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return formatCommentWhen(parsed);
+    return value || formatCommentWhen();
   }
 
   function formatCount(n) {
@@ -246,34 +266,110 @@
     return commentsFor(id).length;
   }
 
+  function truncateComment(text, max = 72) {
+    const value = String(text || "").replace(/\s+/g, " ").trim();
+    return value.length > max ? `${value.slice(0, max).trim()}…` : value;
+  }
+
+  function commentTools(item) {
+    const buttons = [];
+    if (signed()) buttons.push(`<button type="button" data-comment-reply>Ответить</button>`);
+    if (isOwnComment(item)) {
+      buttons.push(`<button type="button" data-comment-edit>Изменить</button>`);
+      buttons.push(`<button type="button" data-comment-delete>Удалить</button>`);
+    }
+    return buttons.length ? `<span class="news-comment-tools">${buttons.join("")}</span>` : "";
+  }
+
+  function renderCommentItem(item, byId, children, depth) {
+    const own = isOwnComment(item);
+    const parent = item.replyTo ? byId.get(item.replyTo) : null;
+    const replies = children.get(item.id) || [];
+    return `
+      <article class="news-comment${own ? " is-own" : ""}${depth ? " is-reply" : ""}" data-comment-id="${escapeHtml(item.id)}" style="--reply-depth:${Math.min(depth, 2)}">
+        <img class="news-comment-ava" src="${escapeHtml(commentAvatar(item))}" alt="">
+        <div class="news-comment-bubble">
+          <div class="news-comment-head">
+            <strong>${escapeHtml(item.author || "Читатель")}</strong>
+            ${commentTools(item)}
+          </div>
+          ${
+            parent
+              ? `<div class="news-comment-quote">
+                  <strong>${escapeHtml(parent.author || "Читатель")}</strong>
+                  <span>${escapeHtml(truncateComment(parent.text))}</span>
+                </div>`
+              : ""
+          }
+          <p>${escapeHtml(item.text)}</p>
+          <time>${escapeHtml(displayCommentWhen(item))}</time>
+        </div>
+      </article>
+      ${replies.map((reply) => renderCommentItem(reply, byId, children, depth + 1)).join("")}`;
+  }
+
   function renderComments(id) {
     const items = commentsFor(id);
     if (!items.length) return `<p class="news-comment-empty">Пока нет комментариев. Напишите первый.</p>`;
-    return `<div class="news-comment-list">${items
-      .map((item) => {
-        const own = isOwnComment(item);
-        const stamp = `${item.edited ? "изм. " : ""}${item.when || ""}`;
-        return `
-        <article class="news-comment${own ? " is-own" : ""}" data-comment-id="${escapeHtml(item.id)}">
-          <img class="news-comment-ava" src="${escapeHtml(commentAvatar(item))}" alt="">
-          <div class="news-comment-bubble">
-            <div class="news-comment-head">
-              <strong>${escapeHtml(item.author || "Читатель")}</strong>
-              ${
-                own
-                  ? `<span class="news-comment-tools">
-                      <button type="button" data-comment-edit>Изменить</button>
-                      <button type="button" data-comment-delete>Удалить</button>
-                    </span>`
-                  : ""
-              }
-            </div>
-            <p>${escapeHtml(item.text)}</p>
-            <time>${escapeHtml(stamp)}</time>
-          </div>
-        </article>`;
-      })
-      .join("")}</div>`;
+    const byId = new Map(items.map((item) => [item.id, item]));
+    const children = new Map();
+    const roots = [];
+    items.forEach((item) => {
+      if (item.replyTo && byId.has(item.replyTo)) {
+        const list = children.get(item.replyTo) || [];
+        list.push(item);
+        children.set(item.replyTo, list);
+      } else {
+        roots.push(item);
+      }
+    });
+    return `<div class="news-comment-list">${roots.map((item) => renderCommentItem(item, byId, children, 0)).join("")}</div>`;
+  }
+
+  function clearReply(form) {
+    if (!form) return;
+    delete form.dataset.replyTo;
+    delete form.dataset.replyAuthor;
+    form.querySelector("[data-reply-hint]")?.remove();
+  }
+
+  function beginReply(card, article) {
+    const form = card.querySelector("[data-comment-form]");
+    if (!form) {
+      card.querySelector("[data-signin]")?.click();
+      return;
+    }
+    const replyId = article.getAttribute("data-comment-id");
+    const author = article.querySelector(".news-comment-head strong")?.textContent || "Читатель";
+    form.dataset.replyTo = replyId;
+    form.dataset.replyAuthor = author;
+    let hint = form.querySelector("[data-reply-hint]");
+    if (!hint) {
+      hint = document.createElement("div");
+      hint.className = "news-comment-reply-hint";
+      hint.setAttribute("data-reply-hint", "");
+      form.prepend(hint);
+    }
+    hint.innerHTML = `<span>Ответ для <strong></strong></span><button type="button" class="news-text-link" data-reply-cancel>Отмена</button>`;
+    hint.querySelector("strong").textContent = author;
+    const ta = form.querySelector("textarea");
+    ta?.focus();
+    form.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function removeCommentTree(list, targetId) {
+    const drop = new Set([targetId]);
+    let grew = true;
+    while (grew) {
+      grew = false;
+      list.forEach((item) => {
+        if (item.replyTo && drop.has(item.replyTo) && !drop.has(item.id)) {
+          drop.add(item.id);
+          grew = true;
+        }
+      });
+    }
+    return list.filter((item) => !drop.has(item.id));
   }
 
   function beginCommentEdit(article) {
@@ -449,6 +545,14 @@
         expandCard(card, true);
         return;
       }
+      if (event.target.closest("[data-comment-reply]")) {
+        beginReply(card, event.target.closest(".news-comment"));
+        return;
+      }
+      if (event.target.closest("[data-reply-cancel]")) {
+        clearReply(card.querySelector("[data-comment-form]"));
+        return;
+      }
       if (event.target.closest("[data-comment-edit]")) {
         beginCommentEdit(event.target.closest(".news-comment"));
         return;
@@ -460,10 +564,7 @@
       if (event.target.closest("[data-comment-delete]")) {
         const commentId = event.target.closest(".news-comment")?.getAttribute("data-comment-id");
         if (!commentId || !confirm("Удалить комментарий?")) return;
-        saveLocalComments(
-          id,
-          localComments(id).filter((item) => item.id !== commentId)
-        );
+        saveLocalComments(id, removeCommentTree(localComments(id), commentId));
         refreshComments(card, id);
         return;
       }
@@ -509,6 +610,7 @@
       const id = card.getAttribute("data-id");
       const text = form.text.value.trim();
       if (!text) return;
+      const replyTo = form.dataset.replyTo || "";
       saveLocalComments(id, [
         ...localComments(id),
         {
@@ -518,9 +620,11 @@
           avatar: "assets/deco/fox.svg",
           text,
           when: formatCommentWhen(),
+          ...(replyTo ? { replyTo } : {}),
         },
       ]);
       refreshComments(card, id);
+      clearReply(form);
       form.reset();
     });
   }

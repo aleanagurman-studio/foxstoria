@@ -1662,6 +1662,8 @@ span.news-stat { cursor: default; }
 
 .news-comment-tools {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
   flex-shrink: 0;
 }
@@ -1697,11 +1699,51 @@ span.news-stat { cursor: default; }
   gap: 12px;
 }
 
+.news-comment.is-reply {
+  margin-left: calc(28px * var(--reply-depth, 1));
+  max-width: min(100%, calc(520px - 28px * var(--reply-depth, 1)));
+}
+
+.news-comment-quote {
+  margin: 4px 0 2px;
+  padding: 4px 8px;
+  border-left: 2px solid var(--fox);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--fox) 8%, transparent);
+}
+
+.news-comment-quote strong {
+  font-size: 12px;
+}
+
+.news-comment-quote span {
+  display: block;
+  color: var(--warm-brown);
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.news-comment-reply-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--cream);
+  font-size: 13px;
+}
+
+.news-comment-reply-hint strong { color: var(--fox); }
+
 .news-comment-bubble p {
   margin: 3px 0 0;
   font-size: 14px;
   line-height: 1.4;
-  padding-right: 7.5em;
+  padding-right: 5.5em;
 }
 
 .news-comment-bubble time {
