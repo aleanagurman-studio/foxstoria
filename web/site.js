@@ -38,25 +38,22 @@ function headerMarkup() {
         <img class="theme-moon" src="assets/deco/moon.svg" alt="">
         <img class="theme-day" src="assets/deco/день.svg" alt="">
       </button>
-      <a href="library.html" class="icon-btn bookmark-btn" aria-label="Закладки">
-        <img src="assets/deco/bookmark.svg" alt="">
-      </a>
       <div class="header-auth" id="header-guest">
-        <div class="header-auth-copy">
-          <p>Войдите в аккаунт</p>
-          <div class="header-auth-actions">
-            <a href="profile.html" class="btn btn-ghost" data-signin>Войти</a>
-            <a href="profile.html" class="btn btn-primary" data-signin>Регистрация</a>
-          </div>
-        </div>
-        <img class="header-auth-fox" src="assets/deco/fox2.svg" alt="">
+        <a href="profile.html" class="btn btn-ghost" data-signin>Войти</a>
+        <a href="profile.html" class="btn btn-primary" data-signin>Регистрация</a>
       </div>
       <div class="account-menu" id="account-menu" hidden>
         <button type="button" class="account-menu-btn" aria-expanded="false" aria-label="Мой профиль">
           <img src="assets/deco/fox.svg" alt="">
         </button>
         <div class="account-dd" hidden>
-          <p class="dd-kicker">Аккаунт</p>
+          <a href="index.html">Главное</a>
+          <a href="stories-interactive.html">Интерактивные</a>
+          <a href="stories-linear.html">Линейные</a>
+          <a href="authors.html">Авторы</a>
+          <a href="collections.html">Сборники</a>
+          <a href="news.html">Новости</a>
+          <span class="dd-sep"></span>
           <a href="profile.html">Мой профиль</a>
           <a href="messages.html">Сообщения</a>
           <a href="author-home.html">Кабинет автора</a>
@@ -73,6 +70,13 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   if (!header) return;
   header.innerHTML = headerMarkup();
   syncAuthChrome();
+  if (document.querySelector(".layout") && !document.querySelector(".page-corner")) {
+    const corner = document.createElement("div");
+    corner.className = "page-corner";
+    corner.setAttribute("aria-hidden", "true");
+    corner.innerHTML = '<img src="assets/deco/уголок.svg" alt="">';
+    document.body.appendChild(corner);
+  }
 
   const menu = document.getElementById("account-menu");
   const btn = menu?.querySelector(".account-menu-btn");
