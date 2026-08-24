@@ -485,11 +485,6 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   grid-template-columns: minmax(0, 1fr) 300px;
   gap: 24px;
   align-items: start;
-  overflow: visible;
-}
-
-.hero-row:has(#welcome-card:not([hidden])) {
-  padding-right: 128px;
 }
 
 .hero-row:has(#welcome-card[hidden]) {
@@ -498,11 +493,10 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .welcome-card {
   position: relative;
-  z-index: 2;
-  overflow: visible;
+  overflow: hidden;
   background: var(--paper);
   border-radius: 20px;
-  padding: 22px 22px 20px;
+  padding: 22px 96px 20px 22px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -549,11 +543,12 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .welcome-fox {
   position: absolute;
-  left: calc(100% - 8px);
-  right: auto;
-  bottom: -10px;
-  height: 198px;
-  width: auto;
+  right: 0;
+  bottom: 0;
+  height: 220px;
+  width: 120px;
+  object-fit: cover;
+  object-position: left bottom;
   pointer-events: none;
 }
 
@@ -1129,13 +1124,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   .collections-row,
   .tile-grid { grid-template-columns: 1fr; }
   .hero { padding: 28px 22px; min-height: 260px; background-position: 70% center; }
-  .hero-row,
-  .hero-row:has(#welcome-card:not([hidden])) {
-    grid-template-columns: 1fr;
-    padding-right: 0;
-  }
+  .hero-row { grid-template-columns: 1fr; }
   .hero-content { max-width: 100%; }
-  .welcome-card { margin: 0 80px 12px 0; }
   .footer-art,
   .footer-art-img { max-width: min(100%, 420px); height: 180px; }
   .footer-inner { padding: 28px 20px 20px; max-width: none; min-height: 180px; }
