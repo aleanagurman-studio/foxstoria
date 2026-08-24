@@ -974,6 +974,18 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   color: var(--warm-brown);
 }
 
+.feature-item:last-child {
+  max-width: 300px;
+}
+
+.feature-item:last-child h4 {
+  white-space: nowrap;
+}
+
+.feature-item:last-child p {
+  max-width: 34ch;
+}
+
 /* Right widgets */
 
 .widget {
@@ -1232,6 +1244,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   .hero { padding: 28px 22px; min-height: 260px; background-position: 70% center; }
   .hero-row { grid-template-columns: 1fr; }
   .feature-item { flex: 1 1 100%; max-width: none; }
+  .feature-item:last-child { max-width: none; }
+  .feature-item:last-child h4 { white-space: normal; }
   .hero-content { max-width: 100%; }
   .footer-art,
   .footer-art-img { max-width: min(100%, 420px); height: 180px; }
