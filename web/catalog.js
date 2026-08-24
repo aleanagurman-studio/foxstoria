@@ -33,7 +33,7 @@ function cardHTML(work, rank, isNew) {
   const size = work.is_completed && work.work_size ? SIZE[work.work_size] : work.is_completed ? "" : "в процессе";
   const cover = work.cover
     ? `<img src="${escapeHtml(work.cover)}" alt="">`
-    : `<span class="cover-fallback"><img class="ink" src="assets/brand/paw.png" alt=""></span>`;
+    : `<span class="cover-fallback"><img src="assets/deco/paw.svg" alt=""></span>`;
   const rankBadge = rank ? `<span class="story-rank">${rank}</span>` : "";
   const newBadge = isNew ? `<span class="badge-new">New</span>` : "";
 
@@ -44,7 +44,7 @@ function cardHTML(work, rank, isNew) {
         <h3 class="story-title">${escapeHtml(work.title)}</h3>
         <p class="story-meta">${escapeHtml(meta)}</p>
         <p class="story-stats">
-          <span class="rating"><img class="ink" src="assets/brand/sparkle-fill.png" alt=""> ${Number(work.rating || 0).toFixed(1)}</span>
+          <span class="rating"><img src="assets/deco/sparcle.svg" alt=""> ${Number(work.rating || 0).toFixed(1)}</span>
           <span class="age-badge">${escapeHtml(ageLabel(work.age))}</span>
           ${size ? `<span class="status-badge">${escapeHtml(size)}</span>` : ""}
         </p>
@@ -86,7 +86,7 @@ function renderFeatured(works) {
         <div class="featured-stats">
           <span>${escapeHtml(meta)}</span>
           <span><strong>${work.plays || 0}</strong> прохождений</span>
-          <span class="rating"><img class="ink" src="assets/brand/sparkle-fill.png" alt=""> ${Number(work.rating || 0).toFixed(1)}</span>
+          <span class="rating"><img src="assets/deco/sparcle.svg" alt=""> ${Number(work.rating || 0).toFixed(1)}</span>
           <span class="age-badge">${escapeHtml(ageLabel(work.age))}</span>
         </div>
       </div>

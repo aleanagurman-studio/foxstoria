@@ -14,57 +14,31 @@
 </head>
 <body>
 
-  <header class="header">
-    <a href="index.html" class="logo">
-      <img src="assets/brand/logo.png" alt="">
-      <span>FoxStoria</span>
-    </a>
-
-    <nav class="nav-main">
-      <a href="stories-interactive.html">Истории</a>
-      <a href="authors.html">Авторы</a>
-      <a href="search.html">Сборники</a>
-      <a href="search.html">Блог</a>
-    </nav>
-
-    <form class="search-bar" action="search.html">
-      <img class="ink" src="assets/brand/search.png" alt="">
-      <input type="search" name="q" placeholder="Найти историю или автора…">
-    </form>
-
-    <div class="header-actions">
-      <button type="button" class="icon-btn" id="theme-toggle" aria-label="Переключить тему">
-        <img class="ink" src="assets/brand/moon.png" alt="">
-      </button>
-      <a href="library.html" class="icon-btn" aria-label="Закладки">
-        <img class="ink" src="assets/brand/bookmark.png" alt="">
-      </a>
-    </div>
-  </header>
+  <header class="header"></header>
 
   <div class="layout">
     <aside class="sidebar-left">
       <nav class="sidebar-nav">
         <a href="index.html" class="active">
-          <img class="ink" src="assets/brand/paw.png" alt=""> Главное
+          <img src="assets/deco/paw.svg" alt=""> Главное
         </a>
         <a href="stories-interactive.html">
-          <img class="ink" src="assets/brand/sparkle.png" alt=""> Интерактивные
+          <img src="assets/deco/sparcle.svg" alt=""> Интерактивные
         </a>
         <a href="stories-linear.html">
-          <img class="ink" src="assets/brand/book.png" alt=""> Линейные
+          <img src="assets/ornaments/08_open_book.svg" alt=""> Линейные
         </a>
         <a href="authors.html">
-          <img class="ink" src="assets/brand/leaf.png" alt=""> Авторы
+          <img src="assets/deco/leaf.svg" alt=""> Авторы
         </a>
         <a href="profile.html">
-          <img class="ink" src="assets/brand/profile.png" alt=""> Профиль
+          <img src="assets/deco/fox.svg" alt=""> Мой профиль
         </a>
         <a href="author-home.html">
-          <img class="ink" src="assets/brand/upload.png" alt=""> Кабинет автора
+          <img src="assets/deco/upload.svg" alt=""> Кабинет автора
         </a>
         <a href="library.html">
-          <img class="ink" src="assets/brand/bookmark.png" alt=""> Кабинет читателя
+          <img src="assets/deco/bookmark.svg" alt=""> Кабинет читателя
         </a>
       </nav>
 
@@ -85,7 +59,7 @@
       </div>
 
       <div class="sidebar-ornament" aria-hidden="true">
-        <img class="ink" src="assets/brand/wreath.png" alt="">
+        <img src="assets/deco/уголок.svg" alt="">
       </div>
     </aside>
 
@@ -95,21 +69,27 @@
           <h1>Истории, в которых<br>выбор действительно<br>имеет значение</h1>
           <p>Интерактивные и линейные новеллы в тёплом книжном мире. Читайте, выбирайте путь и открывайте новые концовки.</p>
           <div class="hero-actions">
-            <a href="search.html" class="btn btn-primary">Найти историю</a>
-            <a href="author-home.html" class="btn btn-ghost">Стать автором</a>
+            <a href="search.html" class="btn btn-primary">
+              <img src="assets/deco/lupa.svg" alt="">
+              Найти историю
+            </a>
+            <a href="author-home.html" class="btn btn-ghost">
+              <img src="assets/deco/перо.svg" alt="">
+              Стать автором
+            </a>
           </div>
         </div>
       </section>
 
       <section class="section">
         <div class="section-header">
-          <h2>Популярное сейчас</h2>
+          <h2>Популярные истории <img class="title-leaf" src="assets/deco/leaf.svg" alt=""></h2>
           <div class="section-tools">
             <button type="button" class="icon-btn" data-scroll="#popular-feed" data-dir="prev" aria-label="Назад">
-              <img class="ink" src="assets/brand/prev.png" alt="">
+              <img src="assets/brand/prev.png" alt="">
             </button>
             <button type="button" class="icon-btn" data-scroll="#popular-feed" data-dir="next" aria-label="Вперёд">
-              <img class="ink" src="assets/brand/next.png" alt="">
+              <img src="assets/brand/next.png" alt="">
             </button>
             <a href="search.html" class="section-link">Смотреть все</a>
           </div>
@@ -120,7 +100,7 @@
       <div class="two-col">
         <section class="section">
           <div class="section-header">
-            <h2>Новинки</h2>
+            <h2>Новинки <img class="title-leaf" src="assets/deco/leaf.svg" alt=""></h2>
             <a href="search.html" class="section-link">Все</a>
           </div>
           <div class="stories-row" data-feed="latest"></div>
@@ -137,25 +117,25 @@
       <section class="section">
         <div class="section-header">
           <h2>Подборки для вас</h2>
-          <a href="search.html" class="section-link">Все подборки</a>
+          <a href="collections.html" class="section-link">Все подборки</a>
         </div>
-        <div class="collections-row">
-          <a href="search.html" class="collection-card">
-            <img class="ink" src="assets/brand/heart.png" alt="">
+        <div class="tile-grid">
+          <a href="search.html" class="tile-card">
+            <div class="tile-image"></div>
             <div>
               <h3>Истории о любви</h3>
               <p>Появится вместе с каталогом</p>
             </div>
           </a>
-          <a href="search.html" class="collection-card">
-            <img class="ink" src="assets/brand/moon.png" alt="">
+          <a href="search.html" class="tile-card">
+            <div class="tile-image"></div>
             <div>
               <h3>Тёмное фэнтези</h3>
               <p>Появится вместе с каталогом</p>
             </div>
           </a>
-          <a href="search.html" class="collection-card">
-            <img class="ink" src="assets/brand/sparkle.png" alt="">
+          <a href="search.html" class="tile-card">
+            <div class="tile-image"></div>
             <div>
               <h3>Академия и магия</h3>
               <p>Появится вместе с каталогом</p>
@@ -164,30 +144,60 @@
         </div>
       </section>
 
+      <section class="section">
+        <div class="section-header">
+          <h2>Новости</h2>
+          <a href="news.html" class="section-link">Все новости</a>
+        </div>
+        <div class="tile-grid">
+          <a href="news.html" class="tile-card">
+            <div class="tile-image"></div>
+            <div>
+              <h3>Запись блога</h3>
+              <p>Квадратная обложка появится вместе с текстом</p>
+            </div>
+          </a>
+          <a href="news.html" class="tile-card">
+            <div class="tile-image"></div>
+            <div>
+              <h3>Запись блога</h3>
+              <p>Квадратная обложка появится вместе с текстом</p>
+            </div>
+          </a>
+          <a href="news.html" class="tile-card">
+            <div class="tile-image"></div>
+            <div>
+              <h3>Запись блога</h3>
+              <p>Квадратная обложка появится вместе с текстом</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
       <section class="features-bar">
         <div class="feature-item">
-          <img class="ink" src="assets/brand/book.png" alt="">
+          <img src="assets/ornaments/08_open_book.svg" alt="">
           <div>
             <h4>Тысячи историй</h4>
             <p>Интерактивные и линейные новеллы в одном месте</p>
           </div>
         </div>
         <div class="feature-item">
-          <img class="ink" src="assets/brand/sparkle.png" alt="">
+          <img src="assets/deco/sparcle.svg" alt="">
           <div>
             <h4>Интерактивный выбор</h4>
             <p>Влияйте на сюжет и открывайте концовки</p>
           </div>
         </div>
         <div class="feature-item">
-          <img class="ink" src="assets/brand/heart.png" alt="">
+          <img src="assets/deco/heart.svg" alt="">
           <div>
             <h4>Поддержка авторов</h4>
             <p>Подарки, покупки и подписки</p>
           </div>
         </div>
         <div class="feature-item">
-          <img class="ink" src="assets/brand/paw.png" alt="">
+          <img src="assets/deco/paw.svg" alt="">
           <div>
             <h4>На всех устройствах</h4>
             <p>Один прогресс на web, Android и iOS</p>
@@ -195,55 +205,14 @@
         </div>
       </section>
     </main>
-
-    <aside class="sidebar-right">
-      <div class="widget widget-welcome">
-        <img class="welcome-fox" src="assets/brand/fox-peek.jpg" alt="">
-        <h3>Добро пожаловать в мир историй</h3>
-        <p>Читайте, выбирайте путь и поддерживайте авторов</p>
-        <div class="widget-welcome-actions">
-          <a href="#" class="btn btn-primary">Присоединиться</a>
-          <a href="#" class="btn btn-ghost">Войти</a>
-        </div>
-      </div>
-
-      <div class="widget">
-        <div class="widget-title">
-          <img class="ink" src="assets/brand/leaf.png" alt="">
-          Топ авторов
-        </div>
-        <div data-feed="authors"></div>
-      </div>
-
-      <div class="widget">
-        <div class="widget-title">
-          <img class="ink" src="assets/brand/bell.png" alt="">
-          Объявления
-        </div>
-        <div class="announce-item">
-          <img class="ink" src="assets/brand/heart.png" alt="">
-          <div>
-            <h4>Подарки авторам</h4>
-            <p>Поддержите любимых авторов виртуальными подарками</p>
-          </div>
-        </div>
-        <div class="announce-item">
-          <img class="ink" src="assets/brand/sparkle.png" alt="">
-          <div>
-            <h4>Новые достижения</h4>
-            <p>Бейджи за прохождение историй появятся вместе с кабинетом читателя</p>
-          </div>
-        </div>
-      </div>
-    </aside>
   </div>
 
   <footer class="page-footer">
-    <img src="assets/brand/banner-footer.jpg" alt="">
+    <div class="footer-art" aria-hidden="true"></div>
   </footer>
 
   <button type="button" class="to-top" id="to-top" aria-label="Наверх" hidden>
-    <img class="ink" src="assets/brand/chevron.png" alt="">
+    <img src="assets/brand/chevron.png" alt="">
   </button>
 
   <script>
