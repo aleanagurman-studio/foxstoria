@@ -18,21 +18,25 @@ function headerMarkup() {
   const page = currentPage();
   const on = (href) => (page === href ? " active" : "");
   return `
-    <a href="index.html" class="logo">
-      <img src="assets/deco/fox.svg" alt="">
-      <span>FoxStoria</span>
-    </a>
-    <nav class="nav-main">
-      <a href="stories-interactive.html"${on("stories-interactive.html")}>Интерактивные</a>
-      <a href="stories-linear.html"${on("stories-linear.html")}>Линейные</a>
-      <a href="authors.html"${on("authors.html")}>Авторы</a>
-      <a href="collections.html"${on("collections.html")}>Сборники</a>
-      <a href="news.html"${on("news.html")}>Новости</a>
-    </nav>
-    <form class="search-bar" action="search.html" role="search">
-      <img src="assets/deco/lupa.svg" alt="">
-      <input type="text" name="q" placeholder="Найти работу, автора или тэг..." autocomplete="off">
-    </form>
+    <div class="header-lead">
+      <a href="index.html" class="logo">
+        <img src="assets/deco/fox.svg" alt="">
+        <span>FoxStoria</span>
+      </a>
+      <div class="header-mid">
+        <nav class="nav-main">
+          <a href="stories-interactive.html"${on("stories-interactive.html")}>Интерактивные</a>
+          <a href="stories-linear.html"${on("stories-linear.html")}>Линейные</a>
+          <a href="authors.html"${on("authors.html")}>Авторы</a>
+          <a href="collections.html"${on("collections.html")}>Сборники</a>
+          <a href="news.html"${on("news.html")}>Новости</a>
+        </nav>
+        <form class="search-bar" action="search.html" role="search">
+          <img src="assets/deco/lupa.svg" alt="">
+          <input type="text" name="q" placeholder="Найти работу, автора или тэг..." autocomplete="off">
+        </form>
+      </div>
+    </div>
     <div class="header-actions">
       <button type="button" class="theme-btn" id="theme-toggle" aria-label="Переключить тему">
         <img class="theme-moon" src="assets/deco/moon.svg" alt="">
