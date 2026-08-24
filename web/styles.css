@@ -857,7 +857,7 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .collections-row {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px 20px;
+  gap: 16px;
 }
 
 .collection-card,
@@ -893,6 +893,22 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   height: 64px;
   border-radius: 14px;
   background: var(--backing);
+}
+
+.collections-row .tile-card,
+.collection-list .tile-card {
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--backing);
+  border-radius: 16px;
+}
+
+.collections-row .collection-cover,
+.collection-list .collection-cover,
+[data-theme="dark"] .collections-row .collection-cover,
+[data-theme="dark"] .collection-list .collection-cover {
+  background: transparent;
 }
 
 .collection-cover img {
@@ -1138,20 +1154,27 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 .footer-inner {
   position: relative;
   z-index: 2;
+  min-height: 220px;
+  padding: 40px 20px 28px;
+}
+
+.footer-links {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 20px 48px;
-  min-height: 220px;
-  padding: 40px 40px 28px;
-  max-width: 64%;
 }
 
 .footer-copy {
+  position: absolute;
+  left: 50%;
+  top: 50%;
   margin: 0;
+  transform: translate(-50%, -50%);
   font-size: 13px;
   font-weight: 600;
-  color: var(--chestnut-dark);
+  color: var(--fox);
+  white-space: nowrap;
 }
 
 .footer-col {
@@ -1249,7 +1272,20 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   .hero-content { max-width: 100%; }
   .footer-art,
   .footer-art-img { max-width: min(100%, 420px); height: 180px; }
-  .footer-inner { padding: 28px 20px 20px; max-width: none; min-height: 180px; }
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 28px 20px 20px;
+    max-width: none;
+    min-height: 180px;
+  }
+  .footer-copy {
+    position: static;
+    transform: none;
+    align-self: center;
+    margin-top: 16px;
+  }
 }
 
 /* Shared leftovers used by other pages until they are restyled */

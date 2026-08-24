@@ -81,17 +81,19 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
     const inner = document.createElement("div");
     inner.className = "footer-inner";
     inner.innerHTML = `
-      <p class="footer-copy">© 2026 FoxStoria</p>
-      <nav class="footer-col" aria-label="Приложение">
-        <span>Приложение</span>
-        <a href="#">App Store</a>
-        <a href="#">Google Play</a>
-      </nav>
-      <nav class="footer-col" aria-label="Контакты">
-        <span>Контакты</span>
-        <a href="#">Почта</a>
-        <a href="#">Telegram</a>
-      </nav>`;
+      <div class="footer-links">
+        <nav class="footer-col" aria-label="Приложение">
+          <span>Приложение</span>
+          <a href="#">App Store</a>
+          <a href="#">Google Play</a>
+        </nav>
+        <nav class="footer-col" aria-label="Контакты">
+          <span>Контакты</span>
+          <a href="#">Почта</a>
+          <a href="https://t.me/foxcavemeit" target="_blank" rel="noopener noreferrer">Telegram</a>
+        </nav>
+      </div>
+      <p class="footer-copy">© 2026 FoxStoria</p>`;
     footer.appendChild(inner);
   }
 
