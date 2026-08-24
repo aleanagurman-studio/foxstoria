@@ -68,6 +68,12 @@
     return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
   }
 
+  function formatCommentWhen(date = new Date()) {
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${date.getDate()} ${MONTHS[date.getMonth()]}, ${hours}:${minutes}`;
+  }
+
   function formatCount(n) {
     const value = Number(n) || 0;
     if (value >= 1000) return `${(value / 1000).toFixed(1).replace(".0", "")}K`;
@@ -95,7 +101,13 @@
   }
 
   function commentsFor(id) {
-    return loadJson(COMMENTS, {})[id] || [];
+    const seed = posts.find((post) => post.id === id)?.comments || [];
+    const extra = loadJson(COMMENTS, {})[id] || [];
+    return [...seed, ...extra];
+  }
+
+  function commentAvatar(item) {
+    return item.avatar || "assets/deco/fox.svg";
   }
 
   function viewsFor(post) {
@@ -198,16 +210,20 @@
   function renderComments(id) {
     const items = commentsFor(id);
     if (!items.length) return `<p class="news-comment-empty">Пока нет комментариев. Напишите первый.</p>`;
-    return items
-      .map(
-        (item) => `
-        <article class="news-comment">
-          <strong>${escapeHtml(item.author || "Читатель")}</strong>
-          <time>${escapeHtml(item.when || "")}</time>
-          <p>${escapeHtml(item.text)}</p>
-        </article>`
-      )
-      .join("");
+    return `<div class="news-comment-list">${items
+      .map((item) => {
+        const own = item.own || item.author === "Вы";
+        return `
+        <article class="news-comment${own ? " is-own" : ""}">
+          <img class="news-comment-ava" src="${escapeHtml(commentAvatar(item))}" alt="">
+          <div class="news-comment-bubble">
+            <strong>${escapeHtml(item.author || "Читатель")}</strong>
+            <p>${escapeHtml(item.text)}</p>
+            <time>${escapeHtml(item.when || "")}</time>
+          </div>
+        </article>`;
+      })
+      .join("")}</div>`;
   }
 
   function cardHTML(post) {
@@ -380,7 +396,13 @@
       const all = loadJson(COMMENTS, {});
       all[id] = [
         ...(all[id] || []),
-        { author: "Вы", text, when: new Date().toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) },
+        {
+          author: "Вы",
+          own: true,
+          avatar: "assets/deco/fox.svg",
+          text,
+          when: formatCommentWhen(),
+        },
       ];
       saveJson(COMMENTS, all);
       card.querySelector("[data-comment-list]").innerHTML = renderComments(id);
@@ -421,14 +443,16 @@
         return;
       }
       const id = form.dataset.id || `${slugify(title)}-${Date.now()}`;
+      const current = posts.find((item) => item.id === id);
       const payload = {
         id,
         title,
         category: form.category.value,
-        date: form.dataset.id ? posts.find((item) => item.id === id)?.date || new Date().toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+        date: form.dataset.id ? current?.date || new Date().toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
         cover: form.dataset.cover || "",
         body,
-        views: posts.find((item) => item.id === id)?.views || 0,
+        views: current?.views || 0,
+        comments: current?.comments || [],
       };
       saveOverlay((overlay) => {
         overlay.deleted = (overlay.deleted || []).filter((item) => item !== id);
