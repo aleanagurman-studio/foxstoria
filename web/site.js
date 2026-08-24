@@ -101,9 +101,11 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
 function syncAuthChrome() {
   const guest = document.getElementById("header-guest");
   const menu = document.getElementById("account-menu");
+  const welcome = document.getElementById("welcome-card");
   const signed = isSignedIn();
   if (guest) guest.hidden = signed;
   if (menu) menu.hidden = !signed;
+  if (welcome) welcome.hidden = signed;
 }
 
 document.addEventListener("click", (event) => {
