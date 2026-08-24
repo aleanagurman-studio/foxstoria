@@ -78,6 +78,25 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
     document.body.appendChild(corner);
   }
 
+  const footer = document.querySelector(".page-footer");
+  if (footer && !footer.querySelector(".footer-inner")) {
+    const inner = document.createElement("div");
+    inner.className = "footer-inner";
+    inner.innerHTML = `
+      <p class="footer-copy">© 2026 FoxStoria</p>
+      <nav class="footer-col" aria-label="Приложение">
+        <span>Приложение</span>
+        <a href="#">App Store</a>
+        <a href="#">Google Play</a>
+      </nav>
+      <nav class="footer-col" aria-label="Контакты">
+        <span>Контакты</span>
+        <a href="#">Почта</a>
+        <a href="#">Telegram</a>
+      </nav>`;
+    footer.appendChild(inner);
+  }
+
   const menu = document.getElementById("account-menu");
   const btn = menu?.querySelector(".account-menu-btn");
   const dd = menu?.querySelector(".account-dd");
