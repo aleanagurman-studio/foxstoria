@@ -925,10 +925,12 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 }
 
 .home-rule {
-  border: 0;
-  height: 1px;
-  margin: 24px 0 20px;
-  background: color-mix(in srgb, var(--taupe) 75%, var(--sand));
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 8px 0 12px;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .features-bar {
