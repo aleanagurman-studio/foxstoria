@@ -4,75 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Линейные — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="site.js"></script>
+  <script src="catalog.js" defer></script>
 </head>
 <body>
   <header class="header">
     <a href="index.html" class="logo">
-      <svg class="logo-mark" aria-hidden="true"><use href="#i-fox-head"></use></svg>
-      <span class="logo-text">Fox<span>Storia</span></span>
+      <img src="assets/brand/logo.png" alt="">
+      <span>FoxStoria</span>
     </a>
     <nav class="nav-main">
-      <a href="stories-interactive.html">Интерактивные</a>
-      <a href="stories-linear.html" class="active">Линейные</a>
+      <a href="stories-interactive.html" class="active">Истории</a>
       <a href="authors.html">Авторы</a>
-      <a href="search.html">Поиск</a>
+      <a href="search.html">Сборники</a>
+      <a href="search.html">Блог</a>
     </nav>
     <form class="search-bar" action="search.html">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="search" name="q" placeholder="Найти историю…">
+      <img class="ink" src="assets/brand/search.png" alt="">
+      <input type="search" name="q" placeholder="Найти историю или автора…">
     </form>
     <div class="header-actions">
-      <button class="icon-btn" id="theme-toggle" aria-label="Тема">☾</button>
-      <a href="#" class="btn btn-ghost">Войти</a>
-      <a href="#" class="btn btn-primary">Регистрация</a>
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="Переключить тему">
+        <img class="ink" src="assets/brand/moon.png" alt="">
+      </button>
+      <a href="library.html" class="icon-btn" aria-label="Закладки">
+        <img class="ink" src="assets/brand/bookmark.png" alt="">
+      </a>
     </div>
   </header>
 
-  <div class="layout catalog">
+  <div class="layout page">
     <aside class="sidebar-left">
       <nav class="sidebar-nav">
-        <a href="index.html">Главная</a>
-        <a href="stories-interactive.html">Интерактивные</a>
-        <a href="stories-linear.html" class="active">Линейные</a>
-        <a href="authors.html">Авторы</a>
-        <a href="search.html">Поиск</a>
+        <a href="index.html"><img class="ink" src="assets/brand/paw.png" alt=""> Главное</a>
+        <a href="stories-interactive.html"><img class="ink" src="assets/brand/sparkle.png" alt=""> Интерактивные</a>
+        <a href="stories-linear.html" class="active"><img class="ink" src="assets/brand/book.png" alt=""> Линейные</a>
+        <a href="authors.html"><img class="ink" src="assets/brand/leaf.png" alt=""> Авторы</a>
+        <a href="profile.html"><img class="ink" src="assets/brand/profile.png" alt=""> Профиль</a>
+        <a href="author-home.html"><img class="ink" src="assets/brand/upload.png" alt=""> Кабинет автора</a>
+        <a href="library.html"><img class="ink" src="assets/brand/bookmark.png" alt=""> Кабинет читателя</a>
       </nav>
+      <div>
+        <div class="sidebar-section-title">Популярные теги</div>
+        <div class="tags-cloud">
+          <a href="search.html" class="tag">Любовь</a>
+          <a href="search.html" class="tag">Магия</a>
+          <a href="search.html" class="tag">Детектив</a>
+          <a href="search.html" class="tag">Фэнтези</a>
+          <a href="search.html" class="tag">Драма</a>
+          <a href="search.html" class="tag">Джен</a>
+          <a href="search.html" class="tag">Гет</a>
+          <a href="search.html" class="tag">Слэш</a>
+          <a href="search.html" class="tag">16+</a>
+          <a href="search.html" class="tag">Ориджинал</a>
+        </div>
+      </div>
+      <div class="sidebar-ornament" aria-hidden="true">
+        <img class="ink" src="assets/brand/wreath.png" alt="">
+      </div>
     </aside>
-    <main class="main">
+
+    <main class="main page-main">
       <header class="page-header">
         <h1>Линейные истории</h1>
         <p>Классическое чтение без ветвлений — главы и повествование</p>
       </header>
-      <div class="divider" aria-hidden="true">
-        <svg class="ico"><use href="#i-moon"></use></svg>
-      </div>
       <div class="type-tabs">
         <a href="stories-interactive.html" class="type-tab">Интерактивные</a>
         <a href="stories-linear.html" class="type-tab active">Линейные</a>
       </div>
       <div class="sort-bar">
         <span>Сортировка:</span>
-        <a href="#" class="sort-btn active">Популярные</a>
-        <a href="#" class="sort-btn">По рейтингу</a>
-        <a href="#" class="sort-btn">Новинки</a>
-        <a href="#" class="sort-btn">По прочтениям</a>
+        <button type="button" class="sort-btn active" data-sort="popular">Популярные</button>
+        <button type="button" class="sort-btn" data-sort="rating">По рейтингу</button>
+        <button type="button" class="sort-btn" data-sort="latest">Новинки</button>
       </div>
-      <div class="stories-grid">
-        <a href="story-linear.html" class="story-card">
-          <div class="story-cover cover-3"><span class="story-type-badge">Линейная</span></div>
-          <div class="story-title">Письма из прошлого</div>
-          <div class="story-meta">Ориджинал · Гет · Звёздная пыль · редактор: Лунный странник</div>
-          <div class="story-stats"><span class="rating">★ 4.7</span><span class="age-badge">16+</span><span class="status-badge">мини</span></div>
-        </a>
-        <article class="story-card"><div class="story-cover cover-4"><span class="story-type-badge">Линейная</span></div><div class="story-title">Город без сна</div><div class="story-meta">Ориджинал · Джен</div><div class="story-stats"><span class="rating">★ 4.6</span><span class="age-badge">16+</span><span class="status-badge">в процессе</span></div></article>
-        <article class="story-card"><div class="story-cover cover-5"><span class="story-type-badge">Линейная</span></div><div class="story-title">Последний вагон</div><div class="story-meta">Ориджинал · Гет</div><div class="story-stats"><span class="rating">★ 4.5</span><span class="age-badge">без рейтинга</span><span class="status-badge">мини</span></div></article>
-      </div>
+      <div class="stories-grid" data-feed="catalog" data-type="linear"></div>
     </main>
   </div>
-  <script src="site.js"></script>
 </body>
 </html>

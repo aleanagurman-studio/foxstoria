@@ -63,3 +63,18 @@ document.addEventListener("DOMContentLoaded", function workTabs() {
     });
   });
 });
+
+document.addEventListener("DOMContentLoaded", function accountTabs() {
+  const tabs = document.querySelectorAll(".account-tabs [data-tab]");
+  if (!tabs.length) return;
+  tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabs.forEach((other) => other.classList.toggle("active", other === btn));
+      [...tabs].forEach((tab) => {
+        const name = tab.getAttribute("data-tab");
+        const panel = document.getElementById("tab-" + name);
+        if (panel) panel.hidden = name !== btn.getAttribute("data-tab");
+      });
+    });
+  });
+});

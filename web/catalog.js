@@ -140,16 +140,92 @@ async function loadCatalog() {
     );
     renderFeatured(works);
     renderAuthors(data.authors || []);
+    renderCatalogGrid(works);
+    renderAuthorsGrid(data.authors || []);
+    window.__foxWorks = works;
+    window.__foxAuthors = data.authors || [];
   } catch (error) {
     renderFeed("popular", [], "Каталог пока не загрузился.");
     renderFeed("latest", [], "Каталог пока не загрузился.");
     renderFeatured([]);
     renderAuthors([]);
+    renderCatalogGrid([]);
+    renderAuthorsGrid([]);
   }
+}
+
+function sortWorks(works, sort) {
+  const copy = [...works];
+  if (sort === "rating") return copy.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  if (sort === "latest") return copy.sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
+  if (sort === "name") return copy.sort((a, b) => String(a.title || "").localeCompare(b.title || "", "ru"));
+  return copy.sort((a, b) => (b.plays || 0) - (a.plays || 0) || (b.rating || 0) - (a.rating || 0));
+}
+
+function renderCatalogGrid(allWorks) {
+  const root = document.querySelector("[data-feed='catalog']");
+  if (!root) return;
+  const type = root.getAttribute("data-type");
+  const sort = document.querySelector(".sort-bar .sort-btn.active")?.getAttribute("data-sort") || "popular";
+  let works = type ? allWorks.filter((work) => work.story_type === type) : allWorks;
+  const params = new URLSearchParams(location.search);
+  const query = (params.get("q") || "").trim().toLowerCase();
+  if (query) {
+    works = works.filter((work) =>
+      [work.title, work.author, work.fandom, work.description].join(" ").toLowerCase().includes(query)
+    );
+  }
+  const typeFilter = params.get("type");
+  if (typeFilter) works = works.filter((work) => work.story_type === typeFilter);
+  ["romance", "age", "fandom"].forEach((key) => {
+    const value = params.get(key);
+    if (!value) return;
+    works = works.filter((work) => String(work[key] || "") === value);
+  });
+  const status = params.get("status");
+  if (status === "completed") works = works.filter((work) => work.is_completed);
+  if (status === "in_progress") works = works.filter((work) => !work.is_completed);
+  const size = params.get("size");
+  if (size) works = works.filter((work) => work.work_size === size);
+  const empty =
+    type === "linear"
+      ? "Линейные истории появятся здесь после публикации."
+      : type === "interactive"
+        ? "Интерактивные работы появятся здесь после публикации."
+        : "Работы появятся здесь, как только авторы начнут публиковать.";
+  renderFeed("catalog", sortWorks(works, sort), empty);
+}
+
+function renderAuthorsGrid(authors) {
+  const root = document.querySelector("[data-feed='authors-grid']");
+  if (!root) return;
+  if (!authors.length) {
+    root.innerHTML = emptyHTML("Авторы появятся вместе с первыми работами.");
+    return;
+  }
+  root.innerHTML = authors
+    .map(
+      (author) => `
+      <a class="author-card" href="${escapeHtml(author.href || "profile.html")}">
+        <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
+        <span>
+          <span class="author-name">${escapeHtml(author.display_name)}</span>
+          <p class="author-stats">${author.rating_avg ? Number(author.rating_avg).toFixed(1) : "—"} · ${author.story_count || 0} работ</p>
+        </span>
+      </a>`
+    )
+    .join("");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   loadCatalog();
+  document.querySelectorAll(".sort-bar .sort-btn").forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
+      document.querySelectorAll(".sort-bar .sort-btn").forEach((other) => other.classList.toggle("active", other === btn));
+      renderCatalogGrid(window.__foxWorks || []);
+    });
+  });
   document.querySelectorAll("[data-scroll]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = document.querySelector(btn.getAttribute("data-scroll"));

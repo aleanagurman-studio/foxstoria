@@ -4,67 +4,85 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Кабинет автора — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="account.css">
   <script src="site.js"></script>
-</head>
-<body class="account-page">
+  </head>
+<body>
   <header class="header">
     <a href="index.html" class="logo">
-      <span class="logo-mark" aria-hidden="true"></span>
-      <span class="logo-text">Fox<span>Storia</span></span>
+      <img src="assets/brand/logo.png" alt="">
+      <span>FoxStoria</span>
     </a>
     <nav class="nav-main">
-      <a href="index.html">Главная</a>
-      <a href="stories-interactive.html">Каталог</a>
+      <a href="stories-interactive.html">Истории</a>
+      <a href="authors.html">Авторы</a>
+      <a href="search.html">Сборники</a>
+      <a href="search.html">Блог</a>
     </nav>
+    <form class="search-bar" action="search.html">
+      <img class="ink" src="assets/brand/search.png" alt="">
+      <input type="search" name="q" placeholder="Найти историю или автора…">
+    </form>
     <div class="header-actions">
-      <button class="circle-btn" id="theme-toggle" aria-label="Тема"><svg class="ico"><use href="#i-moon"></use></svg></button>
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="Переключить тему">
+        <img class="ink" src="assets/brand/moon.png" alt="">
+      </button>
+      <a href="library.html" class="icon-btn" aria-label="Закладки">
+        <img class="ink" src="assets/brand/bookmark.png" alt="">
+      </a>
     </div>
   </header>
-  <div class="account-layout">
-    <aside class="account-side">
-      <p class="side-kicker">Личное меню</p>
-      <a href="profile.html">Профиль</a>
-      <a href="messages.html">Сообщения</a>
-      <a href="author-home.html" class="active">Кабинет автора</a>
-      <a href="library.html">Кабинет читателя</a>
-      <a href="settings.html">Настройки</a>
+
+  <div class="layout page">
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html"><img class="ink" src="assets/brand/paw.png" alt=""> Главное</a>
+        <a href="stories-interactive.html"><img class="ink" src="assets/brand/sparkle.png" alt=""> Интерактивные</a>
+        <a href="stories-linear.html"><img class="ink" src="assets/brand/book.png" alt=""> Линейные</a>
+        <a href="authors.html"><img class="ink" src="assets/brand/leaf.png" alt=""> Авторы</a>
+        <a href="profile.html"><img class="ink" src="assets/brand/profile.png" alt=""> Профиль</a>
+        <a href="author-home.html" class="active"><img class="ink" src="assets/brand/upload.png" alt=""> Кабинет автора</a>
+        <a href="library.html"><img class="ink" src="assets/brand/bookmark.png" alt=""> Кабинет читателя</a>
+      </nav>
+      <div>
+        <div class="sidebar-section-title">Популярные теги</div>
+        <div class="tags-cloud">
+          <a href="search.html" class="tag">Любовь</a>
+          <a href="search.html" class="tag">Магия</a>
+          <a href="search.html" class="tag">Детектив</a>
+          <a href="search.html" class="tag">Фэнтези</a>
+          <a href="search.html" class="tag">Драма</a>
+          <a href="search.html" class="tag">Джен</a>
+          <a href="search.html" class="tag">Гет</a>
+          <a href="search.html" class="tag">Слэш</a>
+          <a href="search.html" class="tag">16+</a>
+          <a href="search.html" class="tag">Ориджинал</a>
+        </div>
+      </div>
+      <div class="sidebar-ornament" aria-hidden="true">
+        <img class="ink" src="assets/brand/wreath.png" alt="">
+      </div>
     </aside>
-    <main class="account-main">
-      <h1 style="font-family:var(--font-display);margin-bottom:8px">Кабинет автора</h1>
-      <p class="profile-meta" style="margin-bottom:20px">Список работ, отзывы и вход в редактор, хронологию и заметки по каждой истории.</p>
 
-      <article class="account-card">
-        <div class="work-row" style="border:none;padding:0">
-          <div class="thumb cover-1"></div>
-          <div style="flex:1">
-            <strong>Тени прошлого</strong>
-            <p class="profile-meta">Черновик · интерактивная · Ориджинал · Джен · 16+ · в процессе</p>
-          </div>
-          <a href="studio.html" class="btn btn-primary">Открыть кабинет истории</a>
-        </div>
-      </article>
+    <main class="main page-main">
+        <nav class="account-subnav">
+          <a href="profile.html">Профиль</a>
+          <a href="messages.html">Сообщения</a>
+          <a href="author-home.html" class="active">Кабинет автора</a>
+          <a href="library.html">Кабинет читателя</a>
+          <a href="settings.html">Настройки</a>
+        </nav>
 
-      <article class="account-card">
-        <div class="work-row" style="border:none;padding:0">
-          <div class="thumb cover-3"></div>
-          <div style="flex:1">
-            <strong>Письма из прошлого</strong>
-            <p class="profile-meta">Вы редактор · линейная · Ориджинал · Гет · мини</p>
-          </div>
-          <a href="studio.html" class="btn btn-outline">Заметки и правки</a>
-        </div>
-      </article>
-
-      <h2 style="font-size:1.1rem;margin:28px 0 12px">Отзывы на ваши работы</h2>
-      <article class="account-card">
-        <p>«Ветка парка сильнее кафе. Жду Никиту.»</p>
-        <p class="profile-meta">К Тени прошлого · вчера</p>
-      </article>
+      <header class="page-header">
+        <h1>Кабинет автора</h1>
+        <p>Список работ, отзывы и вход в редактор, хронологию и заметки по каждой истории.</p>
+      </header>
+      <div class="empty-feed"><p>Когда появится первая история, она откроется отсюда в кабинет и редактор.</p></div>
+      <p><a href="studio.html" class="btn btn-primary">Открыть макет кабинета истории</a></p>
     </main>
   </div>
 </body>

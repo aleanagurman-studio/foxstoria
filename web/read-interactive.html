@@ -4,24 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Тени прошлого — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="header">
     <a href="index.html" class="logo">
-      <span class="logo-mark" aria-hidden="true"></span>
-      <span class="logo-text">Fox<span>Storia</span></span>
+      <img src="assets/brand/logo.png" alt="">
+      <span>FoxStoria</span>
     </a>
     <nav class="nav-main">
-      <a href="stories-interactive.html" class="active">Интерактивные</a>
-      <a href="stories-linear.html">Линейные</a>
+      <a href="stories-interactive.html" class="active">Истории</a>
       <a href="authors.html">Авторы</a>
-      <a href="search.html">Поиск</a>
+      <a href="search.html">Сборники</a>
+      <a href="search.html">Блог</a>
     </nav>
     <div class="header-actions">
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="Переключить тему">
+        <img class="ink" src="assets/brand/moon.png" alt="">
+      </button>
       <a href="story-interactive.html" class="btn btn-ghost">К карточке работы</a>
     </div>
   </header>

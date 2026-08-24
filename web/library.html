@@ -4,40 +4,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Кабинет читателя — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="account.css">
   <script src="site.js"></script>
-</head>
-<body class="account-page">
+  </head>
+<body>
   <header class="header">
     <a href="index.html" class="logo">
-      <span class="logo-mark" aria-hidden="true"></span>
-      <span class="logo-text">Fox<span>Storia</span></span>
+      <img src="assets/brand/logo.png" alt="">
+      <span>FoxStoria</span>
     </a>
     <nav class="nav-main">
-      <a href="index.html">Главная</a>
-      <a href="stories-interactive.html">Каталог</a>
+      <a href="stories-interactive.html">Истории</a>
+      <a href="authors.html">Авторы</a>
+      <a href="search.html">Сборники</a>
+      <a href="search.html">Блог</a>
     </nav>
+    <form class="search-bar" action="search.html">
+      <img class="ink" src="assets/brand/search.png" alt="">
+      <input type="search" name="q" placeholder="Найти историю или автора…">
+    </form>
     <div class="header-actions">
-      <button class="circle-btn" id="theme-toggle" aria-label="Тема"><svg class="ico"><use href="#i-moon"></use></svg></button>
+      <button type="button" class="icon-btn" id="theme-toggle" aria-label="Переключить тему">
+        <img class="ink" src="assets/brand/moon.png" alt="">
+      </button>
+      <a href="library.html" class="icon-btn" aria-label="Закладки">
+        <img class="ink" src="assets/brand/bookmark.png" alt="">
+      </a>
     </div>
   </header>
-  <div class="account-layout">
-    <aside class="account-side">
-      <p class="side-kicker">Личное меню</p>
-      <a href="profile.html">Профиль</a>
-      <a href="messages.html">Сообщения</a>
-      <a href="author-home.html">Кабинет автора</a>
-      <a href="library.html" class="active">Кабинет читателя</a>
-      <a href="settings.html">Настройки</a>
-    </aside>
-    <main class="account-main">
-      <h1 style="font-family:var(--font-display);margin-bottom:8px">Кабинет читателя</h1>
-      <p class="profile-meta" style="margin-bottom:20px">Подписки, лайки, история и ваши сборники. Этого не видно на публичном профиле, кроме открытых сборников.</p>
 
+  <div class="layout page">
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html"><img class="ink" src="assets/brand/paw.png" alt=""> Главное</a>
+        <a href="stories-interactive.html"><img class="ink" src="assets/brand/sparkle.png" alt=""> Интерактивные</a>
+        <a href="stories-linear.html"><img class="ink" src="assets/brand/book.png" alt=""> Линейные</a>
+        <a href="authors.html"><img class="ink" src="assets/brand/leaf.png" alt=""> Авторы</a>
+        <a href="profile.html"><img class="ink" src="assets/brand/profile.png" alt=""> Профиль</a>
+        <a href="author-home.html"><img class="ink" src="assets/brand/upload.png" alt=""> Кабинет автора</a>
+        <a href="library.html" class="active"><img class="ink" src="assets/brand/bookmark.png" alt=""> Кабинет читателя</a>
+      </nav>
+      <div>
+        <div class="sidebar-section-title">Популярные теги</div>
+        <div class="tags-cloud">
+          <a href="search.html" class="tag">Любовь</a>
+          <a href="search.html" class="tag">Магия</a>
+          <a href="search.html" class="tag">Детектив</a>
+          <a href="search.html" class="tag">Фэнтези</a>
+          <a href="search.html" class="tag">Драма</a>
+          <a href="search.html" class="tag">Джен</a>
+          <a href="search.html" class="tag">Гет</a>
+          <a href="search.html" class="tag">Слэш</a>
+          <a href="search.html" class="tag">16+</a>
+          <a href="search.html" class="tag">Ориджинал</a>
+        </div>
+      </div>
+      <div class="sidebar-ornament" aria-hidden="true">
+        <img class="ink" src="assets/brand/wreath.png" alt="">
+      </div>
+    </aside>
+
+    <main class="main page-main">
+        <nav class="account-subnav">
+          <a href="profile.html">Профиль</a>
+          <a href="messages.html">Сообщения</a>
+          <a href="author-home.html">Кабинет автора</a>
+          <a href="library.html" class="active">Кабинет читателя</a>
+          <a href="settings.html">Настройки</a>
+        </nav>
+
+      <header class="page-header">
+        <h1>Кабинет читателя</h1>
+        <p>Подписки, лайки, история и ваши сборники. Этого не видно на публичном профиле, кроме открытых сборников.</p>
+      </header>
       <div class="account-tabs">
         <button type="button" class="active" data-tab="authors">Авторы</button>
         <button type="button" data-tab="works">Работы</button>
@@ -45,54 +88,12 @@
         <button type="button" data-tab="history">История</button>
         <button type="button" data-tab="packs">Мои сборники</button>
       </div>
-
-      <section id="tab-authors">
-        <a href="profile.html" class="work-row">
-          <div class="thumb cover-4" style="border-radius:50%;height:40px;width:40px"></div>
-          <div><strong>Звёздная пыль</strong><p class="profile-meta">15 работ · подписка</p></div>
-        </a>
-      </section>
-      <section id="tab-works" hidden>
-        <a href="story-linear.html" class="work-row">
-          <div class="thumb cover-3"></div>
-          <div><strong>Письма из прошлого</strong><p class="profile-meta">Ориджинал · Гет · 16+ · мини · следите за обновлениями</p></div>
-        </a>
-      </section>
-      <section id="tab-likes" hidden>
-        <a href="story-interactive.html" class="work-row">
-          <div class="thumb cover-1"></div>
-          <div><strong>Тени прошлого</strong><p class="profile-meta">Ориджинал · Джен · 16+ · в процессе · в избранном</p></div>
-        </a>
-      </section>
-      <section id="tab-history" hidden>
-        <a href="read-interactive.html" class="work-row">
-          <div class="thumb cover-1"></div>
-          <div><strong>Тени прошлого</strong><p class="profile-meta">Глава 1 · 25% · сегодня</p></div>
-        </a>
-      </section>
-      <section id="tab-packs" hidden>
-        <article class="account-card">
-          <h3>Дождь и письма</h3>
-          <p class="profile-meta">Открытый сборник · 2 работы</p>
-        </article>
-        <article class="account-card">
-          <h3>Черновик на потом</h3>
-          <p class="profile-meta">Только вы · 0 работ</p>
-        </article>
-      </section>
+      <section id="tab-authors"><div class="empty-feed"><p>Подписки на авторов появятся здесь.</p></div></section>
+      <section id="tab-works" hidden><div class="empty-feed"><p>Отслеживаемые работы появятся здесь.</p></div></section>
+      <section id="tab-likes" hidden><div class="empty-feed"><p>Понравившиеся истории появятся в избранном.</p></div></section>
+      <section id="tab-history" hidden><div class="empty-feed"><p>История чтения появится после первых глав.</p></div></section>
+      <section id="tab-packs" hidden><div class="empty-feed"><p>Свои сборники можно будет собирать здесь.</p></div></section>
     </main>
   </div>
-  <script>
-    document.querySelectorAll(".account-tabs button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".account-tabs button").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        ["authors", "works", "likes", "history", "packs"].forEach((name) => {
-          const el = document.getElementById("tab-" + name);
-          if (el) el.hidden = name !== btn.dataset.tab;
-        });
-      });
-    });
-  </script>
 </body>
 </html>

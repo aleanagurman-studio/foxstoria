@@ -9,11 +9,11 @@
   --node-green: #5E8F6E;
   --node-blue: #6B8FAD;
   --node-purple: #8B7BA8;
-  --node-orange: #C85A3D;
+  --node-orange: #D55A2A;
   --node-red: #B94C32;
-  --node-grey: #77716C;
+  --node-grey: #8A6A52;
 
-  --canvas-dot: #E6E1DC;
+  --canvas-dot: #E8DDD0;
 }
 
 body.editor-page {
