@@ -1695,10 +1695,14 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   font-weight: 600;
   cursor: pointer;
 }
-.news-stat svg,
-.news-stat img {
+.news-stat svg {
   width: 26px;
   height: 26px;
+}
+.news-stat img {
+  width: auto;
+  height: 26px;
+  max-width: none;
   object-fit: contain;
 }
 span.news-stat { cursor: default; }
