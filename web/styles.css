@@ -554,6 +554,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .hero-content { position: relative; max-width: 420px; }
 
+.hero-accent { color: var(--fox); }
+
 .hero p {
   margin: 14px 0 22px;
   color: var(--chestnut);
