@@ -2,8 +2,6 @@
 
 :root {
   --fox: #D55A2A;
-  --fox-hover: #C94D22;
-  --fox-soft: #F4D5C2;
   --deep: #30231C;
   --chestnut-dark: #4A3023;
   --chestnut: #694A38;
@@ -14,27 +12,30 @@
   --sand: #CDB89E;
   --taupe: #B7A691;
   --ink: #211914;
-  --border: #E8DDD0;
-  --border-warm: #DCC9B5;
-  --cream-hover: #F7F0E7;
   --white: #FFFFFF;
   --on-fox: #FFFFFF;
+
+  --fox-hover: color-mix(in srgb, var(--fox) 78%, var(--ink));
+  --fox-soft: var(--beige);
+  --border: var(--sand);
+  --border-warm: var(--taupe);
+  --cream-hover: var(--paper);
 
   --header-h: 72px;
   --sidebar-w: 220px;
   --rightbar-w: 280px;
   --radius: 16px;
   --radius-lg: 24px;
-  --shadow: 0 8px 24px rgba(48, 35, 28, 0.06);
+  --shadow: 0 8px 24px color-mix(in srgb, var(--deep) 12%, transparent);
 
   --font-ui: "Manrope", system-ui, sans-serif;
   --font-display: "Cormorant Garamond", Georgia, serif;
 
   --bg-base: var(--cream);
-  --bg-card: var(--white);
+  --bg-card: var(--paper);
   --bg-subtle: var(--paper);
-  --bg-accent-soft: var(--fox-soft);
-  --border-default: var(--border);
+  --bg-accent-soft: var(--beige);
+  --border-default: var(--sand);
   --text-primary: var(--deep);
   --text-secondary: var(--warm-brown);
   --accent-primary: var(--fox);
@@ -56,11 +57,7 @@
   --chestnut: #CDB89E;
   --warm-brown: #B7A691;
   --ink: #FAF7F1;
-  --border: #3A3028;
-  --border-warm: #4A3A30;
-  --cream-hover: #2A221C;
   --white: #261F1A;
-  --fox-soft: #4A3023;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
@@ -260,13 +257,17 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .btn-primary:hover { background: var(--fox-hover); }
 
-.btn-ghost {
+.btn-ghost,
+.btn-outline {
   background: var(--white);
-  color: var(--chestnut-dark);
-  border-color: var(--border-warm);
+  color: var(--fox);
+  border-color: var(--fox);
 }
 
-.btn-ghost:hover { background: var(--cream-hover); }
+.btn-ghost:hover,
+.btn-outline:hover {
+  background: var(--beige);
+}
 
 .btn-soft {
   background: var(--paper);
@@ -338,8 +339,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 .tag {
   padding: 6px 10px;
   border-radius: 999px;
-  background: var(--paper);
-  color: var(--chestnut);
+  background: var(--beige);
+  color: var(--chestnut-dark);
   font-size: 12px;
   font-weight: 500;
 }
@@ -409,6 +410,8 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   color: var(--fox);
   padding: 0 8px;
 }
+
+.section-link::after { content: " →"; }
 
 .stories-row {
   display: flex;
@@ -520,7 +523,7 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   font-weight: 500;
 }
 
-.age-badge.age-18 { background: var(--fox-soft); color: var(--fox); }
+.age-badge.age-18 { background: var(--fox); color: var(--on-fox); }
 
 .empty-feed {
   flex: 1 0 100%;
@@ -818,14 +821,7 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 /* Shared leftovers used by other pages until they are restyled */
 .logo-text { font-family: var(--font-display); font-weight: 600; font-size: 28px; }
 .logo-mark { display: none; }
-.card, .panel, .widget-book { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); }
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--border-warm);
-  color: var(--chestnut-dark);
-}
-
-.btn-outline:hover { background: var(--cream-hover); }
+.card, .panel, .widget-book { background: var(--paper); border: 1px solid var(--sand); border-radius: var(--radius); }
 
 .page-main { gap: 20px; }
 
@@ -1205,7 +1201,7 @@ textarea {
   margin-bottom: 14px;
 }
 
-.work-desc { color: var(--chestnut); max-width: 58ch; margin: 0 0 14px; }
+.work-desc { color: var(--deep); max-width: 58ch; margin: 0 0 14px; }
 
 .work-notes {
   background: var(--paper);
@@ -1367,7 +1363,19 @@ textarea {
 
 .reader-kicker { font-size: 12px; color: var(--warm-brown); margin-bottom: 8px; }
 
-.reader-text { color: var(--chestnut); font-size: 16px; max-width: 62ch; }
+.reader-text { color: var(--deep); font-size: 16px; max-width: 62ch; }
+
+.reader-text a,
+.work-desc a,
+.work-notes a {
+  color: var(--deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.reader-text a:hover,
+.work-desc a:hover,
+.work-notes a:hover { color: var(--fox); }
 
 .choices { display: flex; flex-direction: column; gap: 8px; margin: 18px 0; }
 

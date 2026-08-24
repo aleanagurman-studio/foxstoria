@@ -6,14 +6,7 @@
   --editor-right-w: 300px;
   --editor-bottom-h: 200px;
 
-  --node-green: #5E8F6E;
-  --node-blue: #6B8FAD;
-  --node-purple: #8B7BA8;
-  --node-orange: #D55A2A;
-  --node-red: #B94C32;
-  --node-grey: #8A6A52;
-
-  --canvas-dot: #E8DDD0;
+  --canvas-dot: var(--beige);
 }
 
 body.editor-page {
@@ -96,7 +89,7 @@ body.editor-page {
 
 .mode-tab.active {
   background: var(--accent-primary);
-  color: #fff;
+  color: var(--on-fox);
 }
 
 .editor-toolbar {
@@ -241,7 +234,7 @@ body.editor-page {
 
 .scene-item.active {
   background: var(--bg-accent-soft);
-  outline: 1px solid rgba(200, 90, 61, 0.35);
+  outline: 1px solid color-mix(in srgb, var(--fox) 35%, transparent);
 }
 
 .scene-num {
@@ -270,7 +263,7 @@ body.editor-page {
   padding: 2px 6px;
   border-radius: var(--radius-pill);
   background: var(--accent-primary);
-  color: #fff;
+  color: var(--on-fox);
   flex-shrink: 0;
 }
 
@@ -338,7 +331,7 @@ body.editor-page {
   position: absolute;
   border: 2px solid var(--accent-primary);
   border-radius: 2px;
-  background: rgba(200, 90, 61, 0.08);
+  background: color-mix(in srgb, var(--fox) 12%, transparent);
   width: 45%;
   height: 55%;
   top: 20%;
@@ -468,8 +461,8 @@ body.editor-page {
 .map-start,
 .map-node {
   position: absolute;
-  border: 1.6px solid #4A3023;
-  background: #FAF7F1;
+  border: 1.6px solid var(--chestnut-dark);
+  background: var(--cream);
   cursor: pointer;
   padding: 0;
   z-index: 2;
@@ -510,7 +503,7 @@ body.editor-page {
 
 .map-node.selected {
   border-color: var(--fox);
-  box-shadow: 0 0 0 3px rgba(213, 90, 42, 0.16);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fox) 16%, transparent);
 }
 
 .map-node .mark {
@@ -541,7 +534,7 @@ body.editor-page {
   text-align: center;
   font-size: 11px;
   font-weight: 600;
-  color: #4A3023;
+  color: var(--chestnut-dark);
   pointer-events: none;
   line-height: 1.2;
 }
@@ -872,7 +865,7 @@ body.editor-page {
 }
 
 .btn-sm:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
-.btn-sm.danger:hover { border-color: #B94C32; color: #B94C32; }
+.btn-sm.danger:hover { border-color: var(--fox); color: var(--fox); }
 
 .toggle-row {
   display: flex;
@@ -900,11 +893,11 @@ body.editor-page {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--white);
   top: 2px;
   left: 2px;
   transition: transform 0.15s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ink) 15%, transparent);
 }
 
 .toggle.on::after { transform: translateX(16px); }
@@ -954,7 +947,7 @@ body.editor-page {
   padding: 12px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #B94C32;
+  color: var(--fox);
   margin-top: 16px;
 }
 

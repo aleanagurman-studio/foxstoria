@@ -259,13 +259,13 @@
       <svg class="graph-lines" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
         <defs>
           <marker id="map-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L7,3 z" fill="#4A3023"/>
+            <path d="M0,0 L0,6 L7,3 z" fill="var(--chestnut-dark)"/>
           </marker>
         </defs>
         ${edges
           .map(
             (edge) =>
-              `<path d="${edge.d}" fill="none" stroke="#4A3023" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#map-arrow)"/>`
+              `<path d="${edge.d}" fill="none" stroke="var(--chestnut-dark)" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#map-arrow)"/>`
           )
           .join("")}
       </svg>`;
