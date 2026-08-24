@@ -1155,7 +1155,7 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   position: relative;
   z-index: 2;
   min-height: 220px;
-  padding: 40px 20px 28px;
+  padding: 88px 20px 8px;
 }
 
 .footer-links {
@@ -1168,9 +1168,9 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 .footer-copy {
   position: absolute;
   left: 50%;
-  top: 50%;
+  bottom: 8px;
   margin: 0;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   font-size: 13px;
   font-weight: 600;
   color: var(--fox);
@@ -1276,15 +1276,17 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 28px 20px 20px;
+    padding: 72px 20px 36px;
     max-width: none;
     min-height: 180px;
   }
   .footer-copy {
-    position: static;
-    transform: none;
-    align-self: center;
-    margin-top: 16px;
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    transform: translateX(-50%);
+    align-self: auto;
+    margin-top: 0;
   }
 }
 
