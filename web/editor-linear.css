@@ -177,13 +177,13 @@
   .editor-linear-page .editor-right { display: none; }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .editor-linear-page .editor-layout {
-    grid-template-columns: minmax(140px, 38%) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
-  .editor-linear-page .editor-left {
-    min-width: 0;
-  }
+}
+
+@media (max-width: 768px) {
   .linear-editor {
     padding: 20px 18px 28px;
     font-size: 1rem;

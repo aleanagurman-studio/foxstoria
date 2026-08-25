@@ -392,6 +392,49 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   hydrateUserLinks();
 });
 
+document.addEventListener("DOMContentLoaded", function bindCollapsibleSide() {
+  const layout = document.querySelector("[data-side-layout]");
+  const panel = document.querySelector("[data-side-panel]");
+  const btn = document.querySelector("[data-side-toggle]");
+  if (!layout || !panel || !btn) return;
+
+  const mq = window.matchMedia("(max-width: 860px)");
+  let backdrop = layout.querySelector(".side-backdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "side-backdrop";
+    backdrop.setAttribute("aria-label", "Закрыть меню");
+    backdrop.hidden = true;
+    layout.prepend(backdrop);
+  }
+
+  function setOpen(open) {
+    const mobile = mq.matches;
+    const show = mobile && open;
+    layout.classList.toggle("is-side-open", show);
+    btn.setAttribute("aria-expanded", show ? "true" : "false");
+    backdrop.hidden = !show;
+  }
+
+  btn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setOpen(!layout.classList.contains("is-side-open"));
+  });
+  backdrop.addEventListener("click", () => setOpen(false));
+  panel.addEventListener("click", (event) => {
+    if (!mq.matches) return;
+    if (event.target.closest("[data-view], [data-select], .studio-item")) {
+      setOpen(false);
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+  mq.addEventListener("change", () => setOpen(false));
+  setOpen(false);
+});
+
 function syncInboxDots() {
   const signed = isSignedIn();
   const notifDot = document.querySelector("[data-notif-dot]");

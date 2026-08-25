@@ -8,13 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=67">
-  <link rel="stylesheet" href="studio.css?v=7">
-  <script src="site.js?v=13"></script>
+  <link rel="stylesheet" href="styles.css?v=68">
+  <link rel="stylesheet" href="studio.css?v=8">
+  <script src="site.js?v=14"></script>
 </head>
 <body class="studio-page">
 
   <header class="editor-header">
+    <button type="button" class="side-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Боковое меню">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
     <a href="index.html" class="logo">
       <img src="assets/brand/logo.png" alt="">
       <span>FoxStoria</span>
@@ -35,8 +38,8 @@
     </div>
   </header>
 
-  <div class="studio-layout">
-    <aside class="studio-nav" aria-label="Кабинет истории">
+  <div class="studio-layout" data-side-layout>
+    <aside class="studio-nav" id="side-panel" data-side-panel aria-label="Кабинет истории">
       <p class="studio-nav-kicker">Моя история</p>
 
       <div class="studio-group">

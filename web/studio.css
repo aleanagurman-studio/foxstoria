@@ -269,29 +269,59 @@ body.studio-page {
 .char-card.highlight,
 .studio-card.highlight { outline: 2px solid var(--accent-primary); }
 
-@media (max-width: 800px) {
+@media (max-width: 860px) {
   .studio-layout {
-    grid-template-columns: minmax(132px, 38%) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    position: relative;
     min-height: 0;
+    overflow-x: hidden;
   }
   .studio-nav {
+    position: absolute;
+    z-index: 25;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(280px, 86vw);
+    overflow: auto;
+    background: var(--bg-card);
+    transform: translateX(-110%);
+    transition: transform 0.2s ease;
     border-right: 1px solid var(--border-default);
     border-bottom: none;
     padding: 12px 10px 24px;
     min-width: 0;
+    box-shadow: var(--shadow);
+  }
+  .studio-layout.is-side-open .studio-nav {
+    transform: translateX(0);
+  }
+  .studio-layout > .side-backdrop {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    cursor: pointer;
+  }
+  .studio-layout.is-side-open > .side-backdrop {
+    display: block;
   }
   .studio-page .editor-header {
     height: auto;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
     grid-template-areas:
-      "logo title"
-      "type type"
-      "actions actions";
+      "toggle logo title"
+      "type type type"
+      "actions actions actions";
     align-items: center;
     gap: 6px 8px;
     padding: 8px 10px;
     min-width: 0;
+  }
+  .studio-page .side-toggle {
+    display: grid;
+    grid-area: toggle;
   }
   .studio-page .editor-header .logo { grid-area: logo; }
   .studio-page .editor-header .logo span { display: none; }

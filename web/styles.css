@@ -247,6 +247,30 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
 
 .search-bar input::placeholder { color: var(--taupe); }
 
+.side-toggle {
+  display: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  background: var(--beige);
+  color: var(--chestnut-dark);
+  cursor: pointer;
+  flex-shrink: 0;
+  place-items: center;
+}
+
+.side-toggle:hover { background: var(--sand); color: var(--fox); }
+
+.side-backdrop {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: color-mix(in srgb, var(--deep) 32%, transparent);
+}
+
 .header-actions {
   display: flex;
   align-items: center;
