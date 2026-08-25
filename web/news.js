@@ -423,7 +423,10 @@
           <div class="news-foot">
             <button type="button" class="news-stat" data-open-comments>${ico.comment} <span>${comments}</span></button>
             <span class="news-stat">${ico.eye} <span data-views>${formatCount(viewsFor(post))}</span></span>
-            ${long ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : `<button type="button" class="news-more" data-open-comments>Комментировать</button>`}
+            <div class="news-foot-actions">
+              ${long ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
+              <button type="button" class="news-more" data-open-comments>Комментировать</button>
+            </div>
           </div>
           ${
             owner()
@@ -513,6 +516,7 @@
   }
 
   function expandCard(card, withComments) {
+    card.classList.add("is-expanded");
     const full = card.querySelector(".news-full");
     const excerpt = card.querySelector(".news-excerpt");
     const comments = card.querySelector(".news-comments");
@@ -532,6 +536,7 @@
   }
 
   function collapseCard(card) {
+    card.classList.remove("is-expanded");
     const full = card.querySelector(".news-full");
     const excerpt = card.querySelector(".news-excerpt");
     const comments = card.querySelector(".news-comments");
