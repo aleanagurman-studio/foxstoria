@@ -264,7 +264,7 @@ function headerMarkup() {
       </div>
       <div class="account-menu" id="account-menu" hidden>
         <button type="button" class="account-menu-btn" aria-expanded="false" aria-label="Мой профиль">
-          <img src="assets/deco/fox.svg" alt="">
+          <img class="header-avatar" src="assets/test/avatar-1.png" alt="">
         </button>
         <div class="account-dd" hidden>
           <div class="account-dd-scroll">

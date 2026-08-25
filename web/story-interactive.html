@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=22">
-  <script src="site.js?v=10"></script>
+  <link rel="stylesheet" href="styles.css?v=36">
+  <script src="site.js?v=11"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -25,7 +25,7 @@
 
     <section class="work-hero">
       <div class="work-cover">
-        <img src="assets/brand/welcome-fox.jpg" alt="Обложка «Тени прошлого»">
+        <img src="assets/test/cover-1.png" alt="Обложка «Тени прошлого»">
       </div>
       <div class="work-body">
         <div class="work-main">
@@ -34,7 +34,7 @@
           </div>
           <header class="work-head">
             <div class="work-badges">
-              <a href="search.html?romance=gen" class="work-badge work-badge--gen">Джен</a>
+              <a href="search.html?romance=gen" class="work-badge work-badge--gen"><img src="assets/svg/джен.svg" class="work-badge-icon" alt=""> Джен</a>
               <a href="search.html?age=16%2B" class="work-badge work-badge--age work-badge--age-16">16+</a>
               <a href="search.html?status=in_progress" class="work-badge work-badge--status work-badge--status-progress">В процессе</a>
               <span class="work-badge work-badge--likes"><img src="assets/svg/heart.svg" class="work-icon" alt=""> 892</span>
@@ -44,7 +44,7 @@
 
           <div class="work-people">
             <a href="profile.html" class="work-person" data-user-name="Лунный странник">
-              <img class="work-person-ava" src="assets/brand/fox-peek.jpg" alt="">
+              <img class="work-person-ava" src="assets/test/avatar-1.png" alt="">
               <span class="work-person-body">
                 <span class="work-person-name">Лунный странник</span>
                 <span class="work-person-role">автор</span>
@@ -72,7 +72,7 @@
             </div>
             <div class="work-meta-item">
               <span class="work-meta-label">
-                <img src="assets/svg/пейринг.svg" class="work-meta-icon" alt="">
+                <img src="assets/svg/profile.svg" class="work-meta-icon" alt="">
                 Пейринги и персонажи
               </span>
               <div class="work-meta-value work-meta-comma">
@@ -84,7 +84,7 @@
                 <img src="assets/svg/размер.svg" class="work-meta-icon" alt="">
                 Размер
               </span>
-              <div class="work-meta-value work-meta-muted">после завершения</div>
+              <div class="work-meta-value work-meta-muted">В процессе, 3 главы</div>
             </div>
           </div>
 
@@ -114,7 +114,7 @@
               <p>Город после дождя. Знакомое лицо на перекрёстке. Каждый выбор ведёт к другой правде — и к одной из трёх концовок.</p>
             </section>
             <section class="work-notes-block">
-              <h2>Примечания автора</h2>
+              <h2>Примечания автора <img src="assets/svg/3.svg" class="work-section-icon" alt=""></h2>
               <p>Ветки кафе и парка читаются независимо. Никиту в описании не спойлерить.</p>
             </section>
           </div>
@@ -122,6 +122,7 @@
 
         <aside class="work-aside">
           <div class="work-structure-stats" aria-label="Статистика">
+            <h2 class="work-stats-title">Статистика</h2>
             <div class="work-stat-cell">
               <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
               <span class="work-stat-value">32.1K</span>
@@ -138,14 +139,17 @@
               <span class="work-stat-label">комментариев</span>
             </div>
             <div class="work-stat-cell">
+              <img src="assets/svg/концовки.svg" class="work-stat-icon" alt="">
               <span class="work-stat-value">3</span>
               <span class="work-stat-label">концовки</span>
             </div>
             <div class="work-stat-cell">
+              <img src="assets/svg/ветки.svg" class="work-stat-icon" alt="">
               <span class="work-stat-value">12</span>
               <span class="work-stat-label">веток</span>
             </div>
             <div class="work-stat-cell">
+              <img src="assets/svg/выборы.svg" class="work-stat-icon" alt="">
               <span class="work-stat-value">38</span>
               <span class="work-stat-label">выборов</span>
             </div>
@@ -155,22 +159,22 @@
     </section>
 
     <section class="work-lower work-lower--chapters">
-      <div class="work-card">
+      <div class="work-chapters-block">
         <h2 class="work-chapters-title">Главы</h2>
         <div class="chapter-row">
           <span class="ch-num">1</span>
-          <div><strong>Пролог. Перекрёсток</strong><p class="profile-meta">Дождь стих. Слева кафе, справа парк.</p></div>
-          <a href="read-interactive.html" class="ch-play" aria-label="Читать"><img src="assets/brand/play.png" alt=""></a>
+          <div><strong>Пролог. Перекрёсток</strong></div>
+          <a href="read-interactive.html" class="ch-play" aria-label="Читать"><img src="assets/svg/unlocked.svg" alt=""></a>
         </div>
         <div class="chapter-row">
           <span class="ch-num">2</span>
           <div><strong>Ветка: кафе</strong></div>
-          <span class="ch-lock"><img src="assets/brand/locked.png" alt=""></span>
+          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
         </div>
         <div class="chapter-row">
           <span class="ch-num">3</span>
           <div><strong>Ветка: парк</strong></div>
-          <span class="ch-lock"><img src="assets/brand/locked.png" alt=""></span>
+          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
         </div>
       </div>
     </section>

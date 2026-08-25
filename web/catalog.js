@@ -69,6 +69,18 @@ function renderFeed(id, items, emptyText) {
   root.innerHTML = items.map((work, index) => cardHTML(work, ranked ? index + 1 : 0, isNew)).join("");
 }
 
+function renderProfileWorks(works) {
+  const root = document.querySelector('[data-feed="profile-works"]');
+  if (!root) return;
+  const slug = root.getAttribute("data-author") || "moonwander";
+  const items = works.filter((work) => work.author_slug === slug);
+  if (!items.length) {
+    root.innerHTML = emptyHTML("Работы появятся на профиле после публикации.");
+    return;
+  }
+  root.innerHTML = items.map((work) => cardHTML(work, 0, false)).join("");
+}
+
 function renderFeatured(works) {
   const root = document.querySelector("[data-feed='featured']");
   if (!root) return;
@@ -105,12 +117,12 @@ function renderAuthors(authors) {
     .slice(0, 5)
     .map(
       (author, index) => `
-      <a class="author-item" href="${escapeHtml(author.href || profileHref(author.display_name))}">
+      <a class="author-item" href="${escapeHtml(author.href || profileHref(author.display_name || author.name))}">
         <span class="author-rank">${index + 1}</span>
         <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
         <span class="author-info">
-          <span class="author-name">${escapeHtml(author.display_name)}</span>
-          <span class="author-stats">${author.rating_avg ? Number(author.rating_avg).toFixed(1) : "—"} · ${author.story_count || 0} работ</span>
+          <span class="author-name">${escapeHtml(author.display_name || author.name)}</span>
+          <span class="author-stats">${author.rating_avg ? Number(author.rating_avg).toFixed(1) : "—"} · ${author.story_count ?? author.works ?? 0} работ</span>
         </span>
       </a>`
     )
@@ -144,6 +156,7 @@ async function loadCatalog() {
     renderAuthors(data.authors || []);
     renderCatalogGrid(works);
     renderAuthorsGrid(data.authors || []);
+    renderProfileWorks(works);
     window.__foxWorks = works;
     window.__foxAuthors = data.authors || [];
   } catch (error) {
@@ -356,11 +369,11 @@ function renderAuthorsGrid(authors) {
   root.innerHTML = authors
     .map(
       (author) => `
-      <a class="author-card" href="${escapeHtml(author.href || profileHref(author.display_name))}">
+      <a class="author-card" href="${escapeHtml(author.href || profileHref(author.display_name || author.name))}">
         <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
         <span>
-          <span class="author-name">${escapeHtml(author.display_name)}</span>
-          <p class="author-stats">${author.rating_avg ? Number(author.rating_avg).toFixed(1) : "—"} · ${author.story_count || 0} работ</p>
+          <span class="author-name">${escapeHtml(author.display_name || author.name)}</span>
+          <p class="author-stats">${author.rating_avg ? Number(author.rating_avg).toFixed(1) : "—"} · ${author.story_count ?? author.works ?? 0} работ</p>
         </span>
       </a>`
     )

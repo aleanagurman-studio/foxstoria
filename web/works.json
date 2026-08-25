@@ -1,4 +1,115 @@
 {
-  "works": [],
-  "authors": []
+  "works": [
+    {
+      "id": "shadows",
+      "title": "Тени прошлого",
+      "author": "Лунный странник",
+      "author_slug": "moonwander",
+      "href": "story-interactive.html",
+      "cover": "assets/test/cover-1.png",
+      "fandom": "Ориджинал",
+      "romance": "gen",
+      "age": "16+",
+      "story_type": "interactive",
+      "rating": 4.8,
+      "is_completed": false,
+      "plays": 892,
+      "description": "Город после дождя. Знакомое лицо на перекрёстке."
+    },
+    {
+      "id": "letters",
+      "title": "Письма из прошлого",
+      "author": "Лунный странник",
+      "author_slug": "moonwander",
+      "href": "story-linear.html",
+      "cover": "assets/test/cover-2.png",
+      "fandom": "Ориджинал",
+      "romance": "het",
+      "age": "16+",
+      "story_type": "linear",
+      "work_size": "mini",
+      "rating": 4.6,
+      "is_completed": true,
+      "plays": 340,
+      "description": "Конверт без марки и три главы без развилок."
+    },
+    {
+      "id": "mic-mono",
+      "title": "Микрофон и монохром",
+      "author": "Лунный странник",
+      "author_slug": "moonwander",
+      "href": "story-bts-slash.html",
+      "cover": "assets/test/cover-3.png",
+      "fandom": "Bangtan Boys (BTS)",
+      "romance": "slash",
+      "age": "18+",
+      "story_type": "interactive",
+      "rating": 4.9,
+      "is_completed": false,
+      "plays": 1200,
+      "description": "Rap Line и Maknae Line после сорванного концерта."
+    },
+    {
+      "id": "tea-scars",
+      "title": "Чай с мятой и шрамами",
+      "author": "Лунный странник",
+      "author_slug": "moonwander",
+      "href": "story-hp-femslash.html",
+      "cover": "assets/test/cover-4.png",
+      "fandom": "Гарри Поттер",
+      "romance": "femslash",
+      "age": "0+",
+      "story_type": "linear",
+      "work_size": "mini",
+      "rating": 4.7,
+      "is_completed": true,
+      "plays": 428,
+      "description": "Гермиона и Джинни после войны."
+    },
+    {
+      "id": "crossroads",
+      "title": "Перекрёсток проклятий",
+      "author": "Лунный странник",
+      "author_slug": "moonwander",
+      "href": "story-jujutsu-mixed.html",
+      "cover": "assets/test/cover-1.png",
+      "fandom": "Jujutsu Kaisen",
+      "romance": "mixed",
+      "age": "16+",
+      "story_type": "interactive",
+      "rating": 4.5,
+      "is_completed": false,
+      "plays": 756,
+      "description": "Смешанные линии в мире Jujutsu Kaisen."
+    }
+  ],
+  "authors": [
+    {
+      "name": "Лунный странник",
+      "display_name": "Лунный странник",
+      "slug": "moonwander",
+      "avatar": "assets/test/avatar-1.png",
+      "bio": "Пишу ветвящиеся новеллы о памяти и выборе.",
+      "works": 5,
+      "story_count": 5
+    },
+    {
+      "name": "Звёздная пыль",
+      "display_name": "Звёздная пыль",
+      "slug": "stardust",
+      "avatar": "assets/test/avatar-2.png",
+      "bio": "Линейные истории, соавторство и правки.",
+      "works": 1,
+      "story_count": 1
+    },
+    {
+      "name": "Лиса с фонарём",
+      "display_name": "Лиса с фонарём",
+      "slug": "lantern-fox",
+      "avatar": "assets/test/avatar-3.png",
+      "bio": "Читает интерактивные новеллы и оставляет развёрнутые отзывы.",
+      "works": 0,
+      "story_count": 0
+    }
+  ]
 }
