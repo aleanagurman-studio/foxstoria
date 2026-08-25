@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=22">
   <script src="site.js?v=10"></script>
 </head>
 <body>
@@ -55,28 +55,38 @@
           <div class="work-tag-cloud">
             <a href="search.html?genres=drama" class="work-tag-tile">Драма</a>
             <a href="search.html?genres=mistika" class="work-tag-tile">Мистика</a>
+            <a href="search.html?warnings=depressiya" class="work-tag-tile work-tag-tile--warning">Депрессия</a>
           </div>
 
           <hr class="work-divider">
 
-          <dl class="work-meta">
-            <div class="work-meta-row work-meta-fandom">
-              <dd>
+          <div class="work-meta">
+            <div class="work-meta-item">
+              <span class="work-meta-label">
                 <img src="assets/svg/фандом.svg" class="work-meta-icon" alt="">
+                Фэндом
+              </span>
+              <div class="work-meta-value work-meta-comma">
                 <a href="search.html?fandoms=original" class="tag-link">Ориджинал</a>
-              </dd>
+              </div>
             </div>
-            <div class="work-meta-row">
-              <dt><img src="assets/svg/пейринг.svg" class="work-meta-icon" alt=""> Пейринги и персонажи</dt>
-              <dd class="work-meta-comma">
+            <div class="work-meta-item">
+              <span class="work-meta-label">
+                <img src="assets/svg/пейринг.svg" class="work-meta-icon" alt="">
+                Пейринги и персонажи
+              </span>
+              <div class="work-meta-value work-meta-comma">
                 <a href="search.html?pairings=aleks%7Cmasha" class="tag-link pairing-tag" title="Алекс и Маша — равные роли">Алекс | Маша</a><a href="search.html?characters=original-aleks" class="tag-link">Алекс</a><a href="search.html?characters=original-masha" class="tag-link">Маша</a><a href="search.html?characters=original-nikita" class="tag-link">Никита</a>
-              </dd>
+              </div>
             </div>
-            <div class="work-meta-row">
-              <dt><img src="assets/svg/размер.svg" class="work-meta-icon" alt=""> Размер</dt>
-              <dd class="work-meta-muted">после завершения</dd>
+            <div class="work-meta-item">
+              <span class="work-meta-label">
+                <img src="assets/svg/размер.svg" class="work-meta-icon" alt="">
+                Размер
+              </span>
+              <div class="work-meta-value work-meta-muted">после завершения</div>
             </div>
-          </dl>
+          </div>
 
           <div class="work-actions">
             <a href="read-interactive.html" class="work-btn work-btn-read"><img src="assets/svg/читать.svg" class="work-btn-icon" alt=""> Читать</a>
@@ -113,17 +123,17 @@
         <aside class="work-aside">
           <div class="work-structure-stats" aria-label="Статистика">
             <div class="work-stat-cell">
-              <img src="assets/svg/eye.svg?v=2" class="work-stat-icon" alt="">
+              <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
               <span class="work-stat-value">32.1K</span>
               <span class="work-stat-label">просмотров</span>
             </div>
             <div class="work-stat-cell">
-              <img src="assets/svg/like.svg?v=2" class="work-stat-icon" alt="">
+              <img src="assets/svg/heart.svg" class="work-stat-icon" alt="">
               <span class="work-stat-value">892</span>
               <span class="work-stat-label">лайков</span>
             </div>
             <div class="work-stat-cell">
-              <img src="assets/svg/коммент.svg?v=2" class="work-stat-icon" alt="">
+              <img src="assets/svg/коммент.svg" class="work-stat-icon" alt="">
               <span class="work-stat-value">156</span>
               <span class="work-stat-label">комментариев</span>
             </div>
