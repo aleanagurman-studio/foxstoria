@@ -1609,11 +1609,12 @@ a.genre-pill:hover,
 .news-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 44%);
-  align-items: center;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 38%);
+  align-items: start;
+  gap: 8px 12px;
   min-height: 0;
   overflow: visible;
+  z-index: 1;
 }
 
 .news-hero-copy {
@@ -1621,19 +1622,20 @@ a.genre-pill:hover,
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 36px 28px 28px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  align-self: start;
+  text-align: left;
+  padding: 16px 16px 8px 24px;
 }
 
 .news-hero-copy h1 {
-  font-size: clamp(44px, 5vw, 64px);
+  font-size: clamp(30px, 3.3vw, 42px);
   line-height: 1.06;
 }
 
 .news-hero-copy p {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   max-width: 36ch;
   color: var(--chestnut);
 }
@@ -1646,24 +1648,33 @@ a.genre-pill:hover,
 .news-hero-art {
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: center;
+  align-items: flex-start;
+  justify-content: flex-end;
+  align-self: start;
+  height: 168px;
+  margin-bottom: -88px;
+  overflow: visible;
   pointer-events: none;
+  z-index: 1;
 }
 
 .news-hero-art img {
   display: block;
-  width: 100%;
+  width: 118%;
+  max-width: none;
+  max-height: 320px;
   height: auto;
   object-fit: contain;
-  object-position: center;
+  object-position: right top;
 }
 
 .news-cats {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 10px;
+  padding-right: min(28%, 220px);
 }
 
 .news-cat-btn {
@@ -2169,8 +2180,19 @@ a.user-link:hover {
     grid-template-columns: 1fr;
     min-height: 0;
   }
-  .news-hero-art { min-height: 0; }
-  .news-hero-copy { padding: 8px 8px 16px; }
+  .news-hero-art {
+    min-height: 0;
+    height: auto;
+    margin-bottom: -36px;
+    justify-content: center;
+  }
+  .news-hero-art img {
+    width: 100%;
+    max-height: 210px;
+    object-position: center top;
+  }
+  .news-hero-copy { padding: 12px 8px 12px 16px; }
+  .news-cats { padding-right: 0; }
 }
 
 input[type="search"],
@@ -3577,16 +3599,24 @@ a.genre-pill:hover {
 }
 
 .blog-hero {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px 28px;
+  padding: 10px 8px 8px 100px;
 }
 
-.blog-hero .page-header { flex: 1 1 280px; min-width: 0; }
+.blog-hero .page-header {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 280px;
+  min-width: 0;
+  padding-top: 16px;
+}
 
-.blog-hero-actions { margin: 16px 0 0; }
+.blog-hero-actions { margin: 22px 0 0 8px; }
 
 .blog-stats {
   position: relative;
@@ -3605,20 +3635,26 @@ a.genre-pill:hover {
 .blog-stat {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon num"
+    "label label";
+  column-gap: 8px;
+  row-gap: 2px;
+  align-items: center;
   min-width: 0;
 }
 
 .blog-stat img {
+  grid-area: icon;
   width: 22px;
   height: 22px;
   object-fit: contain;
 }
 
 .blog-stat b {
+  grid-area: num;
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 600;
@@ -3627,6 +3663,7 @@ a.genre-pill:hover {
 }
 
 .blog-stat span {
+  grid-area: label;
   font-size: 12px;
   font-weight: 600;
   color: var(--warm-brown);
@@ -3787,25 +3824,6 @@ a.genre-pill:hover {
 .blog-post-body p {
   margin: 0;
   font-size: 14px;
-  color: var(--chestnut);
-}
-
-.blog-post-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.blog-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--white) 70%, var(--paper));
-  border: 1px solid var(--panel-soft-border);
-  font-size: 12px;
-  font-weight: 600;
   color: var(--chestnut);
 }
 
@@ -4035,6 +4053,7 @@ a.genre-pill:hover {
 }
 
 @media (max-width: 860px) {
+  .blog-hero { padding: 12px 8px 8px 76px; }
   .blog-stats { grid-template-columns: 1fr 1fr; }
   .blog-post { grid-template-columns: 72px minmax(0, 1fr); }
   .blog-post-cover { width: 72px; height: 72px; }

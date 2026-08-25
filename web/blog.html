@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=55">
+  <link rel="stylesheet" href="styles.css?v=61">
   <script src="site.js?v=11"></script>
-  <script src="blog.js?v=1"></script>
+  <script src="blog.js?v=3"></script>
 </head>
 <body class="blog-page">
   <header class="header"></header>
@@ -32,11 +32,12 @@
       <div class="blog-layout">
         <div class="blog-main">
           <header class="blog-hero">
+            <img class="feed-corner" src="assets/deco/corner.svg" alt="" aria-hidden="true">
             <div class="page-header">
               <h1>Мой блог</h1>
               <p>Личный блог: анонсы, заметки и голосования. Подписчики увидят записи в своей ленте.</p>
               <p class="blog-hero-actions">
-                <button type="button" class="btn btn-primary" id="blog-new">+ Новая запись</button>
+                <button type="button" class="btn btn-primary" id="blog-new">+ Новый пост</button>
               </p>
             </div>
             <aside class="blog-stats" aria-label="Статистика блога">
@@ -65,7 +66,7 @@
           </header>
 
           <section class="blog-compose" id="blog-compose" hidden>
-            <h2 id="blog-compose-title">Новая запись</h2>
+            <h2 id="blog-compose-title">Новый пост</h2>
             <form id="blog-form">
               <input type="hidden" name="id" value="">
               <div class="filter-grid">
@@ -86,15 +87,9 @@
                 <label for="blog-text">Текст</label>
                 <textarea id="blog-text" name="text" rows="6" required placeholder="Текст записи…"></textarea>
               </div>
-              <div class="filter-grid">
-                <div class="filter-group">
-                  <label for="blog-tags">Теги</label>
-                  <input id="blog-tags" name="tags" type="text" placeholder="Вдохновение, Письмо">
-                </div>
-                <div class="filter-group">
-                  <label for="blog-cover">Обложка</label>
-                  <input id="blog-cover" name="cover" type="text" placeholder="assets/test/cover-1.png">
-                </div>
+              <div class="filter-group">
+                <label for="blog-cover">Обложка</label>
+                <input id="blog-cover" name="cover" type="text" placeholder="assets/test/cover-1.png">
               </div>
               <div class="filter-actions">
                 <button type="submit" class="btn btn-primary">Сохранить</button>

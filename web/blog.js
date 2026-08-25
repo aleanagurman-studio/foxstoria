@@ -214,7 +214,6 @@
   }
 
   function postHTML(post) {
-    const tags = (post.tags || []).map((tag) => `<span class="blog-tag">${escapeHtml(tag)}</span>`).join("");
     const open = menuId === post.id;
     const pinLabel = post.pinned ? "Открепить" : "Закрепить в блоге";
     const href = `blog.html?post=${encodeURIComponent(post.id)}`;
@@ -227,7 +226,6 @@
           <time datetime="${escapeHtml(post.date)}">${escapeHtml(formatDate(post.date))}</time>
           <h2><a href="${href}">${escapeHtml(post.title)}</a></h2>
           <p>${escapeHtml(post.text)}</p>
-          ${tags ? `<p class="blog-post-tags">${tags}</p>` : ""}
         </div>
         <div class="blog-post-tools">
           <p class="blog-post-stats">
@@ -322,11 +320,10 @@
     const heading = document.getElementById("blog-compose-title");
     if (!form || !box) return;
     showMain("compose");
-    heading.textContent = post ? "Редактировать запись" : "Новая запись";
+    heading.textContent = post ? "Редактировать пост" : "Новый пост";
     form.id.value = post?.id || "";
     form.title.value = post?.title || "";
     form.text.value = post?.text || "";
-    form.tags.value = (post?.tags || []).join(", ");
     form.cover.value = post?.cover || "assets/test/cover-1.png";
     form.status.value = post?.status === "archived" ? "published" : post?.status || "published";
     box.hidden = false;
@@ -373,7 +370,6 @@
         date: new Date().toISOString().slice(0, 10),
         title: form.title.value.trim(),
         text: form.text.value.trim(),
-        tags: form.tags.value.split(",").map((tag) => tag.trim()).filter(Boolean),
         cover: form.cover.value.trim() || "assets/test/cover-1.png",
         comments: 0,
         likes: 0,
