@@ -1688,7 +1688,7 @@ a.genre-pill:hover,
 }
 
 .news-post {
-  --news-cover-size: 204px;
+  --news-cover-size: 232px;
   display: grid;
   grid-template-columns: var(--news-cover-size) minmax(0, 1fr);
   align-items: start;
