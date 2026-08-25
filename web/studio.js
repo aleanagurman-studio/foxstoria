@@ -6,6 +6,10 @@
   const linear = document.getElementById("timeline-linear");
   const timelineLead = document.getElementById("timeline-lead");
   const publicPage = document.getElementById("studio-public-page");
+  const openEditor = document.getElementById("studio-open-editor");
+  const editorSub = document.getElementById("studio-editor-sub");
+  const editorCta = document.getElementById("studio-editor-cta");
+  const editorLead = document.getElementById("studio-editor-lead");
 
   function showView(name) {
     views.forEach((view) => {
@@ -14,6 +18,31 @@
     document.querySelectorAll(".studio-nav .studio-item[data-view]").forEach((btn) => {
       btn.classList.toggle("active", btn.getAttribute("data-view") === name);
     });
+  }
+
+  function applyStoryType(isLinear) {
+    const editorHref = isLinear ? "editor-linear.html" : "editor.html";
+    if (openEditor) openEditor.href = editorHref;
+    if (editorSub) editorSub.href = editorHref;
+    if (editorCta) {
+      editorCta.href = editorHref;
+      editorCta.textContent = isLinear ? "Текстовый редактор" : "Граф сцен";
+    }
+    if (editorLead) {
+      editorLead.textContent = isLinear
+        ? "Главы идут по порядку — один текст, картинки в любых местах. Хронология и персонажи остаются в кабинете."
+        : "Главы и сцены — это то, что пойдёт в публикацию. Хронология и персонажи живут рядом, но остаются в кабинете.";
+    }
+    if (interactive) interactive.hidden = isLinear;
+    if (linear) linear.hidden = !isLinear;
+    if (timelineLead) {
+      timelineLead.textContent = isLinear
+        ? "Для линейной истории шкала одна: события идут по времени мира."
+        : "Для интерактивной истории шкала ветвится: это время мира, а не порядок чтения.";
+    }
+    if (publicPage) {
+      publicPage.href = isLinear ? "story-linear.html" : "story-interactive.html";
+    }
   }
 
   navButtons.forEach((btn) => {
@@ -25,20 +54,12 @@
     btn.addEventListener("click", () => {
       typeButtons.forEach((other) => other.classList.remove("active"));
       btn.classList.add("active");
-      const isLinear = btn.getAttribute("data-type") === "linear";
-      if (interactive) interactive.hidden = isLinear;
-      if (linear) linear.hidden = !isLinear;
-      if (timelineLead) {
-        timelineLead.textContent = isLinear
-          ? "Для линейной истории шкала одна: события идут по времени мира."
-          : "Для интерактивной истории шкала ветвится: это время мира, а не порядок чтения.";
-      }
-      if (publicPage) {
-        publicPage.href = isLinear ? "story-linear.html" : "story-interactive.html";
-      }
+      applyStoryType(btn.getAttribute("data-type") === "linear");
     });
   });
 
+  const initialLinear = document.querySelector(".studio-type-btn[data-type='linear']")?.classList.contains("active");
+  applyStoryType(initialLinear);
   showView("editor");
 
   const form = document.getElementById("work-card-form");

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=8">
-  <link rel="stylesheet" href="studio.css">
+  <link rel="stylesheet" href="studio.css?v=2">
   <script src="site.js?v=8"></script>
 </head>
 <body class="studio-page">
@@ -30,7 +30,7 @@
       <button class="studio-type-btn" data-type="linear">Линейная</button>
     </div>
     <a href="author-home.html" class="btn btn-outline">К кабинету автора</a>
-    <a href="editor.html" class="btn btn-primary">Открыть редактор</a>
+    <a href="editor.html" class="btn btn-primary" id="studio-open-editor">Открыть редактор</a>
   </header>
 
   <div class="studio-layout">
@@ -39,7 +39,7 @@
 
       <div class="studio-group">
         <button class="studio-item active" data-view="editor">Редактор</button>
-        <a class="studio-sub" href="editor.html">Главы</a>
+        <a class="studio-sub" id="studio-editor-sub" href="editor.html">Главы</a>
       </div>
 
       <button class="studio-item" data-view="timeline">Хронология</button>
@@ -57,7 +57,7 @@
 
       <section class="studio-view" id="view-editor">
         <h2>Редактор</h2>
-        <p class="studio-lead">Главы и сцены — это то, что пойдёт в публикацию. Хронология и персонажи живут рядом, но остаются в кабинете.</p>
+        <p class="studio-lead" id="studio-editor-lead">Главы и сцены — это то, что пойдёт в публикацию. Хронология и персонажи живут рядом, но остаются в кабинете.</p>
         <div class="studio-cards">
           <article class="studio-card">
             <h3>Глава 1 · Перекрёсток</h3>
@@ -75,7 +75,7 @@
             </div>
           </article>
         </div>
-        <a href="editor.html" class="btn btn-primary">Граф сцен</a>
+        <a href="editor.html" class="btn btn-primary" id="studio-editor-cta">Граф сцен</a>
       </section>
 
       <section class="studio-view" id="view-reviews" hidden>
@@ -291,6 +291,6 @@
     </main>
   </div>
   <script src="taxonomy.js?v=8"></script>
-  <script src="studio.js?v=8"></script>
+  <script src="studio.js?v=9"></script>
 </body>
 </html>

@@ -10,6 +10,16 @@
   --editor-line: color-mix(in srgb, var(--chestnut) 38%, var(--sand));
   --editor-card-border: color-mix(in srgb, var(--sand) 82%, var(--chestnut));
   --editor-shadow: 0 8px 24px color-mix(in srgb, var(--chestnut-dark) 6%, transparent);
+  --editor-outline: color-mix(in srgb, var(--sand) 62%, transparent);
+  --editor-outline-dash: color-mix(in srgb, var(--sand) 55%, transparent);
+}
+
+.editor-page button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 body.editor-page {
@@ -25,7 +35,7 @@ body.editor-page {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--editor-outline);
   background: var(--bg-card);
   color: var(--text-secondary);
 }
@@ -46,7 +56,7 @@ body.editor-page {
 .editor-page .btn-outline {
   background: var(--bg-card);
   color: var(--text-secondary);
-  border-color: var(--border-default);
+  border-color: var(--editor-outline);
 }
 
 .editor-page .btn-outline:hover {
@@ -147,6 +157,8 @@ body.editor-page {
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-secondary);
+  border: 0;
+  background: transparent;
   transition: background 0.15s, color 0.15s, box-shadow 0.15s;
 }
 
@@ -356,7 +368,8 @@ body.editor-page {
   gap: 6px;
   padding: 10px;
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-default);
+  border: 1px dashed var(--editor-outline-dash);
+  background: var(--bg-card);
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -424,6 +437,7 @@ body.editor-page {
 
 .canvas-wrap {
   flex: 1;
+  min-height: 0;
   position: relative;
   overflow: hidden;
   background:
@@ -432,20 +446,6 @@ body.editor-page {
   background-color: var(--paper);
 }
 
-.editor-deco {
-  position: absolute;
-  right: 18px;
-  bottom: 12px;
-  width: 120px;
-  opacity: 0.22;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.editor-deco img {
-  width: 100%;
-  height: auto;
-}
 
 .canvas-toolbar {
   position: absolute;
@@ -463,10 +463,10 @@ body.editor-page {
   align-items: center;
   gap: 4px;
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--editor-outline);
   border-radius: var(--radius-md);
   padding: 4px;
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
 }
 
 .canvas-tool-btn {
@@ -479,6 +479,8 @@ body.editor-page {
   font-weight: 500;
   color: var(--text-secondary);
   white-space: nowrap;
+  border: 0;
+  background: transparent;
 }
 
 .canvas-tool-btn:hover { background: var(--bg-subtle); color: var(--text-primary); }
@@ -492,6 +494,8 @@ body.editor-page {
   justify-content: center;
   border-radius: var(--radius-sm);
   color: var(--text-secondary);
+  border: 0;
+  background: transparent;
 }
 
 .canvas-tool-icon:hover { background: var(--bg-subtle); }
@@ -504,11 +508,11 @@ body.editor-page {
   gap: 6px;
   padding: 8px 14px;
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--editor-outline);
   border-radius: var(--radius-md);
   font-size: 0.75rem;
   font-weight: 600;
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
 }
 
 .btn-test:hover {
@@ -522,7 +526,7 @@ body.editor-page {
   position: absolute;
   inset: 0;
   overflow: auto;
-  padding: 60px 40px 40px;
+  padding: 60px 40px 72px;
 }
 
 .canvas-graph {
@@ -783,6 +787,8 @@ body.editor-page {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  position: relative;
+  z-index: 8;
 }
 
 .bottom-tabs {
@@ -797,8 +803,10 @@ body.editor-page {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
+  border: 0;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+  background: transparent;
 }
 
 .bottom-tab.active {
@@ -890,7 +898,8 @@ body.editor-page {
   gap: 6px;
   padding: 6px 14px;
   border-radius: var(--radius-pill);
-  border: 1px dashed var(--border-default);
+  border: 1px dashed var(--editor-outline-dash);
+  background: var(--bg-card);
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -923,8 +932,10 @@ body.editor-page {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
+  border: 0;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+  background: transparent;
 }
 
 .right-tab.active {
@@ -1068,7 +1079,8 @@ body.editor-page {
   padding: 8px;
   margin-top: 6px;
   border-radius: var(--radius-sm);
-  border: 1px dashed var(--border-default);
+  border: 1px dashed var(--editor-outline-dash);
+  background: var(--bg-card);
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -1124,7 +1136,7 @@ body.editor-page {
   gap: 4px;
   padding: 10px 6px;
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--editor-outline);
   border-radius: var(--radius-md);
   font-size: 0.6875rem;
   font-weight: 600;

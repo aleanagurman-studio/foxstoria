@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Линейный редактор — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="editor.css?v=9">
+  <link rel="stylesheet" href="editor-linear.css?v=2">
+  <script src="site.js?v=8"></script>
+</head>
+<body class="editor-page editor-linear-page">
+  <header class="editor-header">
+    <a href="index.html" class="logo">
+      <img src="assets/brand/logo.png" alt="">
+      <span>FoxStoria</span>
+    </a>
+
+    <div class="story-title-block">
+      <div class="story-title-row">
+        <input type="text" id="story-title" class="story-title-input" placeholder="Название истории" aria-label="Название истории">
+      </div>
+      <span class="story-save-status" id="save-status">Линейная · черновик</span>
+    </div>
+
+    <div class="mode-tabs">
+      <button type="button" class="mode-tab active" data-mode="edit">Редактор</button>
+      <button type="button" class="mode-tab" data-mode="preview">Просмотр</button>
+    </div>
+
+    <div class="editor-toolbar">
+      <button type="button" class="icon-btn" id="undo-btn" aria-label="Отменить">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="redo-btn" aria-label="Повторить">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+      </button>
+      <div class="toolbar-divider"></div>
+      <a href="studio.html" class="btn btn-outline">Кабинет</a>
+      <button type="button" class="btn btn-primary" id="publish-btn">Опубликовать</button>
+    </div>
+  </header>
+
+  <div class="editor-layout" id="editor-root">
+    <aside class="editor-left">
+      <div class="panel-header">
+        <h2>Главы</h2>
+        <button type="button" class="icon-btn-sm" id="add-chapter" aria-label="Добавить главу">+</button>
+      </div>
+      <div class="structure-search">
+        <img class="ink" src="assets/brand/search.png" alt="">
+        <input type="search" id="chapter-search" placeholder="Поиск по главам">
+      </div>
+      <div class="structure-tree" id="chapter-list"></div>
+      <div class="editor-left-footer">
+        <button type="button" class="btn-new-scene" id="add-chapter-bottom">
+          <img class="ink" src="assets/brand/plus.png" alt="">
+          Новая глава
+        </button>
+      </div>
+    </aside>
+
+    <div class="editor-center linear-center">
+      <div class="linear-toolbar" id="linear-toolbar">
+        <div class="linear-toolbar-group">
+          <button type="button" class="linear-tool-btn" data-cmd="bold" title="Жирный"><strong>Ж</strong></button>
+          <button type="button" class="linear-tool-btn" data-cmd="italic" title="Курсив"><em>К</em></button>
+          <button type="button" class="linear-tool-btn" data-cmd="underline" title="Подчёркнутый"><span class="linear-underline">Ч</span></button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="linear-tool-btn" id="insert-image">
+            <img class="ink" src="assets/brand/book.png" alt="">
+            Картинка
+          </button>
+          <input type="file" id="image-file" accept="image/*" hidden>
+        </div>
+        <span class="linear-wordcount" id="word-count">0 слов</span>
+      </div>
+
+      <div class="linear-editor-wrap" id="edit-surface">
+        <div
+          class="linear-editor"
+          id="chapter-editor"
+          contenteditable="true"
+          spellcheck="true"
+          data-placeholder="Начните писать главу. Картинку можно вставить в любое место — курсор остаётся там, где вы печатаете."
+        ></div>
+      </div>
+
+      <article class="linear-preview" id="preview" hidden>
+        <p class="reader-kicker" id="preview-kicker">Просмотр · глава 1</p>
+        <h1 id="preview-title">Глава</h1>
+        <div class="linear-preview-body" id="preview-body"></div>
+        <div class="reader-nav">
+          <button type="button" class="btn btn-outline" id="preview-prev">Предыдущая</button>
+          <button type="button" class="btn btn-primary" id="preview-next">Следующая</button>
+          <button type="button" class="btn btn-ghost" data-mode="edit">К редактору</button>
+        </div>
+      </article>
+    </div>
+
+    <aside class="editor-right">
+      <div class="right-tabs">
+        <button type="button" class="right-tab active" data-right="settings">Глава</button>
+        <button type="button" class="right-tab" data-right="notes">Заметки</button>
+      </div>
+
+      <div class="right-content" id="right-settings" data-right-panel="settings">
+        <div class="right-scene-label" id="right-label">Выберите главу</div>
+        <div class="form-group">
+          <label for="chapter-title">Название главы</label>
+          <input type="text" id="chapter-title" placeholder="Название главы">
+        </div>
+        <div class="form-group">
+          <label for="chapter-summary">Краткое содержание</label>
+          <textarea id="chapter-summary" placeholder="Для себя — не уходит в публикацию"></textarea>
+        </div>
+        <p class="linear-hint">Текст главы — в центре. Переносы строк и картинки сохраняются как вы их расставите.</p>
+        <button type="button" class="btn-delete-scene" id="delete-chapter">Удалить главу</button>
+      </div>
+
+      <div class="right-content" id="right-notes" data-right-panel="notes" hidden>
+        <div class="form-group">
+          <label for="chapter-notes">Заметки к главе</label>
+          <textarea id="chapter-notes" placeholder="Только для автора"></textarea>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="editor-linear.js?v=1"></script>
+</body>
+</html>
