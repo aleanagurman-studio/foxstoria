@@ -395,12 +395,13 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
 document.addEventListener("DOMContentLoaded", function bindCollapsibleSide() {
   const layout = document.querySelector("[data-side-layout]");
   const panel = document.querySelector("[data-side-panel]");
-  const btn = document.querySelector("[data-side-toggle]");
-  if (!layout || !panel || !btn) return;
+  const btns = [...document.querySelectorAll("[data-side-toggle]")];
+  if (!layout || !panel || !btns.length) return;
 
   const mq = window.matchMedia("(max-width: 860px)");
+  const overlay = layout.classList.contains("studio-layout");
   let backdrop = layout.querySelector(".side-backdrop");
-  if (!backdrop) {
+  if (overlay && !backdrop) {
     backdrop = document.createElement("button");
     backdrop.type = "button";
     backdrop.className = "side-backdrop";
@@ -413,17 +414,20 @@ document.addEventListener("DOMContentLoaded", function bindCollapsibleSide() {
     const mobile = mq.matches;
     const show = mobile && open;
     layout.classList.toggle("is-side-open", show);
-    btn.setAttribute("aria-expanded", show ? "true" : "false");
-    backdrop.hidden = !show;
+    btns.forEach((btn) => btn.setAttribute("aria-expanded", show ? "true" : "false"));
+    if (backdrop) backdrop.hidden = !show;
   }
 
-  btn.addEventListener("click", (event) => {
-    event.stopPropagation();
-    setOpen(!layout.classList.contains("is-side-open"));
+  btns.forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setOpen(!layout.classList.contains("is-side-open"));
+    });
   });
-  backdrop.addEventListener("click", () => setOpen(false));
+  if (backdrop) backdrop.addEventListener("click", () => setOpen(false));
   panel.addEventListener("click", (event) => {
     if (!mq.matches) return;
+    if (event.target.closest("[data-side-toggle]")) return;
     if (event.target.closest("[data-view], [data-select], .studio-item")) {
       setOpen(false);
     }
