@@ -202,19 +202,17 @@ function headerMarkup() {
         <img src="assets/deco/fox.svg" alt="">
         <span>FoxStoria</span>
       </a>
-      <div class="header-mid">
-        <nav class="nav-main">
-          <a href="catalog.html"${navOn("catalog.html")}>Каталог</a>
-          <a href="authors.html"${on("authors.html")}>Авторы</a>
-          <a href="collections.html"${on("collections.html")}>Сборники</a>
-          <a href="news.html"${on("news.html")}>Новости</a>
-        </nav>
-        <form class="search-bar" action="search.html" role="search">
-          <img src="assets/deco/lupa.svg" alt="">
-          <input type="text" name="q" placeholder="Найти работу, автора или тэг..." autocomplete="off">
-        </form>
-      </div>
+      <nav class="nav-main">
+        <a href="catalog.html"${navOn("catalog.html")}>Каталог</a>
+        <a href="authors.html"${on("authors.html")}>Авторы</a>
+        <a href="collections.html"${on("collections.html")}>Сборники</a>
+        <a href="news.html"${on("news.html")}>Новости</a>
+      </nav>
     </div>
+    <form class="search-bar" action="search.html" role="search">
+      <img src="assets/deco/lupa.svg" alt="">
+      <input type="text" name="q" placeholder="Найти работу, автора или тэг..." autocomplete="off">
+    </form>
     <div class="header-actions">
       <button type="button" class="theme-btn" id="theme-toggle" aria-label="Переключить тему">
         <img class="theme-moon" src="assets/deco/moon.svg" alt="">
@@ -320,9 +318,28 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   const notifBtn = document.getElementById("notif-toggle");
   const notifFeed = document.getElementById("notif-feed");
 
+  function pinHeaderMenu(dd, anchor) {
+    if (!dd) return;
+    if (dd.hidden || !window.matchMedia("(max-width: 860px)").matches) {
+      dd.style.removeProperty("top");
+      dd.style.removeProperty("right");
+      dd.style.removeProperty("left");
+      return;
+    }
+    const rect = anchor.getBoundingClientRect();
+    const header = document.querySelector("body > header.header");
+    const headerRect = header?.getBoundingClientRect();
+    dd.style.top = `${Math.round(rect.bottom - (headerRect?.top || 0) + 8)}px`;
+    dd.style.right = "12px";
+    dd.style.left = "auto";
+  }
+
   function closeAccount() {
     if (!dd) return;
     dd.hidden = true;
+    dd.style.removeProperty("top");
+    dd.style.removeProperty("right");
+    dd.style.removeProperty("left");
     menu?.classList.remove("open");
     btn?.setAttribute("aria-expanded", "false");
   }
@@ -330,6 +347,9 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   function closeNotif() {
     if (!notifFeed) return;
     notifFeed.hidden = true;
+    notifFeed.style.removeProperty("top");
+    notifFeed.style.removeProperty("right");
+    notifFeed.style.removeProperty("left");
     notifBtn?.setAttribute("aria-expanded", "false");
   }
 
@@ -341,6 +361,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
       dd.hidden = !open;
       menu.classList.toggle("open", open);
       btn.setAttribute("aria-expanded", open ? "true" : "false");
+      pinHeaderMenu(dd, btn);
     });
   }
   if (notifBtn && notifFeed) {
@@ -350,6 +371,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
       const open = notifFeed.hidden;
       notifFeed.hidden = !open;
       notifBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      pinHeaderMenu(notifFeed, notifBtn);
       if (open) {
         localStorage.setItem("foxtoria-notif-read", "1");
         syncInboxDots();
