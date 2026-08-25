@@ -81,7 +81,7 @@
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
-[data-theme="dark"] .work-page img[src*="assets/svg/"],
+[data-theme="dark"] .work-page img[src*="assets/svg/"]:not(.work-stat-icon),
 [data-theme="dark"] .header-alert-btn img,
 [data-theme="dark"] .sidebar-nav a img,
 [data-theme="dark"] .feature-item img,
@@ -2543,15 +2543,25 @@ textarea {
 }
 
 .work-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  column-gap: 12px;
+  row-gap: 16px;
+  align-items: start;
   min-width: 0;
 }
 
-.work-main { min-width: 0; }
+.work-main {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  min-width: 0;
+}
 
 .work-aside {
-  flex: 0 0 172px;
-  width: 172px;
-  max-width: 172px;
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  max-width: 300px;
   align-self: start;
 }
 
@@ -2832,6 +2842,11 @@ textarea {
   object-fit: contain;
 }
 
+[data-theme="dark"] .work-structure-stats .work-stat-icon {
+  mix-blend-mode: normal;
+  filter: brightness(0) invert(0.88);
+}
+
 .work-stat-value {
   display: block;
   font-size: 20px;
@@ -3023,20 +3038,17 @@ textarea {
 .work-icon-btn:hover { color: var(--fox); }
 
 .work-text-blocks {
-  display: flex;
-  gap: 12px;
   margin-top: 22px;
-  align-items: flex-start;
 }
 
 .work-desc-block {
-  flex: 1 1 auto;
   min-width: 0;
 }
 
 .work-notes-block {
-  flex: 0 0 300px;
-  width: 300px;
+  grid-column: 2;
+  grid-row: 2;
+  width: 100%;
   max-width: 300px;
   background: var(--panel-soft);
   border: 1px solid var(--panel-soft-border);
@@ -3412,24 +3424,24 @@ a.genre-pill:hover {
     gap: 20px;
   }
 
-  .work-text-blocks {
-    flex-wrap: wrap;
-    gap: 16px;
+  .work-body {
+    grid-template-columns: 1fr;
   }
 
-  .work-desc-block {
-    flex: 1 1 100%;
-  }
-
-  .work-notes-block {
-    flex: 1 1 240px;
-    width: auto;
-    max-width: none;
+  .work-main {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .work-aside {
-    flex: 1 1 172px;
-    width: auto;
+    grid-column: 1;
+    grid-row: auto;
+    max-width: none;
+  }
+
+  .work-notes-block {
+    grid-column: 1;
+    grid-row: auto;
     max-width: none;
   }
 
