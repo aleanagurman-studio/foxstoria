@@ -8,10 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=8">
-  <script src="site.js?v=8"></script>
+  <link rel="stylesheet" href="styles.css?v=54">
+  <script src="site.js?v=11"></script>
+  <script src="blog.js?v=1"></script>
 </head>
-<body>
+<body class="blog-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -28,13 +29,148 @@
       </div>
     </aside>
     <main class="main page-main">
-      <header class="page-header">
-        <h1>Мой блог</h1>
-        <p>Личный блог: анонсы, заметки и голосования. Подписчики увидят записи в своей ленте.</p>
-      </header>
-      <div class="empty-feed">
-        <p>Здесь появятся ваши записи. Блог есть у каждого пользователя, не только у авторов.</p>
-        <p><button type="button" class="btn btn-primary" disabled>Новая запись</button></p>
+      <div class="blog-layout">
+        <div class="blog-main">
+          <header class="blog-hero">
+            <div class="page-header">
+              <h1>Мой блог</h1>
+              <p>Личный блог: анонсы, заметки и голосования. Подписчики увидят записи в своей ленте.</p>
+              <p class="blog-hero-actions">
+                <button type="button" class="btn btn-primary" id="blog-new">+ Новая запись</button>
+              </p>
+            </div>
+            <aside class="blog-stats" aria-label="Статистика блога">
+              <div class="blog-stat">
+                <img src="assets/deco/перо1.svg" alt="">
+                <b data-blog-stat="posts">24</b>
+                <span>Всего записей</span>
+              </div>
+              <div class="blog-stat">
+                <img src="assets/svg/коммент.svg" alt="">
+                <b data-blog-stat="comments">126</b>
+                <span>Комментарии</span>
+              </div>
+              <div class="blog-stat">
+                <img src="assets/svg/profile.svg" alt="">
+                <b data-blog-stat="subs">58</b>
+                <span>Подписчики</span>
+              </div>
+              <div class="blog-stat">
+                <img src="assets/svg/like.svg" alt="">
+                <b data-blog-stat="likes">312</b>
+                <span>Реакции</span>
+              </div>
+              <img class="blog-stats-deco" src="assets/ornaments/15_leaves_orange.svg" alt="" aria-hidden="true">
+            </aside>
+          </header>
+
+          <section class="blog-compose" id="blog-compose" hidden>
+            <h2 id="blog-compose-title">Новая запись</h2>
+            <form id="blog-form">
+              <input type="hidden" name="id" value="">
+              <div class="filter-grid">
+                <div class="filter-group filter-group-wide">
+                  <label for="blog-title">Название</label>
+                  <input id="blog-title" name="title" type="text" required placeholder="Мысли перед новой главой">
+                </div>
+                <div class="filter-group">
+                  <label for="blog-status">Статус</label>
+                  <select id="blog-status" name="status">
+                    <option value="published">Опубликовать</option>
+                    <option value="draft">Черновик</option>
+                    <option value="scheduled">Запланировать</option>
+                  </select>
+                </div>
+              </div>
+              <div class="filter-group">
+                <label for="blog-text">Текст</label>
+                <textarea id="blog-text" name="text" rows="6" required placeholder="Текст записи…"></textarea>
+              </div>
+              <div class="filter-grid">
+                <div class="filter-group">
+                  <label for="blog-tags">Теги</label>
+                  <input id="blog-tags" name="tags" type="text" placeholder="Вдохновение, Письмо">
+                </div>
+                <div class="filter-group">
+                  <label for="blog-cover">Обложка</label>
+                  <input id="blog-cover" name="cover" type="text" placeholder="assets/test/cover-1.png">
+                </div>
+              </div>
+              <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" class="btn btn-outline" id="blog-compose-cancel">Отмена</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="blog-panel" id="blog-settings" hidden>
+            <h2>Настройки блога</h2>
+            <label class="blog-setting">
+              <span>Кто видит блог</span>
+              <select id="blog-privacy">
+                <option value="all">Все</option>
+                <option value="subs">Только подписчики</option>
+                <option value="me">Только я</option>
+              </select>
+            </label>
+            <label class="blog-setting">
+              <span>Комментарии</span>
+              <select id="blog-allow-comments">
+                <option value="on">Включены</option>
+                <option value="off">Выключены</option>
+              </select>
+            </label>
+            <p class="blog-setting-note">Настройки сохраняются в этом браузере.</p>
+          </section>
+
+          <div class="blog-toolbar" id="blog-toolbar">
+            <div class="account-tabs" id="blog-tabs">
+              <button type="button" class="active" data-blog-tab="published">Все записи</button>
+              <button type="button" data-blog-tab="draft">Черновики</button>
+              <button type="button" data-blog-tab="scheduled">Запланированные</button>
+              <button type="button" data-blog-tab="archived">Архив</button>
+            </div>
+            <label class="blog-sort">
+              <span>Сортировка:</span>
+              <select id="blog-sort">
+                <option value="new">Сначала новые</option>
+                <option value="old">Сначала старые</option>
+              </select>
+            </label>
+            <div class="blog-views" role="group" aria-label="Вид списка">
+              <button type="button" class="is-on" data-blog-view="list" aria-label="Список" aria-pressed="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 7h13M8 12h13M8 17h13M4 7h.01M4 12h.01M4 17h.01"/></svg>
+              </button>
+              <button type="button" data-blog-view="grid" aria-label="Сетка" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="blog-stream" class="blog-stream"></div>
+          <p class="blog-more-wrap">
+            <button type="button" class="blog-more" id="blog-more" hidden>Загрузить ещё</button>
+          </p>
+        </div>
+
+        <aside class="blog-aside">
+          <section class="blog-card">
+            <h2>Управление блогом</h2>
+            <nav class="blog-manage" aria-label="Управление блогом">
+              <button type="button" class="is-on" data-blog-nav="published"><img src="assets/deco/перо1.svg" alt=""> Все записи</button>
+              <button type="button" data-blog-nav="draft"><img src="assets/deco/bookmark.svg" alt=""> Черновики</button>
+              <button type="button" data-blog-nav="scheduled"><img src="assets/deco/moon.svg" alt=""> Запланированные</button>
+              <button type="button" data-blog-nav="archived"><img src="assets/deco/книга.svg" alt=""> Архив</button>
+              <button type="button" data-blog-nav="comments"><img src="assets/svg/коммент.svg" alt=""> Комментарии</button>
+              <button type="button" data-blog-nav="stats"><img src="assets/deco/sparcle.svg" alt=""> Статистика блога</button>
+              <button type="button" data-blog-nav="settings"><img src="assets/deco/fox.svg" alt=""> Настройки блога</button>
+            </nav>
+          </section>
+          <section class="blog-card">
+            <h2>Последние комментарии</h2>
+            <ul class="blog-recent" id="blog-recent"></ul>
+          </section>
+        </aside>
       </div>
     </main>
   </div>

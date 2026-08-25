@@ -47,7 +47,7 @@
   --shadow-card: var(--shadow);
   --shadow-hover: var(--shadow);
 
-  --romance-gen: var(--sand);
+  --romance-gen: #ad8f74;
   --romance-het: #5A7352;
   --romance-slash: #6B7F8E;
   --romance-femslash: #9B8AA8;
@@ -79,21 +79,21 @@
   --ink: #FAF7F1;
   --white: #261F1A;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --icon-dark-filter: brightness(0) invert(0.78) sepia(0.22) saturate(0.52) hue-rotate(358deg);
 }
 
-[data-theme="dark"] .work-page img[src*="assets/svg/"]:not(.work-stat-icon),
+[data-theme="dark"] .work-page img[src*="assets/svg/"]:not(.work-stat-icon):not(.work-badge-icon),
 [data-theme="dark"] .header-alert-btn img,
 [data-theme="dark"] .sidebar-nav a img,
 [data-theme="dark"] .feature-item img,
 [data-theme="dark"] .theme-btn img,
-[data-theme="dark"] .header-alert-btn img,
 [data-theme="dark"] .news-home-card .tile-image img,
 [data-theme="dark"] .welcome-leaf,
 [data-theme="dark"] .home-rule,
 [data-theme="dark"] .sidebar-ornament img {
-  mix-blend-mode: screen;
-  filter: brightness(0) invert(1);
-  opacity: 0.9;
+  mix-blend-mode: normal;
+  filter: var(--icon-dark-filter);
+  opacity: 0.92;
 }
 
 *,
@@ -346,6 +346,21 @@ h3 { font-size: 22px; color: var(--chestnut-dark); }
   width: 22px;
   height: 22px;
   object-fit: contain;
+}
+
+#notif-toggle {
+  width: 48px;
+  height: 48px;
+}
+
+#notif-toggle img {
+  width: 42px;
+  height: 42px;
+}
+
+#notif-toggle .header-alert-dot {
+  top: 8px;
+  right: 8px;
 }
 
 .header-alert-dot {
@@ -2936,7 +2951,7 @@ textarea {
 
 [data-theme="dark"] .work-structure-stats .work-stat-icon {
   mix-blend-mode: normal;
-  filter: brightness(0) invert(0.88);
+  filter: var(--icon-dark-filter);
 }
 
 .work-stat-value {
