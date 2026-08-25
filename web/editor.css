@@ -117,16 +117,20 @@ body.editor-page {
 }
 
 .story-title-row h1,
-.story-title-input {
+.story-title-input,
+.story-title-text {
   font-family: var(--font-ui);
   font-size: 0.9375rem;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border: 0;
   background: transparent;
   color: var(--text-primary);
-  min-width: 180px;
+  min-width: 0;
   max-width: 280px;
+  margin: 0;
   padding: 0;
 }
 
@@ -1190,8 +1194,82 @@ body.editor-page {
   .editor-right { display: none; }
 }
 
+@media (max-width: 860px) {
+  .editor-header {
+    height: auto;
+    min-height: var(--editor-header-h);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "logo title"
+      "tabs tabs"
+      "actions actions";
+    align-items: center;
+    gap: 6px 8px;
+    padding: 8px 10px;
+    min-width: 0;
+    width: 100%;
+  }
+  .editor-header .logo {
+    grid-area: logo;
+    min-width: 0;
+  }
+  .editor-header .logo span { display: none; }
+  .story-title-block {
+    grid-area: title;
+    margin-left: 0;
+    min-width: 0;
+  }
+  .story-title-row h1,
+  .story-title-input,
+  .story-title-text {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+  }
+  .mode-tabs {
+    grid-area: tabs;
+    margin-left: 0;
+    justify-self: start;
+  }
+  .mode-tab { padding: 5px 12px; }
+  .editor-toolbar {
+    grid-area: actions;
+    justify-self: end;
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .editor-toolbar .toolbar-divider,
+  .editor-toolbar #zoom-out,
+  .editor-toolbar #zoom-in,
+  .editor-toolbar .zoom-label {
+    display: none;
+  }
+  .editor-page .btn {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 768px) {
-  .editor-left { display: none; }
-  .editor-layout { grid-template-columns: 1fr; }
-  .editor-bottom { height: 160px; }
+  .editor-layout {
+    grid-template-columns: minmax(140px, 38%) minmax(0, 1fr);
+  }
+  .editor-left {
+    min-width: 0;
+  }
+  .panel-header { padding: 10px 10px 8px; }
+  .structure-search { padding: 0 8px 8px; }
+  .structure-tree { padding: 0 6px 8px; }
+  .editor-left-footer { padding: 8px; }
+  .minimap { display: none; }
+  .btn-new-scene {
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+  .editor-bottom { height: 140px; }
 }

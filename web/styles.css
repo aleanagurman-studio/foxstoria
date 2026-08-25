@@ -1611,6 +1611,10 @@ a.genre-pill:hover,
   .header .header-alert-dd {
     width: min(320px, calc(100vw - 24px));
   }
+  .account-tabs {
+    flex-wrap: wrap;
+    gap: 6px 14px;
+  }
   .layout {
     grid-template-columns: 1fr;
     padding: 16px;

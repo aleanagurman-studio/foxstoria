@@ -178,8 +178,12 @@
 }
 
 @media (max-width: 768px) {
-  .editor-linear-page .editor-left { display: none; }
-  .editor-linear-page .editor-layout { grid-template-columns: 1fr; }
+  .editor-linear-page .editor-layout {
+    grid-template-columns: minmax(140px, 38%) minmax(0, 1fr);
+  }
+  .editor-linear-page .editor-left {
+    min-width: 0;
+  }
   .linear-editor {
     padding: 20px 18px 28px;
     font-size: 1rem;

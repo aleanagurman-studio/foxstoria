@@ -110,8 +110,6 @@
     } catch {
       /* quota */
     }
-    const filled = story.scenes.some((scene) => scene.title || scene.description || scene.blocks.length);
-    $("save-status").textContent = filled ? "Черновик сохранён на этом устройстве" : "Черновик · пустой шаблон";
   }
 
   function snapshot() {
@@ -476,7 +474,7 @@
   }
 
   function render() {
-    $("story-title").value = story.title;
+    $("story-title").textContent = (story.title || "").trim() || "Тени прошлого";
     $("zoom-label").textContent = `${Math.round(zoom * 100)}%`;
     renderMap();
     renderTree();
@@ -585,9 +583,6 @@
     persist();
     renderPreview();
   });
-  $("publish-btn").addEventListener("click", () => {
-    $("save-status").textContent = "Публикация появится позже. Черновик уже сохранён здесь.";
-  });
   $("toggle-start").addEventListener("click", () => {
     story.scenes.forEach((scene) => {
       scene.isStart = scene.id === story.selectedId;
@@ -614,10 +609,6 @@
     snapshot();
   });
 
-  $("story-title").addEventListener("input", (event) => {
-    story.title = event.target.value;
-    persist();
-  });
   function onSceneName(event) {
     selected().title = event.target.value;
     persist();

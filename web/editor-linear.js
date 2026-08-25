@@ -65,7 +65,6 @@
 
   function persist() {
     localStorage.setItem(STORE, JSON.stringify(story));
-    $("save-status").textContent = `Линейная · сохранено ${new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}`;
   }
 
   function snapshot() {
@@ -114,7 +113,7 @@
     $("chapter-notes").value = chapter.notes || "";
     $("right-label").textContent = chapter.title.trim() || `Глава ${story.chapters.indexOf(chapter) + 1}`;
     $("word-count").textContent = `${wordCount(chapter.html || "")} ${pluralWords(wordCount(chapter.html || ""))}`;
-    $("story-title").value = story.title || "";
+    $("story-title").textContent = (story.title || "").trim() || "Тени прошлого";
   }
 
   function pluralWords(count) {
@@ -245,11 +244,6 @@
     persist();
   });
 
-  $("story-title").addEventListener("input", (event) => {
-    story.title = event.target.value;
-    persist();
-  });
-
   $("chapter-search").addEventListener("input", renderChapterList);
 
   document.querySelectorAll(".linear-tool-btn[data-cmd]").forEach((btn) => {
@@ -314,7 +308,6 @@
 
   $("publish-btn").addEventListener("click", () => {
     saveEditorHtml();
-    $("save-status").textContent = "Линейная · готово к публикации (макет)";
   });
 
   history.push(JSON.stringify(story));
