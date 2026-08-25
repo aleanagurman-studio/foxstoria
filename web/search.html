@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="site.js"></script>
-  <script src="taxonomy.js"></script>
-  <script src="catalog.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=8">
+  <script src="site.js?v=8"></script>
+  <script src="taxonomy.js?v=8"></script>
+  <script src="catalog.js?v=8" defer></script>
 </head>
 <body>
   <header class="header"></header>
@@ -20,8 +20,7 @@
     <aside class="sidebar-left">
             <nav class="sidebar-nav">
         <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
-        <a href="stories-interactive.html"><img src="assets/deco/sparcle.svg" alt=""> Интерактивные</a>
-        <a href="stories-linear.html"><img src="assets/ornaments/08_open_book.svg" alt=""> Линейные</a>
+        <a href="catalog.html" class="active"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
         <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
         <a href="profile.html"><img src="assets/deco/fox.svg" alt=""> Мой профиль</a>
         <a href="author-home.html"><img src="assets/deco/upload.svg" alt=""> Кабинет автора</a>
@@ -35,7 +34,7 @@
     <main class="main page-main">
       <header class="page-header">
         <h1>Поиск работ</h1>
-        <p>Базовые фильтры сверху. Ниже — расширенный поиск: можно отметить несколько жанров, форматов, предупреждений и кинков, хоть все сразу.</p>
+        <p>Базовые фильтры сверху. Ниже — расширенный поиск: можно отметить несколько жанров, категорий, фандомов, персонажей и других меток.</p>
       </header>
       <form class="filter-panel" action="search.html">
         <div class="filter-grid">
@@ -49,13 +48,6 @@
               <option value="">Любой</option>
               <option value="interactive">Интерактивная</option>
               <option value="linear">Линейная</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="fandom">Фандом</label>
-            <select id="fandom" name="fandom">
-              <option value="">Любой</option>
-              <option value="original">Ориджинал</option>
             </select>
           </div>
           <div class="filter-group">
@@ -98,8 +90,26 @@
 
         <section class="filter-advanced">
           <h2>Расширенный поиск</h2>
-          <p>Работа попадёт в выдачу, если в ней есть хотя бы один выбранный пункт в каждой группе. Кинки учитываются у работ 18+.</p>
+          <p>Работа попадёт в выдачу только если в ней есть <strong>все</strong> выбранные пункты: каждый жанр, каждый фандом, каждый персонаж и каждая отметка. Кинки учитываются у работ 18+.</p>
           <div class="filter-advanced-grid">
+            <div class="filter-group filter-group-wide">
+              <label>Категории</label>
+              <div class="tax-picker" data-tax-picker="categories" data-name="categories" data-list="all" data-placeholder="Найти категорию…"></div>
+            </div>
+            <div class="filter-group filter-group-wide">
+              <label>Фандомы</label>
+              <div class="tax-picker" data-tax-picker="fandoms" data-name="fandoms" data-placeholder="Найти фандом…"></div>
+            </div>
+            <div class="filter-group filter-group-wide">
+              <label>Обязательные персонажи</label>
+              <div class="tax-picker" data-tax-picker="characters" data-name="characters" data-placeholder="Сначала выберите фандом…"></div>
+              <p class="filter-hint">Персонажи подгружаются из выбранных фандомов. В выдачу попадут только работы, где есть каждый отмеченный персонаж.</p>
+            </div>
+            <div class="filter-group filter-group-wide">
+              <label>Пейринги</label>
+              <input type="text" name="pairings" placeholder="vasya/petya или masha|dasha — через запятую">
+              <p class="filter-hint"><strong>/</strong> — доминант и пассив, <strong>|</strong> — равные роли. Можно кликнуть пейринг на странице работы.</p>
+            </div>
             <div class="filter-group filter-group-wide">
               <label>Жанры</label>
               <div class="tax-picker" data-tax-picker="genres" data-name="genres" data-list="all" data-placeholder="Найти жанр…"></div>

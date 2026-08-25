@@ -1,9 +1,10 @@
 (function editorApp() {
   const STORE = "foxtoria-editor";
-  const NODE = 84;
-  const HGAP = 48;
-  const VGAP = 96;
-  const START = 36;
+  const CARD_W = 180;
+  const CARD_H = 92;
+  const HGAP = 56;
+  const VGAP = 108;
+  const START = 40;
 
   const $ = (id) => document.getElementById(id);
 
@@ -14,6 +15,9 @@
   function emptyStory() {
     const chapterId = uid("ch");
     const sceneId = uid("sc");
+    const scene2 = uid("sc");
+    const scene3 = uid("sc");
+    const scene4 = uid("sc");
     return {
       title: "",
       chapters: [{ id: chapterId, title: "Глава 1" }],
@@ -21,11 +25,50 @@
         {
           id: sceneId,
           chapterId,
-          title: "",
-          description: "",
+          title: "Пролог",
+          description: "Главный герой просыпается в незнакомом месте...",
           notes: "",
           background: "",
           isStart: true,
+          isEnding: false,
+          blocks: [],
+          choices: [
+            { id: uid("chc"), label: "Согласиться", targetId: scene2 },
+            { id: uid("chc"), label: "Отказать", targetId: scene3 },
+          ],
+        },
+        {
+          id: scene2,
+          chapterId,
+          title: "Путь согласия",
+          description: "Герой принимает предложение и идёт дальше.",
+          notes: "",
+          background: "",
+          isStart: false,
+          isEnding: false,
+          blocks: [],
+          choices: [{ id: uid("chc"), label: "Продолжить", targetId: scene4 }],
+        },
+        {
+          id: scene3,
+          chapterId,
+          title: "Путь отказа",
+          description: "Герой отказывается и ищет другой выход.",
+          notes: "",
+          background: "",
+          isStart: false,
+          isEnding: false,
+          blocks: [],
+          choices: [{ id: uid("chc"), label: "Продолжить", targetId: scene4 }],
+        },
+        {
+          id: scene4,
+          chapterId,
+          title: "Развилка",
+          description: "Два пути снова сходятся у старого моста.",
+          notes: "",
+          background: "",
+          isStart: false,
           isEnding: false,
           blocks: [],
           choices: [],
@@ -169,13 +212,13 @@
     const start = story.scenes.find((scene) => scene.isStart) || story.scenes[0];
     const pos = {};
     function widthOf(id, seen) {
-      if (seen.has(id)) return NODE;
+      if (seen.has(id)) return CARD_W;
       seen.add(id);
       const scene = sceneById(id);
       const kids = (scene?.choices || []).map((choice) => choice.targetId).filter((target) => sceneById(target));
-      if (!kids.length) return NODE;
+      if (!kids.length) return CARD_W;
       return Math.max(
-        NODE,
+        CARD_W,
         kids.reduce((sum, kid) => sum + widthOf(kid, new Set(seen)) + HGAP, -HGAP)
       );
     }
@@ -187,9 +230,9 @@
       const kids = scene.choices.map((choice) => choice.targetId).filter((target) => sceneById(target));
       const widths = kids.map((kid) => widthOf(kid, new Set(seen)));
       const total = widths.reduce((sum, w) => sum + w, 0) + HGAP * Math.max(0, kids.length - 1);
-      let cursor = x + NODE / 2 - total / 2;
+      let cursor = x + CARD_W / 2 - total / 2;
       kids.forEach((kid, index) => {
-        place(kid, cursor + widths[index] / 2 - NODE / 2, y + NODE + VGAP, seen);
+        place(kid, cursor + widths[index] / 2 - CARD_W / 2, y + CARD_H + VGAP, seen);
         cursor += widths[index] + HGAP;
       });
     }
@@ -197,15 +240,15 @@
     story.scenes.forEach((scene) => {
       if (pos[scene.id]) return;
       const extras = Object.keys(pos).length;
-      pos[scene.id] = { x: 80 + (extras % 4) * (NODE + HGAP), y: 88 + Math.floor(extras / 4) * (NODE + VGAP) };
+      pos[scene.id] = { x: 80 + (extras % 4) * (CARD_W + HGAP), y: 88 + Math.floor(extras / 4) * (CARD_H + VGAP) };
     });
     let minX = Infinity;
     let maxX = 0;
     let maxY = 0;
     Object.values(pos).forEach((point) => {
       minX = Math.min(minX, point.x);
-      maxX = Math.max(maxX, point.x + NODE);
-      maxY = Math.max(maxY, point.y + NODE + 28);
+      maxX = Math.max(maxX, point.x + CARD_W);
+      maxY = Math.max(maxY, point.y + CARD_H + 16);
     });
     const shift = 48 - minX;
     Object.values(pos).forEach((point) => {
@@ -216,7 +259,7 @@
       start,
       width: Math.max(640, maxX - minX + 96),
       height: Math.max(420, maxY + 48),
-      startX: pos[start.id].x + NODE / 2 - START / 2,
+      startX: pos[start.id].x + CARD_W / 2 - START / 2,
     };
   }
 
@@ -240,17 +283,26 @@
     graph.style.transformOrigin = "top left";
 
     const edges = [];
+    const choiceLabels = [];
     const startPos = pos[start.id];
     edges.push({
-      d: path(startX + START / 2, START + 8, startPos.x + NODE / 2, startPos.y),
+      d: path(startX + START / 2, START + 8, startPos.x + CARD_W / 2, startPos.y),
     });
     story.scenes.forEach((scene) => {
-      scene.choices.forEach((choice) => {
+      scene.choices.forEach((choice, choiceIndex) => {
         const from = pos[scene.id];
         const to = pos[choice.targetId];
         if (!from || !to) return;
         edges.push({
-          d: path(from.x + NODE / 2, from.y + NODE, to.x + NODE / 2, to.y),
+          d: path(from.x + CARD_W / 2, from.y + CARD_H, to.x + CARD_W / 2, to.y),
+        });
+        const labelX = (from.x + CARD_W / 2 + to.x + CARD_W / 2) / 2;
+        const labelY = from.y + CARD_H + Math.max(18, (to.y - from.y - CARD_H) / 2);
+        choiceLabels.push({
+          x: labelX,
+          y: labelY,
+          text: choice.label.trim() || `Вариант ${choiceIndex + 1}`,
+          tone: choiceIndex % 2,
         });
       });
     });
@@ -258,37 +310,50 @@
     const svg = `
       <svg class="graph-lines" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
         <defs>
-          <marker id="map-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L7,3 z" fill="var(--chestnut-dark)"/>
+          <marker id="map-arrow" markerWidth="7" markerHeight="7" refX="5.5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="var(--editor-line)"/>
           </marker>
         </defs>
         ${edges
           .map(
             (edge) =>
-              `<path d="${edge.d}" fill="none" stroke="var(--chestnut-dark)" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="butt" marker-end="url(#map-arrow)"/>`
+              `<path d="${edge.d}" fill="none" stroke="var(--editor-line)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#map-arrow)"/>`
           )
           .join("")}
       </svg>`;
 
     const startHtml = `
       <button type="button" class="map-start" data-select="${start.id}" style="left:${startX}px;top:8px" aria-label="Начало">
-        <img class="play" src="assets/brand/play.png" alt="">
+        <span class="map-start-dot"></span>
       </button>`;
 
+    let sceneIndex = 0;
     const nodes = story.scenes
       .map((scene) => {
+        sceneIndex += 1;
         const point = pos[scene.id];
         const title = scene.title.trim() || "Без названия";
+        const desc = scene.description.trim() || "Краткое описание сцены";
         return `
-          <button type="button" class="map-node${scene.id === story.selectedId ? " selected" : ""}${scene.isEnding ? " ending" : ""}" data-select="${scene.id}" style="left:${point.x}px;top:${point.y}px">
-            <img class="mark" src="assets/brand/${scene.isEnding ? "locked" : "unlocked"}.png" alt="">
-            ${scene.isEnding ? `<img class="sprig" src="assets/brand/leaf.png" alt="">` : ""}
-          </button>
-          <span class="map-caption" style="left:${point.x + NODE / 2}px;top:${point.y + NODE + 8}px">${escapeHtml(title)}</span>`;
+          <button type="button" class="map-node${scene.id === story.selectedId ? " selected" : ""}${scene.isStart ? " is-start" : ""}${scene.isEnding ? " ending" : ""}" data-select="${scene.id}" style="left:${point.x}px;top:${point.y}px">
+            ${scene.isStart ? `<span class="map-node-crown" aria-hidden="true"><img src="assets/deco/sparcle.svg" alt=""></span>` : ""}
+            <span class="map-node-head">
+              <span class="map-node-title">${sceneIndex}. ${escapeHtml(title)}</span>
+              <span class="map-node-menu" aria-hidden="true">⋯</span>
+            </span>
+            <span class="map-node-desc">${escapeHtml(desc.slice(0, 72))}${desc.length > 72 ? "…" : ""}</span>
+          </button>`;
       })
       .join("");
 
-    graph.innerHTML = svg + startHtml + nodes;
+    const labels = choiceLabels
+      .map(
+        (label) =>
+          `<span class="map-choice-label tone-${label.tone}" style="left:${label.x}px;top:${label.y}px">${escapeHtml(label.text)}</span>`
+      )
+      .join("");
+
+    graph.innerHTML = svg + startHtml + nodes + labels;
     renderMinimap(pos, width, height);
   }
 

@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="site.js"></script>
+  <link rel="stylesheet" href="styles.css?v=8">
+  <script src="site.js?v=8"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -18,7 +18,7 @@
     <nav class="crumbs">
       <a href="index.html">Главная</a>
       <span>›</span>
-      <a href="stories-linear.html">Линейные</a>
+      <a href="catalog.html">Каталог</a>
       <span>›</span>
       Письма из прошлого
     </nav>
@@ -26,24 +26,27 @@
     <section class="work-hero">
       <div class="work-cover"><span class="cover-title">Письма из прошлого</span></div>
       <div class="work-info">
-        <span class="genre-pill">ДРАМА</span>
+        <a href="search.html?genres=drama" class="genre-pill">ДРАМА</a>
         <h1>Письма из прошлого</h1>
         <div class="work-author-row">
           <a href="profile.html" data-user-name="Звёздная пыль">Звёздная пыль</a>
           <a href="#" class="sub">Подписаться</a>
         </div>
         <dl class="work-sheet">
-          <div><dt>Автор</dt><dd data-user-name="Звёздная пыль">Звёздная пыль</dd></div>
-          <div><dt>Редактор</dt><dd><a href="profile.html" data-user-name="Лунный странник">Лунный странник</a></dd></div>
+          <div><dt>Автор</dt><dd><a href="profile.html" class="tag-link" data-user-name="Звёздная пыль">Звёздная пыль</a></dd></div>
+          <div><dt>Редактор</dt><dd><a href="profile.html" class="tag-link" data-user-name="Лунный странник">Лунный странник</a></dd></div>
           <div><dt>Соавтор</dt><dd class="empty">нет</dd></div>
-          <div><dt>Возраст</dt><dd>16+</dd></div>
-          <div><dt>Фандом</dt><dd>Ориджинал</dd></div>
-          <div><dt>Направленность</dt><dd>Гет</dd></div>
-          <div><dt>Жанры</dt><dd>Драма, Романтика</dd></div>
-          <div><dt>Формат</dt><dd>Письма (стилизация)</dd></div>
+          <div><dt>Возраст</dt><dd><a href="search.html?age=16%2B" class="tag-link">16+</a></dd></div>
+          <div><dt>Фандом</dt><dd><a href="search.html?fandoms=original" class="tag-link">Ориджинал</a></dd></div>
+          <div><dt>Направленность</dt><dd><a href="search.html?romance=het" class="tag-link">Гет</a></dd></div>
+          <div><dt>Жанры</dt><dd class="tag-row"><a href="search.html?genres=drama" class="tag-link">Драма</a><a href="search.html?genres=romantika" class="tag-link">Романтика</a></dd></div>
+          <div><dt>Формат</dt><dd><a href="search.html?formats=pisma-stilizatsiya" class="tag-link">Письма (стилизация)</a></dd></div>
           <div><dt>Предупреждения</dt><dd class="empty">нет</dd></div>
-          <div><dt>Статус</dt><dd>Завершена</dd></div>
-          <div><dt>Размер</dt><dd>мини · 3 главы</dd></div>
+          <div><dt>Персонажи</dt><dd class="tag-row"><a href="search.html?characters=original-devushka" class="tag-link">Девушка</a><a href="search.html?characters=original-paren" class="tag-link">Парень</a></dd></div>
+          <div><dt>Пейринги</dt><dd class="tag-row"><a href="search.html?pairings=paren%2Fdevushka" class="tag-link pairing-tag" title="Парень — доминант, Девушка — пассив">Парень/Девушка</a></dd></div>
+          <div><dt>Тип</dt><dd><a href="search.html?type=linear" class="tag-link">Линейная</a></dd></div>
+          <div><dt>Статус</dt><dd><a href="search.html?status=completed" class="tag-link">Завершена</a></dd></div>
+          <div><dt>Размер</dt><dd><a href="search.html?size=mini" class="tag-link">мини · 3 главы</a></dd></div>
         </dl>
         <div class="work-stats">
           <span><b>9.8K</b> прочтений</span>
@@ -57,9 +60,14 @@
           Три главы без развилок. Письма лучше читать подряд, не перескакивая.
         </aside>
         <div class="work-tags">
-          <a href="search.html?genre=drama" class="tag">Драма</a>
-          <a href="search.html?genre=romantika" class="tag">Романтика</a>
-          <a href="search.html?format=pisma-stilizatsiya" class="tag">Письма</a>
+          <a href="search.html?genres=drama" class="tag">Драма</a>
+          <a href="search.html?genres=romantika" class="tag">Романтика</a>
+          <a href="search.html?formats=pisma-stilizatsiya" class="tag">Письма</a>
+          <a href="search.html?fandoms=original" class="tag">Ориджинал</a>
+          <a href="search.html?characters=original-devushka" class="tag">Девушка</a>
+          <a href="search.html?characters=original-paren" class="tag">Парень</a>
+          <a href="search.html?pairings=paren%2Fdevushka" class="tag pairing-tag" title="Парень — доминант, Девушка — пассив">Парень/Девушка</a>
+          <a href="search.html?type=linear" class="tag">Линейная</a>
         </div>
         <div class="work-cta">
           <a href="read-linear.html" class="btn btn-primary">Читать</a>

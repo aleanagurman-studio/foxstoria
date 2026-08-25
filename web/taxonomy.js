@@ -1,6 +1,17 @@
 (function taxonomyUI() {
   const SCRIPT_SRC = document.currentScript?.src || "";
-  const KEYS = { genres: "genres", formats: "formats", warnings: "warnings", kinks: "kinks" };
+  const KEYS = {
+    genres: "genres",
+    formats: "formats",
+    warnings: "warnings",
+    kinks: "kinks",
+    categories: "categories",
+  };
+
+  function assetUrl(file) {
+    if (SCRIPT_SRC) return new URL(file, SCRIPT_SRC).href;
+    return file;
+  }
 
   function escapeHtml(value) {
     return String(value || "")
@@ -10,13 +21,18 @@
       .replaceAll('"', "&quot;");
   }
 
-  function taxonomyUrl() {
-    if (SCRIPT_SRC) return new URL("taxonomy.json", SCRIPT_SRC).href;
-    return "taxonomy.json";
-  }
-
-  const dataPromise = fetch(taxonomyUrl()).then((res) => {
+  const dataPromise = fetch(assetUrl("taxonomy.json")).then((res) => {
     if (!res.ok) throw new Error("taxonomy.json");
+    return res.json();
+  });
+
+  const fandomsPromise = fetch(assetUrl("fandoms.json")).then((res) => {
+    if (!res.ok) throw new Error("fandoms.json");
+    return res.json();
+  });
+
+  const charactersPromise = fetch(assetUrl("characters-by-fandom.json")).then((res) => {
+    if (!res.ok) throw new Error("characters-by-fandom.json");
     return res.json();
   });
 
@@ -59,7 +75,26 @@
     return [...new Set([...fromAttr, ...slugsFromUrl(name)])];
   }
 
-  function mountPicker(root, items) {
+  function characterSlug(fandomSlug, name) {
+    const base = String(name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/ё/g, "е")
+      .replace(/[^a-zа-я0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "");
+    return `${fandomSlug}-${base}`;
+  }
+
+  function hiddenSlugs(root) {
+    const hidden = root?.querySelector('input[type="hidden"]');
+    if (!hidden?.value) return [];
+    return hidden.value
+      .split(",")
+      .map((slug) => slug.trim())
+      .filter(Boolean);
+  }
+
+  function mountPicker(root, items, options = {}) {
     if (root.getAttribute("data-list") === "all") {
       mountChecklist(root, items);
       return;
@@ -86,6 +121,8 @@
 
     function syncHidden() {
       hidden.value = [...selected.keys()].join(",");
+      hidden.dispatchEvent(new Event("change", { bubbles: true }));
+      options.onChange?.([...selected.keys()], root);
     }
 
     function renderChips() {
@@ -99,10 +136,11 @@
     }
 
     function renderMenu(query) {
-      const available = items.filter((item) => !selected.has(item.slug) && matchItem(item, query));
+      const source = typeof options.getItems === "function" ? options.getItems() : items;
+      const available = source.filter((item) => !selected.has(item.slug) && matchItem(item, query)).slice(0, 80);
       if (!available.length) {
-        menu.hidden = true;
-        menu.innerHTML = "";
+        menu.hidden = false;
+        menu.innerHTML = `<p class="tax-check-empty">${escapeHtml(options.emptyText || "Ничего не найдено")}</p>`;
         return;
       }
       menu.hidden = false;
@@ -115,7 +153,8 @@
     }
 
     function add(slug) {
-      const item = items.find((it) => it.slug === slug);
+      const source = typeof options.getItems === "function" ? options.getItems() : items;
+      const item = source.find((it) => it.slug === slug);
       if (!item || selected.has(slug)) return;
       selected.set(slug, item);
       search.value = "";
@@ -147,21 +186,22 @@
     });
 
     renderChips();
+    root.taxRefresh = () => renderMenu(search.value);
   }
 
   function mountChecklist(root, items) {
     const name = root.getAttribute("data-name") || root.getAttribute("data-tax-picker");
     const selected = new Set(presetSlugs(root));
-    const count = items.length;
+    let listItems = items;
 
     root.innerHTML = `
       <div class="tax-check-toolbar">
         <input class="tax-search" type="search" autocomplete="off" placeholder="${escapeHtml(root.getAttribute("data-placeholder") || "Найти…")}">
-        <button type="button" class="tax-check-all">Все ${count}</button>
+        <button type="button" class="tax-check-all">Все <span data-count>${listItems.length}</span></button>
         <button type="button" class="tax-check-none">Сбросить</button>
       </div>
       <div class="tax-check-list" role="group"></div>
-      <p class="tax-check-meta"><span data-picked>0</span> из ${count}</p>
+      <p class="tax-check-meta"><span data-picked>0</span> из <span data-total>${listItems.length}</span></p>
       <input type="hidden" name="${escapeHtml(name)}" value="">
     `;
 
@@ -169,6 +209,8 @@
     const search = root.querySelector(".tax-search");
     const hidden = root.querySelector('input[type="hidden"]');
     const picked = root.querySelector("[data-picked]");
+    const total = root.querySelector("[data-total]");
+    const countBtn = root.querySelector("[data-count]");
 
     function syncHidden() {
       hidden.value = [...selected].join(",");
@@ -176,7 +218,9 @@
     }
 
     function render(query) {
-      const visible = items.filter((item) => matchItem(item, query));
+      const visible = listItems.filter((item) => matchItem(item, query));
+      if (total) total.textContent = String(listItems.length);
+      if (countBtn) countBtn.textContent = String(listItems.length);
       if (!visible.length) {
         list.innerHTML = `<p class="tax-check-empty">Ничего не найдено</p>`;
         syncHidden();
@@ -203,7 +247,7 @@
     });
     search.addEventListener("input", () => render(search.value));
     root.querySelector(".tax-check-all")?.addEventListener("click", () => {
-      items.forEach((item) => selected.add(item.slug));
+      listItems.forEach((item) => selected.add(item.slug));
       render(search.value);
     });
     root.querySelector(".tax-check-none")?.addEventListener("click", () => {
@@ -214,8 +258,31 @@
     render("");
   }
 
+  function mountCharacterPicker(root, fandomRoot, charactersByFandom) {
+    mountPicker(root, [], {
+      emptyText: "Выберите фандом или начните вводить имя персонажа",
+      getItems() {
+        const fandomSlugs = hiddenSlugs(fandomRoot);
+        const items = [];
+        const seen = new Set();
+        fandomSlugs.forEach((fandomSlug) => {
+          (charactersByFandom[fandomSlug] || []).forEach((name) => {
+            const slug = characterSlug(fandomSlug, name);
+            if (seen.has(slug)) return;
+            seen.add(slug);
+            items.push({ name, slug, fandom: fandomSlug });
+          });
+        });
+        return items;
+      },
+    });
+
+    fandomRoot?.addEventListener("change", () => root.taxRefresh?.());
+    fandomRoot?.addEventListener("click", () => setTimeout(() => root.taxRefresh?.(), 0));
+  }
+
   function syncKinkFields() {
-    const age = document.querySelector('input[name="age"]:checked')?.value;
+    const age = document.querySelector('select[name="age"]')?.value || document.querySelector('input[name="age"]:checked')?.value;
     const block = document.getElementById("kink-fields");
     if (block) block.hidden = age !== "18+";
   }
@@ -233,21 +300,37 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     let data;
+    let fandoms;
+    let charactersByFandom;
     try {
-      data = await dataPromise;
+      [data, fandoms, charactersByFandom] = await Promise.all([dataPromise, fandomsPromise, charactersPromise]);
     } catch {
-      return;
+      try {
+        data = await dataPromise;
+      } catch {
+        return;
+      }
     }
 
     restoreSimpleFields();
 
     document.querySelectorAll("[data-tax-select]").forEach((select) => {
       const kind = select.getAttribute("data-tax-select");
-      fillSelect(select, data[KEYS[kind] || kind] || []);
+      fillSelect(select, data[KEYS[kind] || kind] || fandoms || []);
     });
+
+    const fandomRoot = document.querySelector('[data-tax-picker="fandoms"]');
 
     document.querySelectorAll("[data-tax-picker]").forEach((root) => {
       const kind = root.getAttribute("data-tax-picker");
+      if (kind === "fandoms" && fandoms) {
+        mountPicker(root, fandoms);
+        return;
+      }
+      if (kind === "characters" && charactersByFandom && fandomRoot) {
+        mountCharacterPicker(root, fandomRoot, charactersByFandom);
+        return;
+      }
       mountPicker(root, data[KEYS[kind] || kind] || []);
     });
 
@@ -259,7 +342,7 @@
       });
     });
 
-    document.querySelectorAll('input[name="age"]').forEach((input) => {
+    document.querySelectorAll('input[name="age"], select[name="age"]').forEach((input) => {
       input.addEventListener("change", syncKinkFields);
     });
     syncKinkFields();

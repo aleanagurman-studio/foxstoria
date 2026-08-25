@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=8">
   <link rel="stylesheet" href="studio.css">
-  <script src="site.js"></script>
+  <script src="site.js?v=8"></script>
 </head>
 <body class="studio-page">
 
@@ -38,39 +38,19 @@
       <p class="studio-nav-kicker">Моя история</p>
 
       <div class="studio-group">
-        <button class="studio-item" data-view="editor">Редактор</button>
+        <button class="studio-item active" data-view="editor">Редактор</button>
         <a class="studio-sub" href="editor.html">Главы</a>
-        <a class="studio-sub" href="editor.html">Сцены</a>
-        <button class="studio-sub" data-view="publish">Публикация</button>
       </div>
 
-      <div class="studio-group">
-        <button class="studio-item" data-view="timeline">Хронология</button>
-        <button class="studio-sub" data-view="timeline">Временная шкала / дерево</button>
-      </div>
+      <button class="studio-item" data-view="timeline">Хронология</button>
+      <button class="studio-item" data-view="characters">Персонажи</button>
+      <button class="studio-item" data-view="notes">Заметки</button>
+      <button class="studio-item" data-view="reviews">Отзывы</button>
+      <button class="studio-item" data-view="stats">Статистика</button>
+      <button class="studio-item" data-view="settings">Карточка работы</button>
+      <a class="studio-item studio-public" id="studio-public-page" href="story-interactive.html" target="_blank" rel="noopener">Страница работы</a>
 
-      <div class="studio-group">
-        <button class="studio-item" data-view="characters">Персонажи</button>
-        <button class="studio-sub" data-view="characters" data-char="alex">Алекс</button>
-        <button class="studio-sub" data-view="characters" data-char="masha">Маша</button>
-        <button class="studio-sub" data-view="characters" data-char="nikita">Никита</button>
-        <button class="studio-sub studio-add" data-view="characters" data-char="new">+ Новый персонаж</button>
-      </div>
-
-      <div class="studio-group">
-        <button class="studio-item" data-view="notes">Заметки</button>
-        <button class="studio-sub" data-view="notes" data-folder="plot">Сюжет</button>
-        <button class="studio-sub" data-view="notes" data-folder="ideas">Идеи</button>
-        <button class="studio-sub" data-view="notes" data-folder="dialogues">Диалоги</button>
-        <button class="studio-sub" data-view="notes" data-folder="future">Будущие события</button>
-      </div>
-
-      <div class="studio-group">
-        <button class="studio-item" data-view="stats">Статистика</button>
-        <button class="studio-item" data-view="settings">Карточка работы</button>
-      </div>
-
-      <p class="studio-private">Читатели этого не видят</p>
+      <p class="studio-private">Читатели этого не видят — кроме «Страницы работы»</p>
     </aside>
 
     <main class="studio-main">
@@ -98,14 +78,19 @@
         <a href="editor.html" class="btn btn-primary">Граф сцен</a>
       </section>
 
-      <section class="studio-view" id="view-publish" hidden>
-        <h2>Публикация</h2>
-        <p class="studio-lead">На карточку работы уходит только опубликованный текст. Библия персонажей и заметки остаются здесь.</p>
-        <ul class="studio-list">
-          <li>Карточка работы: название, автор, редактор, соавтор, возраст, фандом, направленность, описание, примечание, статус, размер</li>
-          <li>Тип: интерактивная или линейная. Сменить тип после публикации нельзя</li>
-          <li>ИИ-сводки: тариф Plus, можно выключить по полям персонажа</li>
-        </ul>
+      <section class="studio-view" id="view-reviews" hidden>
+        <h2>Отзывы</h2>
+        <p class="studio-lead">Отзывы читателей к опубликованной работе. На «Странице работы» они появятся после модерации.</p>
+        <div class="studio-cards">
+          <article class="studio-card">
+            <h3>Лиса с фонарём · ★★★★☆</h3>
+            <p>Третья концовка стоит того, чтобы пройти заново. Кафе и парк читаются по-разному, но оба пути цепляют.</p>
+          </article>
+          <article class="studio-card">
+            <h3>Никита · ★★★★★</h3>
+            <p>Кафе или парк — всё равно возвращаюсь к прологу. Хочется увидеть ветку с Никитой раньше.</p>
+          </article>
+        </div>
       </section>
 
       <section class="studio-view" id="view-timeline" hidden>
@@ -266,6 +251,16 @@
             </div>
           </div>
           <div>
+            <label class="studio-label" for="work-characters">Персонажи в работе</label>
+            <input id="work-characters" name="characters" value="Алекс, Маша, Никита" placeholder="Через запятую — попадут в поиск">
+            <p class="studio-hint">Имена героев, которые есть в опубликованном тексте. Каждое имя станет кликабельной меткой.</p>
+          </div>
+          <div>
+            <label class="studio-label" for="work-pairings">Пейринги</label>
+            <textarea id="work-pairings" name="pairings" rows="3">Алекс|Маша</textarea>
+            <p class="studio-hint">По одному на строку. <strong>Вася/Петя</strong> — доминант и пассив. <strong>Маша|Даша</strong> — равные роли. Метки ведут в поиск.</p>
+          </div>
+          <div>
             <label class="studio-label" for="work-desc">Описание работы</label>
             <textarea id="work-desc" name="description">Город после дождя. Знакомое лицо на перекрёстке. Каждый выбор ведёт к другой правде — и к одной из трёх концовок.</textarea>
           </div>
@@ -295,7 +290,7 @@
       </section>
     </main>
   </div>
-  <script src="taxonomy.js"></script>
-  <script src="studio.js"></script>
+  <script src="taxonomy.js?v=8"></script>
+  <script src="studio.js?v=8"></script>
 </body>
 </html>

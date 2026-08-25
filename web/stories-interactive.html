@@ -2,53 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Интерактивные — FoxStoria</title>
-  <link rel="icon" href="favicon.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="site.js"></script>
-  <script src="catalog.js" defer></script>
+  <meta http-equiv="refresh" content="0; url=catalog.html?type=interactive">
+  <title>Каталог — FoxStoria</title>
+  <script>location.replace("catalog.html?type=interactive");</script>
 </head>
 <body>
-  <header class="header"></header>
-
-  <div class="layout page">
-    <aside class="sidebar-left">
-            <nav class="sidebar-nav">
-        <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
-        <a href="stories-interactive.html" class="active"><img src="assets/deco/sparcle.svg" alt=""> Интерактивные</a>
-        <a href="stories-linear.html"><img src="assets/ornaments/08_open_book.svg" alt=""> Линейные</a>
-        <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
-        <a href="profile.html"><img src="assets/deco/fox.svg" alt=""> Мой профиль</a>
-        <a href="author-home.html"><img src="assets/deco/upload.svg" alt=""> Кабинет автора</a>
-        <a href="library.html"><img src="assets/deco/bookmark.svg" alt=""> Кабинет читателя</a>
-      </nav>
-      <div class="sidebar-ornament" aria-hidden="true">
-        <img src="assets/deco/уголок.svg" alt="">
-      </div>
-    </aside>
-
-    <main class="main page-main">
-      <header class="page-header">
-        <h1>Интерактивные работы</h1>
-        <p>Новеллы с ветвлением, выбором и несколькими концовками</p>
-      </header>
-      <div class="type-tabs">
-        <a href="stories-interactive.html" class="type-tab active">Интерактивные</a>
-        <a href="stories-linear.html" class="type-tab">Линейные</a>
-      </div>
-      <div class="sort-bar">
-        <span>Сортировка:</span>
-        <button type="button" class="sort-btn active" data-sort="popular">Популярные</button>
-        <button type="button" class="sort-btn" data-sort="rating">По рейтингу</button>
-        <button type="button" class="sort-btn" data-sort="latest">Новинки</button>
-      </div>
-      <div class="stories-grid" data-feed="catalog" data-type="interactive"></div>
-    </main>
-  </div>
-  <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <p><a href="catalog.html?type=interactive">Перейти в каталог</a></p>
 </body>
 </html>

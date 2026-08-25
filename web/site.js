@@ -29,6 +29,99 @@ function profileSlug(name) {
   );
 }
 
+function tagSlug(value) {
+  return profileSlug(value);
+}
+
+function searchHref(params) {
+  const query = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value == null || value === "") return;
+    if (Array.isArray(value)) {
+      const clean = value.filter(Boolean);
+      if (clean.length) query.set(key, clean.join(","));
+      return;
+    }
+    query.set(key, String(value));
+  });
+  const qs = query.toString();
+  return qs ? `search.html?${qs}` : "search.html";
+}
+
+function tagLink(label, param, slug, className = "tag") {
+  const safe = (value) =>
+    String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  return `<a class="${safe(className)}" href="${safe(searchHref({ [param]: slug }))}">${safe(label)}</a>`;
+}
+
+function characterSlug(fandomSlug, name) {
+  return `${tagSlug(fandomSlug || "original")}-${tagSlug(name)}`;
+}
+
+function characterLink(name, fandomSlug = "original", className = "tag") {
+  return tagLink(name, "characters", characterSlug(fandomSlug, name), className);
+}
+
+function parsePairingLine(line) {
+  const raw = String(line || "").trim();
+  if (!raw) return null;
+  if (raw.includes("|")) {
+    const [left, right] = raw.split("|").map((part) => part.trim());
+    if (!left || !right) return null;
+    return { left, right, mode: "equal" };
+  }
+  if (raw.includes("/")) {
+    const [left, right] = raw.split("/").map((part) => part.trim());
+    if (!left || !right) return null;
+    return { left, right, mode: "domsub" };
+  }
+  return null;
+}
+
+function pairingSlug(pairing) {
+  if (typeof pairing === "string") return pairing.trim();
+  const left = tagSlug(pairing.left);
+  const right = tagSlug(pairing.right);
+  return pairing.mode === "equal" ? `${left}|${right}` : `${left}/${right}`;
+}
+
+function pairingLabel(pairing) {
+  if (typeof pairing === "string") return pairing;
+  const sep = pairing.mode === "equal" ? "|" : "/";
+  return `${pairing.left}${sep}${pairing.right}`;
+}
+
+function pairingLink(pairing, className = "tag pairing-tag") {
+  const slug = pairingSlug(pairing);
+  const label = pairingLabel(pairing);
+  return tagLink(label, "pairings", slug, className);
+}
+
+function pairingTitle(pairing) {
+  if (typeof pairing === "string") return pairing;
+  if (pairing.mode === "equal") return `${pairing.left} и ${pairing.right} — равные роли`;
+  return `${pairing.left} — доминант, ${pairing.right} — пассив`;
+}
+
+function tagLinks(items, param, className = "tag") {
+  return (items || [])
+    .map((item) => {
+      if (typeof item === "string") return tagLink(item, param, tagSlug(item), className);
+      if (item?.name && item?.slug) return tagLink(item.name, param, item.slug, className);
+      return "";
+    })
+    .filter(Boolean)
+    .join("");
+}
+
+function joinTags(htmlParts, separator = " ") {
+  return htmlParts.filter(Boolean).join(separator);
+}
+
 function isOwnUserName(name) {
   const value = String(name || "").trim();
   return !value || value === "Вы" || value === "Я";
@@ -90,6 +183,16 @@ function ddOn(href) {
   }
 }
 
+function navOn(href) {
+  const page = currentPage();
+  if (href === "catalog.html") {
+    return ["catalog.html", "search.html", "stories-interactive.html", "stories-linear.html"].includes(page)
+      ? " active"
+      : "";
+  }
+  return page === href ? " active" : "";
+}
+
 function headerMarkup() {
   const page = currentPage();
   const on = (href) => (page === href ? " active" : "");
@@ -101,8 +204,7 @@ function headerMarkup() {
       </a>
       <div class="header-mid">
         <nav class="nav-main">
-          <a href="stories-interactive.html"${on("stories-interactive.html")}>Интерактивные</a>
-          <a href="stories-linear.html"${on("stories-linear.html")}>Линейные</a>
+          <a href="catalog.html"${navOn("catalog.html")}>Каталог</a>
           <a href="authors.html"${on("authors.html")}>Авторы</a>
           <a href="collections.html"${on("collections.html")}>Сборники</a>
           <a href="news.html"${on("news.html")}>Новости</a>
@@ -165,24 +267,27 @@ function headerMarkup() {
           <img src="assets/deco/fox.svg" alt="">
         </button>
         <div class="account-dd" hidden>
-          <a href="feed.html"${ddOn("feed.html")}>Моя лента</a>
-          <a href="blog.html"${ddOn("blog.html")}>Мой блог</a>
-          <a href="profile.html"${ddOn("profile.html")}>Мой профиль</a>
-          <a href="replies.html"${ddOn("replies.html")}>Комментарии</a>
-          <span class="dd-sep"></span>
-          <a href="studio.html"${ddOn("studio.html")}>Новая история</a>
-          <a href="author-home.html"${ddOn("author-home.html")}>Мои истории</a>
-          <a href="reviews.html"${ddOn("reviews.html")}>Отзывы</a>
-          <a href="changes.html"${ddOn("changes.html")}>Изменения</a>
-          <span class="dd-sep"></span>
-          <a href="library.html?tab=likes"${ddOn("library.html?tab=likes")}>Понравившиеся</a>
-          <a href="library.html?tab=packs"${ddOn("library.html?tab=packs")}>Сборники</a>
-          <a href="library.html?tab=authors"${ddOn("library.html?tab=authors")}>Любимые авторы</a>
-          <a href="library.html?tab=read"${ddOn("library.html?tab=read")}>Прочитанные работы</a>
-          <span class="dd-sep"></span>
-          <a href="support.html"${ddOn("support.html")}>Написать в поддержку</a>
-          <a href="settings.html"${ddOn("settings.html")}>Настройки</a>
-          <button type="button" class="dd-signout" data-signout>Выйти</button>
+          <div class="account-dd-scroll">
+            <a href="feed.html"${ddOn("feed.html")}>Моя лента</a>
+            <a href="blog.html"${ddOn("blog.html")}>Мой блог</a>
+            <a href="profile.html"${ddOn("profile.html")}>Мой профиль</a>
+            <a href="replies.html"${ddOn("replies.html")}>Комментарии</a>
+            <span class="dd-sep"></span>
+            <a href="studio.html"${ddOn("studio.html")}>Новая история</a>
+            <a href="author-home.html"${ddOn("author-home.html")}>Мои истории</a>
+            <a href="reviews.html"${ddOn("reviews.html")}>Отзывы</a>
+            <a href="changes.html"${ddOn("changes.html")}>Изменения</a>
+            <span class="dd-sep"></span>
+            <a href="library.html?tab=likes"${ddOn("library.html?tab=likes")}>Понравившиеся</a>
+            <a href="library.html?tab=packs"${ddOn("library.html?tab=packs")}>Сборники</a>
+            <a href="library.html?tab=authors"${ddOn("library.html?tab=authors")}>Любимые авторы</a>
+            <a href="library.html?tab=read"${ddOn("library.html?tab=read")}>Прочитанные работы</a>
+          </div>
+          <div class="account-dd-foot">
+            <a href="support.html"${ddOn("support.html")}>Написать в поддержку</a>
+            <a href="settings.html"${ddOn("settings.html")}>Настройки</a>
+            <button type="button" class="dd-signout" data-signout>Выйти</button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -269,6 +374,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
     closeAccount();
     closeNotif();
   });
+  hydrateUserLinks();
 });
 
 function syncInboxDots() {

@@ -4242,5 +4242,47 @@
       "synonyms": [],
       "slug": "seks-s-voobrazhaemymi-partnerami"
     }
+  ],
+  "categories": [
+    {
+      "name": "Аниме и манга",
+      "slug": "anime_and_manga"
+    },
+    {
+      "name": "Книги",
+      "slug": "books"
+    },
+    {
+      "name": "Мультфильмы",
+      "slug": "cartoons"
+    },
+    {
+      "name": "Игры",
+      "slug": "games"
+    },
+    {
+      "name": "Фильмы и сериалы",
+      "slug": "movies_and_tv_series"
+    },
+    {
+      "name": "Известные люди",
+      "slug": "rpf"
+    },
+    {
+      "name": "Комиксы",
+      "slug": "comics"
+    },
+    {
+      "name": "Мюзиклы",
+      "slug": "musicals"
+    },
+    {
+      "name": "Другое",
+      "slug": "other"
+    },
+    {
+      "name": "Ориджиналы",
+      "slug": "no_fandom"
+    }
   ]
 }

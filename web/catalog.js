@@ -117,6 +117,7 @@ function renderAuthors(authors) {
 }
 
 async function loadCatalog() {
+  await loadFandomIndex();
   try {
     const response = await fetch("works.json", { cache: "no-store" });
     if (!response.ok) throw new Error("catalog");
@@ -190,10 +191,69 @@ function workSlugs(work, keys) {
   return [];
 }
 
-function matchesAnySlug(work, keys, selected) {
+let fandomCategoryMap = {};
+
+async function loadFandomIndex() {
+  try {
+    const response = await fetch("fandoms.json", { cache: "no-store" });
+    if (!response.ok) return;
+    const fandoms = await response.json();
+    fandomCategoryMap = Object.fromEntries(
+      (Array.isArray(fandoms) ? fandoms : []).map((item) => [item.slug, item.category]).filter(([, category]) => category)
+    );
+  } catch {
+    fandomCategoryMap = {};
+  }
+}
+
+function workCategorySlugs(work) {
+  const slugs = new Set(workSlugs(work, ["categories", "category_slugs", "category"]));
+  workFandomSlugs(work).forEach((fandomSlug) => {
+    const category = fandomCategoryMap[fandomSlug];
+    if (category) slugs.add(category);
+  });
+  return [...slugs];
+}
+
+function matchesAllSlugs(work, keys, selected) {
   if (!selected.length) return true;
   const set = new Set(workSlugs(work, keys));
-  return selected.some((slug) => set.has(slug));
+  return selected.every((slug) => set.has(slug));
+}
+
+function workFandomSlugs(work) {
+  const slugs = new Set(workSlugs(work, ["fandoms", "fandom_slugs"]));
+  const single = work.fandom || work.fandom_slug;
+  if (single) slugs.add(String(single));
+  return [...slugs];
+}
+
+function workCharacterSlugs(work) {
+  const slugs = new Set(workSlugs(work, ["characters", "character_slugs"]));
+  const names = work.characters || work.character_names;
+  if (Array.isArray(names)) {
+    const fandom = workFandomSlugs(work)[0] || "original";
+    names.forEach((name) => {
+      if (typeof name === "string") slugs.add(characterSlug(fandom, name));
+    });
+  }
+  return [...slugs];
+}
+
+function characterSlug(fandomSlug, name) {
+  return `${tagSlug(fandomSlug || "original")}-${tagSlug(name)}`;
+}
+
+function workPairingSlugs(work) {
+  const slugs = new Set(workSlugs(work, ["pairings", "pairing_slugs"]));
+  const list = work.pairings_list || work.pairing_list || work.pairings;
+  if (Array.isArray(list)) {
+    list.forEach((entry) => {
+      if (typeof entry === "string") slugs.add(entry);
+      else if (entry && entry.left && entry.right) slugs.add(pairingSlug(entry));
+    });
+  }
+  return [...slugs];
 }
 
 function renderCatalogGrid(allWorks) {
@@ -211,40 +271,68 @@ function renderCatalogGrid(allWorks) {
   }
   const typeFilter = params.get("type");
   if (typeFilter) works = works.filter((work) => work.story_type === typeFilter);
-  ["romance", "age", "fandom"].forEach((key) => {
+  ["romance", "age"].forEach((key) => {
     const value = params.get(key);
     if (!value) return;
-    works = works.filter((work) => String(work[key] || "") === value);
+    works = works.filter((work) => String(work[key] || work.age_rating || "") === value);
   });
   const status = params.get("status");
   if (status === "completed") works = works.filter((work) => work.is_completed);
   if (status === "in_progress") works = works.filter((work) => !work.is_completed);
   const size = params.get("size");
   if (size) works = works.filter((work) => work.work_size === size);
+  const categorySlugs = slugsFromParams(params, "categories", "category");
+  const fandomSlugs = slugsFromParams(params, "fandoms", "fandom");
+  const characterSlugs = slugsFromParams(params, "characters", "character");
   const genreSlugs = slugsFromParams(params, "genres", "genre");
   const formatSlugs = slugsFromParams(params, "formats", "format");
   const warningSlugs = slugsFromParams(params, "warnings", "warning");
   const kinkSlugs = slugsFromParams(params, "kinks", "kink");
+  const pairingSlugs = slugsFromParams(params, "pairings", "pairing");
+  if (categorySlugs.length) {
+    works = works.filter((work) => {
+      const have = new Set(workCategorySlugs(work));
+      return categorySlugs.every((slug) => have.has(slug));
+    });
+  }
+  if (fandomSlugs.length) {
+    works = works.filter((work) => {
+      const have = new Set(workFandomSlugs(work));
+      return fandomSlugs.every((slug) => have.has(slug));
+    });
+  }
+  if (characterSlugs.length) {
+    works = works.filter((work) => {
+      const have = new Set(workCharacterSlugs(work));
+      return characterSlugs.every((slug) => have.has(slug));
+    });
+  }
   if (genreSlugs.length) {
-    works = works.filter((work) => matchesAnySlug(work, ["genres", "genre_slugs", "genre"], genreSlugs));
+    works = works.filter((work) => matchesAllSlugs(work, ["genres", "genre_slugs", "genre"], genreSlugs));
   }
   if (formatSlugs.length) {
-    works = works.filter((work) => matchesAnySlug(work, ["formats", "format_slugs", "format"], formatSlugs));
+    works = works.filter((work) => matchesAllSlugs(work, ["formats", "format_slugs", "format"], formatSlugs));
   }
   if (warningSlugs.length) {
-    works = works.filter((work) => matchesAnySlug(work, ["warnings", "warning_slugs", "warning"], warningSlugs));
+    works = works.filter((work) => matchesAllSlugs(work, ["warnings", "warning_slugs", "warning"], warningSlugs));
   }
   if (kinkSlugs.length) {
     works = works.filter((work) => {
       const age = work.age || work.age_rating;
       if (age !== "18+") return false;
-      return matchesAnySlug(work, ["kinks", "kink_slugs", "kink"], kinkSlugs);
+      return matchesAllSlugs(work, ["kinks", "kink_slugs", "kink"], kinkSlugs);
+    });
+  }
+  if (pairingSlugs.length) {
+    works = works.filter((work) => {
+      const have = new Set(workPairingSlugs(work));
+      return pairingSlugs.every((slug) => have.has(slug));
     });
   }
   const empty =
-    type === "linear"
+    type === "linear" || typeFilter === "linear"
       ? "Линейные истории появятся здесь после публикации."
-      : type === "interactive"
+      : type === "interactive" || typeFilter === "interactive"
         ? "Интерактивные работы появятся здесь после публикации."
         : "Работы появятся здесь, как только авторы начнут публиковать.";
   renderFeed("catalog", sortWorks(works, sort), empty);
