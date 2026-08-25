@@ -3372,9 +3372,28 @@ a.genre-pill:hover {
   .filter-advanced-grid,
   .profile-hero,
   .msg-layout,
-  .work-hero,
+  .work-hero {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .work-cover {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .work-body {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .work-lower,
-  .work-lower.work-lower--chapters,
+  .work-lower.work-lower--chapters {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .work-text-blocks {
     flex-direction: column;
     gap: 16px;
