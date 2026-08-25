@@ -8,10 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=8">
-  <script src="site.js?v=8"></script>
+  <link rel="stylesheet" href="styles.css?v=55">
+  <script src="site.js?v=11"></script>
+  <script src="feed.js?v=7"></script>
 </head>
-<body>
+<body class="feed-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -28,22 +29,49 @@
       </div>
     </aside>
     <main class="main page-main">
-      <header class="page-header">
-        <h1>Моя лента</h1>
-        <p>Обновления блогов, авторов, отдельных работ и сборников, на которые вы подписаны. Можно смотреть всё сразу или по категориям.</p>
+      <header class="feed-hero">
+        <img class="feed-corner" src="assets/deco/corner.svg" alt="" aria-hidden="true">
+        <div class="page-header">
+          <h1>Моя лента</h1>
+          <p>Все обновления из ваших подписок: новые главы, посты в блогах, обновления сборников и другое.</p>
+        </div>
+        <div class="feed-hero-aside">
+          <aside class="feed-stats" aria-label="Общая статистика подписок">
+            <div class="feed-subs-total">
+              <b data-feed-subs-total>0</b>
+              <span>подписок</span>
+            </div>
+            <ul class="feed-subs-split">
+              <li class="feed-subs-authors"><img src="assets/deco/перо1.svg" alt=""> <span><b data-feed-subs="authors">0</b>авторов</span></li>
+              <li class="feed-subs-works"><img src="assets/deco/книга.svg" alt=""> <span><b data-feed-subs="works">0</b>работ</span></li>
+              <li class="feed-subs-blogs"><img src="assets/deco/блог.svg" alt=""> <span><b data-feed-subs="blogs">0</b>блогов</span></li>
+              <li class="feed-subs-collections"><img src="assets/deco/сборник.svg" alt=""> <span><b data-feed-subs="collections">0</b>сборников</span></li>
+            </ul>
+          </aside>
+        </div>
       </header>
-      <div class="account-tabs" data-account-tabs>
-        <button type="button" class="active" data-tab="all">Вся лента</button>
-        <button type="button" data-tab="authors">Авторы</button>
-        <button type="button" data-tab="blogs">Блоги</button>
-        <button type="button" data-tab="works">Работы</button>
-        <button type="button" data-tab="packs">Сборники</button>
+
+      <div class="feed-toolbar">
+        <div class="account-tabs" id="feed-tabs">
+          <button type="button" class="active" data-feed-tab="all">Вся лента</button>
+          <button type="button" data-feed-tab="works">Работы</button>
+          <button type="button" data-feed-tab="blogs">Блоги</button>
+          <button type="button" data-feed-tab="collections">Сборники</button>
+          <button type="button" data-feed-tab="authors">Авторы</button>
+        </div>
+        <label class="feed-sort">
+          <span class="visually-hidden">Сортировка</span>
+          <select id="feed-sort">
+            <option value="new">Сначала новые</option>
+            <option value="old">Сначала старые</option>
+          </select>
+        </label>
       </div>
-      <section id="tab-all"><div class="empty-feed"><p>Лента подписок появится, когда вы начнёте следить за авторами, работами и сборниками.</p></div></section>
-      <section id="tab-authors" hidden><div class="empty-feed"><p>Обновления авторов, на которых вы подписаны, появятся здесь.</p></div></section>
-      <section id="tab-blogs" hidden><div class="empty-feed"><p>Новые записи из блогов авторов появятся здесь.</p></div></section>
-      <section id="tab-works" hidden><div class="empty-feed"><p>Главы и правки по отслеживаемым работам появятся здесь.</p></div></section>
-      <section id="tab-packs" hidden><div class="empty-feed"><p>Обновления сборников, на которые вы подписаны, появятся здесь.</p></div></section>
+
+      <div id="feed-stream" class="feed-stream"></div>
+      <p class="feed-more-wrap">
+        <button type="button" class="btn btn-outline" id="feed-more" hidden>Загрузить ещё</button>
+      </p>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
