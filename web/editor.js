@@ -427,7 +427,7 @@
     const scene = selected();
     const strip = $("blocks-strip");
     if (!scene.blocks.length) {
-      strip.innerHTML = `<div class="empty-feed"><p>Здесь будут текст, изображения и выборы сцены. Нажмите «Добавить блок» или кнопки справа.</p></div>`;
+      strip.innerHTML = `<div class="empty-feed"><p>Здесь будут текст, изображения и выборы сцены. Добавьте блок кнопками справа.</p></div>`;
       return;
     }
     strip.innerHTML = scene.blocks
@@ -546,7 +546,6 @@
       const name = right.getAttribute("data-right");
       document.querySelectorAll(".right-tab").forEach((tab) => tab.classList.toggle("active", tab.getAttribute("data-right") === name));
       $("right-settings").hidden = name !== "settings";
-      $("right-blocks").hidden = name !== "blocks";
       return;
     }
     const blockType = event.target.closest("[data-block]");
@@ -564,14 +563,12 @@
 
   $("add-chapter").addEventListener("click", addChapter);
   $("add-scene").addEventListener("click", () => addScene(false));
-  $("tool-add").addEventListener("click", () => addScene(true));
   $("tool-center").addEventListener("click", () => {
     $("canvas-area").scrollTo({ top: 0, left: 0, behavior: "smooth" });
   });
   $("tool-delete").addEventListener("click", () => deleteScene(story.selectedId));
   $("delete-scene").addEventListener("click", () => deleteScene(story.selectedId));
   $("add-transition").addEventListener("click", () => addScene(true));
-  $("add-block").addEventListener("click", () => addBlock("text"));
   $("undo-btn").addEventListener("click", () => restore(histIndex - 1));
   $("redo-btn").addEventListener("click", () => restore(histIndex + 1));
   $("zoom-in").addEventListener("click", () => {
@@ -581,9 +578,6 @@
   $("zoom-out").addEventListener("click", () => {
     zoom = Math.max(0.6, zoom - 0.1);
     render();
-  });
-  $("test-story").addEventListener("click", () => {
-    document.querySelector('[data-mode="preview"]').click();
   });
   $("preview-restart").addEventListener("click", () => {
     const start = story.scenes.find((scene) => scene.isStart) || story.scenes[0];

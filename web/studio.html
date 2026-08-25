@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=8">
-  <link rel="stylesheet" href="studio.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="studio.css?v=5">
   <script src="site.js?v=8"></script>
 </head>
 <body class="studio-page">
@@ -39,7 +39,6 @@
 
       <div class="studio-group">
         <button class="studio-item active" data-view="editor">Редактор</button>
-        <a class="studio-sub" id="studio-editor-sub" href="editor.html">Главы</a>
       </div>
 
       <button class="studio-item" data-view="timeline">Хронология</button>
@@ -75,7 +74,6 @@
             </div>
           </article>
         </div>
-        <a href="editor.html" class="btn btn-primary" id="studio-editor-cta">Граф сцен</a>
       </section>
 
       <section class="studio-view" id="view-reviews" hidden>
@@ -146,6 +144,9 @@
             </div>
           </article>
         </div>
+        <div class="studio-view-foot">
+          <button type="button" class="btn-add-item" id="add-character">Добавить персонажа</button>
+        </div>
       </section>
 
       <section class="studio-view" id="view-notes" hidden>
@@ -183,7 +184,7 @@
 
       <section class="studio-view" id="view-settings" hidden>
         <h2>Карточка работы</h2>
-        <p class="studio-lead">Эти строки уходят на публичную карточку у любой работы — линейной и интерактивной. Размер считается сам, и только когда вы ставите «завершена».</p>
+        <p class="studio-lead">Эти строки уходят на публичную карточку у любой работы — линейной и интерактивной. Число глав и размер считаются сами по редактору, когда вы ставите «завершена».</p>
         <form class="studio-form" id="work-card-form">
           <div>
             <label class="studio-label" for="work-title">Название</label>
@@ -206,59 +207,74 @@
           <div>
             <span class="studio-label">Возрастной рейтинг</span>
             <div class="studio-radios">
-              <label><input type="radio" name="age" value="none"> Без рейтинга</label>
+              <label><input type="radio" name="age" value="0+"> 0+</label>
               <label><input type="radio" name="age" value="16+" checked> 16+</label>
               <label><input type="radio" name="age" value="18+"> 18+</label>
             </div>
-            <p class="studio-hint">Без рейтинга — обычный текст. 16+ — лёгкие намёки. 18+ — соответствующий контент.</p>
+            <p class="studio-hint">0+ — обычный текст. 16+ — лёгкие намёки. 18+ — соответствующий контент.</p>
           </div>
           <div>
             <label class="studio-label">Жанры</label>
-            <div class="tax-picker" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…" data-selected="drama,mistika"></div>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…" data-selected="drama,mistika"></div>
             <p class="studio-hint">Несколько жанров из таблицы. Старые метки больше не используются.</p>
           </div>
           <div>
             <label class="studio-label">Предупреждения</label>
-            <div class="tax-picker" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…"></div>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…"></div>
           </div>
           <div>
             <label class="studio-label">Формат работы</label>
-            <div class="tax-picker" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…"></div>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…"></div>
             <p class="studio-hint">Необязательно. Стихи, письма, чаты и другие формы текста.</p>
           </div>
           <div id="kink-fields" hidden>
             <label class="studio-label">Кинки</label>
-            <div class="tax-picker" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…"></div>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…"></div>
             <p class="studio-hint">Только для работ 18+.</p>
           </div>
           <div class="studio-form-row">
             <div>
-              <label class="studio-label" for="work-fandom">Фандом</label>
-              <select id="work-fandom" name="fandom" required>
-                <option value="original" selected>Ориджинал</option>
-                <option value="archive-moon">Архив луны</option>
-              </select>
-              <p class="studio-hint">Обязательное поле. Для своих миров выбирайте «Ориджинал».</p>
+              <label class="studio-label">Фандомы</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="fandoms" data-name="fandoms" data-placeholder="Найти фандом…" data-selected="original"></div>
+              <p class="studio-hint">Можно несколько — для кроссоверов. Для своих миров добавьте «Ориджинал».</p>
             </div>
             <div>
               <label class="studio-label" for="work-romance">Направленность</label>
               <select id="work-romance" name="romance" required>
-                <option value="gen" selected>Джен — без романтической линии</option>
-                <option value="het">Гет — M/F</option>
-                <option value="slash">Слэш — M/M</option>
-                <option value="femslash">Фемслэш — F/F</option>
+                <option value="gen" selected>Джен</option>
+                <option value="het">Гет</option>
+                <option value="slash">Слэш</option>
+                <option value="femslash">Фемслэш</option>
+                <option value="mixed">Смешанный</option>
               </select>
             </div>
           </div>
           <div>
-            <label class="studio-label" for="work-characters">Персонажи в работе</label>
-            <input id="work-characters" name="characters" value="Алекс, Маша, Никита" placeholder="Через запятую — попадут в поиск">
-            <p class="studio-hint">Имена героев, которые есть в опубликованном тексте. Каждое имя станет кликабельной меткой.</p>
+            <label class="studio-label">Персонажи в работе</label>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="characters" data-name="characters" data-placeholder="Найти или ввести имя…" data-selected="original-aleks,original-masha,original-nikita" data-selected-labels="Алекс,Маша,Никита"></div>
+            <p class="studio-hint">Имена героев из каталога или свои — Enter добавит имя. Каждое имя станет кликабельной меткой.</p>
           </div>
           <div>
-            <label class="studio-label" for="work-pairings">Пейринги</label>
-            <textarea id="work-pairings" name="pairings" rows="3">Алекс|Маша</textarea>
-            <p class="studio-hint">По одному на строку. <strong>Вася/Петя</strong> — доминант и пассив. <strong>Маша|Даша</strong> — равные роли. Метки ведут в поиск.</p>
+            <label class="studio-label">Пейринги</label>
+            <div class="pairing-builder" id="work-pairings-builder" data-initial="Алекс | Маша">
+              <div class="pairing-list" aria-live="polite"></div>
+              <div class="pairing-draft">
+                <select class="pairing-char pairing-char-left" aria-label="Первый персонаж">
+                  <option value="">Первый</option>
+                </select>
+                <select class="pairing-sep" aria-label="Тип связи">
+                  <option value="">—</option>
+                  <option value="/">/ — дом/пас</option>
+                  <option value="|">| — равные</option>
+                </select>
+                <select class="pairing-char pairing-char-right" aria-label="Второй персонаж">
+                  <option value="">Второй</option>
+                </select>
+                <button type="button" class="pairing-add btn btn-outline" disabled aria-label="Подтвердить пейринг">✓</button>
+              </div>
+            </div>
+            <input type="hidden" name="pairings" id="work-pairings-value" value="Алекс | Маша">
+            <p class="studio-hint">Сначала выберите персонажей выше. Затем — первый, разделитель и второй; ✓ добавит пейринг. Можно несколько.</p>
           </div>
           <div>
             <label class="studio-label" for="work-desc">Описание работы</label>
@@ -275,22 +291,17 @@
               <label><input type="radio" name="status" value="completed"> Завершена</label>
             </div>
           </div>
-          <div class="studio-form-row">
-            <div>
-              <label class="studio-label" for="work-chapters">Число глав</label>
-              <input id="work-chapters" name="chapters" type="number" min="1" value="12">
-            </div>
-            <div>
-              <span class="studio-label">Размер</span>
-              <div class="studio-size-preview" id="work-size">После завершения: мини — до 20 глав, миди — до 50, макси — дальше.</div>
-            </div>
+          <div>
+            <span class="studio-label">Размер</span>
+            <div class="studio-size-preview" id="work-size">После завершения: мини — до 20 глав, миди — до 50, макси — дальше.</div>
+            <p class="studio-hint">Число глав берётся из редактора — вручную указывать не нужно.</p>
           </div>
           <button type="submit" class="btn btn-primary">Сохранить карточку</button>
         </form>
       </section>
     </main>
   </div>
-  <script src="taxonomy.js?v=8"></script>
-  <script src="studio.js?v=9"></script>
+  <script src="taxonomy.js?v=11"></script>
+  <script src="studio.js?v=14"></script>
 </body>
 </html>

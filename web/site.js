@@ -91,8 +91,8 @@ function pairingSlug(pairing) {
 
 function pairingLabel(pairing) {
   if (typeof pairing === "string") return pairing;
-  const sep = pairing.mode === "equal" ? "|" : "/";
-  return `${pairing.left}${sep}${pairing.right}`;
+  if (pairing.mode === "equal") return `${pairing.left} | ${pairing.right}`;
+  return `${pairing.left}/${pairing.right}`;
 }
 
 function pairingLink(pairing, className = "tag pairing-tag") {
@@ -508,5 +508,38 @@ document.addEventListener("DOMContentLoaded", function supportForm() {
     form.hidden = true;
     const done = document.querySelector("[data-support-done]");
     if (done) done.hidden = false;
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function workPageControls() {
+  document.querySelectorAll(".work-split-btn").forEach((wrap) => {
+    const toggle = wrap.querySelector(".work-split-btn-toggle");
+    const menu = wrap.querySelector(".work-split-menu");
+    if (!toggle || !menu) return;
+
+    function close() {
+      wrap.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+      menu.hidden = true;
+    }
+
+    toggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = menu.hidden;
+      document.querySelectorAll(".work-split-btn.open").forEach((other) => {
+        if (other === wrap) return;
+        other.classList.remove("open");
+        other.querySelector(".work-split-btn-toggle")?.setAttribute("aria-expanded", "false");
+        const otherMenu = other.querySelector(".work-split-menu");
+        if (otherMenu) otherMenu.hidden = true;
+      });
+      wrap.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      menu.hidden = !open;
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!wrap.contains(event.target)) close();
+    });
   });
 });

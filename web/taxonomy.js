@@ -94,23 +94,41 @@
       .filter(Boolean);
   }
 
-  function mountPicker(root, items, options = {}) {
-    if (root.getAttribute("data-list") === "all") {
-      mountChecklist(root, items);
-      return;
-    }
+  function withOriginalFandom(fandoms) {
+    if (!Array.isArray(fandoms)) return fandoms;
+    if (fandoms.some((item) => item.slug === "original")) return fandoms;
+    return [{ name: "Ориджинал", slug: "original", category: "no_fandom" }, ...fandoms];
+  }
 
+  function presetEntries(root) {
+    const slugs = presetSlugs(root);
+    const labels = (root.getAttribute("data-selected-labels") || "")
+      .split(",")
+      .map((value) => value.trim());
+    return slugs.map((slug, index) => ({ slug, label: labels[index] || "" }));
+  }
+
+  function mountPicker(root, items, options = {}) {
     const name = root.getAttribute("data-name") || root.getAttribute("data-tax-picker");
+    const single = root.hasAttribute("data-single");
     const selected = new Map();
-    presetSlugs(root).forEach((slug) => {
-      const item = items.find((it) => it.slug === slug);
+
+    presetEntries(root).forEach(({ slug, label }) => {
+      let item = items.find((it) => it.slug === slug);
+      if (!item && typeof options.getItems === "function") {
+        item = options.getItems().find((it) => it.slug === slug);
+      }
+      if (!item && options.resolvePreset) item = options.resolvePreset(slug, label);
+      if (!item && label) item = { slug, name: label };
       if (item) selected.set(slug, item);
     });
 
     root.innerHTML = `
+      <div class="tax-field">
+        <input class="tax-search" type="search" autocomplete="off" placeholder="${escapeHtml(root.getAttribute("data-placeholder") || "Найти…")}">
+        <div class="tax-menu" hidden></div>
+      </div>
       <div class="tax-chips"></div>
-      <input class="tax-search" type="search" autocomplete="off" placeholder="${escapeHtml(root.getAttribute("data-placeholder") || "Найти…")}">
-      <div class="tax-menu" hidden></div>
       <input type="hidden" name="${escapeHtml(name)}" value="">
     `;
 
@@ -118,6 +136,10 @@
     const search = root.querySelector(".tax-search");
     const menu = root.querySelector(".tax-menu");
     const hidden = root.querySelector('input[type="hidden"]');
+
+    function sourceItems() {
+      return typeof options.getItems === "function" ? options.getItems() : items;
+    }
 
     function syncHidden() {
       hidden.value = [...selected.keys()].join(",");
@@ -132,18 +154,22 @@
             `<button type="button" class="tax-chip" data-slug="${escapeHtml(item.slug)}" title="${escapeHtml(item.description || item.name)}">${escapeHtml(item.name)} <span aria-hidden="true">×</span></button>`
         )
         .join("");
+      chips.hidden = chips.innerHTML === "";
       syncHidden();
     }
 
     function renderMenu(query) {
-      const source = typeof options.getItems === "function" ? options.getItems() : items;
-      const available = source.filter((item) => !selected.has(item.slug) && matchItem(item, query)).slice(0, 80);
+      const source = sourceItems();
+      const available = source.filter((item) => !selected.has(item.slug) && matchItem(item, query)).slice(0, 60);
+      menu.hidden = false;
       if (!available.length) {
-        menu.hidden = false;
-        menu.innerHTML = `<p class="tax-check-empty">${escapeHtml(options.emptyText || "Ничего не найдено")}</p>`;
+        const hint =
+          options.allowCustom && query.trim()
+            ? `Enter — добавить «${escapeHtml(query.trim())}»`
+            : escapeHtml(options.emptyText || "Ничего не найдено");
+        menu.innerHTML = `<p class="tax-check-empty">${hint}</p>`;
         return;
       }
-      menu.hidden = false;
       menu.innerHTML = available
         .map(
           (item) =>
@@ -152,14 +178,18 @@
         .join("");
     }
 
-    function add(slug) {
-      const source = typeof options.getItems === "function" ? options.getItems() : items;
-      const item = source.find((it) => it.slug === slug);
-      if (!item || selected.has(slug)) return;
-      selected.set(slug, item);
+    function addItem(item) {
+      if (!item || selected.has(item.slug)) return;
+      if (single) selected.clear();
+      selected.set(item.slug, item);
       search.value = "";
       renderChips();
       renderMenu("");
+    }
+
+    function add(slug) {
+      const item = sourceItems().find((it) => it.slug === slug);
+      if (item) addItem(item);
     }
 
     function remove(slug) {
@@ -179,7 +209,28 @@
     search.addEventListener("focus", () => renderMenu(search.value));
     search.addEventListener("input", () => renderMenu(search.value));
     search.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") menu.hidden = true;
+      if (event.key === "Escape") {
+        menu.hidden = true;
+        return;
+      }
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      const query = search.value.trim();
+      if (!query) return;
+      const source = sourceItems();
+      const exact = source.find((item) => item.name.toLowerCase() === query.toLowerCase());
+      if (exact) {
+        addItem(exact);
+        return;
+      }
+      const first = source.find((item) => !selected.has(item.slug) && matchItem(item, query));
+      if (first) {
+        addItem(first);
+        return;
+      }
+      if (!options.allowCustom) return;
+      const slug = options.customSlug ? options.customSlug(query) : query;
+      addItem({ slug, name: query });
     });
     document.addEventListener("click", (event) => {
       if (!root.contains(event.target)) menu.hidden = true;
@@ -259,8 +310,11 @@
   }
 
   function mountCharacterPicker(root, fandomRoot, charactersByFandom) {
+    const extraCharacters = ["ОЖП", "ОМП"];
+
     mountPicker(root, [], {
-      emptyText: "Выберите фандом или начните вводить имя персонажа",
+      allowCustom: true,
+      emptyText: "Выберите фандом или начните вводить имя",
       getItems() {
         const fandomSlugs = hiddenSlugs(fandomRoot);
         const items = [];
@@ -272,13 +326,30 @@
             seen.add(slug);
             items.push({ name, slug, fandom: fandomSlug });
           });
+          extraCharacters.forEach((name) => {
+            const slug = characterSlug(fandomSlug, name);
+            if (seen.has(slug)) return;
+            seen.add(slug);
+            items.push({ name, slug, fandom: fandomSlug });
+          });
         });
         return items;
+      },
+      resolvePreset(slug, label) {
+        if (label) return { slug, name: label };
+        const dash = slug.indexOf("-");
+        if (dash === -1) return { slug, name: slug };
+        return { slug, name: slug.slice(dash + 1).replace(/-/g, " ") };
+      },
+      customSlug(name) {
+        const fandomSlugs = hiddenSlugs(fandomRoot);
+        const fandom = fandomSlugs[0] || "original";
+        return characterSlug(fandom, name);
       },
     });
 
     fandomRoot?.addEventListener("change", () => root.taxRefresh?.());
-    fandomRoot?.addEventListener("click", () => setTimeout(() => root.taxRefresh?.(), 0));
+    fandomRoot?.querySelector('input[type="hidden"]')?.addEventListener("change", () => root.taxRefresh?.());
   }
 
   function syncKinkFields() {
@@ -324,7 +395,7 @@
     document.querySelectorAll("[data-tax-picker]").forEach((root) => {
       const kind = root.getAttribute("data-tax-picker");
       if (kind === "fandoms" && fandoms) {
-        mountPicker(root, fandoms);
+        mountPicker(root, withOriginalFandom(fandoms));
         return;
       }
       if (kind === "characters" && charactersByFandom && fandomRoot) {
@@ -346,5 +417,6 @@
       input.addEventListener("change", syncKinkFields);
     });
     syncKinkFields();
+    document.dispatchEvent(new CustomEvent("taxonomy:ready"));
   });
 })();

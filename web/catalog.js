@@ -5,12 +5,13 @@ const ROMANCE = {
   femslash: "Фемслэш",
   het: "Гет",
   gen: "Джен",
+  mixed: "Смешанный",
 };
 
 const SIZE = { mini: "мини", midi: "миди", maxi: "макси" };
 
 function ageLabel(age) {
-  if (!age || age === "none") return "без рейтинга";
+  if (!age || age === "none" || age === "0+") return "0+";
   return age;
 }
 
@@ -274,6 +275,13 @@ function renderCatalogGrid(allWorks) {
   ["romance", "age"].forEach((key) => {
     const value = params.get(key);
     if (!value) return;
+    if (key === "age" && value === "0+") {
+      works = works.filter((work) => {
+        const age = String(work.age || work.age_rating || "");
+        return !age || age === "none" || age === "0+";
+      });
+      return;
+    }
     works = works.filter((work) => String(work[key] || work.age_rating || "") === value);
   });
   const status = params.get("status");

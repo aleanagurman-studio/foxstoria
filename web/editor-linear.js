@@ -216,7 +216,6 @@
   }
 
   $("add-chapter").addEventListener("click", addChapter);
-  $("add-chapter-bottom").addEventListener("click", addChapter);
   $("delete-chapter").addEventListener("click", deleteChapter);
 
   $("chapter-list").addEventListener("click", (event) => {

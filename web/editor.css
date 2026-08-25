@@ -4,7 +4,7 @@
   --editor-header-h: 56px;
   --editor-left-w: 248px;
   --editor-right-w: 300px;
-  --editor-bottom-h: 200px;
+  --editor-bottom-h: 220px;
 
   --canvas-dot: color-mix(in srgb, var(--sand) 55%, transparent);
   --editor-line: color-mix(in srgb, var(--chestnut) 38%, var(--sand));
@@ -429,17 +429,21 @@ body.editor-page {
 
 /* ── Center ── */
 .editor-center {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) var(--editor-bottom-h);
   min-height: 0;
   min-width: 0;
+  overflow: hidden;
 }
 
 .canvas-wrap {
-  flex: 1;
+  grid-row: 1;
   min-height: 0;
   position: relative;
   overflow: hidden;
+  isolation: isolate;
+  z-index: 1;
+  contain: layout paint style;
   background:
     radial-gradient(circle, var(--canvas-dot) 1px, transparent 1px);
   background-size: 22px 22px;
@@ -699,7 +703,10 @@ body.editor-page {
 
 .notes-panel {
   flex: 1;
+  min-height: 0;
   padding: 12px 16px;
+  background: var(--bg-card);
+  overflow: auto;
 }
 
 .notes-panel textarea {
@@ -777,18 +784,29 @@ body.editor-page {
   font: inherit;
 }
 
-.blocks-strip .empty-feed { min-height: 120px; }
+.blocks-strip .empty-feed {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  align-self: stretch;
+  background: var(--bg-card);
+}
 
 /* ── Bottom panel ── */
 .editor-bottom {
+  grid-row: 2;
   height: var(--editor-bottom-h);
+  max-height: var(--editor-bottom-h);
   background: var(--bg-card);
   border-top: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   position: relative;
-  z-index: 8;
+  z-index: 10;
+  isolation: isolate;
+  overflow: hidden;
+  box-shadow: 0 -8px 24px color-mix(in srgb, var(--chestnut-dark) 5%, transparent);
 }
 
 .bottom-tabs {
@@ -796,6 +814,8 @@ body.editor-page {
   gap: 0;
   padding: 0 16px;
   border-bottom: 1px solid var(--border-default);
+  background: var(--bg-card);
+  flex-shrink: 0;
 }
 
 .bottom-tab {
@@ -816,11 +836,14 @@ body.editor-page {
 
 .blocks-strip {
   flex: 1;
+  min-height: 0;
   display: flex;
   align-items: stretch;
   gap: 10px;
   padding: 12px 16px;
   overflow-x: auto;
+  overflow-y: auto;
+  background: var(--bg-card);
 }
 
 .content-block {
@@ -889,11 +912,14 @@ body.editor-page {
   padding: 8px 16px 10px;
   border-top: 1px solid var(--border-default);
   display: flex;
+  align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  background: var(--bg-card);
 }
 
 .btn-add-block {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
@@ -903,6 +929,9 @@ body.editor-page {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
+  width: auto;
+  max-width: calc(100% - 32px);
+  flex-shrink: 0;
 }
 
 .btn-add-block:hover {

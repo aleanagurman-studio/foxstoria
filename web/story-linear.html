@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=8">
-  <script src="site.js?v=8"></script>
+  <link rel="stylesheet" href="styles.css?v=18">
+  <script src="site.js?v=10"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -24,147 +24,141 @@
     </nav>
 
     <section class="work-hero">
-      <div class="work-cover"><span class="cover-title">Письма из прошлого</span></div>
-      <div class="work-info">
-        <a href="search.html?genres=drama" class="genre-pill">ДРАМА</a>
-        <h1>Письма из прошлого</h1>
-        <div class="work-author-row">
-          <a href="profile.html" data-user-name="Звёздная пыль">Звёздная пыль</a>
-          <a href="#" class="sub">Подписаться</a>
-        </div>
-        <dl class="work-sheet">
-          <div><dt>Автор</dt><dd><a href="profile.html" class="tag-link" data-user-name="Звёздная пыль">Звёздная пыль</a></dd></div>
-          <div><dt>Редактор</dt><dd><a href="profile.html" class="tag-link" data-user-name="Лунный странник">Лунный странник</a></dd></div>
-          <div><dt>Соавтор</dt><dd class="empty">нет</dd></div>
-          <div><dt>Возраст</dt><dd><a href="search.html?age=16%2B" class="tag-link">16+</a></dd></div>
-          <div><dt>Фандом</dt><dd><a href="search.html?fandoms=original" class="tag-link">Ориджинал</a></dd></div>
-          <div><dt>Направленность</dt><dd><a href="search.html?romance=het" class="tag-link">Гет</a></dd></div>
-          <div><dt>Жанры</dt><dd class="tag-row"><a href="search.html?genres=drama" class="tag-link">Драма</a><a href="search.html?genres=romantika" class="tag-link">Романтика</a></dd></div>
-          <div><dt>Формат</dt><dd><a href="search.html?formats=pisma-stilizatsiya" class="tag-link">Письма (стилизация)</a></dd></div>
-          <div><dt>Предупреждения</dt><dd class="empty">нет</dd></div>
-          <div><dt>Персонажи</dt><dd class="tag-row"><a href="search.html?characters=original-devushka" class="tag-link">Девушка</a><a href="search.html?characters=original-paren" class="tag-link">Парень</a></dd></div>
-          <div><dt>Пейринги</dt><dd class="tag-row"><a href="search.html?pairings=paren%2Fdevushka" class="tag-link pairing-tag" title="Парень — доминант, Девушка — пассив">Парень/Девушка</a></dd></div>
-          <div><dt>Тип</dt><dd><a href="search.html?type=linear" class="tag-link">Линейная</a></dd></div>
-          <div><dt>Статус</dt><dd><a href="search.html?status=completed" class="tag-link">Завершена</a></dd></div>
-          <div><dt>Размер</dt><dd><a href="search.html?size=mini" class="tag-link">мини · 3 главы</a></dd></div>
-        </dl>
-        <div class="work-stats">
-          <span><b>9.8K</b> прочтений</span>
-          <span><b>2.1K</b> избранное</span>
-          <span><b>340</b> комментариев</span>
-          <span>Линейная</span>
-        </div>
-        <p class="work-desc">Конверт без марки, адрес, которого нет, и три главы без развилок. Вы только листаете историю вперёд.</p>
-        <aside class="work-notes">
-          <strong>Примечание автора</strong>
-          Три главы без развилок. Письма лучше читать подряд, не перескакивая.
-        </aside>
-        <div class="work-tags">
-          <a href="search.html?genres=drama" class="tag">Драма</a>
-          <a href="search.html?genres=romantika" class="tag">Романтика</a>
-          <a href="search.html?formats=pisma-stilizatsiya" class="tag">Письма</a>
-          <a href="search.html?fandoms=original" class="tag">Ориджинал</a>
-          <a href="search.html?characters=original-devushka" class="tag">Девушка</a>
-          <a href="search.html?characters=original-paren" class="tag">Парень</a>
-          <a href="search.html?pairings=paren%2Fdevushka" class="tag pairing-tag" title="Парень — доминант, Девушка — пассив">Парень/Девушка</a>
-          <a href="search.html?type=linear" class="tag">Линейная</a>
-        </div>
-        <div class="work-cta">
-          <a href="read-linear.html" class="btn btn-primary">Читать</a>
-          <a href="library.html" class="btn btn-outline">В библиотеку</a>
-        </div>
+      <div class="work-cover">
+        <img src="assets/brand/banner-hero.jpg" alt="Обложка «Письма из прошлого»">
       </div>
-      <aside class="graph-card">
-        <h3>Линейная история</h3>
-        <div class="graph-stats">
-          <div><b>3</b> главы</div>
-          <div><b>мини</b> размер</div>
-          <div><b>1</b> финал</div>
+      <div class="work-body">
+        <div class="work-main">
+          <div class="work-type-row">
+            <a href="search.html?type=linear" class="work-tag-tile work-type-tile">Линейная</a>
+          </div>
+          <header class="work-head">
+            <div class="work-badges">
+              <a href="search.html?romance=het" class="work-badge work-badge--het">Гет</a>
+              <a href="search.html?age=16%2B" class="work-badge work-badge--age work-badge--age-16">16+</a>
+              <a href="search.html?status=completed" class="work-badge work-badge--status work-badge--status-done">Завершена</a>
+              <span class="work-badge work-badge--likes"><img src="assets/svg/heart.svg" class="work-icon" alt=""> 340</span>
+            </div>
+            <h1>Письма из прошлого</h1>
+          </header>
+
+          <div class="work-people">
+            <a href="profile.html" class="work-person" data-user-name="Звёздная пыль">
+              <img class="work-person-ava" src="assets/brand/welcome-fox.jpg" alt="">
+              <span class="work-person-body">
+                <span class="work-person-name">Звёздная пыль</span>
+                <span class="work-person-role">автор</span>
+              </span>
+            </a>
+            <a href="profile.html" class="work-person" data-user-name="Лунный странник">
+              <img class="work-person-ava" src="assets/brand/fox-peek.jpg" alt="">
+              <span class="work-person-body">
+                <span class="work-person-name">Лунный странник</span>
+                <span class="work-person-role">редактор</span>
+              </span>
+            </a>
+          </div>
+
+          <div class="work-tag-cloud">
+            <a href="search.html?genres=drama" class="work-tag-tile">Драма</a>
+            <a href="search.html?genres=romantika" class="work-tag-tile">Романтика</a>
+            <a href="search.html?formats=pisma-stilizatsiya" class="work-tag-tile">Письма (стилизация)</a>
+          </div>
+
+          <hr class="work-divider">
+
+          <dl class="work-meta">
+            <div class="work-meta-row work-meta-fandom">
+              <dd>
+                <img src="assets/svg/фандом.svg" class="work-meta-icon" alt="">
+                <a href="search.html?fandoms=original" class="tag-link">Ориджинал</a>
+              </dd>
+            </div>
+            <div class="work-meta-row">
+              <dt><img src="assets/svg/пейринг.svg" class="work-meta-icon" alt=""> Пейринги и персонажи</dt>
+              <dd class="work-meta-comma">
+                <a href="search.html?pairings=paren%2Fdevushka" class="tag-link pairing-tag" title="Парень — доминант, Девушка — пассив">Парень/Девушка</a><a href="search.html?characters=original-devushka" class="tag-link">Девушка</a><a href="search.html?characters=original-paren" class="tag-link">Парень</a>
+              </dd>
+            </div>
+            <div class="work-meta-row">
+              <dt><img src="assets/svg/размер.svg" class="work-meta-icon" alt=""> Размер</dt>
+              <dd><a href="search.html?size=mini" class="tag-link">мини · 3 главы</a></dd>
+            </div>
+          </dl>
+
+          <div class="work-actions">
+            <a href="read-linear.html" class="work-btn work-btn-read"><img src="assets/svg/читать.svg" class="work-btn-icon" alt=""> Читать</a>
+            <div class="work-split-btn">
+              <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark.svg" class="work-btn-icon" alt=""> Подписаться</button>
+              <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Добавить в библиотеку или сборник">
+                <svg class="work-icon" aria-hidden="true"><use href="icons.svg#i-chevron-down"></use></svg>
+              </button>
+              <div class="work-split-menu" hidden>
+                <a href="library.html">В библиотеку</a>
+                <a href="collections.html">Добавить в сборник</a>
+              </div>
+            </div>
+            <button type="button" class="work-icon-btn" aria-label="Поделиться">
+              <img src="assets/svg/share.svg" class="work-icon" alt="">
+            </button>
+            <button type="button" class="work-icon-btn" aria-label="Пожаловаться">
+              <img src="assets/svg/флаг.svg" class="work-icon" alt="">
+            </button>
+          </div>
+
+          <div class="work-text-blocks">
+            <section class="work-desc-block">
+              <h2>Описание <img src="assets/svg/leaf.svg" class="work-section-icon" alt=""></h2>
+              <p>Конверт без марки, адрес, которого нет, и три главы без развилок. Вы только листаете историю вперёд.</p>
+            </section>
+            <section class="work-notes-block">
+              <h2>Примечания автора</h2>
+              <p>Три главы без развилок. Письма лучше читать подряд, не перескакивая.</p>
+            </section>
+          </div>
         </div>
-        <p class="profile-meta">Сюжет один: без выборов, как книга.</p>
-        <a href="read-linear.html" class="section-link">Начать чтение</a>
-      </aside>
+
+        <aside class="work-aside">
+          <div class="work-structure-stats" aria-label="Статистика">
+            <div class="work-stat-cell">
+              <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
+              <span class="work-stat-value">9.8K</span>
+              <span class="work-stat-label">просмотров</span>
+            </div>
+            <div class="work-stat-cell">
+              <img src="assets/svg/like.svg" class="work-stat-icon" alt="">
+              <span class="work-stat-value">340</span>
+              <span class="work-stat-label">лайков</span>
+            </div>
+            <div class="work-stat-cell">
+              <img src="assets/svg/коммент.svg" class="work-stat-icon" alt="">
+              <span class="work-stat-value">48</span>
+              <span class="work-stat-label">комментариев</span>
+            </div>
+            <div class="work-stat-cell">
+              <span class="work-stat-value">3</span>
+              <span class="work-stat-label">главы</span>
+            </div>
+          </div>
+        </aside>
+      </div>
     </section>
 
-    <section class="work-lower">
-      <div>
-        <div class="work-card">
-          <div class="author-name" data-user-name="Звёздная пыль">Звёздная пыль</div>
-          <p class="profile-meta">Пишет линейные новеллы в письмах.</p>
-          <a href="profile.html" class="section-link" data-user-name="Звёздная пыль">К профилю</a>
-        </div>
-        <div class="work-card quote-card">«Если ты это читаешь, значит, я всё-таки решилась написать.»</div>
-      </div>
+    <section class="work-lower work-lower--chapters">
       <div class="work-card">
-        <div class="chapter-tabs">
-          <a href="#" class="active" data-panel="chapters">Главы</a>
-          <a href="#" data-panel="about">Описание</a>
-          <a href="#" data-panel="comments">Комментарии</a>
+        <h2 class="work-chapters-title">Главы</h2>
+        <div class="chapter-row">
+          <span class="ch-num">1</span>
+          <div><strong>Конверт</strong><p class="profile-meta">Письмо без марки.</p></div>
+          <a href="read-linear.html" class="ch-play" aria-label="Читать"><img src="assets/brand/play.png" alt=""></a>
         </div>
-        <div data-work-panel="chapters">
-          <div class="chapter-row">
-            <span class="ch-num">1</span>
-            <div><strong>Конверт</strong><p class="profile-meta">Письмо без марки.</p></div>
-            <a href="read-linear.html" class="ch-play" aria-label="Читать"><img src="assets/brand/play.png" alt=""></a>
-          </div>
-          <div class="chapter-row">
-            <span class="ch-num">2</span>
-            <div><strong>Адрес, которого нет</strong></div>
-          </div>
-          <div class="chapter-row">
-            <span class="ch-num">3</span>
-            <div><strong>Последняя строка</strong></div>
-          </div>
+        <div class="chapter-row">
+          <span class="ch-num">2</span>
+          <div><strong>Адрес, которого нет</strong></div>
         </div>
-        <div data-work-panel="about" hidden>
-          <p class="work-desc">Конверт без марки, адрес, которого нет, и три главы без развилок.</p>
-        </div>
-        <div data-work-panel="comments" hidden>
-          <div class="news-comment-list">
-            <article class="news-comment">
-              <img class="news-comment-ava" src="assets/brand/fox-peek.jpg" alt="">
-              <div class="news-comment-bubble">
-                <div class="news-comment-head">
-                  <strong data-user-name="Лиса с фонарём">Лиса с фонарём</strong>
-                </div>
-                <p>Письма читаются на одном дыхании. Спасибо за третью главу.</p>
-                <time>18/08/26</time>
-              </div>
-            </article>
-            <article class="news-comment">
-              <img class="news-comment-ava" src="assets/brand/logo-fox.png" alt="">
-              <div class="news-comment-bubble">
-                <div class="news-comment-head">
-                  <strong data-user-name="Звёздная пыль">Звёздная пыль</strong>
-                </div>
-                <p>Рада, что конверт нашёлся. Следующие письма будут короче.</p>
-                <time>18/08/26</time>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="work-card">
-          <h3>Продолжить чтение</h3>
-          <div class="similar-item">
-            <div class="similar-thumb"></div>
-            <div>
-              <strong>Глава 1. Конверт</strong>
-              <div class="progress-line"><span style="width:33%"></span></div>
-              <a href="read-linear.html" class="section-link">Продолжить</a>
-            </div>
-          </div>
-        </div>
-        <div class="work-card">
-          <h3>Похожие истории</h3>
-          <a href="story-interactive.html" class="similar-item">
-            <div class="similar-thumb"></div>
-            <div>
-              <strong>Тени прошлого</strong>
-              <p class="profile-meta">Ориджинал · Джен · 16+</p>
-            </div>
-          </a>
+        <div class="chapter-row">
+          <span class="ch-num">3</span>
+          <div><strong>Последняя строка</strong></div>
         </div>
       </div>
     </section>

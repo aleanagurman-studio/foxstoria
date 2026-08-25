@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=10">
   <script src="site.js?v=8"></script>
-  <script src="taxonomy.js?v=8"></script>
+  <script src="taxonomy.js?v=11"></script>
   <script src="catalog.js?v=8" defer></script>
 </head>
 <body>
@@ -58,13 +58,14 @@
               <option value="het">Гет</option>
               <option value="slash">Слэш</option>
               <option value="femslash">Фемслэш</option>
+              <option value="mixed">Смешанный</option>
             </select>
           </div>
           <div class="filter-group">
             <label for="age">Возраст</label>
             <select id="age" name="age">
               <option value="">Любой</option>
-              <option value="none">Без рейтинга</option>
+              <option value="0+">0+</option>
               <option value="16+">16+</option>
               <option value="18+">18+</option>
             </select>
@@ -94,37 +95,37 @@
           <div class="filter-advanced-grid">
             <div class="filter-group filter-group-wide">
               <label>Категории</label>
-              <div class="tax-picker" data-tax-picker="categories" data-name="categories" data-list="all" data-placeholder="Найти категорию…"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="categories" data-name="categories" data-placeholder="Найти категорию…"></div>
             </div>
             <div class="filter-group filter-group-wide">
               <label>Фандомы</label>
-              <div class="tax-picker" data-tax-picker="fandoms" data-name="fandoms" data-placeholder="Найти фандом…"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="fandoms" data-name="fandoms" data-placeholder="Найти фандом…"></div>
             </div>
             <div class="filter-group filter-group-wide">
               <label>Обязательные персонажи</label>
-              <div class="tax-picker" data-tax-picker="characters" data-name="characters" data-placeholder="Сначала выберите фандом…"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="characters" data-name="characters" data-placeholder="Сначала выберите фандом…"></div>
               <p class="filter-hint">Персонажи подгружаются из выбранных фандомов. В выдачу попадут только работы, где есть каждый отмеченный персонаж.</p>
             </div>
             <div class="filter-group filter-group-wide">
               <label>Пейринги</label>
-              <input type="text" name="pairings" placeholder="vasya/petya или masha|dasha — через запятую">
+              <input type="text" name="pairings" placeholder="vasya/petya или masha | dasha — через запятую">
               <p class="filter-hint"><strong>/</strong> — доминант и пассив, <strong>|</strong> — равные роли. Можно кликнуть пейринг на странице работы.</p>
             </div>
             <div class="filter-group filter-group-wide">
               <label>Жанры</label>
-              <div class="tax-picker" data-tax-picker="genres" data-name="genres" data-list="all" data-placeholder="Найти жанр…"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…"></div>
             </div>
             <div class="filter-group filter-group-wide">
               <label>Форматы</label>
-              <div class="tax-picker" data-tax-picker="formats" data-name="formats" data-list="all" data-placeholder="Найти формат…"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…"></div>
             </div>
             <div class="filter-group filter-group-wide">
               <label>Предупреждения</label>
-              <div class="tax-picker" data-tax-picker="warnings" data-name="warnings" data-list="all" data-placeholder="Найти предупреждение…"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…"></div>
             </div>
             <div class="filter-group filter-group-wide">
               <label>Кинки</label>
-              <div class="tax-picker" data-tax-picker="kinks" data-name="kinks" data-list="all" data-placeholder="Найти кинк…"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…"></div>
             </div>
           </div>
         </section>

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=8">
-  <link rel="stylesheet" href="editor.css?v=9">
+  <link rel="stylesheet" href="editor.css?v=10">
   <script src="site.js?v=8"></script>
 </head>
 <body class="editor-page">
@@ -82,10 +82,6 @@
       <div class="canvas-wrap" id="canvas-wrap">
         <div class="canvas-toolbar">
           <div class="canvas-toolbar-left">
-            <button type="button" class="canvas-tool-btn" id="tool-add">
-              <img class="ink" src="assets/brand/plus.png" alt="">
-              Новая сцена
-            </button>
             <button type="button" class="canvas-tool-btn" id="tool-link" data-tool="link">
               Связать сцены
             </button>
@@ -103,10 +99,6 @@
               <img class="ink" src="assets/brand/delete.png" alt="">
             </button>
           </div>
-          <button type="button" class="btn-test" id="test-story">
-            <img class="ink" src="assets/brand/play.png" alt="">
-            Тестировать историю
-          </button>
         </div>
 
         <div class="canvas-area" id="canvas-area">
@@ -133,21 +125,10 @@
         <div class="notes-panel" id="notes-panel" data-panel="notes" hidden>
           <textarea id="scene-notes" placeholder="Заметки к этой сцене — только для вас"></textarea>
         </div>
-        <div class="bottom-footer">
-          <button type="button" class="btn-add-block" id="add-block">
-            <img class="ink" src="assets/brand/plus.png" alt="">
-            Добавить блок
-          </button>
-        </div>
       </div>
     </div>
 
     <aside class="editor-right">
-      <div class="right-tabs">
-        <button type="button" class="right-tab active" data-right="settings">Настройки</button>
-        <button type="button" class="right-tab" data-right="blocks">Блоки</button>
-      </div>
-
       <div class="right-content" id="right-settings" data-right-panel="settings">
         <div class="right-scene-label" id="right-label">Выберите сцену</div>
         <div class="form-group">
@@ -183,10 +164,6 @@
           <button type="button" class="btn-add-transition" id="add-transition">+ Добавить переход</button>
         </div>
         <button type="button" class="btn-delete-scene" id="delete-scene">Удалить сцену</button>
-      </div>
-
-      <div class="right-content" id="right-blocks" data-right-panel="blocks" hidden>
-        <p class="profile-meta">Перетаскивать не нужно — нажмите, и блок появится в сцене.</p>
       </div>
 
       <div class="blocks-palette">
