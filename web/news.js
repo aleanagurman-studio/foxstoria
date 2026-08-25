@@ -5,7 +5,11 @@
   const VIEWS = "foxtoria-news-views";
   const SAVED = "foxtoria-news-saved";
   const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
-  const COLLAPSE_AT = 110;
+  const COLLAPSE_AT = 80;
+
+  function isCollapsible(post, text) {
+    return text.length > COLLAPSE_AT || /<\/p>\s*<p/i.test(post.body || "");
+  }
 
   const ico = {
     bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4.5h10a1 1 0 0 1 1 1V20l-6-3.2L6 20V5.5a1 1 0 0 1 1-1Z"/></svg>',
@@ -404,12 +408,12 @@
 
   function cardHTML(post) {
     const text = plainText(post.body);
-    const long = text.length > COLLAPSE_AT;
-    const excerpt = long ? `${text.slice(0, COLLAPSE_AT).trim()}…` : text;
+    const collapsible = isCollapsible(post, text);
+    const excerpt = collapsible ? `${text.slice(0, COLLAPSE_AT).trim()}…` : text;
     const saved = savedSet().has(post.id);
     const comments = commentCount(post.id);
     return `
-      <article class="news-post" id="${escapeHtml(post.id)}" data-id="${escapeHtml(post.id)}">
+      <article class="news-post${collapsible ? " is-collapsible" : ""}" id="${escapeHtml(post.id)}" data-id="${escapeHtml(post.id)}">
         <div class="news-cover">${post.cover ? `<img src="${escapeHtml(post.cover)}" alt="">` : ""}</div>
         <div class="news-copy">
           <div class="news-top">
@@ -424,7 +428,7 @@
             <button type="button" class="news-stat" data-open-comments>${ico.comment} <span>${comments}</span></button>
             <span class="news-stat">${ico.eye} <span data-views>${formatCount(viewsFor(post))}</span></span>
             <div class="news-foot-actions">
-              ${long ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
+              ${collapsible ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
               <button type="button" class="news-more" data-open-comments>Комментировать</button>
             </div>
           </div>
@@ -541,7 +545,7 @@
     const excerpt = card.querySelector(".news-excerpt");
     const comments = card.querySelector(".news-comments");
     const more = card.querySelector("[data-expand]");
-    if (full && excerpt && excerpt.textContent.endsWith("…")) {
+    if (full && excerpt && card.classList.contains("is-collapsible")) {
       full.hidden = true;
       excerpt.hidden = false;
     }
