@@ -5,7 +5,7 @@
   const VIEWS = "foxtoria-news-views";
   const SAVED = "foxtoria-news-saved";
   const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
-  const COLLAPSE_AT = 220;
+  const COLLAPSE_AT = 110;
 
   const ico = {
     bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4.5h10a1 1 0 0 1 1 1V20l-6-3.2L6 20V5.5a1 1 0 0 1 1-1Z"/></svg>',
@@ -256,7 +256,7 @@
           <div class="tile-image">${post.cover ? `<img src="${escapeHtml(post.cover)}" alt="">` : ""}</div>
           <div>
             <h3>${escapeHtml(post.title)}</h3>
-            <p>${escapeHtml(plainText(post.body).slice(0, 90))}</p>
+            <p>${escapeHtml(plainText(post.body).slice(0, 45))}</p>
           </div>
         </a>`
       )

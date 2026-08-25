@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=38">
-  <script src="site.js?v=11"></script>
+  <link rel="stylesheet" href="styles.css?v=42">
+  <script src="site.js?v=12"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -37,7 +37,7 @@
               <a href="search.html?romance=femslash" class="work-badge work-badge--femslash"><img src="assets/svg/фемслэш.svg" class="work-badge-icon" alt=""> Фемслэш</a>
               <a href="search.html?age=0%2B" class="work-badge work-badge--age work-badge--age-0">0+</a>
               <a href="search.html?status=completed" class="work-badge work-badge--status work-badge--status-done">Завершена</a>
-              <span class="work-badge work-badge--likes"><img src="assets/svg/heart.svg" class="work-icon" alt=""> 428</span>
+              <span class="work-badge work-badge--likes"><img src="assets/svg/like.svg" class="work-icon" alt=""> 428</span>
             </div>
             <h1>Чай с мятой и шрамами</h1>
           </header>
@@ -63,7 +63,7 @@
           <div class="work-meta">
             <div class="work-meta-item">
               <span class="work-meta-label">
-                <img src="assets/svg/фандом.svg" class="work-meta-icon" alt="">
+                    <img src="assets/svg/фандом.svg" class="work-meta-icon" alt="">
                 Фэндом
               </span>
               <div class="work-meta-value work-meta-comma">
@@ -72,7 +72,7 @@
             </div>
             <div class="work-meta-item">
               <span class="work-meta-label">
-                <img src="assets/svg/profile.svg" class="work-meta-icon" alt="">
+                    <img src="assets/svg/profile.svg" class="work-meta-icon" alt="">
                 Пейринги и персонажи
               </span>
               <div class="work-meta-value work-meta-comma">
@@ -81,7 +81,7 @@
             </div>
             <div class="work-meta-item">
               <span class="work-meta-label">
-                <img src="assets/svg/размер.svg" class="work-meta-icon" alt="">
+                    <img src="assets/svg/размер.svg" class="work-meta-icon" alt="">
                 Размер
               </span>
               <div class="work-meta-value"><a href="search.html?size=mini" class="tag-link">мини · 4 главы</a></div>
@@ -100,11 +100,15 @@
                 <a href="collections.html">Добавить в сборник</a>
               </div>
             </div>
+
+            <button type="button" class="work-icon-btn work-like-btn" aria-label="Нравится" aria-pressed="false" data-work-like>
+              <img src="assets/svg/heart.svg" class="work-icon work-like-icon" alt="">
+            </button>
             <button type="button" class="work-icon-btn" aria-label="Поделиться">
-              <img src="assets/svg/share.svg" class="work-icon" alt="">
+                  <img src="assets/svg/share.svg" class="work-icon" alt="">
             </button>
             <button type="button" class="work-icon-btn" aria-label="Пожаловаться">
-              <img src="assets/svg/флаг.svg" class="work-icon" alt="">
+                  <img src="assets/svg/флаг.svg" class="work-icon" alt="">
             </button>
           </div>
 
@@ -117,33 +121,32 @@
               <h2>Примечания автора <img src="assets/svg/3.svg" class="work-section-icon" alt=""></h2>
               <p>Мягкий фемслэш без явной графики. События канона после финальной битвы.</p>
             </section>
+            <aside class="work-aside">
+              <div class="work-structure-stats" aria-label="Статистика">
+                <h2 class="work-stats-title">Статистика</h2>
+                <div class="work-stat-cell">
+                      <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
+                      <span class="work-stat-value">6.7K</span>
+                      <span class="work-stat-label">просмотров</span>
+                </div>
+                <div class="work-stat-cell">
+                      <img src="assets/svg/like.svg" class="work-stat-icon" alt="">
+                      <span class="work-stat-value">428</span>
+                      <span class="work-stat-label">лайков</span>
+                </div>
+                <div class="work-stat-cell">
+                      <img src="assets/svg/коммент.svg" class="work-stat-icon" alt="">
+                      <span class="work-stat-value">31</span>
+                      <span class="work-stat-label">комментариев</span>
+                </div>
+                <div class="work-stat-cell">
+                  <span class="work-stat-value">4</span>
+                  <span class="work-stat-label">главы</span>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
-
-        <aside class="work-aside">
-          <div class="work-structure-stats" aria-label="Статистика">
-            <h2 class="work-stats-title">Статистика</h2>
-            <div class="work-stat-cell">
-              <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
-              <span class="work-stat-value">6.7K</span>
-              <span class="work-stat-label">просмотров</span>
-            </div>
-            <div class="work-stat-cell">
-              <img src="assets/svg/heart.svg" class="work-stat-icon" alt="">
-              <span class="work-stat-value">428</span>
-              <span class="work-stat-label">лайков</span>
-            </div>
-            <div class="work-stat-cell">
-              <img src="assets/svg/коммент.svg" class="work-stat-icon" alt="">
-              <span class="work-stat-value">31</span>
-              <span class="work-stat-label">комментариев</span>
-            </div>
-            <div class="work-stat-cell">
-              <span class="work-stat-value">4</span>
-              <span class="work-stat-label">главы</span>
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
 

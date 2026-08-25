@@ -223,11 +223,7 @@ function headerMarkup() {
       <div class="header-inbox" id="header-inbox" hidden>
         <div class="header-alert">
           <button type="button" class="header-alert-btn" id="notif-toggle" aria-label="Оповещения" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6.2 9.1c0-3.3 2.6-5.9 5.8-5.9s5.8 2.6 5.8 5.9v1.7c0 1.4.5 2.7 1.3 3.7l.6.7c.5.6.1 1.6-.7 1.6H5c-.8 0-1.2-1-.7-1.6l.6-.7c.8-1 1.3-2.3 1.3-3.7V9.1Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-              <path d="M10 18.4a2.1 2.1 0 0 0 4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              <path d="M12 18.8v1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
+            <img src="assets/svg/notif.svg" alt="">
             <span class="header-alert-dot" data-notif-dot hidden></span>
           </button>
           <div class="header-alert-dd" id="notif-feed" hidden>
@@ -251,10 +247,7 @@ function headerMarkup() {
           </div>
         </div>
         <a class="header-alert-btn" id="mail-toggle" href="messages.html" aria-label="Личные сообщения">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="3.4" y="5.8" width="17.2" height="12.4" rx="2.2" stroke="currentColor" stroke-width="1.6"/>
-            <path d="M4.2 7.4 12 13.1l7.8-5.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <img src="assets/svg/mail.svg" alt="">
           <span class="header-alert-dot" data-mail-dot hidden></span>
         </a>
       </div>
@@ -542,4 +535,23 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       if (!wrap.contains(event.target)) close();
     });
   });
+
+  const likeBtn = document.querySelector("[data-work-like]");
+  if (likeBtn) {
+    const icon = likeBtn.querySelector(".work-like-icon");
+    const key = "foxtoria-work-like:" + location.pathname;
+
+    function setLiked(liked) {
+      likeBtn.classList.toggle("is-liked", liked);
+      likeBtn.setAttribute("aria-pressed", liked ? "true" : "false");
+      likeBtn.setAttribute("aria-label", liked ? "Убрать лайк" : "Нравится");
+      if (icon) icon.src = liked ? "assets/svg/like.svg" : "assets/svg/heart.svg";
+    }
+
+    setLiked(localStorage.getItem(key) === "1");
+    likeBtn.addEventListener("click", () => {
+      setLiked(!likeBtn.classList.contains("is-liked"));
+      localStorage.setItem(key, likeBtn.classList.contains("is-liked") ? "1" : "0");
+    });
+  }
 });
