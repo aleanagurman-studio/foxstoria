@@ -50,9 +50,11 @@
   border-color: color-mix(in srgb, var(--fox) 25%, var(--border-default));
 }
 
-.linear-tool-btn img {
-  width: 14px;
-  height: 14px;
+.linear-tool-btn img,
+.linear-tool-btn .ui-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--icon-primary);
 }
 
 .linear-underline {
@@ -174,7 +176,6 @@
   .editor-linear-page .editor-layout {
     grid-template-columns: 200px 1fr;
   }
-  .editor-linear-page .editor-right { display: none; }
 }
 
 @media (max-width: 860px) {

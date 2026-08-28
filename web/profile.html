@@ -8,15 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=67">
-  <script src="site.js?v=13"></script>
-  </head>
+  <link rel="stylesheet" href="styles.css?v=75">
+  <script src="site.js?v=19"></script>
+  <script src="blog.js?v=5"></script>
+</head>
 <body>
   <header class="header"></header>
 
   <div class="layout page">
     <aside class="sidebar-left">
-            <nav class="sidebar-nav">
+      <nav class="sidebar-nav">
         <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
         <a href="catalog.html"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
         <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
@@ -30,54 +31,112 @@
     </aside>
 
     <main class="main page-main">
-        <nav class="account-subnav">
-          <a href="profile.html" class="active">Профиль</a>
-          <a href="messages.html">Сообщения</a>
-          <a href="author-home.html">Кабинет автора</a>
-          <a href="library.html">Кабинет читателя</a>
-          <a href="settings.html">Настройки</a>
-        </nav>
-
-      <section class="profile-hero">
-        <div class="profile-ava"><img src="assets/test/avatar-1.png" alt=""></div>
-        <div>
-          <h1>Лунный странник</h1>
-          <p class="profile-meta">@moonwander · автор интерактивных и линейных историй</p>
+      <div class="profile-layout">
+        <aside class="profile-side">
+          <div class="profile-ava"><img src="assets/test/avatar-1.png" alt=""></div>
+          <h1 class="profile-name">Лунный странник</h1>
+          <p class="profile-handle">@moonwander</p>
           <p class="profile-bio">Пишу ветвящиеся новеллы о памяти и выборе. Ниже — тестовые работы с разными направленностями, рейтингами и фандомами для проверки макетов.</p>
-          <div class="profile-links">
-            <a href="#">Telegram</a>
-            <a href="#">VK</a>
+          <div class="profile-links" id="profile-links"></div>
+          <div class="profile-actions">
+            <button class="btn btn-primary" type="button" data-profile-visitor>Подписаться</button>
+            <button class="btn btn-outline" type="button" id="profile-edit-btn" data-profile-owner hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Редактировать профиль
+            </button>
           </div>
+
+          <section class="profile-edit" id="profile-edit" hidden>
+            <h2>Редактировать профиль</h2>
+            <label class="profile-edit-field">
+              <span>Описание</span>
+              <textarea id="profile-bio-input" rows="4"></textarea>
+            </label>
+            <p class="profile-edit-label">Ссылки</p>
+            <div id="profile-link-rows" class="profile-link-rows"></div>
+            <button type="button" class="btn btn-ghost" id="profile-add-link">+ Ссылка</button>
+            <div class="profile-edit-actions">
+              <button type="button" class="btn btn-primary" id="profile-save">Сохранить</button>
+              <button type="button" class="btn btn-outline" id="profile-edit-cancel">Отмена</button>
+            </div>
+          </section>
+
+          <div class="profile-stats">
+            <div class="account-tabs profile-stat-tabs">
+              <button type="button" class="active" data-tab="stats-author">Автор</button>
+              <button type="button" data-tab="stats-reader">Читатель</button>
+              <button type="button" data-tab="stats-coauthor">Соавтор</button>
+              <button type="button" data-tab="stats-editor">Редактор</button>
+            </div>
+            <section class="profile-stat-block" id="tab-stats-author">
+              <ul>
+                <li><img src="assets/deco/перо1.svg" alt=""><b>5</b><span>работ</span></li>
+                <li><img src="assets/svg/размер.svg" alt=""><b>18</b><span>глав</span></li>
+                <li><img src="assets/svg/выборы.svg" alt=""><b>42</b><span>выбора</span></li>
+                <li><img src="assets/svg/концовки.svg" alt=""><b>11</b><span>концовок</span></li>
+                <li><img src="assets/svg/profile.svg" alt=""><b>3.6K</b><span>подписчиков</span></li>
+                <li><img src="assets/svg/коммент.svg" alt=""><b>48</b><span>отзывов</span></li>
+                <li><img src="assets/svg/bookmark.svg" alt=""><b>18</b><span>в закладках</span></li>
+              </ul>
+            </section>
+            <section class="profile-stat-block" id="tab-stats-reader" hidden>
+              <ul>
+                <li><img src="assets/svg/like.svg" alt=""><b>86</b><span>лайкнул</span></li>
+                <li><img src="assets/svg/читать.svg" alt=""><b>24</b><span>прочёл</span></li>
+                <li><img src="assets/svg/коммент.svg" alt=""><b>7</b><span>отзывов</span></li>
+              </ul>
+            </section>
+            <section class="profile-stat-block" id="tab-stats-coauthor" hidden>
+              <ul>
+                <li><img src="assets/deco/перо1.svg" alt=""><b>2</b><span>работы</span></li>
+                <li><img src="assets/svg/размер.svg" alt=""><b>9</b><span>глав</span></li>
+                <li><img src="assets/svg/выборы.svg" alt=""><b>8</b><span>выборов</span></li>
+                <li><img src="assets/svg/концовки.svg" alt=""><b>3</b><span>концовки</span></li>
+                <li><img src="assets/svg/коммент.svg" alt=""><b>11</b><span>отзывов</span></li>
+                <li><img src="assets/svg/bookmark.svg" alt=""><b>4</b><span>в закладках</span></li>
+              </ul>
+            </section>
+            <section class="profile-stat-block" id="tab-stats-editor" hidden>
+              <ul>
+                <li><img src="assets/deco/перо1.svg" alt=""><b>3</b><span>работы</span></li>
+                <li><img src="assets/svg/размер.svg" alt=""><b>14</b><span>глав</span></li>
+              </ul>
+            </section>
+          </div>
+        </aside>
+
+        <div class="profile-main">
+          <div class="account-tabs">
+            <button type="button" class="active" data-tab="works">Работы</button>
+            <button type="button" data-tab="coauthor">Соавтор</button>
+            <button type="button" data-tab="editor">Редактор</button>
+            <button type="button" data-tab="packs">Сборники</button>
+            <button type="button" data-tab="blog">Блог</button>
+          </div>
+          <section id="tab-works">
+            <div class="stories-grid" data-feed="profile-works" data-author="moonwander"></div>
+          </section>
+          <section id="tab-coauthor" hidden>
+            <div class="empty-feed"><p>Здесь будут истории, где человек указан соавтором.</p></div>
+          </section>
+          <section id="tab-editor" hidden>
+            <div class="empty-feed"><p>Здесь будут истории, которые человек редактирует.</p></div>
+          </section>
+          <section id="tab-packs" hidden>
+            <div class="empty-feed"><p>Открытые сборники появятся здесь.</p></div>
+          </section>
+          <section id="tab-blog" hidden>
+            <div id="blog-stream" class="blog-stream" data-blog-public></div>
+            <p class="blog-more-wrap">
+              <button type="button" class="blog-more" id="blog-more" hidden>Загрузить ещё</button>
+            </p>
+          </section>
         </div>
-        <button class="btn btn-primary" type="button">Подписаться</button>
-      </section>
-      <div class="profile-stats">
-        <div><b>5</b><span>работ</span></div>
-        <div><b>3.6K</b><span>лайков</span></div>
-        <div><b>48</b><span>отзывов</span></div>
-        <div><b>18</b><span>глав</span></div>
       </div>
-      <div class="account-tabs">
-        <button type="button" class="active" data-tab="works">Работы</button>
-        <button type="button" data-tab="credits">Соавтор / редактор</button>
-        <button type="button" data-tab="packs">Сборники</button>
-        <button type="button" data-tab="feed">Лента</button>
-      </div>
-      <section id="tab-works">
-        <div class="stories-grid" data-feed="profile-works" data-author="moonwander"></div>
-      </section>
-      <section id="tab-credits" hidden>
-        <div class="empty-feed"><p>Здесь будут истории, где человек указан соавтором или редактором.</p></div>
-      </section>
-      <section id="tab-packs" hidden>
-        <div class="empty-feed"><p>Открытые сборники появятся здесь.</p></div>
-      </section>
-      <section id="tab-feed" hidden>
-        <div class="empty-feed"><p>Анонсы и голосования автора появятся в ленте.</p></div>
-      </section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
   <script src="catalog.js?v=10" defer></script>
+  <script src="profile.js?v=1"></script>
 </body>
 </html>

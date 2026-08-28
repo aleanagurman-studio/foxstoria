@@ -15,6 +15,7 @@
       cover: "assets/test/cover-1.png",
       comments: 18,
       likes: 64,
+      views: 820,
       pinned: true,
     },
     {
@@ -27,6 +28,7 @@
       cover: "assets/test/cover-2.png",
       comments: 9,
       likes: 41,
+      views: 540,
     },
     {
       id: "ending-poll",
@@ -38,6 +40,7 @@
       cover: "assets/test/cover-3.png",
       comments: 31,
       likes: 22,
+      views: 910,
     },
     {
       id: "tea-scars",
@@ -49,6 +52,7 @@
       cover: "assets/test/cover-4.png",
       comments: 4,
       likes: 19,
+      views: 260,
     },
     {
       id: "letter-2019",
@@ -60,6 +64,7 @@
       cover: "assets/test/новость1.png",
       comments: 0,
       likes: 0,
+      views: 12,
     },
     {
       id: "chapter-12-tease",
@@ -71,6 +76,7 @@
       cover: "assets/test/новость2.png",
       comments: 0,
       likes: 0,
+      views: 0,
     },
     {
       id: "old-playlist",
@@ -82,6 +88,7 @@
       cover: "assets/test/новость3.png",
       comments: 7,
       likes: 15,
+      views: 190,
     },
     {
       id: "desk-notes",
@@ -93,6 +100,7 @@
       cover: "assets/test/новость4.png",
       comments: 6,
       likes: 28,
+      views: 310,
     },
     {
       id: "draft-map",
@@ -104,6 +112,7 @@
       cover: "assets/test/новость5.png",
       comments: 0,
       likes: 0,
+      views: 8,
     },
   ];
   const COMMENTS = [
@@ -111,12 +120,18 @@
     { name: "Никита", avatar: "assets/test/avatar-3.png", text: "За честный финал, даже если грустный.", when: "5 ч назад", post: "ending-poll" },
     { name: "Чайная соня", avatar: "assets/test/avatar-4.png", text: "Плейлист в точку. Спасибо, что поделились.", when: "вчера", post: "autumn-prep" },
     { name: "Лис с фонарём", avatar: "assets/test/avatar-5.png", text: "Этот отрывок лучше, чем целая глава.", when: "2 дня назад", post: "tea-scars" },
+    { name: "Серая тетрадь", avatar: "assets/test/avatar-2.png", text: "Запрет открывать редактор до полудня — беру себе.", when: "3 дня назад", post: "desk-notes" },
+    { name: "Марафонец", avatar: "assets/test/avatar-3.png", text: "Держу кулачки за осенний список глав.", when: "неделю назад", post: "autumn-prep" },
   ];
   const ICO = {
     comment: '<img src="assets/svg/коммент.svg" alt="">',
     like: '<img src="assets/svg/like.svg" alt="">',
+    eye: '<img src="assets/svg/eye.svg" alt="">',
     more: '<img src="assets/ornaments/03_more.svg" alt="">',
   };
+  const COMMENT_STORE = "foxtoria-blog-comments";
+  const LIKE_STORE = "foxtoria-blog-liked";
+  const COLLAPSE_AT = 90;
 
   let tab = "published";
   let sort = "new";
@@ -160,6 +175,261 @@
     const date = new Date(`${value}T12:00:00`);
     if (Number.isNaN(date.getTime())) return value;
     return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  }
+
+  function isPublicStream() {
+    return Boolean(document.querySelector("#blog-stream[data-blog-public]"));
+  }
+
+  function signed() {
+    return typeof isSignedIn === "function" && isSignedIn();
+  }
+
+  function loadJson(key, fallback) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || "") || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function saveJson(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function nextCommentId() {
+    return `c-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function localComments(postId) {
+    return loadJson(COMMENT_STORE, {})[postId] || [];
+  }
+
+  function saveLocalComments(postId, list) {
+    const all = loadJson(COMMENT_STORE, {});
+    all[postId] = list;
+    saveJson(COMMENT_STORE, all);
+  }
+
+  function seedComments(postId) {
+    return COMMENTS.filter((item) => item.post === postId).map((item, index) => ({
+      id: `seed-${postId}-${index}`,
+      author: item.name,
+      avatar: item.avatar,
+      text: item.text,
+      when: item.when,
+    }));
+  }
+
+  function commentsFor(postId) {
+    return [...seedComments(postId), ...localComments(postId)];
+  }
+
+  function commentCount(post) {
+    return (Number(post.comments) || 0) + localComments(post.id).length;
+  }
+
+  function likedSet() {
+    return new Set(loadJson(LIKE_STORE, []));
+  }
+
+  function isLiked(id) {
+    return likedSet().has(id);
+  }
+
+  function toggleLike(id) {
+    const list = loadJson(LIKE_STORE, []);
+    const next = list.includes(id) ? list.filter((item) => item !== id) : [...list, id];
+    saveJson(LIKE_STORE, next);
+  }
+
+  function likeCount(post) {
+    return (Number(post.likes) || 0) + (isLiked(post.id) ? 1 : 0);
+  }
+
+  function authorLabel(name) {
+    if (typeof userNameLink === "function") return userNameLink(name, "user-link");
+    return `<strong>${escapeHtml(name)}</strong>`;
+  }
+
+  function renderCommentItem(item) {
+    const own = Boolean(item.own) || item.author === "Вы";
+    const tools =
+      signed() && own
+        ? `<span class="news-comment-tools"><button type="button" data-comment-delete>Удалить</button></span>`
+        : "";
+    return `
+      <article class="news-comment${own ? " is-own" : ""}" data-comment-id="${escapeHtml(item.id)}">
+        <img class="news-comment-ava" src="${escapeHtml(item.avatar || "assets/deco/fox.svg")}" alt="">
+        <div class="news-comment-bubble">
+          <div class="news-comment-head">
+            ${authorLabel(item.author || "Читатель")}
+            ${tools}
+          </div>
+          <p>${escapeHtml(item.text)}</p>
+          <time>${escapeHtml(item.when || "")}</time>
+        </div>
+      </article>`;
+  }
+
+  function renderComments(postId) {
+    const items = commentsFor(postId);
+    if (!items.length) return `<p class="news-comment-empty">Пока нет комментариев. Напишите первый.</p>`;
+    return `<div class="news-comment-list">${items.map(renderCommentItem).join("")}</div>`;
+  }
+
+  function refreshComments(card, id) {
+    const list = card.querySelector("[data-comment-list]");
+    const post = allPosts().find((item) => item.id === id);
+    if (list) list.innerHTML = renderComments(id);
+    card.querySelectorAll("[data-open-comments] span").forEach((el) => {
+      if (post) el.textContent = String(commentCount(post));
+    });
+  }
+
+  function commentForm() {
+    if (loadSettings().comments === "off") {
+      return `<p class="news-comment-empty">Комментарии выключены.</p>`;
+    }
+    if (!signed()) {
+      return `<p class="news-comment-empty">Чтобы оставить комментарий, <button type="button" class="news-text-link" data-signin>войдите</button>.</p>`;
+    }
+    return `<form class="news-comment-form" data-comment-form>
+      <textarea name="text" rows="3" required placeholder="Написать комментарий…"></textarea>
+      <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>`;
+  }
+
+  function publicPostHTML(post) {
+    const text = String(post.text || "");
+    const long = text.length > COLLAPSE_AT;
+    const excerpt = long ? `${text.slice(0, COLLAPSE_AT).trim()}…` : text;
+    const liked = isLiked(post.id);
+    return `
+      <article class="blog-post is-public${long ? " is-collapsible" : ""}${post.pinned ? " is-pinned" : ""}" data-id="${escapeHtml(post.id)}">
+        <button type="button" class="blog-post-cover" data-expand aria-label="Открыть запись">
+          <img src="${escapeHtml(post.cover)}" alt="">
+        </button>
+        <div class="blog-post-body">
+          <time datetime="${escapeHtml(post.date)}">${escapeHtml(formatDate(post.date))}</time>
+          <h2><button type="button" data-expand>${escapeHtml(post.title)}</button></h2>
+          ${
+            long
+              ? `<p class="blog-excerpt">${escapeHtml(excerpt)}</p><p class="blog-full" hidden>${escapeHtml(text)}</p>`
+              : `<p>${escapeHtml(text)}</p>`
+          }
+        </div>
+        <div class="blog-post-tools">
+          <p class="blog-post-stats">
+            <button type="button" class="blog-stat-btn${liked ? " is-on" : ""}" data-like aria-pressed="${liked}">${ICO.like} <span>${likeCount(post)}</span></button>
+            <button type="button" class="blog-stat-btn" data-open-comments>${ICO.comment} <span>${commentCount(post)}</span></button>
+            <span>${ICO.eye} ${post.views || 0}</span>
+          </p>
+          <div class="blog-post-actions">
+            ${long ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
+            <button type="button" class="news-more" data-open-comments>Комментировать</button>
+          </div>
+        </div>
+        <div class="news-comments" hidden>
+          <div data-comment-list>${renderComments(post.id)}</div>
+          ${commentForm()}
+        </div>
+      </article>`;
+  }
+
+  function expandPost(card, withComments) {
+    card.classList.add("is-expanded");
+    const full = card.querySelector(".blog-full");
+    const excerpt = card.querySelector(".blog-excerpt");
+    if (full) {
+      full.hidden = false;
+      if (excerpt) excerpt.hidden = true;
+    }
+    const comments = card.querySelector(".news-comments");
+    if (withComments && comments) comments.hidden = false;
+    const more = card.querySelector(".blog-post-actions [data-expand]");
+    if (more) {
+      more.textContent = "Свернуть";
+      more.setAttribute("data-collapse", "1");
+    }
+  }
+
+  function collapsePost(card) {
+    card.classList.remove("is-expanded");
+    const full = card.querySelector(".blog-full");
+    const excerpt = card.querySelector(".blog-excerpt");
+    if (full && excerpt) {
+      full.hidden = true;
+      excerpt.hidden = false;
+    }
+    const comments = card.querySelector(".news-comments");
+    if (comments) comments.hidden = true;
+    const more = card.querySelector(".blog-post-actions [data-expand]");
+    if (more) {
+      more.textContent = "Читать далее →";
+      more.removeAttribute("data-collapse");
+    }
+  }
+
+  function bindPublicStream(stream) {
+    stream.addEventListener("click", (event) => {
+      const card = event.target.closest(".blog-post");
+      if (!card) return;
+      if (event.target.closest("a.user-link")) return;
+      const id = card.getAttribute("data-id");
+      if (event.target.closest("[data-like]")) {
+        toggleLike(id);
+        const post = allPosts().find((item) => item.id === id);
+        const btn = event.target.closest("[data-like]");
+        const on = isLiked(id);
+        btn.classList.toggle("is-on", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        const span = btn.querySelector("span");
+        if (span && post) span.textContent = String(likeCount(post));
+        return;
+      }
+      if (event.target.closest("[data-expand]")) {
+        const btn = event.target.closest(".blog-post-actions [data-expand]");
+        if (btn?.hasAttribute("data-collapse")) collapsePost(card);
+        else expandPost(card, false);
+        return;
+      }
+      if (event.target.closest("[data-open-comments]")) {
+        expandPost(card, true);
+        return;
+      }
+      if (event.target.closest("[data-comment-delete]")) {
+        const cid = event.target.closest(".news-comment")?.getAttribute("data-comment-id");
+        if (!cid || cid.startsWith("seed-")) return;
+        saveLocalComments(
+          id,
+          localComments(id).filter((item) => item.id !== cid)
+        );
+        refreshComments(card, id);
+      }
+    });
+    stream.addEventListener("submit", (event) => {
+      const form = event.target.closest("[data-comment-form]");
+      if (!form) return;
+      event.preventDefault();
+      const card = form.closest(".blog-post");
+      const id = card.getAttribute("data-id");
+      const text = form.text.value.trim();
+      if (!text) return;
+      saveLocalComments(id, [
+        ...localComments(id),
+        {
+          id: nextCommentId(),
+          author: "Вы",
+          own: true,
+          avatar: "assets/test/avatar-1.png",
+          text,
+          when: "только что",
+        },
+      ]);
+      refreshComments(card, id);
+      form.reset();
+    });
   }
 
   function allPosts() {
@@ -214,6 +484,7 @@
   }
 
   function postHTML(post) {
+    if (isPublicStream()) return publicPostHTML(post);
     const open = menuId === post.id;
     const pinLabel = post.pinned ? "Открепить" : "Закрепить в блоге";
     const href = `blog.html?post=${encodeURIComponent(post.id)}`;
@@ -227,22 +498,23 @@
           <h2><a href="${href}">${escapeHtml(post.title)}</a></h2>
           <p>${escapeHtml(post.text)}</p>
         </div>
+        <div class="blog-menu${open ? " open" : ""}">
+          <button type="button" class="blog-menu-btn" data-menu="${escapeHtml(post.id)}" aria-label="Ещё" aria-expanded="${open}">${ICO.more}</button>
+          <div class="blog-menu-dd" ${open ? "" : "hidden"}>
+            <button type="button" data-act="edit">Редактировать</button>
+            <button type="button" data-act="schedule">Запланировать</button>
+            <button type="button" data-act="pin">${pinLabel}</button>
+            <button type="button" data-act="copy">Копировать ссылку</button>
+            <button type="button" class="is-danger" data-act="delete">Удалить</button>
+          </div>
+        </div>
         <div class="blog-post-tools">
           <p class="blog-post-stats">
-            <span>${ICO.comment} ${post.comments || 0}</span>
             <span>${ICO.like} ${post.likes || 0}</span>
+            <span>${ICO.comment} ${post.comments || 0}</span>
+            <span>${ICO.eye} ${post.views || 0}</span>
           </p>
           <a class="btn btn-outline blog-open" href="${href}">Открыть</a>
-          <div class="blog-menu${open ? " open" : ""}">
-            <button type="button" class="blog-menu-btn" data-menu="${escapeHtml(post.id)}" aria-label="Ещё" aria-expanded="${open}">${ICO.more}</button>
-            <div class="blog-menu-dd" ${open ? "" : "hidden"}>
-              <button type="button" data-act="edit">Редактировать</button>
-              <button type="button" data-act="schedule">Запланировать</button>
-              <button type="button" data-act="pin">${pinLabel}</button>
-              <button type="button" data-act="copy">Копировать ссылку</button>
-              <button type="button" class="is-danger" data-act="delete">Удалить</button>
-            </div>
-          </div>
         </div>
       </article>`;
   }
@@ -344,7 +616,22 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    if (!document.getElementById("blog-stream")) return;
+    const stream = document.getElementById("blog-stream");
+    if (!stream) return;
+    if (stream.hasAttribute("data-blog-public")) {
+      tab = "published";
+      shown = PAGE;
+      bindPublicStream(stream);
+      document.getElementById("blog-more")?.addEventListener("click", () => {
+        shown += PAGE;
+        render();
+      });
+      render();
+      document.addEventListener("click", (event) => {
+        if (event.target.closest("[data-signin], [data-signout]")) queueMicrotask(render);
+      });
+      return;
+    }
     const fromUrl = new URLSearchParams(location.search).get("tab");
     if (["published", "draft", "scheduled", "archived"].includes(fromUrl)) tab = fromUrl;
     shown = PAGE;
@@ -373,6 +660,7 @@
         cover: form.cover.value.trim() || "assets/test/cover-1.png",
         comments: 0,
         likes: 0,
+        views: 0,
       };
       const store = loadStore();
       if (form.id.value) patchPost(id, payload);
@@ -427,14 +715,6 @@
         setNav("settings");
         applySettings();
         showMain("settings");
-        return;
-      }
-      if (name === "stats") {
-        setNav("published");
-        tab = "published";
-        showMain("list");
-        render();
-        document.querySelector(".blog-stats")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
       if (name === "comments") {

@@ -18,6 +18,64 @@ function currentPage() {
   return file && file !== "" ? file : "index.html";
 }
 
+function isUiIconImg(img) {
+  if (!(img instanceof HTMLImageElement)) return false;
+  const src = img.getAttribute("src") || "";
+  if (!/assets\/(svg|deco)\//.test(src)) return false;
+  if (/\.(png|jpe?g|webp)(\?|$)/i.test(src)) return false;
+  if (/уголок|corner\.svg|ramka|разделитель|flower\.svg|present\.svg|книга\.svg|дуфа2|lupa\.svg|lupa1/.test(src)) {
+    return false;
+  }
+  if (
+    img.closest(
+      ".logo, .profile-ava, .header-avatar, .sidebar-ornament, .feed-corner, .work-cover, .story-cover, .blog-post-cover, .news-cover, .news-hero-art, .tile-image, .collection-cover, .featured-cover, .author-avatar, .cover-fallback, .footer-art, .news-editor, .news-comment-ava"
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function paintUiIcon(img) {
+  const src = (img.getAttribute("src") || "").split("?")[0];
+  const el = document.createElement("span");
+  el.className = ["ui-icon", img.className].filter(Boolean).join(" ");
+  el.setAttribute("aria-hidden", "true");
+  el.style.setProperty("--icon", `url("${encodeURI(src)}")`);
+  img.replaceWith(el);
+  return el;
+}
+
+function hydrateUiIcons(root = document) {
+  const nodes = [];
+  if (root instanceof HTMLImageElement) nodes.push(root);
+  if (root.querySelectorAll) nodes.push(...root.querySelectorAll("img"));
+  nodes.filter(isUiIconImg).forEach(paintUiIcon);
+}
+
+function setUiIcon(el, src) {
+  if (!el) return;
+  const clean = String(src || "").split("?")[0];
+  if (el.tagName === "IMG") {
+    el.setAttribute("src", src);
+    if (isUiIconImg(el)) paintUiIcon(el);
+    return;
+  }
+  el.style.setProperty("--icon", `url("${encodeURI(clean)}")`);
+}
+
+document.addEventListener("DOMContentLoaded", function paintIcons() {
+  hydrateUiIcons(document);
+  if (!document.body) return;
+  new MutationObserver((records) => {
+    records.forEach((rec) => {
+      rec.addedNodes.forEach((node) => {
+        if (node.nodeType === 1) hydrateUiIcons(node);
+      });
+    });
+  }).observe(document.body, { childList: true, subtree: true });
+});
+
 function profileSlug(name) {
   return (
     String(name || "")
@@ -210,7 +268,7 @@ function headerMarkup() {
       </nav>
     </div>
     <form class="search-bar" action="search.html" role="search">
-      <img src="assets/deco/lupa.svg" alt="">
+      <img src="assets/svg/search.svg" alt="">
       <input type="text" name="q" placeholder="Найти работу, автора или тэг..." autocomplete="off">
     </form>
     <div class="header-actions">
@@ -221,7 +279,7 @@ function headerMarkup() {
       <div class="header-inbox" id="header-inbox" hidden>
         <div class="header-alert">
           <button type="button" class="header-alert-btn" id="notif-toggle" aria-label="Оповещения" aria-expanded="false">
-            <img src="assets/svg/notif.svg" alt="">
+            <img src="assets/deco/notif.svg" alt="">
             <span class="header-alert-dot" data-notif-dot hidden></span>
           </button>
           <div class="header-alert-dd" id="notif-feed" hidden>
@@ -245,7 +303,7 @@ function headerMarkup() {
           </div>
         </div>
         <a class="header-alert-btn" id="mail-toggle" href="messages.html" aria-label="Личные сообщения">
-          <img src="assets/svg/mail.svg" alt="">
+          <img src="assets/deco/mail.svg" alt="">
           <span class="header-alert-dot" data-mail-dot hidden></span>
         </a>
       </div>
@@ -288,6 +346,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   const header = document.querySelector("body > header.header");
   if (!header) return;
   header.innerHTML = headerMarkup();
+  hydrateUiIcons(header);
   syncAuthChrome();
   document.querySelectorAll(".page-corner").forEach((el) => el.remove());
 
@@ -416,6 +475,12 @@ document.addEventListener("DOMContentLoaded", function bindCollapsibleSide() {
     layout.classList.toggle("is-side-open", show);
     btns.forEach((btn) => btn.setAttribute("aria-expanded", show ? "true" : "false"));
     if (backdrop) backdrop.hidden = !show;
+    if (show) {
+      layout.classList.remove("is-props-open");
+      document.querySelectorAll("[data-props-toggle]").forEach((btn) => btn.setAttribute("aria-expanded", "false"));
+      const propsBack = layout.querySelector(".props-backdrop");
+      if (propsBack) propsBack.hidden = true;
+    }
   }
 
   btns.forEach((btn) => {
@@ -432,6 +497,46 @@ document.addEventListener("DOMContentLoaded", function bindCollapsibleSide() {
       setOpen(false);
     }
   });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+  mq.addEventListener("change", () => setOpen(false));
+  setOpen(false);
+});
+
+document.addEventListener("DOMContentLoaded", function bindPropsDrawer() {
+  const layout = document.querySelector(".editor-layout");
+  const panel = document.querySelector("[data-props-panel]");
+  const btn = document.querySelector("[data-props-toggle]");
+  if (!layout || !panel || !btn) return;
+
+  const mq = window.matchMedia("(max-width: 1100px)");
+  let backdrop = layout.querySelector(".props-backdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "side-backdrop props-backdrop";
+    backdrop.setAttribute("aria-label", "Закрыть панель");
+    backdrop.hidden = true;
+    layout.prepend(backdrop);
+  }
+
+  function setOpen(open) {
+    const show = mq.matches && open;
+    layout.classList.toggle("is-props-open", show);
+    btn.setAttribute("aria-expanded", show ? "true" : "false");
+    backdrop.hidden = !show;
+    if (show) {
+      layout.classList.remove("is-side-open");
+      document.querySelectorAll("[data-side-toggle]").forEach((toggle) => toggle.setAttribute("aria-expanded", "false"));
+    }
+  }
+
+  btn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setOpen(!layout.classList.contains("is-props-open"));
+  });
+  backdrop.addEventListener("click", () => setOpen(false));
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") setOpen(false);
   });
@@ -507,12 +612,17 @@ document.addEventListener("DOMContentLoaded", function publicProfile() {
   if (!slug && !name) return;
   const display = name || slug.replace(/-/g, " ");
   const handle = slug || profileSlug(display);
-  const title = document.querySelector(".profile-hero h1");
-  const meta = document.querySelector(".profile-meta");
+  const title = document.querySelector(".profile-name") || document.querySelector(".profile-hero h1");
+  const handleEl = document.querySelector(".profile-handle") || document.querySelector(".profile-meta");
   if (title) title.textContent = display;
-  if (meta) meta.textContent = `@${handle}`;
+  if (handleEl) handleEl.textContent = `@${handle}`;
   const bio = document.querySelector(".profile-bio");
   if (bio) bio.textContent = "Публичный профиль появится вместе с аккаунтами.";
+  const links = document.getElementById("profile-links");
+  if (links) {
+    links.innerHTML = "";
+    links.hidden = true;
+  }
   document.title = `${display} — профиль — FoxStoria`;
   const subnav = document.querySelector(".account-subnav");
   if (subnav) subnav.hidden = true;
@@ -614,7 +724,7 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       likeBtn.classList.toggle("is-liked", liked);
       likeBtn.setAttribute("aria-pressed", liked ? "true" : "false");
       likeBtn.setAttribute("aria-label", liked ? "Убрать лайк" : "Нравится");
-      if (icon) icon.src = liked ? "assets/svg/like.svg" : "assets/svg/heart.svg";
+      if (icon) setUiIcon(icon, liked ? "assets/svg/like.svg" : "assets/svg/heart.svg");
     }
 
     setLiked(localStorage.getItem(key) === "1");
