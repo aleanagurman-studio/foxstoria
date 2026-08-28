@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=75">
-  <script src="site.js?v=19"></script>
+  <link rel="stylesheet" href="styles.css?v=93">
+  <script src="site.js?v=34"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -37,7 +37,7 @@
               <a href="search.html?romance=femslash" class="work-badge work-badge--femslash"><img src="assets/svg/фемслэш.svg" class="work-badge-icon" alt=""> Фемслэш</a>
               <a href="search.html?age=0%2B" class="work-badge work-badge--age work-badge--age-0">0+</a>
               <a href="search.html?status=completed" class="work-badge work-badge--status work-badge--status-done">Завершена</a>
-              <span class="work-badge work-badge--likes"><img src="assets/svg/like.svg" class="work-icon" alt=""> 428</span>
+              <span class="work-badge work-badge--likes"><img src="assets/svg/heart.svg" class="work-icon" alt=""> 428</span>
             </div>
             <h1>Чай с мятой и шрамами</h1>
           </header>
@@ -90,14 +90,14 @@
 
           <div class="work-actions">
             <a href="read-linear.html" class="work-btn work-btn-read"><img src="assets/svg/читать.svg" class="work-btn-icon" alt=""> Читать</a>
-            <div class="work-split-btn">
-              <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark.svg" class="work-btn-icon" alt=""> Подписаться</button>
-              <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Добавить в библиотеку или сборник">
+            <div class="work-split-btn" data-work-id="tea-scars">
+              <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark2.svg" class="work-btn-icon" alt=""> Подписаться</button>
+              <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Ещё действия">
                 <svg class="work-icon" aria-hidden="true"><use href="icons.svg#i-chevron-down"></use></svg>
               </button>
               <div class="work-split-menu" hidden>
-                <a href="library.html">В библиотеку</a>
-                <a href="collections.html">Добавить в сборник</a>
+                <button type="button" data-work-pack>Добавить в сборник</button>
+                <button type="button" data-work-read>Прочитано</button>
               </div>
             </div>
 
@@ -129,7 +129,7 @@
                       <span class="work-stat-label">просмотров</span>
                 </div>
                 <div class="work-stat-cell">
-                      <img src="assets/svg/like.svg" class="work-stat-icon" alt="">
+                      <img src="assets/svg/heart.svg" class="work-stat-icon" alt="">
                       <span class="work-stat-value">428</span>
                       <span class="work-stat-label">лайков</span>
                 </div>
@@ -158,22 +158,22 @@
         <h2 class="work-chapters-title">Главы</h2>
         <div class="chapter-row">
           <span class="ch-num">1</span>
-          <div><strong>Хогвартс в декабре</strong></div>
+          <div><a href="read-linear.html" class="ch-title"><strong>Хогвартс в декабре</strong></a></div>
           <a href="read-linear.html" class="ch-play" aria-label="Читать"><img src="assets/svg/unlocked.svg" alt=""></a>
         </div>
         <div class="chapter-row">
           <span class="ch-num">2</span>
-          <div><strong>Письмо без совы</strong></div>
+          <div><a href="read-linear.html" class="ch-title"><strong>Письмо без совы</strong></a></div>
           <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
         </div>
         <div class="chapter-row">
           <span class="ch-num">3</span>
-          <div><strong>Крыша больничного крыла</strong></div>
+          <div><a href="read-linear.html" class="ch-title"><strong>Крыша больничного крыла</strong></a></div>
           <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
         </div>
         <div class="chapter-row">
           <span class="ch-num">4</span>
-          <div><strong>Мятный чай на двоих</strong></div>
+          <div><a href="read-linear.html" class="ch-title"><strong>Мятный чай на двоих</strong></a></div>
           <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
         </div>
       </div>

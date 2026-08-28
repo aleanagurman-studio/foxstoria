@@ -1,7 +1,7 @@
 (function feedPage() {
   const PAGE = 6;
   const KINDS = {
-    works: { label: "Работы", hint: "новые главы конкретных работ", icon: "assets/deco/книга.svg" },
+    works: { label: "Работы", hint: "новые главы конкретных работ", icon: "assets/svg/читать.svg" },
     authors: { label: "Авторы", hint: "новые работы и главы авторов", icon: "assets/deco/перо1.svg" },
     blogs: { label: "Блоги", hint: "посты из блогов", icon: "assets/deco/блог.svg" },
     collections: { label: "Сборники", hint: "работы и главы в сборниках", icon: "assets/deco/сборник.svg" },
@@ -165,7 +165,7 @@
 
   const ICO = {
     bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4.5h10a1 1 0 0 1 1 1V20l-6-3.2L6 20V5.5a1 1 0 0 1 1-1Z"/></svg>',
-    heart: '<img src="assets/svg/like.svg" alt="">',
+    heart: '<img src="assets/svg/heart.svg" alt="">',
     comment: '<img src="assets/svg/коммент.svg" alt="">',
   };
 

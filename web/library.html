@@ -8,8 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=75">
-  <script src="site.js?v=19"></script>
+  <link rel="stylesheet" href="styles.css?v=93">
+  <script src="site.js?v=34"></script>
+  <script src="catalog.js?v=13" defer></script>
 </head>
 <body>
   <header class="header"></header>
@@ -30,6 +31,7 @@
     <main class="main page-main">
       <div class="account-tabs" data-account-tabs>
         <button type="button" class="active" data-tab="likes">Понравившиеся</button>
+        <button type="button" data-tab="follows">Подписки</button>
         <button type="button" data-tab="packs">Сборники</button>
         <button type="button" data-tab="authors">Любимые авторы</button>
         <button type="button" data-tab="read">Прочитанные</button>
@@ -40,6 +42,13 @@
           <p>Работы, которым вы поставили лайк.</p>
         </header>
         <div class="empty-feed"><p>Понравившиеся истории появятся здесь.</p></div>
+      </section>
+      <section id="tab-follows" hidden>
+        <header class="page-header">
+          <h1>Подписки</h1>
+          <p>Работы, на которые вы подписались с карточки истории.</p>
+        </header>
+        <div class="stories-grid" data-feed="library-follows"></div>
       </section>
       <section id="tab-packs" hidden>
         <header class="page-header">
@@ -70,7 +79,7 @@
           <h1>Прочитанные работы</h1>
           <p>Истории, у которых стоит отметка «Прочитано».</p>
         </header>
-        <div class="empty-feed"><p>Отмеченные как прочитанные работы появятся здесь.</p></div>
+        <div class="stories-grid" data-feed="library-read"></div>
       </section>
     </main>
   </div>

@@ -15,6 +15,20 @@ function ageLabel(age) {
   return age;
 }
 
+function workLikes(work) {
+  return Number(work.likes ?? work.plays ?? 0) || 0;
+}
+
+function formatCount(value) {
+  const n = Number(value) || 0;
+  if (n >= 1000) {
+    const k = n / 1000;
+    const text = k >= 10 ? k.toFixed(0) : k.toFixed(1).replace(/\.0$/, "");
+    return `${text}K`;
+  }
+  return String(n);
+}
+
 function workHref(work) {
   if (work.href) return work.href;
   if (work.story_type === "linear") return "story-linear.html";
@@ -45,7 +59,7 @@ function cardHTML(work, rank, isNew) {
         <h3 class="story-title">${escapeHtml(work.title)}</h3>
         <p class="story-meta">${escapeHtml(meta)}</p>
         <p class="story-stats">
-          <span class="rating"><img src="assets/deco/sparcle.svg" alt=""> ${Number(work.rating || 0).toFixed(1)}</span>
+          <span class="story-likes"><img src="assets/svg/heart.svg" alt=""> ${formatCount(workLikes(work))}</span>
           <span class="age-badge">${escapeHtml(ageLabel(work.age))}</span>
           ${size ? `<span class="status-badge">${escapeHtml(size)}</span>` : ""}
         </p>
@@ -69,6 +83,221 @@ function renderFeed(id, items, emptyText) {
   root.innerHTML = items.map((work, index) => cardHTML(work, ranked ? index + 1 : 0, isNew)).join("");
 }
 
+function studioHref(work) {
+  return work.id ? `studio.html?id=${encodeURIComponent(work.id)}` : "studio.html";
+}
+
+const CABINET_STATUS = {
+  draft: "Черновик",
+  published: "Опубликовано",
+  moderation: "На модерации",
+  completed: "Завершена",
+};
+
+function cabinetMeta(work) {
+  const extra = {
+    shadows: { status: "draft", updated: "сегодня, 14:32", updatedAt: "2026-08-28T14:32:00", views: 210, likes: 48, comments: 6 },
+    letters: { status: "published", updated: "вчера, 19:10", updatedAt: "2026-08-27T19:10:00", views: 1240, likes: 340, comments: 28 },
+    "mic-mono": { status: "moderation", updated: "3 дня назад", updatedAt: "2026-08-25T12:00:00", views: 680, likes: 1200, comments: 54 },
+    "tea-scars": { status: "completed", updated: "неделю назад", updatedAt: "2026-08-21T10:00:00", views: 890, likes: 428, comments: 41 },
+    crossroads: { status: "draft", updated: "сегодня, 09:18", updatedAt: "2026-08-28T09:18:00", views: 96, likes: 22, comments: 3 },
+  };
+  const row = extra[work.id] || {};
+  return {
+    status: row.status || (work.is_completed ? "completed" : "draft"),
+    updated: row.updated || "недавно",
+    updatedAt: row.updatedAt || "2026-08-20T00:00:00",
+    views: row.views ?? work.plays ?? 0,
+    likes: row.likes ?? workLikes(work),
+    comments: row.comments ?? 0,
+  };
+}
+
+function cabinetStatsHTML(work, meta) {
+  return `<div class="cabinet-card-stats">
+      <span><img src="assets/svg/eye.svg" alt=""> ${formatCount(meta.views)}</span>
+      <span><img src="assets/svg/heart.svg" alt=""> ${formatCount(meta.likes)}</span>
+      <span><img src="assets/svg/коммент.svg" alt=""> ${formatCount(meta.comments)}</span>
+    </div>`;
+}
+
+function cabinetVisibilityLabel(status) {
+  return status === "draft" ? "Опубликовать" : "Скрыть в черновик";
+}
+
+function cabinetVisibilityButton(status) {
+  if (status === "draft") {
+    return `<button type="button" role="menuitem" data-cabinet-action="visibility"><img src="assets/svg/eye.svg" alt=""> Опубликовать</button>`;
+  }
+  return `<button type="button" role="menuitem" data-cabinet-action="visibility"><img src="assets/svg/eyesno.svg" alt=""> Скрыть в черновик</button>`;
+}
+
+function cabinetCardHTML(work, role) {
+  const meta = cabinetMeta(work);
+  const typeLabel = work.story_type === "linear" ? "Линейная история" : "Интерактивная история";
+  const cover = work.cover
+    ? `<img src="${escapeHtml(work.cover)}" alt="">`
+    : `<span class="cover-fallback"><img src="assets/deco/paw.svg" alt=""></span>`;
+  return `
+    <article class="cabinet-card" data-work-id="${escapeHtml(work.id)}" data-status="${escapeHtml(meta.status)}" data-title="${escapeHtml(work.title)}" data-updated="${escapeHtml(meta.updatedAt)}">
+      <div class="cabinet-cover">
+        <div class="cabinet-cover-frame">${cover}</div>
+        <div class="cabinet-more-wrap">
+          <button type="button" class="cabinet-more" aria-label="Ещё" aria-haspopup="menu" aria-expanded="false">⋯</button>
+          <div class="cabinet-menu" hidden role="menu">
+            ${cabinetVisibilityButton(meta.status)}
+            <button type="button" role="menuitem" data-cabinet-action="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+          </div>
+        </div>
+      </div>
+      <h3 class="cabinet-card-title">${escapeHtml(work.title)}</h3>
+      <p class="cabinet-card-meta">
+        <span>${typeLabel}</span>
+        <span class="cabinet-status is-${meta.status}">${CABINET_STATUS[meta.status] || meta.status}</span>
+      </p>
+      <p class="cabinet-card-role">${escapeHtml(role)}</p>
+      <p class="cabinet-card-updated">${escapeHtml(meta.updated)}</p>
+      ${cabinetStatsHTML(work, meta)}
+      <a class="btn btn-outline cabinet-open" href="${escapeHtml(studioHref(work))}">Открыть редактор</a>
+    </article>`;
+}
+
+function bindCabinetChrome() {
+  const page = document.querySelector(".cabinet-page");
+  if (!page || page.dataset.cabinetBound === "1") return;
+  page.dataset.cabinetBound = "1";
+  const search = document.querySelector("[data-cabinet-search]");
+  const sort = document.querySelector("[data-cabinet-sort]");
+  const grids = [...document.querySelectorAll(".cabinet-grid")];
+
+  function applyFilterSort() {
+    const q = (search?.value || "").trim().toLowerCase();
+    const by = sort?.value || "updated";
+    grids.forEach((grid) => {
+      const cards = [...grid.querySelectorAll(".cabinet-card")];
+      cards.sort((a, b) => {
+        if (by === "title") return (a.dataset.title || "").localeCompare(b.dataset.title || "", "ru");
+        return String(b.dataset.updated || "").localeCompare(String(a.dataset.updated || ""));
+      });
+      cards.forEach((card) => {
+        const match = !q || (card.dataset.title || "").toLowerCase().includes(q);
+        card.hidden = !match;
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  function closeMenus(except) {
+    document.querySelectorAll(".cabinet-menu").forEach((menu) => {
+      if (menu === except) return;
+      menu.hidden = true;
+      menu.closest(".cabinet-more-wrap")?.querySelector(".cabinet-more")?.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function refreshCounts() {
+    const keys = ["all", "author", "coauthor", "editor"];
+    keys.forEach((key) => {
+      const root = document.querySelector(`[data-feed="author-home-${key}"]`);
+      const n = root ? root.querySelectorAll(".cabinet-card").length : 0;
+      document.querySelectorAll(`[data-cabinet-count="${key}"]`).forEach((el) => {
+        el.textContent = String(n);
+      });
+    });
+  }
+
+  function setCardStatus(card, status) {
+    card.dataset.status = status;
+    const badge = card.querySelector(".cabinet-status");
+    if (badge) {
+      badge.className = `cabinet-status is-${status}`;
+      badge.textContent = CABINET_STATUS[status] || status;
+    }
+    const vis = card.querySelector("[data-cabinet-action='visibility']");
+    if (vis) vis.outerHTML = cabinetVisibilityButton(status);
+  }
+
+  search?.addEventListener("input", applyFilterSort);
+  sort?.addEventListener("change", applyFilterSort);
+  document.querySelectorAll("[data-cabinet-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.getAttribute("data-cabinet-view");
+      page.classList.toggle("is-list", view === "list");
+      document.querySelectorAll("[data-cabinet-view]").forEach((other) => {
+        other.classList.toggle("is-active", other === btn);
+      });
+    });
+  });
+  page.addEventListener("click", (event) => {
+    const more = event.target.closest(".cabinet-more");
+    if (more) {
+      event.preventDefault();
+      event.stopPropagation();
+      const menu = more.parentElement.querySelector(".cabinet-menu");
+      const open = menu.hidden;
+      closeMenus(open ? menu : null);
+      menu.hidden = !open;
+      more.setAttribute("aria-expanded", open ? "true" : "false");
+      return;
+    }
+    const action = event.target.closest("[data-cabinet-action]");
+    if (action) {
+      event.preventDefault();
+      event.stopPropagation();
+      const card = action.closest(".cabinet-card");
+      const id = card?.dataset.workId;
+      if (!card || !id) return;
+      if (action.getAttribute("data-cabinet-action") === "delete") {
+        document.querySelectorAll(`.cabinet-card[data-work-id="${id}"]`).forEach((el) => el.remove());
+        refreshCounts();
+      } else if (action.getAttribute("data-cabinet-action") === "visibility") {
+        const next = card.dataset.status === "draft" ? "published" : "draft";
+        document.querySelectorAll(`.cabinet-card[data-work-id="${id}"]`).forEach((el) => setCardStatus(el, next));
+      }
+      closeMenus();
+      return;
+    }
+    if (!event.target.closest(".cabinet-more-wrap")) closeMenus();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMenus();
+  });
+  applyFilterSort();
+}
+
+function renderAuthorHome(works) {
+  const authorRoot = document.querySelector('[data-feed="author-home-author"]');
+  if (!authorRoot) return;
+  const byId = Object.fromEntries(works.map((work) => [work.id, work]));
+  const groups = {
+    author: ["shadows", "mic-mono", "crossroads"].map((id) => byId[id]).filter(Boolean),
+    coauthor: ["letters"].map((id) => byId[id]).filter(Boolean),
+    editor: ["tea-scars"].map((id) => byId[id]).filter(Boolean),
+  };
+  const all = [...groups.author, ...groups.coauthor, ...groups.editor];
+  const roleOf = (id) =>
+    groups.author.some((work) => work.id === id) ? "Автор" : groups.coauthor.some((work) => work.id === id) ? "Соавтор" : "Редактор";
+  function paint(root, items, emptyText) {
+    if (!root) return;
+    if (!items.length) {
+      root.innerHTML = emptyHTML(emptyText);
+      return;
+    }
+    root.innerHTML = items.map((work) => cabinetCardHTML(work, roleOf(work.id))).join("");
+  }
+  paint(document.querySelector('[data-feed="author-home-all"]'), all, "Когда появится первая история, она откроется отсюда.");
+  paint(authorRoot, groups.author, "Здесь будут истории, где вы указаны автором.");
+  paint(document.querySelector('[data-feed="author-home-coauthor"]'), groups.coauthor, "Здесь будут истории, где вы соавтор.");
+  paint(document.querySelector('[data-feed="author-home-editor"]'), groups.editor, "Здесь будут истории, которые вы редактируете.");
+  const counts = { all: all.length, author: groups.author.length, coauthor: groups.coauthor.length, editor: groups.editor.length };
+  Object.entries(counts).forEach(([key, value]) => {
+    document.querySelectorAll(`[data-cabinet-count="${key}"]`).forEach((el) => {
+      el.textContent = String(value);
+    });
+  });
+  bindCabinetChrome();
+}
+
 function renderProfileWorks(works) {
   const root = document.querySelector('[data-feed="profile-works"]');
   if (!root) return;
@@ -84,9 +313,9 @@ function renderProfileWorks(works) {
 function renderFeatured(works) {
   const root = document.querySelector("[data-feed='featured']");
   if (!root) return;
-  const work = [...works].sort((a, b) => (b.plays || 0) - (a.plays || 0))[0];
+  const work = [...works].sort((a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0))[0];
   if (!work) {
-    root.innerHTML = emptyHTML("Выбор читателей появится, когда у работ наберутся прохождения.");
+    root.innerHTML = emptyHTML("Выбор читателей появится, когда у работ появятся лайки.");
     return;
   }
   const meta = [work.fandom, ROMANCE[work.romance] || work.romance].filter(Boolean).join(" · ");
@@ -99,7 +328,7 @@ function renderFeatured(works) {
         <div class="featured-stats">
           <span>${escapeHtml(meta)}</span>
           <span><strong>${work.plays || 0}</strong> прохождений</span>
-          <span class="rating"><img src="assets/deco/sparcle.svg" alt=""> ${Number(work.rating || 0).toFixed(1)}</span>
+          <span class="story-likes"><img src="assets/svg/heart.svg" alt=""> ${formatCount(workLikes(work))}</span>
           <span class="age-badge">${escapeHtml(ageLabel(work.age))}</span>
         </div>
       </div>
@@ -137,7 +366,7 @@ async function loadCatalog() {
     const data = await response.json();
     const works = Array.isArray(data.works) ? data.works : [];
     const popular = [...works].sort(
-      (a, b) => (b.plays || 0) - (a.plays || 0) || (b.rating || 0) - (a.rating || 0)
+      (a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0)
     );
     const latest = [...works].sort(
       (a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0)
@@ -157,6 +386,8 @@ async function loadCatalog() {
     renderCatalogGrid(works);
     renderAuthorsGrid(data.authors || []);
     renderProfileWorks(works);
+    renderAuthorHome(works);
+    renderReaderFeeds(works);
     window.__foxWorks = works;
     window.__foxAuthors = data.authors || [];
   } catch (error) {
@@ -166,15 +397,37 @@ async function loadCatalog() {
     renderAuthors([]);
     renderCatalogGrid([]);
     renderAuthorsGrid([]);
+    renderProfileWorks([]);
+    renderAuthorHome([]);
+    renderReaderFeeds([]);
+  }
+}
+
+function renderReaderFeeds(works) {
+  const lib = typeof loadReaderLibrary === "function" ? loadReaderLibrary() : { follows: [], read: [] };
+  const byIds = (ids) => works.filter((work) => (ids || []).includes(work.id));
+  if (document.querySelector('[data-feed="library-follows"]')) {
+    renderFeed(
+      "library-follows",
+      byIds(lib.follows),
+      "Работы, на которые вы подпишетесь, появятся здесь."
+    );
+  }
+  if (document.querySelector('[data-feed="library-read"]')) {
+    renderFeed(
+      "library-read",
+      byIds(lib.read),
+      "Отмеченные как прочитанные работы появятся здесь."
+    );
   }
 }
 
 function sortWorks(works, sort) {
   const copy = [...works];
-  if (sort === "rating") return copy.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  if (sort === "likes" || sort === "rating") return copy.sort((a, b) => workLikes(b) - workLikes(a));
   if (sort === "latest") return copy.sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
   if (sort === "name") return copy.sort((a, b) => String(a.title || "").localeCompare(b.title || "", "ru"));
-  return copy.sort((a, b) => (b.plays || 0) - (a.plays || 0) || (b.rating || 0) - (a.rating || 0));
+  return copy.sort((a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0));
 }
 
 function slugsFromParams(params, plural, singular) {

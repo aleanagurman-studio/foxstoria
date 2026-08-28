@@ -11,7 +11,7 @@
       "romance": "gen",
       "age": "16+",
       "story_type": "interactive",
-      "rating": 4.8,
+      "likes": 892,
       "is_completed": false,
       "plays": 892,
       "description": "Город после дождя. Знакомое лицо на перекрёстке."
@@ -28,7 +28,7 @@
       "age": "16+",
       "story_type": "linear",
       "work_size": "mini",
-      "rating": 4.6,
+      "likes": 340,
       "is_completed": true,
       "plays": 340,
       "description": "Конверт без марки и три главы без развилок."
@@ -44,7 +44,7 @@
       "romance": "slash",
       "age": "18+",
       "story_type": "interactive",
-      "rating": 4.9,
+      "likes": 1200,
       "is_completed": false,
       "plays": 1200,
       "description": "Rap Line и Maknae Line после сорванного концерта."
@@ -61,7 +61,7 @@
       "age": "0+",
       "story_type": "linear",
       "work_size": "mini",
-      "rating": 4.7,
+      "likes": 428,
       "is_completed": true,
       "plays": 428,
       "description": "Гермиона и Джинни после войны."
@@ -77,7 +77,7 @@
       "romance": "mixed",
       "age": "16+",
       "story_type": "interactive",
-      "rating": 4.5,
+      "likes": 756,
       "is_completed": false,
       "plays": 756,
       "description": "Смешанные линии в мире Jujutsu Kaisen."

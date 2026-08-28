@@ -8,76 +8,119 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=75">
-  <link rel="stylesheet" href="studio.css?v=8">
-  <script src="site.js?v=19"></script>
+  <link rel="stylesheet" href="styles.css?v=94">
+  <link rel="stylesheet" href="studio.css?v=33">
+  <script src="site.js?v=34"></script>
 </head>
 <body class="studio-page">
-
-  <header class="editor-header">
-    <button type="button" class="side-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Боковое меню">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
-    <a href="index.html" class="logo">
-      <img src="assets/brand/logo.png" alt="">
-      <span>FoxStoria</span>
-    </a>
-    <div class="story-title-block">
-      <div class="story-title-row">
-        <h1>Тени прошлого</h1>
-      </div>
-      <span class="story-save-status">Только для автора · черновик</span>
-    </div>
-    <div class="studio-type">
-      <button class="studio-type-btn active" data-type="interactive">Интерактивная</button>
-      <button class="studio-type-btn" data-type="linear">Линейная</button>
-    </div>
-    <div class="studio-header-actions">
-      <a href="author-home.html" class="btn btn-outline">К кабинету автора</a>
-      <a href="editor.html" class="btn btn-primary" id="studio-open-editor">Открыть редактор</a>
-    </div>
-  </header>
-
+  <header class="header"></header>
   <div class="studio-layout" data-side-layout>
     <aside class="studio-nav" id="side-panel" data-side-panel aria-label="Кабинет истории">
       <p class="studio-nav-kicker">Моя история</p>
-
-      <div class="studio-group">
-        <button class="studio-item active" data-view="editor">Редактор</button>
+      <button class="studio-item active" data-view="work"><img src="assets/svg/дом.svg" alt=""> Работа</button>
+      <button class="studio-item" data-view="timeline"><img src="assets/svg/ветки.svg" alt=""> Хронология</button>
+      <button class="studio-item" data-view="characters"><img src="assets/svg/пейринг.svg" alt=""> Персонажи</button>
+      <button class="studio-item" data-view="notes"><img src="assets/svg/заметки.svg" alt=""> Заметки</button>
+      <button class="studio-item" data-view="reviews"><img src="assets/svg/коммент.svg" alt=""> Отзывы</button>
+      <button class="studio-item" data-view="stats"><img src="assets/svg/стата.svg" alt=""> Статистика</button>
+      <button class="studio-item" data-view="settings"><img src="assets/svg/размер.svg" alt=""> Описание</button>
+      <a class="studio-item studio-public" id="studio-public-page" href="story-interactive.html" target="_blank" rel="noopener"><img src="assets/svg/читать.svg" alt=""> Страница работы</a>
+      <div class="studio-nav-art" aria-hidden="true">
+        <img src="assets/brand/castle.png" alt="">
       </div>
-
-      <button class="studio-item" data-view="timeline">Хронология</button>
-      <button class="studio-item" data-view="characters">Персонажи</button>
-      <button class="studio-item" data-view="notes">Заметки</button>
-      <button class="studio-item" data-view="reviews">Отзывы</button>
-      <button class="studio-item" data-view="stats">Статистика</button>
-      <button class="studio-item" data-view="settings">Карточка работы</button>
-      <a class="studio-item studio-public" id="studio-public-page" href="story-interactive.html" target="_blank" rel="noopener">Страница работы</a>
-
-      <p class="studio-private">Читатели этого не видят — кроме «Страницы работы»</p>
     </aside>
 
     <main class="studio-main">
+      <button type="button" class="side-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Боковое меню">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
 
-      <section class="studio-view" id="view-editor">
-        <h2>Редактор</h2>
-        <p class="studio-lead" id="studio-editor-lead">Главы и сцены — это то, что пойдёт в публикацию. Хронология и персонажи живут рядом, но остаются в кабинете.</p>
-        <div class="studio-cards">
-          <article class="studio-card">
-            <h3>Глава 1 · Перекрёсток</h3>
-            <p>3 сцены · сводка вручную</p>
-            <label class="studio-label">Краткое содержание (для себя)</label>
-            <textarea>Дождь, кафе или парк. Алекс узнаёт Машу.</textarea>
-          </article>
-          <article class="studio-card">
-            <h3>Глава 2 · Ветки</h3>
-            <p>Plus: ИИ может собрать сводку и найти имена</p>
-            <div class="studio-ai-box">
-              <span class="studio-pill">Plus</span>
-              Алекс, Маша. Выбор на перекрёстке ведёт в кафе или в парк. Никита пока не появляется.
-              <button class="btn btn-outline" type="button">Принять и править</button>
+      <section class="studio-view" id="view-work">
+        <div class="work-dash-head">
+          <button type="button" class="work-dash-cover-btn" data-open-cover aria-label="Изменить обложку">
+            <img class="work-dash-cover" data-work-cover src="assets/test/cover-1.png" alt="">
+          </button>
+          <div class="work-dash-meta">
+            <div class="work-dash-title">
+              <h2>Тени прошлого</h2>
+              <button type="button" class="work-dash-edit" data-view="settings" aria-label="Изменить название">
+                <img src="assets/svg/редактировать.svg" alt="">
+              </button>
             </div>
-          </article>
+            <span class="work-dash-badge">Черновик</span>
+            <label class="studio-type-wrap">
+              <span class="visually-hidden">Тип истории</span>
+              <select id="studio-type" class="studio-type-select">
+                <option value="interactive" selected>Интерактивная история</option>
+                <option value="linear">Линейная история</option>
+              </select>
+            </label>
+            <p class="work-dash-id">ID: #TP-001</p>
+          </div>
+          <div class="work-dash-stats" aria-label="Сводка работы">
+            <div><img src="assets/svg/размер.svg" alt=""><b>3</b> главы</div>
+            <div data-studio-scenes><img src="assets/svg/ветки.svg" alt=""><b>12</b> сцен</div>
+            <div><img src="assets/svg/пейринг.svg" alt=""><b>4</b> персонажа</div>
+            <div><img src="assets/svg/заметки.svg" alt=""><b>8</b> заметок</div>
+            <p class="work-dash-updated">сегодня, 14:20</p>
+          </div>
+        </div>
+        <div class="work-dash-resume">
+          <div>
+            <h3>Продолжить редактирование</h3>
+            <p id="studio-resume-place">Глава 2 · Сцена 4 · Перекрёсток</p>
+          </div>
+          <a href="editor.html" class="btn btn-primary" id="studio-continue">Продолжить</a>
+        </div>
+        <div class="work-structure">
+          <div class="work-structure-head">
+            <h3>Структура истории</h3>
+            <button type="button" class="btn btn-outline" id="add-chapter">+ Добавить главу</button>
+          </div>
+          <ul class="work-chapters" id="work-chapters">
+            <li class="work-chapter">
+              <button type="button" class="work-chapter-grip" aria-label="Перетащить главу">
+                <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+              </button>
+              <div>
+                <a href="editor.html" class="work-chapter-title"><strong>Глава 1 · Перекрёсток</strong></a>
+                <span class="work-chapter-scenes">3 сцены</span>
+              </div>
+              <span class="work-chapter-status is-live">Опубликована</span>
+              <div class="work-chapter-actions">
+                <a href="editor.html" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
+                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+              </div>
+            </li>
+            <li class="work-chapter is-current">
+              <button type="button" class="work-chapter-grip" aria-label="Перетащить главу">
+                <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+              </button>
+              <div>
+                <a href="editor.html" class="work-chapter-title"><strong>Глава 2 · Ветки</strong></a>
+                <span class="work-chapter-scenes">4 сцены</span>
+              </div>
+              <span class="work-chapter-status">Черновик</span>
+              <div class="work-chapter-actions">
+                <a href="editor.html" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
+                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+              </div>
+            </li>
+            <li class="work-chapter">
+              <button type="button" class="work-chapter-grip" aria-label="Перетащить главу">
+                <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+              </button>
+              <div>
+                <a href="editor.html" class="work-chapter-title"><strong>Глава 3 · Следы</strong></a>
+                <span>не начата</span>
+              </div>
+              <span class="work-chapter-status">Черновик</span>
+              <div class="work-chapter-actions">
+                <a href="editor.html" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
+                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+              </div>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -180,17 +223,42 @@
       <section class="studio-view" id="view-stats" hidden>
         <h2>Статистика</h2>
         <div class="studio-stats">
-          <div><b>12</b> сцен</div>
-          <div><b>38</b> выборов</div>
-          <div><b>3</b> концовки</div>
-          <div><b>3</b> персонажа в библии</div>
+          <div>
+            <img src="assets/svg/ветки.svg" alt="">
+            <div><b>12</b><span>сцен</span></div>
+          </div>
+          <div>
+            <img src="assets/svg/выборы.svg" alt="">
+            <div><b>38</b><span>выборов</span></div>
+          </div>
+          <div>
+            <img src="assets/svg/концовки.svg" alt="">
+            <div><b>3</b><span>концовки</span></div>
+          </div>
+          <div>
+            <img src="assets/svg/пейринг.svg" alt="">
+            <div><b>3</b><span>персонажа в библии</span></div>
+          </div>
         </div>
       </section>
 
       <section class="studio-view" id="view-settings" hidden>
-        <h2>Карточка работы</h2>
+        <h2>Описание</h2>
         <p class="studio-lead">Эти строки уходят на публичную карточку у любой работы — линейной и интерактивной. Число глав и размер считаются сами по редактору, когда вы ставите «завершена».</p>
         <form class="studio-form" id="work-card-form">
+          <div class="studio-cover-edit">
+            <span class="studio-label">Обложка</span>
+            <div class="studio-cover-row">
+              <img id="work-cover-preview" class="studio-cover-preview" data-work-cover src="assets/test/cover-1.png" alt="">
+              <div>
+                <label class="btn btn-outline studio-cover-upload">
+                  Загрузить обложку
+                  <input type="file" id="work-cover-input" accept="image/*" hidden>
+                </label>
+                <p class="studio-hint">Появится на карточке в каталоге и на странице работы.</p>
+              </div>
+            </div>
+          </div>
           <div>
             <label class="studio-label" for="work-title">Название</label>
             <input id="work-title" name="title" value="Тени прошлого" required>
@@ -307,6 +375,6 @@
     </main>
   </div>
   <script src="taxonomy.js?v=11"></script>
-  <script src="studio.js?v=14"></script>
+  <script src="studio.js?v=24"></script>
 </body>
 </html>

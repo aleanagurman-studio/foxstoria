@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=75">
-  <script src="site.js?v=19"></script>
+  <link rel="stylesheet" href="styles.css?v=93">
+  <script src="site.js?v=34"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -37,7 +37,7 @@
               <a href="search.html?romance=gen" class="work-badge work-badge--gen"><img src="assets/svg/джен.svg?v=2" class="work-badge-icon" alt=""> Джен</a>
               <a href="search.html?age=16%2B" class="work-badge work-badge--age work-badge--age-16">16+</a>
               <a href="search.html?status=in_progress" class="work-badge work-badge--status work-badge--status-progress">В процессе</a>
-              <span class="work-badge work-badge--likes"><img src="assets/svg/like.svg" class="work-icon" alt=""> 892</span>
+              <span class="work-badge work-badge--likes"><img src="assets/svg/heart.svg" class="work-icon" alt=""> 892</span>
             </div>
             <h1>Тени прошлого</h1>
           </header>
@@ -90,14 +90,14 @@
 
           <div class="work-actions">
             <a href="read-interactive.html" class="work-btn work-btn-read"><img src="assets/svg/читать.svg" class="work-btn-icon" alt=""> Читать</a>
-            <div class="work-split-btn">
-              <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark.svg" class="work-btn-icon" alt=""> Подписаться</button>
-              <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Добавить в библиотеку или сборник">
+            <div class="work-split-btn" data-work-id="shadows">
+              <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark2.svg" class="work-btn-icon" alt=""> Подписаться</button>
+              <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Ещё действия">
                 <svg class="work-icon" aria-hidden="true"><use href="icons.svg#i-chevron-down"></use></svg>
               </button>
               <div class="work-split-menu" hidden>
-                <a href="library.html">В библиотеку</a>
-                <a href="collections.html">Добавить в сборник</a>
+                <button type="button" data-work-pack>Добавить в сборник</button>
+                <button type="button" data-work-read>Прочитано</button>
               </div>
             </div>
 
@@ -129,7 +129,7 @@
                       <span class="work-stat-label">просмотров</span>
                 </div>
                 <div class="work-stat-cell">
-                      <img src="assets/svg/like.svg" class="work-stat-icon" alt="">
+                      <img src="assets/svg/heart.svg" class="work-stat-icon" alt="">
                       <span class="work-stat-value">892</span>
                       <span class="work-stat-label">лайков</span>
                 </div>
@@ -169,17 +169,17 @@
         <h2 class="work-chapters-title">Главы</h2>
         <div class="chapter-row">
           <span class="ch-num">1</span>
-          <div><strong>Пролог. Перекрёсток</strong></div>
+          <div><a href="read-interactive.html" class="ch-title"><strong>Пролог. Перекрёсток</strong></a></div>
           <a href="read-interactive.html" class="ch-play" aria-label="Читать"><img src="assets/svg/unlocked.svg" alt=""></a>
         </div>
         <div class="chapter-row">
           <span class="ch-num">2</span>
-          <div><strong>Ветка: кафе</strong></div>
+          <div><a href="read-interactive.html" class="ch-title"><strong>Ветка: кафе</strong></a></div>
           <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
         </div>
         <div class="chapter-row">
           <span class="ch-num">3</span>
-          <div><strong>Ветка: парк</strong></div>
+          <div><a href="read-interactive.html" class="ch-title"><strong>Ветка: парк</strong></a></div>
           <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
         </div>
       </div>

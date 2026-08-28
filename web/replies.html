@@ -8,8 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=75">
-  <script src="site.js?v=19"></script>
+  <link rel="stylesheet" href="styles.css?v=88">
+  <script src="site.js?v=34"></script>
+  <script src="replies.js?v=1" defer></script>
 </head>
 <body>
   <header class="header"></header>
@@ -32,14 +33,170 @@
         <h1>Комментарии</h1>
         <p>Ответы на ваши комментарии под работами и в блогах.</p>
       </header>
-      <div class="account-tabs" data-account-tabs>
-        <button type="button" class="active" data-tab="all">Все</button>
-        <button type="button" data-tab="works">К работам</button>
-        <button type="button" data-tab="blogs">К блогам</button>
+      <div class="account-tabs" id="reply-tabs">
+        <button type="button" class="active" data-reply-tab="all">Все</button>
+        <button type="button" data-reply-tab="work">К работам</button>
+        <button type="button" data-reply-tab="blog">К блогам</button>
       </div>
-      <section id="tab-all"><div class="empty-feed"><p>Когда кто-то ответит на ваш комментарий, ответ появится здесь.</p></div></section>
-      <section id="tab-works" hidden><div class="empty-feed"><p>Ответы под историями появятся здесь.</p></div></section>
-      <section id="tab-blogs" hidden><div class="empty-feed"><p>Ответы в блогах появятся здесь.</p></div></section>
+
+      <div class="reply-toolbar">
+        <div class="reply-filters">
+          <label class="reply-select">
+            <span class="visually-hidden">Сортировка</span>
+            <select id="reply-sort">
+              <option value="new">Сначала новые</option>
+              <option value="old">Сначала старые</option>
+            </select>
+          </label>
+          <label class="reply-select">
+            <span class="visually-hidden">Статус</span>
+            <select id="reply-status">
+              <option value="all">Все статусы</option>
+              <option value="new">Новые</option>
+              <option value="published">Опубликованные</option>
+              <option value="moderation">На модерации</option>
+            </select>
+          </label>
+        </div>
+        <label class="search-bar reply-search">
+          <span class="visually-hidden">Поиск по комментариям</span>
+          <input type="search" id="reply-search" placeholder="Поиск по комментариям...">
+          <img src="assets/deco/lupa1.svg" alt="">
+        </label>
+      </div>
+
+      <section class="reply-feed" id="reply-feed" aria-live="polite">
+        <article class="reply-card" data-kind="work" data-status="new" data-time="2026-08-27T21:34:00">
+          <header class="reply-card-top">
+            <img class="reply-card-ava" src="assets/test/avatar-3.png" alt="">
+            <div class="reply-card-who">
+              <strong data-user-name="Лиса с фонарём"></strong>
+              <p class="reply-card-place">к работе · <a href="story-interactive.html">Тени прошлого</a> · Глава 2. Перекрёсток</p>
+            </div>
+            <div class="reply-card-meta">
+              <time datetime="2026-08-27T21:34">вчера, 21:34</time>
+              <span class="reply-status is-new">Новый</span>
+            </div>
+          </header>
+          <blockquote class="reply-quote"><strong>Вы</strong> Кафе читается теплее парка, но парк честнее.</blockquote>
+          <p class="reply-text">Согласна про парк. Третья концовка после него вообще другая — как будто дождь не тот.</p>
+          <div class="reply-card-actions">
+            <a class="reply-thread" href="story-interactive.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <div class="reply-more">
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <div class="reply-more-dd" hidden>
+                <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="reply-card" data-kind="work" data-status="published" data-time="2026-08-26T18:12:00">
+          <header class="reply-card-top">
+            <img class="reply-card-ava" src="assets/test/avatar-2.png" alt="">
+            <div class="reply-card-who">
+              <strong data-user-name="Звёздная пыль"></strong>
+              <p class="reply-card-place">к работе · <a href="story-bts-slash.html">Микрофон и монохром</a> · Глава 1. Гримёрка</p>
+            </div>
+            <div class="reply-card-meta">
+              <time datetime="2026-08-26T18:12">2 дня назад, 18:12</time>
+              <span class="reply-status is-live">Опубликован</span>
+            </div>
+          </header>
+          <blockquote class="reply-quote"><strong>Вы</strong> Гримёрка после концерта — лучшая сцена.</blockquote>
+          <p class="reply-text">Там тишина громче зала. Если пойдёте веткой с Namjoon, не пропускайте реплику у зеркала.</p>
+          <div class="reply-card-actions">
+            <a class="reply-thread" href="story-bts-slash.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <div class="reply-more">
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <div class="reply-more-dd" hidden>
+                <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="reply-card" data-kind="work" data-status="moderation" data-time="2026-08-25T12:40:00">
+          <header class="reply-card-top">
+            <img class="reply-card-ava" src="assets/test/avatar-7.png" alt="">
+            <div class="reply-card-who">
+              <strong data-user-name="Никита"></strong>
+              <p class="reply-card-place">к работе · <a href="story-linear.html">Письма из прошлого</a> · Глава 2. Адрес</p>
+            </div>
+            <div class="reply-card-meta">
+              <time datetime="2026-08-25T12:40">3 дня назад, 12:40</time>
+              <span class="reply-status is-wait"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 4.5h11M6.5 19.5h11M8 4.5 12 12 8 19.5M16 4.5 12 12 16 19.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> На модерации</span>
+            </div>
+          </header>
+          <blockquote class="reply-quote"><strong>Вы</strong> Конверт без марки — это же Никита?</blockquote>
+          <p class="reply-text">Не спойлерю. Но вторая глава читается иначе, если перечитать адрес.</p>
+          <div class="reply-card-actions">
+            <a class="reply-thread" href="story-linear.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <div class="reply-more">
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <div class="reply-more-dd" hidden>
+                <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="reply-card" data-kind="blog" data-status="new" data-time="2026-08-24T16:08:00">
+          <header class="reply-card-top">
+            <img class="reply-card-ava" src="assets/test/avatar-3.png" alt="">
+            <div class="reply-card-who">
+              <strong data-user-name="Лиса с фонарём"></strong>
+              <p class="reply-card-place">к блогу · <a href="blog.html">Мысли перед новой главой</a></p>
+            </div>
+            <div class="reply-card-meta">
+              <time datetime="2026-08-24T16:08">4 дня назад, 16:08</time>
+              <span class="reply-status is-new">Новый</span>
+            </div>
+          </header>
+          <blockquote class="reply-quote"><strong>Вы</strong> Любопытно, дождь в черновике тот же, что в прологе?</blockquote>
+          <p class="reply-text">Кажется, да. В посте про «якорь» как раз про эту строку.</p>
+          <div class="reply-card-actions">
+            <a class="reply-thread" href="blog.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <div class="reply-more">
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <div class="reply-more-dd" hidden>
+                <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="reply-card" data-kind="blog" data-status="published" data-time="2026-08-23T11:20:00">
+          <header class="reply-card-top">
+            <img class="reply-card-ava" src="assets/test/avatar-2.png" alt="">
+            <div class="reply-card-who">
+              <strong data-user-name="Звёздная пыль"></strong>
+              <p class="reply-card-place">к блогу · <a href="blog.html">Осенний марафон</a></p>
+            </div>
+            <div class="reply-card-meta">
+              <time datetime="2026-08-23T11:20">5 дней назад, 11:20</time>
+              <span class="reply-status is-live">Опубликован</span>
+            </div>
+          </header>
+          <blockquote class="reply-quote"><strong>Вы</strong> Запишусь, если успею доделать ветку с парком.</blockquote>
+          <p class="reply-text">Успеете. Дедлайн мягкий, а черновики можно прикрепить ссылкой.</p>
+          <div class="reply-card-actions">
+            <a class="reply-thread" href="blog.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <div class="reply-more">
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <div class="reply-more-dd" hidden>
+                <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+      <p class="empty-feed" id="reply-empty" hidden>По такому запросу ответов нет.</p>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>

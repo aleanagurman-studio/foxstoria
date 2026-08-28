@@ -23,12 +23,15 @@ function isUiIconImg(img) {
   const src = img.getAttribute("src") || "";
   if (!/assets\/(svg|deco)\//.test(src)) return false;
   if (/\.(png|jpe?g|webp)(\?|$)/i.test(src)) return false;
-  if (/уголок|corner\.svg|ramka|разделитель|flower\.svg|present\.svg|книга\.svg|дуфа2|lupa\.svg|lupa1/.test(src)) {
+  if (/уголок|corner\.svg|ramka|разделитель|дуфа2|lupa\.svg|lupa1/.test(src)) {
+    return false;
+  }
+  if (/flower\.svg|present\.svg|книга\.svg/.test(src) && !img.closest(".feature-item")) {
     return false;
   }
   if (
     img.closest(
-      ".logo, .profile-ava, .header-avatar, .sidebar-ornament, .feed-corner, .work-cover, .story-cover, .blog-post-cover, .news-cover, .news-hero-art, .tile-image, .collection-cover, .featured-cover, .author-avatar, .cover-fallback, .footer-art, .news-editor, .news-comment-ava"
+      ".logo, .profile-ava, .header-avatar, .sidebar-ornament, .studio-nav-art, .feed-corner, .work-cover, .story-cover, .cabinet-cover-frame, .cabinet-fox, .blog-post-cover, .news-cover, .news-hero-art, .tile-image, .collection-cover, .featured-cover, .author-avatar, .cover-fallback, .footer-art, .news-editor, .news-comment-ava"
     )
   ) {
     return false;
@@ -36,12 +39,15 @@ function isUiIconImg(img) {
   return true;
 }
 
+const ICON_CACHE = "88";
+
 function paintUiIcon(img) {
   const src = (img.getAttribute("src") || "").split("?")[0];
   const el = document.createElement("span");
   el.className = ["ui-icon", img.className].filter(Boolean).join(" ");
+  if (/(?:^|\/)(?:share|флаг)\.svg$/i.test(src)) el.classList.add("ui-icon-accent");
   el.setAttribute("aria-hidden", "true");
-  el.style.setProperty("--icon", `url("${encodeURI(src)}")`);
+  el.style.setProperty("--icon", `url("${encodeURI(src)}?v=${ICON_CACHE}")`);
   img.replaceWith(el);
   return el;
 }
@@ -61,7 +67,7 @@ function setUiIcon(el, src) {
     if (isUiIconImg(el)) paintUiIcon(el);
     return;
   }
-  el.style.setProperty("--icon", `url("${encodeURI(clean)}")`);
+  el.style.setProperty("--icon", `url("${encodeURI(clean)}?v=${ICON_CACHE}")`);
 }
 
 document.addEventListener("DOMContentLoaded", function paintIcons() {
@@ -279,7 +285,7 @@ function headerMarkup() {
       <div class="header-inbox" id="header-inbox" hidden>
         <div class="header-alert">
           <button type="button" class="header-alert-btn" id="notif-toggle" aria-label="Оповещения" aria-expanded="false">
-            <img src="assets/deco/notif.svg" alt="">
+            <img src="assets/svg/notif.svg" alt="">
             <span class="header-alert-dot" data-notif-dot hidden></span>
           </button>
           <div class="header-alert-dd" id="notif-feed" hidden>
@@ -303,7 +309,7 @@ function headerMarkup() {
           </div>
         </div>
         <a class="header-alert-btn" id="mail-toggle" href="messages.html" aria-label="Личные сообщения">
-          <img src="assets/deco/mail.svg" alt="">
+          <img src="assets/svg/mail.svg" alt="">
           <span class="header-alert-dot" data-mail-dot hidden></span>
         </a>
       </div>
@@ -328,9 +334,9 @@ function headerMarkup() {
             <a href="changes.html"${ddOn("changes.html")}>Изменения</a>
             <span class="dd-sep"></span>
             <a href="library.html?tab=likes"${ddOn("library.html?tab=likes")}>Понравившиеся</a>
+            <a href="library.html?tab=read"${ddOn("library.html?tab=read")}>Прочитанные</a>
             <a href="library.html?tab=packs"${ddOn("library.html?tab=packs")}>Сборники</a>
             <a href="library.html?tab=authors"${ddOn("library.html?tab=authors")}>Любимые авторы</a>
-            <a href="library.html?tab=read"${ddOn("library.html?tab=read")}>Прочитанные работы</a>
           </div>
           <div class="account-dd-foot">
             <a href="support.html"${ddOn("support.html")}>Написать в поддержку</a>
@@ -683,16 +689,127 @@ document.addEventListener("DOMContentLoaded", function supportForm() {
   });
 });
 
+const READER_KEY = "foxtoria-reader";
+const READER_PACKS = [
+  { id: "fav", title: "Избранное" },
+  { id: "later", title: "На потом" },
+  { id: "autumn", title: "Осень 2026" },
+];
+
+function loadReaderLibrary() {
+  let data = {};
+  try {
+    data = JSON.parse(localStorage.getItem(READER_KEY) || "{}") || {};
+  } catch {
+    data = {};
+  }
+  const packs = Array.isArray(data.packs) && data.packs.length
+    ? data.packs.map((pack) => ({
+        id: String(pack.id || ""),
+        title: String(pack.title || "Сборник"),
+        works: Array.isArray(pack.works) ? pack.works.map(String) : [],
+      }))
+    : READER_PACKS.map((pack) => ({ ...pack, works: [] }));
+  return {
+    follows: Array.isArray(data.follows) ? data.follows.map(String) : [],
+    read: Array.isArray(data.read) ? data.read.map(String) : [],
+    packs,
+  };
+}
+
+function saveReaderLibrary(data) {
+  localStorage.setItem(READER_KEY, JSON.stringify(data));
+}
+
+function toggleReaderList(list, id, on) {
+  const next = list.filter((item) => item !== id);
+  if (on) next.push(id);
+  return next;
+}
+
 document.addEventListener("DOMContentLoaded", function workPageControls() {
   document.querySelectorAll(".work-split-btn").forEach((wrap) => {
     const toggle = wrap.querySelector(".work-split-btn-toggle");
     const menu = wrap.querySelector(".work-split-menu");
+    const main = wrap.querySelector(".work-split-btn-main");
+    const icon = wrap.querySelector(".work-split-btn-main .work-btn-icon, .work-split-btn-main .ui-icon");
+    const workId = wrap.getAttribute("data-work-id") || currentPage();
     if (!toggle || !menu) return;
 
     function close() {
       wrap.classList.remove("open");
       toggle.setAttribute("aria-expanded", "false");
       menu.hidden = true;
+    }
+
+    function paint() {
+      const lib = loadReaderLibrary();
+      const followed = lib.follows.includes(workId);
+      const read = lib.read.includes(workId);
+      wrap.classList.toggle("is-follow", followed);
+      if (main) {
+        main.setAttribute("aria-pressed", followed ? "true" : "false");
+        main.setAttribute("aria-label", followed ? "Отписаться" : "Подписаться");
+      }
+      if (icon) setUiIcon(icon, followed ? "assets/svg/bookmark.svg" : "assets/svg/bookmark2.svg");
+      const readBtn = menu.querySelector("[data-work-read]");
+      if (readBtn) {
+        readBtn.classList.toggle("is-on", read);
+        readBtn.setAttribute("aria-pressed", read ? "true" : "false");
+      }
+    }
+
+    function openPackDialog() {
+      close();
+      const lib = loadReaderLibrary();
+      let dialog = document.querySelector(".work-dialog");
+      if (!dialog) {
+        dialog = document.createElement("div");
+        dialog.className = "work-dialog";
+        dialog.hidden = true;
+        document.body.append(dialog);
+      }
+      const packs = lib.packs.filter((pack) => pack.id);
+      dialog.innerHTML = `
+        <div class="work-dialog-card" role="dialog" aria-modal="true" aria-labelledby="work-pack-title">
+          <h2 id="work-pack-title">Добавить в сборник</h2>
+          ${
+            packs.length
+              ? `<ul class="work-pack-list">${packs
+                  .map((pack) => {
+                    const id = String(pack.id).replaceAll("&", "&amp;").replaceAll('"', "&quot;");
+                    const title = String(pack.title).replaceAll("&", "&amp;").replaceAll("<", "&lt;");
+                    const checked = pack.works.includes(workId) ? " checked" : "";
+                    return `<li><label><input type="checkbox" value="${id}"${checked}> ${title}</label></li>`;
+                  })
+                  .join("")}</ul>`
+              : `<p class="work-pack-empty">Пока нет личных сборников.</p>`
+          }
+          <div class="work-dialog-actions">
+            <button type="button" class="btn btn-outline" data-pack-cancel>Отмена</button>
+            <button type="button" class="btn btn-primary" data-pack-save ${packs.length ? "" : "disabled"}>Готово</button>
+          </div>
+        </div>`;
+      dialog.hidden = false;
+      function hide() {
+        dialog.hidden = true;
+      }
+      dialog.querySelector("[data-pack-cancel]")?.addEventListener("click", hide);
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) hide();
+      });
+      dialog.querySelector("[data-pack-save]")?.addEventListener("click", () => {
+        const chosen = new Set(
+          [...dialog.querySelectorAll(".work-pack-list input:checked")].map((input) => input.value)
+        );
+        const next = loadReaderLibrary();
+        next.packs = next.packs.map((pack) => ({
+          ...pack,
+          works: toggleReaderList(pack.works, workId, chosen.has(pack.id)),
+        }));
+        saveReaderLibrary(next);
+        hide();
+      });
     }
 
     toggle.addEventListener("click", (event) => {
@@ -710,9 +827,36 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       menu.hidden = !open;
     });
 
-    document.addEventListener("click", (event) => {
-      if (!wrap.contains(event.target)) close();
+    main?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      close();
+      const lib = loadReaderLibrary();
+      const on = !lib.follows.includes(workId);
+      lib.follows = toggleReaderList(lib.follows, workId, on);
+      saveReaderLibrary(lib);
+      paint();
     });
+
+    menu.querySelector("[data-work-pack]")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openPackDialog();
+    });
+
+    menu.querySelector("[data-work-read]")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const lib = loadReaderLibrary();
+      const on = !lib.read.includes(workId);
+      lib.read = toggleReaderList(lib.read, workId, on);
+      saveReaderLibrary(lib);
+      paint();
+      close();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!wrap.contains(event.target) && !event.target.closest(".work-dialog")) close();
+    });
+
+    paint();
   });
 
   const likeBtn = document.querySelector("[data-work-like]");

@@ -1,13 +1,15 @@
 (function studioCabinet() {
   const views = document.querySelectorAll(".studio-view");
   const navButtons = document.querySelectorAll(".studio-nav [data-view]");
-  const typeButtons = document.querySelectorAll(".studio-type-btn");
+  const typeSelect = document.getElementById("studio-type");
   const interactive = document.getElementById("timeline-interactive");
   const linear = document.getElementById("timeline-linear");
   const timelineLead = document.getElementById("timeline-lead");
   const publicPage = document.getElementById("studio-public-page");
-  const openEditor = document.getElementById("studio-open-editor");
-  const editorLead = document.getElementById("studio-editor-lead");
+  const continueBtn = document.getElementById("studio-continue");
+  const resumePlace = document.getElementById("studio-resume-place");
+
+  const workId = new URLSearchParams(location.search).get("id") || "";
 
   function showView(name) {
     views.forEach((view) => {
@@ -19,13 +21,20 @@
   }
 
   function applyStoryType(isLinear) {
-    const editorHref = isLinear ? "editor-linear.html" : "editor.html";
-    if (openEditor) openEditor.href = editorHref;
-    if (editorLead) {
-      editorLead.textContent = isLinear
-        ? "Главы идут по порядку — один текст, картинки в любых местах. Хронология и персонажи остаются в кабинете."
-        : "Главы и сцены — это то, что пойдёт в публикацию. Хронология и персонажи живут рядом, но остаются в кабинете.";
+    const page = isLinear ? "editor-linear.html" : "editor.html";
+    const editorHref = workId ? `${page}?id=${encodeURIComponent(workId)}` : page;
+    if (continueBtn) continueBtn.href = editorHref;
+    document.querySelectorAll(".work-chapter-title, .work-chapter-edit").forEach((link) => {
+      link.href = editorHref;
+    });
+    if (resumePlace) {
+      resumePlace.textContent = isLinear ? "Глава 2 · Ветки" : "Глава 2 · Сцена 4 · Перекрёсток";
     }
+    const scenes = document.querySelector("[data-studio-scenes]");
+    if (scenes) scenes.hidden = isLinear;
+    document.querySelectorAll(".work-chapter-scenes").forEach((el) => {
+      el.hidden = isLinear;
+    });
     if (interactive) interactive.hidden = isLinear;
     if (linear) linear.hidden = !isLinear;
     if (timelineLead) {
@@ -43,24 +52,48 @@
     btn.addEventListener("click", () => showView(btn.getAttribute("data-view")));
   });
 
-  typeButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      typeButtons.forEach((other) => other.classList.remove("active"));
-      btn.classList.add("active");
-      applyStoryType(btn.getAttribute("data-type") === "linear");
-      refreshSize();
-    });
+  document.querySelector(".work-dash-edit")?.addEventListener("click", () => showView("settings"));
+  document.querySelector("[data-open-cover]")?.addEventListener("click", () => showView("settings"));
+
+  typeSelect?.addEventListener("change", () => {
+    applyStoryType(typeSelect.value === "linear");
+    refreshSize();
   });
 
-  const initialLinear = document.querySelector(".studio-type-btn[data-type='linear']")?.classList.contains("active");
-  applyStoryType(initialLinear);
-  showView("editor");
+  applyStoryType(typeSelect?.value === "linear");
+  showView("work");
+
+  fetch("works.json", { cache: "no-store" })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      if (!workId || !data) return;
+      const work = (data.works || []).find((item) => item.id === workId);
+      if (!work) return;
+      const titleEl = document.querySelector(".work-dash-title h2");
+      if (titleEl) titleEl.textContent = work.title;
+      document.querySelectorAll("[data-work-cover]").forEach((img) => {
+        if (work.cover) img.src = work.cover;
+      });
+      const titleInput = document.getElementById("work-title");
+      if (titleInput) titleInput.value = work.title;
+      const desc = document.getElementById("work-desc");
+      if (desc && work.description) desc.value = work.description;
+      const author = document.getElementById("work-author");
+      if (author && work.author) author.value = work.author;
+      if (typeSelect) typeSelect.value = work.story_type === "linear" ? "linear" : "interactive";
+      const idLine = document.querySelector(".work-dash-id");
+      if (idLine) idLine.textContent = `ID: #${work.id}`;
+      applyStoryType(work.story_type === "linear");
+      if (publicPage && work.href) publicPage.href = work.href;
+      document.title = `${work.title} — кабинет — FoxStoria`;
+    })
+    .catch(() => {});
 
   const form = document.getElementById("work-card-form");
   const sizeBox = document.getElementById("work-size");
 
   function chapterCount() {
-    const isLinear = document.querySelector(".studio-type-btn[data-type='linear']")?.classList.contains("active");
+    const isLinear = document.getElementById("studio-type")?.value === "linear";
     try {
       const key = isLinear ? "foxtoria-editor-linear" : "foxtoria-editor";
       const raw = localStorage.getItem(key);
@@ -251,6 +284,100 @@
     );
   }
 
+  const CHAPTER_GRIP = `<button type="button" class="work-chapter-grip" aria-label="Перетащить главу"><svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg></button>`;
+
+  function editorHref() {
+    const editorPage = document.getElementById("studio-type")?.value === "linear" ? "editor-linear.html" : "editor.html";
+    return workId ? `${editorPage}?id=${encodeURIComponent(workId)}` : editorPage;
+  }
+
+  function chapterActionsHTML(href) {
+    return `<div class="work-chapter-actions">
+      <a href="${href}" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
+      <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+    </div>`;
+  }
+
+  function chapterAfterElement(container, y) {
+    const items = [...container.querySelectorAll(".work-chapter:not(.is-dragging)")];
+    return items.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        return closest;
+      },
+      { offset: Number.NEGATIVE_INFINITY, element: null }
+    ).element;
+  }
+
+  function renumberChapters(list) {
+    [...list.querySelectorAll(".work-chapter")].forEach((item, index) => {
+      const title = item.querySelector(".work-chapter-title strong");
+      if (!title) return;
+      title.textContent = title.textContent.replace(/^Глава\s+\d+/, `Глава ${index + 1}`);
+    });
+  }
+
+  function bindChapterSort(list) {
+    if (!list || list.dataset.sortBound === "1") return;
+    list.dataset.sortBound = "1";
+    let dragging = null;
+    list.addEventListener("pointerdown", (event) => {
+      const grip = event.target.closest(".work-chapter-grip");
+      if (!grip) return;
+      event.preventDefault();
+      dragging = grip.closest(".work-chapter");
+      if (!dragging) return;
+      dragging.classList.add("is-dragging");
+      grip.setPointerCapture(event.pointerId);
+    });
+    list.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+      const after = chapterAfterElement(list, event.clientY);
+      if (after) list.insertBefore(dragging, after);
+      else list.appendChild(dragging);
+    });
+    function endDrag() {
+      if (!dragging) return;
+      dragging.classList.remove("is-dragging");
+      dragging = null;
+      renumberChapters(list);
+    }
+    list.addEventListener("pointerup", endDrag);
+    list.addEventListener("pointercancel", endDrag);
+  }
+
+  const chapterList = document.getElementById("work-chapters");
+  bindChapterSort(chapterList);
+  chapterList?.addEventListener("click", (event) => {
+    const remove = event.target.closest(".work-chapter-delete");
+    if (!remove) return;
+    event.preventDefault();
+    const item = remove.closest(".work-chapter");
+    if (!item || !chapterList) return;
+    item.remove();
+    renumberChapters(chapterList);
+  });
+
+  document.getElementById("add-chapter")?.addEventListener("click", () => {
+    const list = document.getElementById("work-chapters");
+    if (!list) return;
+    const n = list.children.length + 1;
+    const href = editorHref();
+    const item = document.createElement("li");
+    item.className = "work-chapter";
+    item.innerHTML = `
+      ${CHAPTER_GRIP}
+      <div>
+        <a href="${href}" class="work-chapter-title"><strong>Глава ${n} · Без названия</strong></a>
+        <span>не начата</span>
+      </div>
+      <span class="work-chapter-status">Черновик</span>
+      ${chapterActionsHTML(href)}`;
+    list.appendChild(item);
+  });
+
   document.getElementById("add-character")?.addEventListener("click", () => {
     const layout = document.querySelector(".char-layout");
     if (!layout) return;
@@ -261,5 +388,36 @@
       <p class="muted">Черновик</p>
       <p>Краткое описание, черты и заметки — только для вас.</p>`;
     layout.appendChild(card);
+  });
+
+  const COVER_KEY = "foxtoria-work-cover";
+  const DEFAULT_COVER = "assets/test/cover-1.png";
+
+  function applyCover(src) {
+    document.querySelectorAll("[data-work-cover]").forEach((img) => {
+      img.src = src;
+    });
+  }
+
+  try {
+    applyCover(localStorage.getItem(COVER_KEY) || DEFAULT_COVER);
+  } catch {
+    applyCover(DEFAULT_COVER);
+  }
+
+  document.getElementById("work-cover-input")?.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = String(reader.result || "");
+      try {
+        localStorage.setItem(COVER_KEY, data);
+      } catch {
+        /* ignore quota */
+      }
+      applyCover(data);
+    };
+    reader.readAsDataURL(file);
   });
 })();

@@ -125,7 +125,7 @@
   ];
   const ICO = {
     comment: '<img src="assets/svg/коммент.svg" alt="">',
-    like: '<img src="assets/svg/like.svg" alt="">',
+    like: '<img src="assets/svg/heart.svg" alt="">',
     eye: '<img src="assets/svg/eye.svg" alt="">',
     more: '<img src="assets/ornaments/03_more.svg" alt="">',
   };

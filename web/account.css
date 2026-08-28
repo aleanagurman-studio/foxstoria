@@ -188,7 +188,8 @@
 .work-row:last-child { border-bottom: none; }
 .work-row .thumb {
   width: 40px;
-  height: 54px;
+  height: auto;
+  aspect-ratio: 2 / 3;
   border-radius: 8px;
   flex-shrink: 0;
 }
