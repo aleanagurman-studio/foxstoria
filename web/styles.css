@@ -2994,6 +2994,9 @@ a.user-link:hover {
 }
 
 .news-comment-tools button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 0;
   min-height: 0;
   border: 0;
@@ -3006,6 +3009,14 @@ a.user-link:hover {
 }
 
 .news-comment-tools button:hover { color: var(--fox-hover); }
+.news-comment-tools .ui-icon,
+.news-comment-tools img,
+.news-admin .ui-icon,
+.news-admin img {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+}
 
 .news-comment-edit {
   display: grid;
@@ -5328,6 +5339,9 @@ button.blog-post-cover {
 }
 
 .blog-menu-dd button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   padding: 8px 10px;
   border: 0;
@@ -5344,6 +5358,13 @@ button.blog-post-cover {
 .blog-menu-dd button:hover { background: var(--paper); color: var(--fox); }
 
 .blog-menu-dd .is-danger { color: #C45C5C; }
+.blog-menu-dd .ui-icon,
+.blog-menu-dd img {
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+  flex-shrink: 0;
+}
 
 .blog-stream.is-grid {
   display: grid;

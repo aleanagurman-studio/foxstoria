@@ -1071,6 +1071,13 @@ body.editor-page {
   border: 1px solid var(--border-default);
   background: var(--bg-card);
   color: var(--text-secondary);
+  gap: 6px;
+}
+.btn-sm .ui-icon,
+.btn-sm img {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
 }
 
 .btn-sm:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
@@ -1151,7 +1158,10 @@ body.editor-page {
 }
 
 .btn-delete-scene {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   text-align: center;
   padding: 10px 12px;
@@ -1162,6 +1172,12 @@ body.editor-page {
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--fox) 18%, transparent);
   background: color-mix(in srgb, var(--fox) 6%, var(--white));
+}
+.btn-delete-scene .ui-icon,
+.btn-delete-scene img {
+  width: 16px;
+  height: 16px;
+  color: currentColor;
 }
 
 .btn-delete-scene:hover {

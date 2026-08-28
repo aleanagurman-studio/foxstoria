@@ -281,7 +281,7 @@
     if (signed()) buttons.push(`<button type="button" data-comment-reply>Ответить</button>`);
     if (isOwnComment(item)) {
       buttons.push(`<button type="button" data-comment-edit>Изменить</button>`);
-      buttons.push(`<button type="button" data-comment-delete>Удалить</button>`);
+      buttons.push(`<button type="button" data-comment-delete><img src="assets/svg/delete.svg" alt=""> Удалить</button>`);
     }
     return buttons.length ? `<span class="news-comment-tools">${buttons.join("")}</span>` : "";
   }
@@ -436,7 +436,7 @@
             owner()
               ? `<div class="news-admin">
                   <button type="button" class="btn btn-ghost" data-edit>Редактировать</button>
-                  <button type="button" class="btn btn-ghost" data-delete>Удалить</button>
+                  <button type="button" class="btn btn-ghost" data-delete><img src="assets/svg/delete.svg" alt=""> Удалить</button>
                 </div>`
               : ""
           }

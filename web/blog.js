@@ -256,7 +256,7 @@
     const own = Boolean(item.own) || item.author === "Вы";
     const tools =
       signed() && own
-        ? `<span class="news-comment-tools"><button type="button" data-comment-delete>Удалить</button></span>`
+        ? `<span class="news-comment-tools"><button type="button" data-comment-delete><img src="assets/svg/delete.svg" alt=""> Удалить</button></span>`
         : "";
     return `
       <article class="news-comment${own ? " is-own" : ""}" data-comment-id="${escapeHtml(item.id)}">
@@ -505,7 +505,7 @@
             <button type="button" data-act="schedule">Запланировать</button>
             <button type="button" data-act="pin">${pinLabel}</button>
             <button type="button" data-act="copy">Копировать ссылку</button>
-            <button type="button" class="is-danger" data-act="delete">Удалить</button>
+            <button type="button" class="is-danger" data-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
           </div>
         </div>
         <div class="blog-post-tools">

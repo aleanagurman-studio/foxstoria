@@ -207,7 +207,9 @@ body.studio-page {
   height: 16px;
 }
 .work-dash-badge {
-  display: inline-block;
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
   margin-top: 8px;
   font-size: 0.78rem;
   font-weight: 600;
@@ -381,7 +383,7 @@ body.studio-page {
 .work-chapter.is-dragging .work-chapter-grip {
   cursor: grabbing;
 }
-.work-chapter > div {
+.work-chapter > div:not(.work-chapter-actions) {
   min-width: 0;
   flex: 1;
 }
@@ -417,8 +419,10 @@ body.studio-page {
 .work-chapter-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 2px;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 .work-chapter-edit,
 .work-chapter-delete {
@@ -705,7 +709,9 @@ body.studio-page {
     grid-column: 2;
     grid-row: 2;
     margin-top: 0;
+    justify-self: start;
     align-self: start;
+    width: max-content;
   }
   .studio-type-wrap {
     grid-column: 1 / -1;
