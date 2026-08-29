@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=107">
-  <script src="site.js?v=35"></script>
-  <script src="blog.js?v=7"></script>
+  <link rel="stylesheet" href="styles.css?v=133">
+  <script src="site.js?v=44"></script>
+  <script src="blog.js?v=9"></script>
 </head>
 <body class="blog-page">
   <header class="header"></header>
@@ -32,9 +32,8 @@
       <div class="blog-layout">
         <div class="blog-main">
           <header class="blog-hero">
-            <img class="feed-corner" src="assets/deco/corner.svg" alt="" aria-hidden="true">
             <div class="page-header">
-              <h1>Мой блог</h1>
+              <h1>Мой блог <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
               <p>Личный блог: анонсы, заметки и голосования. Подписчики увидят записи в своей ленте.</p>
               <p class="blog-hero-actions">
                 <button type="button" class="btn btn-primary" id="blog-new">+ Новый пост</button>
@@ -98,7 +97,7 @@
           </section>
 
           <section class="blog-panel" id="blog-settings" hidden>
-            <h2>Настройки блога</h2>
+            <h2>Настройки блога <img class="title-leaf" src="assets/deco/3.svg" alt=""></h2>
             <label class="blog-setting">
               <span>Кто видит блог</span>
               <select id="blog-privacy">
@@ -125,8 +124,8 @@
               <button type="button" data-blog-tab="archived">Архив</button>
             </div>
             <label class="blog-sort">
-              <span>Сортировка:</span>
-              <select id="blog-sort">
+              <span class="visually-hidden">Сортировка</span>
+              <select id="blog-sort" aria-label="Сортировка">
                 <option value="new">Сначала новые</option>
                 <option value="old">Сначала старые</option>
               </select>
@@ -149,7 +148,7 @@
 
         <aside class="blog-aside">
           <section class="blog-card">
-            <h2>Управление блогом</h2>
+            <h2>Управление блогом <img class="title-leaf" src="assets/deco/3.svg" alt=""></h2>
             <nav class="blog-manage" aria-label="Управление блогом">
               <button type="button" class="is-on" data-blog-nav="published"><img src="assets/svg/фандом.svg" alt=""> Все записи</button>
               <button type="button" data-blog-nav="draft"><img src="assets/svg/размер.svg" alt=""> Черновики</button>
@@ -160,7 +159,7 @@
             </nav>
           </section>
           <section class="blog-card">
-            <h2>Последние комментарии</h2>
+            <h2>Последние комментарии <img class="title-leaf" src="assets/deco/3.svg" alt=""></h2>
             <ul class="blog-recent" id="blog-recent"></ul>
           </section>
         </aside>

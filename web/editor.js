@@ -337,7 +337,7 @@
             ${scene.isStart ? `<span class="map-node-crown" aria-hidden="true"><img src="assets/deco/sparcle.svg" alt=""></span>` : ""}
             <span class="map-node-head">
               <span class="map-node-title">${sceneIndex}. ${escapeHtml(title)}</span>
-              <span class="map-node-menu" aria-hidden="true">⋯</span>
+              <span class="map-node-menu" aria-hidden="true"><img src="assets/ornaments/03_more.svg?v=2" alt=""></span>
             </span>
             <span class="map-node-desc">${escapeHtml(desc.slice(0, 72))}${desc.length > 72 ? "…" : ""}</span>
           </button>`;

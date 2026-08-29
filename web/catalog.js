@@ -43,8 +43,18 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+const TYPE = {
+  interactive: "Интерактивная",
+  linear: "Линейная",
+};
+
+function workTypeLabel(work) {
+  return TYPE[work.story_type] || work.story_type || "";
+}
+
 function cardHTML(work, rank, isNew) {
-  const meta = [work.fandom, ROMANCE[work.romance] || work.romance].filter(Boolean).join(" · ");
+  const typeLabel = workTypeLabel(work);
+  const romanceLabel = ROMANCE[work.romance] || work.romance || "";
   const size = work.is_completed && work.work_size ? SIZE[work.work_size] : work.is_completed ? "" : "в процессе";
   const cover = work.cover
     ? `<img src="${escapeHtml(work.cover)}" alt="">`
@@ -53,11 +63,17 @@ function cardHTML(work, rank, isNew) {
   const newBadge = isNew ? `<span class="badge-new">New</span>` : "";
 
   return `
-    <article class="story-card">
+    <article class="story-card" data-title="${escapeHtml(work.title)}" data-updated="${escapeHtml(cabinetMeta(work).updatedAt)}">
       <a href="${escapeHtml(workHref(work))}">
         <div class="story-cover">${rankBadge}${newBadge}${cover}</div>
         <h3 class="story-title">${escapeHtml(work.title)}</h3>
-        <p class="story-meta">${escapeHtml(meta)}</p>
+        <p class="story-kicker">${
+          [typeLabel, romanceLabel]
+            .filter(Boolean)
+            .map((label) => `<span>${escapeHtml(label)}</span>`)
+            .join("")
+        }</p>
+        <p class="story-meta">${escapeHtml(work.fandom || "")}</p>
         <p class="story-stats">
           <span class="story-likes"><img src="assets/svg/heart.svg" alt=""> ${formatCount(workLikes(work))}</span>
           <span class="age-badge">${escapeHtml(ageLabel(work.age))}</span>
@@ -93,6 +109,12 @@ const CABINET_STATUS = {
   moderation: "На модерации",
   completed: "Завершена",
 };
+
+function cabinetWorkState(pubStatus, isCompleted) {
+  if (pubStatus === "draft") return "draft";
+  if (pubStatus === "completed" || isCompleted) return "completed";
+  return "in_progress";
+}
 
 function cabinetMeta(work) {
   const extra = {
@@ -134,23 +156,25 @@ function cabinetVisibilityButton(status) {
 
 function cabinetCardHTML(work, role) {
   const meta = cabinetMeta(work);
+  const completed = Boolean(work.is_completed || meta.status === "completed");
+  const workState = cabinetWorkState(meta.status, completed);
   const typeLabel = work.story_type === "linear" ? "Линейная история" : "Интерактивная история";
   const cover = work.cover
     ? `<img src="${escapeHtml(work.cover)}" alt="">`
     : `<span class="cover-fallback"><img src="assets/deco/paw.svg" alt=""></span>`;
   return `
-    <article class="cabinet-card" data-work-id="${escapeHtml(work.id)}" data-status="${escapeHtml(meta.status)}" data-title="${escapeHtml(work.title)}" data-updated="${escapeHtml(meta.updatedAt)}">
+    <article class="cabinet-card" data-work-id="${escapeHtml(work.id)}" data-status="${escapeHtml(meta.status)}" data-work-status="${workState}" data-completed="${completed ? "1" : "0"}" data-title="${escapeHtml(work.title)}" data-updated="${escapeHtml(meta.updatedAt)}">
       <div class="cabinet-cover">
         <div class="cabinet-cover-frame">${cover}</div>
         <div class="cabinet-more-wrap">
-          <button type="button" class="cabinet-more" aria-label="Ещё" aria-haspopup="menu" aria-expanded="false">⋯</button>
+          <button type="button" class="cabinet-more" aria-label="Ещё" aria-haspopup="menu" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
           <div class="cabinet-menu" hidden role="menu">
             ${cabinetVisibilityButton(meta.status)}
             <button type="button" role="menuitem" data-cabinet-action="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
           </div>
         </div>
       </div>
-      <h3 class="cabinet-card-title">${escapeHtml(work.title)}</h3>
+      <h3 class="cabinet-card-title"><a href="${escapeHtml(workHref(work))}">${escapeHtml(work.title)}</a></h3>
       <p class="cabinet-card-meta">
         <span>${typeLabel}</span>
         <span class="cabinet-status is-${meta.status}">${CABINET_STATUS[meta.status] || meta.status}</span>
@@ -168,11 +192,13 @@ function bindCabinetChrome() {
   page.dataset.cabinetBound = "1";
   const search = document.querySelector("[data-cabinet-search]");
   const sort = document.querySelector("[data-cabinet-sort]");
+  const statusFilter = document.querySelector("[data-cabinet-status]");
   const grids = [...document.querySelectorAll(".cabinet-grid")];
 
   function applyFilterSort() {
     const q = (search?.value || "").trim().toLowerCase();
     const by = sort?.value || "updated";
+    const status = statusFilter?.value || "all";
     grids.forEach((grid) => {
       const cards = [...grid.querySelectorAll(".cabinet-card")];
       cards.sort((a, b) => {
@@ -180,10 +206,18 @@ function bindCabinetChrome() {
         return String(b.dataset.updated || "").localeCompare(String(a.dataset.updated || ""));
       });
       cards.forEach((card) => {
-        const match = !q || (card.dataset.title || "").toLowerCase().includes(q);
-        card.hidden = !match;
+        const matchTitle = !q || (card.dataset.title || "").toLowerCase().includes(q);
+        const matchStatus = status === "all" || card.dataset.workStatus === status;
+        card.hidden = !(matchTitle && matchStatus);
         grid.appendChild(card);
       });
+      grid.querySelector(".cabinet-filter-empty")?.remove();
+      if (cards.length && cards.every((card) => card.hidden)) {
+        const empty = document.createElement("p");
+        empty.className = "cabinet-filter-empty";
+        empty.textContent = "Нет работ с таким статусом.";
+        grid.appendChild(empty);
+      }
     });
   }
 
@@ -208,6 +242,7 @@ function bindCabinetChrome() {
 
   function setCardStatus(card, status) {
     card.dataset.status = status;
+    card.dataset.workStatus = cabinetWorkState(status, card.dataset.completed === "1");
     const badge = card.querySelector(".cabinet-status");
     if (badge) {
       badge.className = `cabinet-status is-${status}`;
@@ -219,6 +254,7 @@ function bindCabinetChrome() {
 
   search?.addEventListener("input", applyFilterSort);
   sort?.addEventListener("change", applyFilterSort);
+  statusFilter?.addEventListener("change", applyFilterSort);
   document.querySelectorAll("[data-cabinet-view]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const view = btn.getAttribute("data-cabinet-view");
@@ -250,9 +286,11 @@ function bindCabinetChrome() {
       if (action.getAttribute("data-cabinet-action") === "delete") {
         document.querySelectorAll(`.cabinet-card[data-work-id="${id}"]`).forEach((el) => el.remove());
         refreshCounts();
+        applyFilterSort();
       } else if (action.getAttribute("data-cabinet-action") === "visibility") {
         const next = card.dataset.status === "draft" ? "published" : "draft";
         document.querySelectorAll(`.cabinet-card[data-work-id="${id}"]`).forEach((el) => setCardStatus(el, next));
+        applyFilterSort();
       }
       closeMenus();
       return;
@@ -318,7 +356,9 @@ function renderFeatured(works) {
     root.innerHTML = emptyHTML("Выбор читателей появится, когда у работ появятся лайки.");
     return;
   }
-  const meta = [work.fandom, ROMANCE[work.romance] || work.romance].filter(Boolean).join(" · ");
+  const typeLabel = workTypeLabel(work);
+  const romanceLabel = ROMANCE[work.romance] || work.romance || "";
+  const meta = [typeLabel, romanceLabel, work.fandom].filter(Boolean).join(" · ");
   root.innerHTML = `
     <a class="featured-card" href="${escapeHtml(workHref(work))}">
       <div class="featured-cover">${work.cover ? `<img src="${escapeHtml(work.cover)}" alt="">` : ""}</div>
@@ -351,7 +391,7 @@ function renderAuthors(authors) {
         <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
         <span class="author-info">
           <span class="author-name">${escapeHtml(author.display_name || author.name)}</span>
-          <span class="author-stats">${author.rating_avg ? Number(author.rating_avg).toFixed(1) : "—"} · ${author.story_count ?? author.works ?? 0} работ</span>
+          <span class="author-stats">${author.story_count ?? author.works ?? 0} работ</span>
         </span>
       </a>`
     )
@@ -387,7 +427,7 @@ async function loadCatalog() {
     renderAuthorsGrid(data.authors || []);
     renderProfileWorks(works);
     renderAuthorHome(works);
-    renderReaderFeeds(works);
+    renderReaderFeeds(works, data.authors || []);
     window.__foxWorks = works;
     window.__foxAuthors = data.authors || [];
   } catch (error) {
@@ -399,17 +439,33 @@ async function loadCatalog() {
     renderAuthorsGrid([]);
     renderProfileWorks([]);
     renderAuthorHome([]);
-    renderReaderFeeds([]);
+    renderReaderFeeds([], []);
   }
 }
 
-function renderReaderFeeds(works) {
+const LIBRARY_DEMO_AUTHORS = [
+  { display_name: "Северный ветер", slug: "north-wind", avatar: "assets/test/avatar-4.png", story_count: 12, updatedAt: "2026-08-28T14:00:00" },
+  { display_name: "Чайная роза", slug: "tea-rose", avatar: "assets/test/avatar-5.png", story_count: 7, updatedAt: "2026-08-27T09:00:00" },
+  { display_name: "Архив снов", slug: "dream-archive", avatar: "assets/test/avatar-6.png", story_count: 3, updatedAt: "2026-08-26T18:00:00" },
+  { display_name: "Ржавый якорь", slug: "rusty-anchor", avatar: "assets/test/avatar-7.png", story_count: 9, updatedAt: "2026-08-24T12:00:00" },
+  { display_name: "Мята и чернила", slug: "mint-ink", avatar: "assets/test/avatar-8.png", story_count: 4, updatedAt: "2026-08-22T16:00:00" },
+];
+
+function renderReaderFeeds(works, authors) {
   const lib = typeof loadReaderLibrary === "function" ? loadReaderLibrary() : { follows: [], read: [] };
   const byIds = (ids) => works.filter((work) => (ids || []).includes(work.id));
+  const followIds = lib.follows.length ? lib.follows : works.map((work) => work.id);
+  if (document.querySelector('[data-feed="library-likes"]')) {
+    renderFeed(
+      "library-likes",
+      works.slice().sort((a, b) => workLikes(b) - workLikes(a)),
+      "Понравившиеся истории появятся здесь."
+    );
+  }
   if (document.querySelector('[data-feed="library-follows"]')) {
     renderFeed(
       "library-follows",
-      byIds(lib.follows),
+      byIds(followIds),
       "Работы, на которые вы подпишетесь, появятся здесь."
     );
   }
@@ -420,11 +476,38 @@ function renderReaderFeeds(works) {
       "Отмеченные как прочитанные работы появятся здесь."
     );
   }
+  renderLibraryAuthors(authors || []);
+  bindLibraryToolbar();
+}
+
+function authorCardHTML(author) {
+  return `
+      <a class="author-card" href="${escapeHtml(author.href || profileHref(author.display_name || author.name))}" data-title="${escapeHtml(author.display_name || author.name)}" data-updated="${escapeHtml(author.updatedAt || "")}">
+        <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
+        <span>
+          <span class="author-name">${escapeHtml(author.display_name || author.name)}</span>
+          <p class="author-stats">${author.story_count ?? author.works ?? 0} работ</p>
+        </span>
+      </a>`;
+}
+
+function renderLibraryAuthors(authors) {
+  const root = document.querySelector("[data-feed='library-authors']");
+  if (!root) return;
+  const list = [...authors, ...LIBRARY_DEMO_AUTHORS].map((author, index) => ({
+    ...author,
+    updatedAt: author.updatedAt || `2026-08-${String(28 - (index % 8)).padStart(2, "0")}T12:00:00`,
+  }));
+  if (!list.length) {
+    root.innerHTML = emptyHTML("Авторы, на которых вы подпишетесь, появятся здесь.");
+    return;
+  }
+  root.innerHTML = list.map((author) => authorCardHTML(author)).join("");
 }
 
 function sortWorks(works, sort) {
   const copy = [...works];
-  if (sort === "likes" || sort === "rating") return copy.sort((a, b) => workLikes(b) - workLikes(a));
+  if (sort === "likes") return copy.sort((a, b) => workLikes(b) - workLikes(a));
   if (sort === "latest") return copy.sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
   if (sort === "name") return copy.sort((a, b) => String(a.title || "").localeCompare(b.title || "", "ru"));
   return copy.sort((a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0));
@@ -533,7 +616,10 @@ function renderCatalogGrid(allWorks) {
   const query = (params.get("q") || "").trim().toLowerCase();
   if (query) {
     works = works.filter((work) =>
-      [work.title, work.author, work.fandom, work.description].join(" ").toLowerCase().includes(query)
+      [work.title, work.author, work.fandom, work.description, workTypeLabel(work), ROMANCE[work.romance] || work.romance]
+        .join(" ")
+        .toLowerCase()
+        .includes(query)
     );
   }
   const typeFilter = params.get("type");
@@ -612,6 +698,38 @@ function renderCatalogGrid(allWorks) {
   renderFeed("catalog", sortWorks(works, sort), empty);
 }
 
+function bindLibraryToolbar() {
+  const page = document.querySelector(".library-page");
+  if (!page || page.dataset.libraryBound === "1") return;
+  page.dataset.libraryBound = "1";
+  const sort = document.querySelector("[data-library-sort]");
+
+  function applySort() {
+    const dir = sort?.value || "new";
+    document.querySelectorAll(".library-page .stories-grid, .library-page .authors-grid").forEach((grid) => {
+      const cards = [...grid.querySelectorAll(".story-card, .author-card")];
+      cards.sort((a, b) => {
+        const ta = a.dataset.updated || "";
+        const tb = b.dataset.updated || "";
+        return dir === "old" ? ta.localeCompare(tb) : tb.localeCompare(ta);
+      });
+      cards.forEach((card) => grid.appendChild(card));
+    });
+  }
+
+  sort?.addEventListener("change", applySort);
+  document.querySelectorAll("[data-cabinet-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.getAttribute("data-cabinet-view");
+      page.classList.toggle("is-list", view === "list");
+      document.querySelectorAll("[data-cabinet-view]").forEach((other) => {
+        other.classList.toggle("is-active", other === btn);
+      });
+    });
+  });
+  applySort();
+}
+
 function renderAuthorsGrid(authors) {
   const root = document.querySelector("[data-feed='authors-grid']");
   if (!root) return;
@@ -619,18 +737,7 @@ function renderAuthorsGrid(authors) {
     root.innerHTML = emptyHTML("Авторы появятся вместе с первыми работами.");
     return;
   }
-  root.innerHTML = authors
-    .map(
-      (author) => `
-      <a class="author-card" href="${escapeHtml(author.href || profileHref(author.display_name || author.name))}">
-        <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
-        <span>
-          <span class="author-name">${escapeHtml(author.display_name || author.name)}</span>
-          <p class="author-stats">${author.rating_avg ? Number(author.rating_avg).toFixed(1) : "—"} · ${author.story_count ?? author.works ?? 0} работ</p>
-        </span>
-      </a>`
-    )
-    .join("");
+  root.innerHTML = authors.map((author) => authorCardHTML(author)).join("");
 }
 
 document.addEventListener("DOMContentLoaded", () => {

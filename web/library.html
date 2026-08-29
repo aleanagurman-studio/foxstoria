@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кабинет читателя — FoxStoria</title>
+  <title>Закладки — FoxStoria</title>
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=93">
-  <script src="site.js?v=34"></script>
-  <script src="catalog.js?v=13" defer></script>
+  <link rel="stylesheet" href="styles.css?v=133">
+  <script src="site.js?v=44"></script>
 </head>
-<body>
+<body class="cabinet-page library-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -29,60 +28,52 @@
       </div>
     </aside>
     <main class="main page-main">
-      <div class="account-tabs" data-account-tabs>
-        <button type="button" class="active" data-tab="likes">Понравившиеся</button>
-        <button type="button" data-tab="follows">Подписки</button>
-        <button type="button" data-tab="packs">Сборники</button>
-        <button type="button" data-tab="authors">Любимые авторы</button>
-        <button type="button" data-tab="read">Прочитанные</button>
+      <div class="cabinet-top">
+        <div class="cabinet-head">
+          <img class="cabinet-fox" src="assets/brand/лисичка.png" alt="">
+          <header class="cabinet-hero">
+            <div class="cabinet-hero-copy">
+              <h1>Закладки <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
+              <p>Здесь будут отображаться все ваши читательские активности.</p>
+            </div>
+          </header>
+        </div>
+        <div class="account-tabs cabinet-tabs" data-account-tabs>
+          <button type="button" class="active" data-tab="likes"><img src="assets/svg/heart.svg" alt=""> Понравившиеся</button>
+          <button type="button" data-tab="read"><img src="assets/svg/читать.svg" alt=""> Прочитанные</button>
+          <button type="button" data-tab="follows"><img src="assets/svg/bookmark2.svg" alt=""> Подписки</button>
+          <button type="button" data-tab="authors"><img src="assets/svg/profile.svg" alt=""> Авторы</button>
+        </div>
+      </div>
+      <div class="cabinet-toolbar">
+        <select data-library-sort aria-label="Сортировка">
+          <option value="new" selected>По дате обновления</option>
+          <option value="old">Сначала старые</option>
+        </select>
+        <div class="cabinet-view" role="group" aria-label="Вид">
+          <button type="button" class="is-active" data-cabinet-view="grid" aria-label="Плитка">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          </button>
+          <button type="button" data-cabinet-view="list" aria-label="Список">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="0.5"/><rect x="1" y="7" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>
+          </button>
+        </div>
       </div>
       <section id="tab-likes">
-        <header class="page-header">
-          <h1>Понравившиеся</h1>
-          <p>Работы, которым вы поставили лайк.</p>
-        </header>
-        <div class="empty-feed"><p>Понравившиеся истории появятся здесь.</p></div>
-      </section>
-      <section id="tab-follows" hidden>
-        <header class="page-header">
-          <h1>Подписки</h1>
-          <p>Работы, на которые вы подписались с карточки истории.</p>
-        </header>
-        <div class="stories-grid" data-feed="library-follows"></div>
-      </section>
-      <section id="tab-packs" hidden>
-        <header class="page-header">
-          <h1>Сборники</h1>
-          <p>Личные сборники и те, на которые вы подписаны. Открытые свои сборники видны на профиле.</p>
-        </header>
-        <div class="account-tabs">
-          <button type="button" class="active" data-tab="packs-mine">Мои</button>
-          <button type="button" data-tab="packs-sub">Подписки</button>
-        </div>
-        <div id="tab-packs-mine" class="empty-feed"><p>Свои сборники можно будет собирать здесь.</p></div>
-        <div id="tab-packs-sub" class="empty-feed" hidden><p>Сборники, на которые вы подписаны, появятся здесь.</p></div>
-      </section>
-      <section id="tab-authors" hidden>
-        <header class="page-header">
-          <h1>Любимые авторы</h1>
-          <p>Авторы, на которых вы подписаны, и лента их последних обновлений.</p>
-        </header>
-        <div class="account-tabs">
-          <button type="button" class="active" data-tab="authors-list">Авторы</button>
-          <button type="button" data-tab="authors-updates">Обновления</button>
-        </div>
-        <div id="tab-authors-list" class="empty-feed"><p>Список любимых авторов появится здесь.</p></div>
-        <div id="tab-authors-updates" class="empty-feed" hidden><p>Последние обновления этих авторов появятся здесь.</p></div>
+        <div class="stories-grid" data-feed="library-likes"></div>
       </section>
       <section id="tab-read" hidden>
-        <header class="page-header">
-          <h1>Прочитанные работы</h1>
-          <p>Истории, у которых стоит отметка «Прочитано».</p>
-        </header>
         <div class="stories-grid" data-feed="library-read"></div>
+      </section>
+      <section id="tab-follows" hidden>
+        <div class="stories-grid" data-feed="library-follows"></div>
+      </section>
+      <section id="tab-authors" hidden>
+        <div class="authors-grid" data-feed="library-authors"></div>
       </section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <script src="catalog.js?v=25" defer></script>
 </body>
 </html>

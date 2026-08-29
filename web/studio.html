@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=94">
-  <link rel="stylesheet" href="studio.css?v=34">
-  <script src="site.js?v=34"></script>
+  <link rel="stylesheet" href="styles.css?v=133">
+  <link rel="stylesheet" href="studio.css?v=95">
+  <script src="site.js?v=44"></script>
 </head>
 <body class="studio-page">
   <header class="header"></header>
@@ -50,7 +50,7 @@
             <span class="work-dash-badge">Черновик</span>
             <label class="studio-type-wrap">
               <span class="visually-hidden">Тип истории</span>
-              <select id="studio-type" class="studio-type-select">
+              <select id="studio-type" class="studio-type-select" data-story-type>
                 <option value="interactive" selected>Интерактивная история</option>
                 <option value="linear">Линейная история</option>
               </select>
@@ -58,10 +58,10 @@
             <p class="work-dash-id">ID: #TP-001</p>
           </div>
           <div class="work-dash-stats" aria-label="Сводка работы">
-            <div><img src="assets/svg/размер.svg" alt=""><b>3</b> главы</div>
-            <div data-studio-scenes><img src="assets/svg/ветки.svg" alt=""><b>12</b> сцен</div>
-            <div><img src="assets/svg/пейринг.svg" alt=""><b>4</b> персонажа</div>
-            <div><img src="assets/svg/заметки.svg" alt=""><b>8</b> заметок</div>
+            <div><img src="assets/svg/размер.svg" alt=""><span><b>3</b><span>главы</span></span></div>
+            <div data-studio-scenes><img src="assets/svg/ветки.svg" alt=""><span><b>12</b><span>сцен</span></span></div>
+            <div><img src="assets/svg/пейринг.svg" alt=""><span><b>4</b><span>персонажа</span></span></div>
+            <div><img src="assets/svg/заметки.svg" alt=""><span><b>8</b><span>заметок</span></span></div>
             <p class="work-dash-updated">сегодня, 14:20</p>
           </div>
         </div>
@@ -125,229 +125,838 @@
       </section>
 
       <section class="studio-view" id="view-reviews" hidden>
-        <h2>Отзывы</h2>
-        <p class="studio-lead">Отзывы читателей к опубликованной работе. На «Странице работы» они появятся после модерации.</p>
-        <div class="studio-cards">
-          <article class="studio-card">
-            <h3>Лиса с фонарём · ★★★★☆</h3>
-            <p>Третья концовка стоит того, чтобы пройти заново. Кафе и парк читаются по-разному, но оба пути цепляют.</p>
+        <div class="reviews-head">
+          <h2>Отзывы <img class="title-leaf" src="assets/svg/3.svg" alt=""></h2>
+          <div class="reviews-toolbar">
+            <label class="reviews-sort">
+              <span class="visually-hidden">Сортировка</span>
+              <select id="review-sort">
+                <option value="new">Сначала новые</option>
+                <option value="old">Сначала старые</option>
+              </select>
+            </label>
+            <div class="reviews-view" role="group" aria-label="Вид отзывов">
+              <button type="button" data-review-view="grid" aria-pressed="false" aria-label="Сетка">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+              </button>
+              <button type="button" class="is-on" data-review-view="list" aria-pressed="true" aria-label="Список">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="12" width="14" height="2" rx="1"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="review-layout" id="review-layout">
+          <article class="review-card" data-time="2024-05-24T18:42:00">
+            <img class="review-ava" src="assets/test/avatar-1.png" alt="">
+            <div class="review-who">
+              <strong>Алиса</strong>
+              <time datetime="2024-05-24T18:42">24 мая 2024 в 18:42</time>
+            </div>
+            <div class="review-menu">
+              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <div class="review-menu-dd" hidden>
+                <button type="button" data-review-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-review-act="reward"><img src="assets/deco/present.svg" alt=""> Наградить</button>
+                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+              </div>
+            </div>
+            <p class="review-text">Третья концовка стоит того, чтобы пройти заново. Кафе и парк читаются по-разному, но оба пути цепляют — особенно сцена у окна, когда Алекс молчит дольше, чем нужно.</p>
+            <a class="review-chapter" href="read-interactive.html?chapter=5" data-chapter="5"><img src="assets/deco/книга.svg" alt=""> Глава 5. Признание</a>
           </article>
-          <article class="studio-card">
-            <h3>Никита · ★★★★★</h3>
-            <p>Кафе или парк — всё равно возвращаюсь к прологу. Хочется увидеть ветку с Никитой раньше.</p>
+          <article class="review-card" data-time="2024-05-18T12:10:00">
+            <img class="review-ava" src="assets/test/avatar-2.png" alt="">
+            <div class="review-who">
+              <strong>Никита</strong>
+              <time datetime="2024-05-18T12:10">18 мая 2024 в 12:10</time>
+            </div>
+            <div class="review-menu">
+              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <div class="review-menu-dd" hidden>
+                <button type="button" data-review-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-review-act="reward"><img src="assets/deco/present.svg" alt=""> Наградить</button>
+                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+              </div>
+            </div>
+            <p class="review-text">Кафе или парк — всё равно возвращаюсь к прологу. Хочется увидеть ветку с Никитой раньше, а не только намёками в письмах.</p>
+            <a class="review-chapter" href="read-interactive.html?chapter=2" data-chapter="2"><img src="assets/deco/книга.svg" alt=""> Глава 2. Ветки</a>
+          </article>
+          <article class="review-card" data-time="2024-05-12T09:03:00">
+            <img class="review-ava" src="assets/test/avatar-4.png" alt="">
+            <div class="review-who">
+              <strong>Мария</strong>
+              <time datetime="2024-05-12T09:03">12 мая 2024 в 9:03</time>
+            </div>
+            <div class="review-menu">
+              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <div class="review-menu-dd" hidden>
+                <button type="button" data-review-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-review-act="reward"><img src="assets/deco/present.svg" alt=""> Наградить</button>
+                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+              </div>
+            </div>
+            <p class="review-text">Перекрёсток держит. Правда одна, пути разные — это чувствуется уже с первой сцены, и из-за этого хочется перечитывать выборы.</p>
+            <a class="review-chapter" href="read-interactive.html?chapter=1" data-chapter="1"><img src="assets/deco/книга.svg" alt=""> Глава 1. Перекрёсток</a>
           </article>
         </div>
       </section>
 
       <section class="studio-view" id="view-timeline" hidden>
-        <h2>Хронология</h2>
-        <p class="studio-lead" id="timeline-lead">Для интерактивной истории шкала ветвится: это время мира, а не порядок чтения.</p>
-
-        <div id="timeline-interactive" class="timeline-tree">
-          <div class="t-node start">День 1 · Дождь</div>
-          <div class="t-split">
-            <div class="t-branch">
-              <span class="t-label">кафе</span>
-              <div class="t-node">Разговор с Машей</div>
-              <div class="t-node">Правда о прошлом</div>
-            </div>
-            <div class="t-branch">
-              <span class="t-label">парк</span>
-              <div class="t-node">Книга на лавке</div>
-              <div class="t-node">Уход без ответа</div>
+        <div class="chrono-head">
+          <div>
+            <h2>Хронология <img class="title-leaf" src="assets/svg/3.svg" alt=""></h2>
+            <p class="studio-lead" id="timeline-lead">Для интерактивной истории шкала ветвится: это время мира, а не порядок чтения.</p>
+          </div>
+          <div class="chrono-add" data-chrono-add-bar>
+            <button type="button" class="btn btn-primary chrono-add-main">+ Добавить событие</button>
+            <button type="button" class="btn btn-primary chrono-add-caret" hidden aria-expanded="false" aria-haspopup="menu" aria-label="Варианты добавления">
+              <svg class="chrono-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="chrono-add-menu" hidden role="menu">
+              <button type="button" role="menuitem" data-chrono-add="same">Добавить вариант рядом</button>
+              <button type="button" role="menuitem" data-chrono-add="child">Добавить продолжение</button>
             </div>
           </div>
         </div>
 
-        <ol id="timeline-linear" class="timeline-line" hidden>
-          <li><b>Утро.</b> Конверт без марки.</li>
-          <li><b>День.</b> Адрес, которого нет.</li>
-          <li><b>Вечер.</b> Последняя строка.</li>
-        </ol>
-      </section>
+        <div id="timeline-interactive" class="chrono-tree" hidden></div>
 
-      <section class="studio-view" id="view-characters" hidden>
-        <h2>Персонажи</h2>
-        <p class="studio-lead">Карточки героев только для автора. Plus может предлагать факты из текста — вы подтверждаете сами.</p>
-        <div class="char-layout">
-          <article class="studio-card char-card" data-char-card="alex">
-            <h3>Алекс</h3>
-            <p class="muted">Главный · 28 лет</p>
-            <p>Молчит, пока не спросят. Боится кафе на углу. Не носит часов.</p>
-            <p class="muted">Черты: сдержанный, помнит даты, плохо врёт.</p>
+        <div id="timeline-linear" class="chrono-list" hidden>
+          <article class="chrono-event">
+            <span class="chrono-num">1</span>
+            <div class="chrono-card">
+              <div class="chrono-card-head">
+                <input type="text" class="chrono-title" value="Начало пути" readonly>
+                <div class="chrono-card-actions">
+                  <button type="button" class="chrono-grip" aria-label="Перетащить событие">
+                    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+                  </button>
+                  <button type="button" class="chrono-edit" aria-label="Редактировать событие"><img src="assets/svg/редактировать.svg" alt=""></button>
+                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/delete.svg" alt=""></button>
+                </div>
+              </div>
+              <textarea class="chrono-text" rows="2" readonly placeholder="Краткое содержание события, сцены или ключевые моменты...">Конверт без марки. Утро, с которого всё начинается.</textarea>
+              <div class="chrono-card-foot">
+                <button type="button" class="btn btn-primary chrono-save">Сохранить</button>
+              </div>
+            </div>
           </article>
-          <article class="studio-card char-card" data-char-card="masha">
-            <h3>Маша</h3>
-            <p class="muted">Ключевая</p>
-            <p>Приходит раньше, уходит, не прощаясь. Знает тот дождь лучше Алекса.</p>
-            <p class="muted">Черты: прямая, не прощает вранья, любит горький кофе.</p>
+          <article class="chrono-event">
+            <span class="chrono-num">2</span>
+            <div class="chrono-card">
+              <div class="chrono-card-head">
+                <input type="text" class="chrono-title" value="Неожиданная встреча" readonly>
+                <div class="chrono-card-actions">
+                  <button type="button" class="chrono-grip" aria-label="Перетащить событие">
+                    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+                  </button>
+                  <button type="button" class="chrono-edit" aria-label="Редактировать событие"><img src="assets/svg/редактировать.svg" alt=""></button>
+                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/delete.svg" alt=""></button>
+                </div>
+              </div>
+              <textarea class="chrono-text" rows="2" readonly placeholder="Краткое содержание события, сцены или ключевые моменты...">Адрес, которого нет. День путает следы.</textarea>
+              <div class="chrono-card-foot">
+                <button type="button" class="btn btn-primary chrono-save">Сохранить</button>
+              </div>
+            </div>
           </article>
-          <article class="studio-card char-card" data-char-card="nikita">
-            <h3>Никита</h3>
-            <p class="muted">Пока за кадром</p>
-            <p>Имя всплывает в письме. Авторская пометка: не показывать до главы 3.</p>
-            <div class="studio-ai-box">
-              <span class="studio-pill">Plus · черновик ИИ</span>
-              В сцене «Парк» есть «он». Похоже на Никиту. Добавить в био?
+          <article class="chrono-event">
+            <span class="chrono-num">3</span>
+            <div class="chrono-card">
+              <div class="chrono-card-head">
+                <input type="text" class="chrono-title" value="Последняя строка" readonly>
+                <div class="chrono-card-actions">
+                  <button type="button" class="chrono-grip" aria-label="Перетащить событие">
+                    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+                  </button>
+                  <button type="button" class="chrono-edit" aria-label="Редактировать событие"><img src="assets/svg/редактировать.svg" alt=""></button>
+                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/delete.svg" alt=""></button>
+                </div>
+              </div>
+              <textarea class="chrono-text" rows="2" readonly placeholder="Краткое содержание события, сцены или ключевые моменты...">Вечер. Последняя строка письма.</textarea>
+              <div class="chrono-card-foot">
+                <button type="button" class="btn btn-primary chrono-save">Сохранить</button>
+              </div>
             </div>
           </article>
         </div>
-        <div class="studio-view-foot">
-          <button type="button" class="btn-add-item" id="add-character">Добавить персонажа</button>
+
+        <div class="chrono-add chrono-add--wide" data-chrono-add-bar>
+          <button type="button" class="btn-add-item chrono-add-main">+ Добавить событие</button>
+          <button type="button" class="btn-add-item chrono-add-caret" hidden aria-expanded="false" aria-haspopup="menu" aria-label="Варианты добавления">
+            <svg class="chrono-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="chrono-add-menu" hidden role="menu">
+            <button type="button" role="menuitem" data-chrono-add="same">Добавить вариант рядом</button>
+            <button type="button" role="menuitem" data-chrono-add="child">Добавить продолжение</button>
+          </div>
         </div>
+
+        <details class="chrono-help" id="chrono-help" hidden>
+          <summary>
+            <h3>Как работает хронология?</h3>
+            <svg class="chrono-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="chrono-help-body">
+            <p>Хронология помогает вам держать события истории в правильном порядке. Она нужна для планирования сюжета и не влияет на порядок публикации сцен.</p>
+            <ul>
+              <li>События идут сверху вниз — первое событие является началом истории, последнее — её финалом.</li>
+              <li>Редактируйте события — изменяйте название и краткое содержание в любой момент.</li>
+              <li>Меняйте порядок — перетаскивайте события за значок из шести точек, чтобы поменять их местами.</li>
+              <li>Удаляйте ненужное — удалённое событие исчезает из хронологии.</li>
+              <li>Добавляйте новые события — создавайте их в любой момент и размещайте в нужном месте.</li>
+            </ul>
+            <p class="chrono-help-note"><strong>Важно:</strong> хронология — это рабочий инструмент автора. Читатели её не видят.</p>
+          </div>
+        </details>
+
+        <details class="chrono-help" id="chrono-help-interactive" hidden>
+          <summary>
+            <h3>Как работает хронология интерактивной истории?</h3>
+            <svg class="chrono-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </summary>
+          <div class="chrono-help-body">
+            <p>Хронология помогает вам видеть все возможные пути развития истории и понимать, как события связаны между собой.</p>
+            <ul>
+              <li>Меняйте порядок — перетаскивайте события за значок из шести точек.</li>
+              <li>Редактируйте события — изменяйте их название и описание в любой момент.</li>
+              <li>Удаляйте ненужное — убирайте события и ветки, которые больше не нужны.</li>
+              <li>Добавляйте новые события и развилки — расширяйте сюжет и создавайте новые варианты развития.</li>
+            </ul>
+            <p class="chrono-help-note"><strong>Важно:</strong> хронология — это рабочий инструмент автора. Читатели её не видят.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="studio-view" id="view-characters" hidden>
+        <div class="chars-head">
+          <div>
+            <h2>Персонажи <img class="title-leaf" src="assets/svg/3.svg" alt=""></h2>
+          </div>
+          <button type="button" class="btn btn-primary" id="add-character">+ Добавить персонажа</button>
+        </div>
+        <div class="chars-toolbar">
+          <label class="chars-search">
+            <img src="assets/svg/search.svg" alt="">
+            <input type="search" id="char-search" placeholder="Поиск по персонажам...">
+          </label>
+          <label class="chars-sort">
+            <span>Сортировка</span>
+            <select id="char-sort">
+              <option value="name-asc">Имя (А–Я)</option>
+              <option value="name-desc">Имя (Я–А)</option>
+            </select>
+          </label>
+          <div class="chars-view" role="group" aria-label="Вид карточек">
+            <button type="button" class="is-on" data-char-view="grid" aria-pressed="true" aria-label="Сетка">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+            </button>
+            <button type="button" data-char-view="list" aria-pressed="false" aria-label="Список">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="12" width="14" height="2" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="char-layout" id="char-layout">
+          <article class="char-card" data-char-card="alex" data-pinned="0">
+            <div class="char-card-head">
+              <input type="text" class="char-name" value="Алекс" readonly>
+              <div class="char-card-actions">
+                <button type="button" class="char-edit" aria-label="Редактировать персонажа"><img src="assets/svg/редактировать.svg" alt=""></button>
+                <div class="char-menu">
+                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+                  <div class="char-menu-dd" hidden>
+                    <button type="button" data-char-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
+                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <dl class="char-facts">
+              <div>
+                <img src="assets/deco/календарь.svg" alt="">
+                <div>
+                  <dt>Возраст</dt>
+                  <dd><textarea class="char-age" rows="1" readonly>28 лет</textarea></dd>
+                </div>
+              </div>
+              <div>
+                <img src="assets/svg/заметки.svg" alt="">
+                <div>
+                  <dt>Кратко о персонаже</dt>
+                  <dd><textarea class="char-bio" rows="2" readonly>Молчит, пока не спросят. Боится кафе на углу. Не носит часов.</textarea></dd>
+                </div>
+              </div>
+              <div>
+                <img src="assets/svg/heart.svg" alt="">
+                <div>
+                  <dt>Черты</dt>
+                  <dd><textarea class="char-traits" rows="2" readonly>сдержанный, помнит даты, плохо врёт</textarea></dd>
+                </div>
+              </div>
+            </dl>
+            <div class="char-card-foot">
+              <button type="button" class="btn btn-primary char-save">Сохранить</button>
+            </div>
+          </article>
+          <article class="char-card" data-char-card="masha" data-pinned="0">
+            <div class="char-card-head">
+              <input type="text" class="char-name" value="Маша" readonly>
+              <div class="char-card-actions">
+                <button type="button" class="char-edit" aria-label="Редактировать персонажа"><img src="assets/svg/редактировать.svg" alt=""></button>
+                <div class="char-menu">
+                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+                  <div class="char-menu-dd" hidden>
+                    <button type="button" data-char-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
+                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <dl class="char-facts">
+              <div>
+                <img src="assets/deco/календарь.svg" alt="">
+                <div>
+                  <dt>Возраст</dt>
+                  <dd><textarea class="char-age" rows="1" placeholder="—" readonly></textarea></dd>
+                </div>
+              </div>
+              <div>
+                <img src="assets/svg/заметки.svg" alt="">
+                <div>
+                  <dt>Кратко о персонаже</dt>
+                  <dd><textarea class="char-bio" rows="2" readonly>Приходит раньше, уходит, не прощаясь. Знает тот дождь лучше Алекса.</textarea></dd>
+                </div>
+              </div>
+              <div>
+                <img src="assets/svg/heart.svg" alt="">
+                <div>
+                  <dt>Черты</dt>
+                  <dd><textarea class="char-traits" rows="2" readonly>прямая, не прощает вранья, любит горький кофе</textarea></dd>
+                </div>
+              </div>
+            </dl>
+            <div class="char-card-foot">
+              <button type="button" class="btn btn-primary char-save">Сохранить</button>
+            </div>
+          </article>
+          <article class="char-card" data-char-card="nikita" data-pinned="0">
+            <div class="char-card-head">
+              <input type="text" class="char-name" value="Никита" readonly>
+              <div class="char-card-actions">
+                <button type="button" class="char-edit" aria-label="Редактировать персонажа"><img src="assets/svg/редактировать.svg" alt=""></button>
+                <div class="char-menu">
+                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+                  <div class="char-menu-dd" hidden>
+                    <button type="button" data-char-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
+                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <dl class="char-facts">
+              <div>
+                <img src="assets/deco/календарь.svg" alt="">
+                <div>
+                  <dt>Возраст</dt>
+                  <dd><textarea class="char-age" rows="1" placeholder="—" readonly></textarea></dd>
+                </div>
+              </div>
+              <div>
+                <img src="assets/svg/заметки.svg" alt="">
+                <div>
+                  <dt>Кратко о персонаже</dt>
+                  <dd><textarea class="char-bio" rows="2" readonly>Имя всплывает в письме. Авторская пометка: не показывать до главы 3.</textarea></dd>
+                </div>
+              </div>
+              <div>
+                <img src="assets/svg/heart.svg" alt="">
+                <div>
+                  <dt>Черты</dt>
+                  <dd><textarea class="char-traits" rows="2" placeholder="—" readonly></textarea></dd>
+                </div>
+              </div>
+            </dl>
+            <div class="char-card-foot">
+              <button type="button" class="btn btn-primary char-save">Сохранить</button>
+            </div>
+          </article>
+        </div>
+        <aside class="chars-note">
+          <svg class="chars-note-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 21h6M12 3a6 6 0 0 0-3 11.2V16a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.8A6 6 0 0 0 12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div>
+            <strong>Только для автора</strong>
+            <p>Карточки персонажей видите только вы. Используйте их, чтобы лучше понимать героев, помнить важные детали и следить за их развитием по мере работы над историей.</p>
+          </div>
+        </aside>
       </section>
 
       <section class="studio-view" id="view-notes" hidden>
-        <h2>Заметки</h2>
-        <p class="studio-lead">Четыре папки. Можно привязать к персонажу или сцене.</p>
-        <div class="studio-cards" id="notes-list">
-          <article class="studio-card" data-note="plot">
-            <h3>Сюжет</h3>
-            <p>Перекрёсток — ложная развилка. Правда одна, пути разные.</p>
+        <div class="notes-head">
+          <div>
+            <h2>Заметки <img class="title-leaf" src="assets/svg/3.svg" alt=""></h2>
+            <p class="studio-lead">Здесь можно хранить идеи, важные детали, цитаты и всё, что помогает работать над историей. Заметки видите только вы.</p>
+          </div>
+          <button type="button" class="btn btn-primary" id="add-note">+ Новая заметка</button>
+        </div>
+        <div class="notes-toolbar">
+          <label class="notes-search">
+            <img src="assets/svg/search.svg" alt="">
+            <input type="search" id="note-search" placeholder="Поиск по заметкам...">
+          </label>
+          <label class="notes-sort">
+            <span>Сортировка</span>
+            <select id="note-sort">
+              <option value="created-asc">Дата создания</option>
+              <option value="created-desc">Сначала новые</option>
+              <option value="title-asc">Название (А–Я)</option>
+              <option value="title-desc">Название (Я–А)</option>
+            </select>
+          </label>
+          <div class="notes-view" role="group" aria-label="Вид заметок">
+            <button type="button" data-note-view="grid" aria-pressed="false" aria-label="Сетка">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+            </button>
+            <button type="button" class="is-on" data-note-view="list" aria-pressed="true" aria-label="Список">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="1"/><rect x="1" y="7" width="14" height="2" rx="1"/><rect x="1" y="12" width="14" height="2" rx="1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="note-layout is-list" id="notes-list">
+          <article class="note-card" data-created="2024-05-12">
+            <button type="button" class="note-grip" aria-label="Перетащить заметку">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+            </button>
+            <div class="note-card-main">
+              <div class="note-card-head">
+                <input type="text" class="note-title" value="Идея: город в тумане" readonly>
+                <div class="note-card-actions">
+                  <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                </div>
+              </div>
+              <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">Город на скале, где всегда туман. Улицы помнят шаги, которых ещё не было.</textarea>
+              <p class="note-date">Создана 12.05.2024</p>
+              <div class="note-card-foot">
+                <button type="button" class="btn btn-primary note-save">Сохранить</button>
+              </div>
+            </div>
           </article>
-          <article class="studio-card" data-note="ideas">
-            <h3>Идеи</h3>
-            <p>Если читатель трижды выберет кафе — дать четвёртую реплику Маши.</p>
+          <article class="note-card" data-created="2024-05-18">
+            <button type="button" class="note-grip" aria-label="Перетащить заметку">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+            </button>
+            <div class="note-card-main">
+              <div class="note-card-head">
+                <input type="text" class="note-title" value="Цитата для начала" readonly>
+                <div class="note-card-actions">
+                  <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                </div>
+              </div>
+              <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">«Иногда путь выбирает нас». Не ставить в пролог — беречь для развилки в кафе.</textarea>
+              <p class="note-date">Создана 18.05.2024</p>
+              <div class="note-card-foot">
+                <button type="button" class="btn btn-primary note-save">Сохранить</button>
+              </div>
+            </div>
           </article>
-          <article class="studio-card" data-note="dialogues">
-            <h3>Диалоги</h3>
-            <p>«Ты всё-таки пришла» — не менять. Это якорь.</p>
+          <article class="note-card" data-created="2024-06-03">
+            <button type="button" class="note-grip" aria-label="Перетащить заметку">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+            </button>
+            <div class="note-card-main">
+              <div class="note-card-head">
+                <input type="text" class="note-title" value="Деталь: кулон" readonly>
+                <div class="note-card-actions">
+                  <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                </div>
+              </div>
+              <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">Старинный кулон с трещиной. Маша носит его под пальто, Алекс замечает только в дождь.</textarea>
+              <p class="note-date">Создана 03.06.2024</p>
+              <div class="note-card-foot">
+                <button type="button" class="btn btn-primary note-save">Сохранить</button>
+              </div>
+            </div>
           </article>
-          <article class="studio-card" data-note="future">
-            <h3>Будущие события</h3>
-            <p>Никита появляется только в концовке «правда».</p>
+          <article class="note-card" data-created="2024-06-21">
+            <button type="button" class="note-grip" aria-label="Перетащить заметку">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
+            </button>
+            <div class="note-card-main">
+              <div class="note-card-head">
+                <input type="text" class="note-title" value="Мысль о финале" readonly>
+                <div class="note-card-actions">
+                  <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                </div>
+              </div>
+              <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">Важно, чтобы финал оставлял надежду — даже в ветке, где они расходятся.</textarea>
+              <p class="note-date">Создана 21.06.2024</p>
+              <div class="note-card-foot">
+                <button type="button" class="btn btn-primary note-save">Сохранить</button>
+              </div>
+            </div>
           </article>
         </div>
       </section>
 
       <section class="studio-view" id="view-stats" hidden>
-        <h2>Статистика</h2>
-        <div class="studio-stats">
+        <div class="stats-head">
           <div>
-            <img src="assets/svg/ветки.svg" alt="">
-            <div><b>12</b><span>сцен</span></div>
+            <h2>Статистика работы <img class="title-leaf" src="assets/svg/3.svg" alt=""></h2>
+            <p class="studio-lead">Подробная статистика по вашей работе и её читателям.</p>
           </div>
-          <div>
-            <img src="assets/svg/выборы.svg" alt="">
-            <div><b>38</b><span>выборов</span></div>
-          </div>
-          <div>
-            <img src="assets/svg/концовки.svg" alt="">
-            <div><b>3</b><span>концовки</span></div>
-          </div>
-          <div>
-            <img src="assets/svg/пейринг.svg" alt="">
-            <div><b>3</b><span>персонажа в библии</span></div>
+          <div class="stats-tools">
+            <label class="stats-range">
+              <img src="assets/deco/календарь.svg" alt="">
+              <span>
+                <strong id="stats-range-label">За 90 дней</strong>
+                <small id="stats-range-dates">27 мая — 24 авг. 2026</small>
+              </span>
+              <select id="stats-range" aria-label="Период статистики">
+                <option value="7">За 7 дней</option>
+                <option value="30">За 30 дней</option>
+                <option value="90" selected>За 90 дней</option>
+                <option value="365">За год</option>
+              </select>
+            </label>
+            <button type="button" class="btn btn-outline stats-export" id="stats-export">
+              <img src="assets/svg/download.svg" alt=""> Экспорт
+            </button>
           </div>
         </div>
+
+        <div class="stats-kpis" id="stats-kpis">
+          <article class="stats-kpi">
+            <img src="assets/svg/eye.svg" alt="">
+            <p>Просмотры</p>
+            <strong data-kpi="views">18 742</strong>
+            <span class="stats-delta is-up" data-kpi-delta="views">↑ 24,6%</span>
+            <svg class="stats-spark" viewBox="0 0 120 36" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,28 10,26 20,24 30,22 40,18 50,20 60,14 70,16 80,11 90,12 100,8 110,9 120,6"/></svg>
+          </article>
+          <article class="stats-kpi">
+            <img src="assets/svg/profile.svg" alt="">
+            <p>Уникальные посетители</p>
+            <strong data-kpi="uniques">7 945</strong>
+            <span class="stats-delta is-up" data-kpi-delta="uniques">↑ 18,3%</span>
+            <svg class="stats-spark" viewBox="0 0 120 36" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,30 12,28 24,26 36,24 48,20 60,22 72,16 84,18 96,12 108,14 120,10"/></svg>
+          </article>
+          <article class="stats-kpi">
+            <img src="assets/svg/читать.svg" alt="">
+            <p>Прочтения глав</p>
+            <strong data-kpi="reads">12 581</strong>
+            <span class="stats-delta is-up" data-kpi-delta="reads">↑ 27,1%</span>
+            <svg class="stats-spark" viewBox="0 0 120 36" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,26 12,24 24,25 36,18 48,16 60,17 72,12 84,10 96,11 108,7 120,5"/></svg>
+          </article>
+          <article class="stats-kpi">
+            <img src="assets/svg/heart.svg" alt="">
+            <p>Лайки</p>
+            <strong data-kpi="likes">1 263</strong>
+            <span class="stats-delta is-up" data-kpi-delta="likes">↑ 15,7%</span>
+            <svg class="stats-spark" viewBox="0 0 120 36" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,22 15,24 30,20 45,21 60,16 75,18 90,14 105,15 120,11"/></svg>
+          </article>
+          <article class="stats-kpi">
+            <img src="assets/svg/коммент.svg" alt="">
+            <p>Комментарии</p>
+            <strong data-kpi="comments">342</strong>
+            <span class="stats-delta is-up" data-kpi-delta="comments">↑ 31,4%</span>
+            <svg class="stats-spark" viewBox="0 0 120 36" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,30 15,28 30,26 45,20 60,22 75,14 90,12 105,10 120,6"/></svg>
+          </article>
+        </div>
+
+        <div class="stats-mid">
+          <article class="stats-card">
+            <header class="stats-card-head">
+              <div>
+                <h3>Вовлечённость читателей</h3>
+                <p>Процент читателей, дошедших до определённого этапа</p>
+              </div>
+            </header>
+            <div class="stats-funnel">
+              <div class="stats-funnel-row"><span class="stats-funnel-label">Шапка работы</span><div class="stats-funnel-track"><span class="stats-funnel-fill" style="width:100%"><b>100%</b></span></div><span class="stats-funnel-n">7 945</span></div>
+              <div class="stats-funnel-row"><span class="stats-funnel-label">Начало истории</span><div class="stats-funnel-track"><span class="stats-funnel-fill" style="width:86%"><b>86%</b></span></div><span class="stats-funnel-n">6 830</span></div>
+              <div class="stats-funnel-row"><span class="stats-funnel-label">25% истории</span><div class="stats-funnel-track"><span class="stats-funnel-fill" style="width:71%"><b>71%</b></span></div><span class="stats-funnel-n">5 640</span></div>
+              <div class="stats-funnel-row"><span class="stats-funnel-label">50% истории</span><div class="stats-funnel-track"><span class="stats-funnel-fill" style="width:52%"><b>52%</b></span></div><span class="stats-funnel-n">4 132</span></div>
+              <div class="stats-funnel-row"><span class="stats-funnel-label">75% истории</span><div class="stats-funnel-track"><span class="stats-funnel-fill" style="width:34%"><b>34%</b></span></div><span class="stats-funnel-n">2 698</span></div>
+              <div class="stats-funnel-row"><span class="stats-funnel-label">Вся история</span><div class="stats-funnel-track"><span class="stats-funnel-fill" style="width:22%"><b>22%</b></span></div><span class="stats-funnel-n">1 747</span></div>
+            </div>
+          </article>
+          <article class="stats-card">
+            <header class="stats-card-head">
+              <div>
+                <h3>Загрузки</h3>
+              </div>
+              <label class="stats-grain">
+                <span class="visually-hidden">Детализация</span>
+                <select aria-label="Детализация загрузок">
+                  <option selected>По дням</option>
+                  <option>По неделям</option>
+                  <option>По месяцам</option>
+                </select>
+              </label>
+            </header>
+            <div class="stats-offline-kpis">
+              <div>
+                <p>Всего загрузок</p>
+                <strong data-kpi="downloads">2 856</strong>
+                <span class="stats-delta is-up" data-kpi-delta="downloads">↑ 21,3%</span>
+              </div>
+              <div>
+                <p>Уникальные читатели</p>
+                <strong data-kpi="dlUniques">1 562</strong>
+                <span class="stats-delta is-up" data-kpi-delta="dlUniques">↑ 16,8%</span>
+              </div>
+            </div>
+            <div class="stats-bars" aria-hidden="true">
+              <span style="height:38%"></span><span style="height:44%"></span><span style="height:36%"></span><span style="height:52%"></span><span style="height:48%"></span><span style="height:61%"></span><span style="height:55%"></span><span style="height:70%"></span><span style="height:64%"></span><span style="height:78%"></span><span style="height:72%"></span><span style="height:88%"></span><span style="height:80%"></span><span style="height:94%"></span>
+            </div>
+          </article>
+        </div>
+
+        <div class="stats-low">
+          <article class="stats-card">
+            <header class="stats-card-head">
+              <h3>Источники трафика</h3>
+            </header>
+            <div class="stats-traffic">
+              <div class="stats-donut">
+                <svg viewBox="0 0 120 120" aria-hidden="true">
+                  <circle class="stats-donut-seg is-1" cx="60" cy="60" r="38" pathLength="100" stroke-dasharray="28 72" stroke-dashoffset="0"/>
+                  <circle class="stats-donut-seg is-2" cx="60" cy="60" r="38" pathLength="100" stroke-dasharray="18 82" stroke-dashoffset="-28"/>
+                  <circle class="stats-donut-seg is-3" cx="60" cy="60" r="38" pathLength="100" stroke-dasharray="14 86" stroke-dashoffset="-46"/>
+                  <circle class="stats-donut-seg is-4" cx="60" cy="60" r="38" pathLength="100" stroke-dasharray="12 88" stroke-dashoffset="-60"/>
+                  <circle class="stats-donut-seg is-5" cx="60" cy="60" r="38" pathLength="100" stroke-dasharray="11 89" stroke-dashoffset="-72"/>
+                  <circle class="stats-donut-seg is-6" cx="60" cy="60" r="38" pathLength="100" stroke-dasharray="10 90" stroke-dashoffset="-83"/>
+                  <circle class="stats-donut-seg is-7" cx="60" cy="60" r="38" pathLength="100" stroke-dasharray="7 93" stroke-dashoffset="-93"/>
+                </svg>
+                <div class="stats-donut-label"><b data-kpi="views">18 742</b><span>просмотра</span></div>
+              </div>
+              <ul class="stats-legend">
+                <li><i class="is-1"></i> Каталог <b>28%</b></li>
+                <li><i class="is-2"></i> Поиск <b>18%</b></li>
+                <li><i class="is-3"></i> Главная <b>14%</b></li>
+                <li><i class="is-4"></i> Сборники <b>12%</b></li>
+                <li><i class="is-5"></i> Избранное <b>11%</b></li>
+                <li><i class="is-6"></i> Похожие <b>10%</b></li>
+                <li><i class="is-7"></i> Другое <b>7%</b></li>
+              </ul>
+            </div>
+          </article>
+          <article class="stats-card">
+            <header class="stats-card-head">
+              <h3>Динамика по дням</h3>
+              <label class="stats-grain">
+                <span class="visually-hidden">Детализация</span>
+                <select aria-label="Детализация динамики">
+                  <option selected>По дням</option>
+                  <option>По неделям</option>
+                  <option>По месяцам</option>
+                </select>
+              </label>
+            </header>
+            <svg class="stats-lines" viewBox="0 0 420 170" role="img" aria-label="Просмотры, уникальные посетители и прочтения глав">
+              <g class="stats-grid" stroke="currentColor">
+                <line x1="8" y1="20" x2="412" y2="20"/><line x1="8" y1="58" x2="412" y2="58"/><line x1="8" y1="96" x2="412" y2="96"/><line x1="8" y1="134" x2="412" y2="134"/>
+              </g>
+              <polyline class="stats-line is-reads" fill="none" stroke-width="2.4" points="8,118 50,112 92,108 134,100 176,96 218,90 260,86 302,80 344,78 386,72 412,70"/>
+              <polyline class="stats-line is-uniques" fill="none" stroke-width="2.4" points="8,128 50,122 92,118 134,110 176,108 218,100 260,98 302,90 344,88 386,82 412,80"/>
+              <polyline class="stats-line is-views" fill="none" stroke-width="2.6" points="8,102 50,96 92,90 134,82 176,78 218,70 260,64 302,58 344,52 386,44 412,40"/>
+            </svg>
+            <ul class="stats-line-legend">
+              <li><i class="is-views"></i> Просмотры</li>
+              <li><i class="is-uniques"></i> Уникальные</li>
+              <li><i class="is-reads"></i> Прочтения глав</li>
+            </ul>
+          </article>
+          <article class="stats-card">
+            <header class="stats-card-head">
+              <h3>Популярные главы</h3>
+            </header>
+            <ol class="stats-chapters">
+              <li><span>Глава 5. Признание</span><div><b style="width:100%"></b></div><em>2 842</em></li>
+              <li><span>Глава 1. Перекрёсток</span><div><b style="width:85%"></b></div><em>2 410</em></li>
+              <li><span>Глава 2. Ветки</span><div><b style="width:77%"></b></div><em>2 186</em></li>
+              <li><span>Глава 3. Кафе</span><div><b style="width:62%"></b></div><em>1 754</em></li>
+              <li><span>Глава 4. Парк</span><div><b style="width:49%"></b></div><em>1 389</em></li>
+            </ol>
+          </article>
+        </div>
+
+        <article class="stats-card stats-table-card">
+          <header class="stats-card-head">
+            <h3>Динамика по периодам</h3>
+          </header>
+          <div class="stats-table-wrap">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th>Период</th>
+                  <th>Просмотры</th>
+                  <th>Уникальные</th>
+                  <th>Прочтения глав</th>
+                  <th>Лайки</th>
+                  <th>Комментарии</th>
+                  <th>Офлайн</th>
+                </tr>
+              </thead>
+              <tbody id="stats-table-body">
+                <tr>
+                  <td>27 мая — 24 авг. 2026</td>
+                  <td>18 742 <span class="stats-delta is-up">↑ 24,6%</span></td>
+                  <td>7 945 <span class="stats-delta is-up">↑ 18,3%</span></td>
+                  <td>12 581 <span class="stats-delta is-up">↑ 27,1%</span></td>
+                  <td>1 263 <span class="stats-delta is-up">↑ 15,7%</span></td>
+                  <td>342 <span class="stats-delta is-up">↑ 31,4%</span></td>
+                  <td>2 856 <span class="stats-delta is-up">↑ 21,3%</span></td>
+                </tr>
+                <tr>
+                  <td>28 фев. — 26 мая 2026</td>
+                  <td>15 042 <span class="stats-delta is-up">↑ 8,2%</span></td>
+                  <td>6 716 <span class="stats-delta is-up">↑ 6,4%</span></td>
+                  <td>9 898 <span class="stats-delta is-up">↑ 9,1%</span></td>
+                  <td>1 092 <span class="stats-delta is-up">↑ 5,8%</span></td>
+                  <td>260 <span class="stats-delta is-up">↑ 7,0%</span></td>
+                  <td>2 354 <span class="stats-delta is-up">↑ 7,4%</span></td>
+                </tr>
+                <tr>
+                  <td>1 дек. 2025 — 27 фев. 2026</td>
+                  <td>13 902</td>
+                  <td>6 312</td>
+                  <td>9 073</td>
+                  <td>1 032</td>
+                  <td>243</td>
+                  <td>2 192</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
       </section>
 
       <section class="studio-view" id="view-settings" hidden>
-        <h2>Описание</h2>
-        <p class="studio-lead">Эти строки уходят на публичную карточку у любой работы — линейной и интерактивной. Число глав и размер считаются сами по редактору, когда вы ставите «завершена».</p>
+        <h2>Описание <img class="title-leaf" src="assets/svg/3.svg" alt=""></h2>
         <form class="studio-form" id="work-card-form">
-          <div class="studio-cover-edit">
-            <span class="studio-label">Обложка</span>
-            <div class="studio-cover-row">
+          <div class="studio-card-top">
+            <div class="studio-cover-edit">
               <img id="work-cover-preview" class="studio-cover-preview" data-work-cover src="assets/test/cover-1.png" alt="">
-              <div>
-                <label class="btn btn-outline studio-cover-upload">
-                  Загрузить обложку
-                  <input type="file" id="work-cover-input" accept="image/*" hidden>
-                </label>
-                <p class="studio-hint">Появится на карточке в каталоге и на странице работы.</p>
+              <label class="btn btn-outline studio-cover-upload">
+                Загрузить обложку
+                <input type="file" id="work-cover-input" accept="image/*" hidden>
+              </label>
+            </div>
+            <div class="studio-card-meta">
+              <div class="studio-field">
+                <label class="studio-label" for="work-title">Название</label>
+                <input id="work-title" class="studio-control" name="title" value="Тени прошлого" required>
+              </div>
+              <div class="studio-field">
+                <label class="studio-label" for="work-type">Тип работы</label>
+                <select id="work-type" class="studio-control" name="story_type" data-story-type>
+                  <option value="interactive" selected>Интерактивная</option>
+                  <option value="linear">Линейная</option>
+                </select>
+                <p class="studio-hint" id="work-type-hint">История с развилками: читатель выбирает, как дальше пойдёт сюжет, и может прийти к разным концовкам.</p>
+              </div>
+              <div class="studio-field user-picker" data-user-picker="coauthor">
+                <label class="studio-label" for="work-coauthor-search">Соавтор</label>
+                <div class="user-pick-field">
+                  <input id="work-coauthor-search" class="user-pick-search studio-control" type="search" autocomplete="off" placeholder="ник или имя…">
+                  <div class="user-pick-menu" hidden></div>
+                </div>
+                <div class="user-pick-chips"></div>
+                <input type="hidden" name="coauthor" id="work-coauthor" value="">
+              </div>
+              <div class="studio-field user-picker" data-user-picker="editor">
+                <label class="studio-label" for="work-editor-search">Редактор</label>
+                <div class="user-pick-field">
+                  <input id="work-editor-search" class="user-pick-search studio-control" type="search" autocomplete="off" placeholder="ник или имя…">
+                  <div class="user-pick-menu" hidden></div>
+                </div>
+                <div class="user-pick-chips"></div>
+                <input type="hidden" name="editor" id="work-editor" value="">
+              </div>
+              <div class="studio-field">
+                <label class="studio-label" for="work-romance">Направленность</label>
+                <select id="work-romance" class="studio-control" name="romance" required>
+                  <option value="gen" selected>Джен</option>
+                  <option value="het">Гет</option>
+                  <option value="slash">Слэш</option>
+                  <option value="femslash">Фемслэш</option>
+                  <option value="mixed">Смешанный</option>
+                </select>
+                <p class="studio-hint" id="work-romance-hint">В центре не романтика: дружба, приключения, внутренние конфликты или сюжет без любовной линии как основной.</p>
+              </div>
+              <div class="studio-field studio-field-age">
+                <span class="studio-label">Возрастной рейтинг</span>
+                <div class="studio-radios">
+                  <label><input type="radio" name="age" value="0+"> 0+</label>
+                  <label><input type="radio" name="age" value="16+" checked> 16+</label>
+                  <label><input type="radio" name="age" value="18+"> 18+</label>
+                </div>
               </div>
             </div>
           </div>
-          <div>
-            <label class="studio-label" for="work-title">Название</label>
-            <input id="work-title" name="title" value="Тени прошлого" required>
-          </div>
           <div class="studio-form-row">
             <div>
-              <label class="studio-label" for="work-author">Автор</label>
-              <input id="work-author" name="author" value="Лунный странник" required>
+              <label class="studio-label">Жанры</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…" data-selected="drama,mistika" data-tax-quotes></div>
             </div>
             <div>
-              <label class="studio-label" for="work-editor">Редактор</label>
-              <input id="work-editor" name="editor" placeholder="необязательно">
+              <label class="studio-label">Формат работы</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…" data-tax-quotes></div>
+              <p class="studio-hint">Необязательно. Стихи, письма, чаты и другие формы текста.</p>
             </div>
           </div>
-          <div>
-            <label class="studio-label" for="work-coauthor">Соавтор</label>
-            <input id="work-coauthor" name="coauthor" placeholder="необязательно">
-          </div>
-          <div>
-            <span class="studio-label">Возрастной рейтинг</span>
-            <div class="studio-radios">
-              <label><input type="radio" name="age" value="0+"> 0+</label>
-              <label><input type="radio" name="age" value="16+" checked> 16+</label>
-              <label><input type="radio" name="age" value="18+"> 18+</label>
+          <div class="studio-form-row studio-form-row-kinks">
+            <div>
+              <label class="studio-label">Предупреждения</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…" data-tax-quotes></div>
             </div>
-            <p class="studio-hint">0+ — обычный текст. 16+ — лёгкие намёки. 18+ — соответствующий контент.</p>
-          </div>
-          <div>
-            <label class="studio-label">Жанры</label>
-            <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…" data-selected="drama,mistika"></div>
-            <p class="studio-hint">Несколько жанров из таблицы. Старые метки больше не используются.</p>
-          </div>
-          <div>
-            <label class="studio-label">Предупреждения</label>
-            <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…"></div>
-          </div>
-          <div>
-            <label class="studio-label">Формат работы</label>
-            <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…"></div>
-            <p class="studio-hint">Необязательно. Стихи, письма, чаты и другие формы текста.</p>
-          </div>
-          <div id="kink-fields" hidden>
-            <label class="studio-label">Кинки</label>
-            <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…"></div>
-            <p class="studio-hint">Только для работ 18+.</p>
+            <div id="kink-fields" hidden>
+              <label class="studio-label">Кинки</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…" data-tax-quotes></div>
+              <p class="studio-hint">Только для работ 18+.</p>
+            </div>
           </div>
           <div class="studio-form-row">
             <div>
               <label class="studio-label">Фандомы</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="fandoms" data-name="fandoms" data-placeholder="Найти фандом…" data-selected="original"></div>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="fandoms" data-name="fandoms" data-fandom-step data-selected="original"></div>
               <p class="studio-hint">Можно несколько — для кроссоверов. Для своих миров добавьте «Ориджинал».</p>
             </div>
             <div>
-              <label class="studio-label" for="work-romance">Направленность</label>
-              <select id="work-romance" name="romance" required>
-                <option value="gen" selected>Джен</option>
-                <option value="het">Гет</option>
-                <option value="slash">Слэш</option>
-                <option value="femslash">Фемслэш</option>
-                <option value="mixed">Смешанный</option>
-              </select>
+              <label class="studio-label">Персонажи в работе</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="characters" data-name="characters" data-placeholder="Найти или ввести имя…" data-selected="original-aleks,original-masha,original-nikita" data-selected-labels="Алекс,Маша,Никита" data-named-roles></div>
             </div>
-          </div>
-          <div>
-            <label class="studio-label">Персонажи в работе</label>
-            <div class="tax-picker tax-picker-compact" data-tax-picker="characters" data-name="characters" data-placeholder="Найти или ввести имя…" data-selected="original-aleks,original-masha,original-nikita" data-selected-labels="Алекс,Маша,Никита"></div>
-            <p class="studio-hint">Имена героев из каталога или свои — Enter добавит имя. Каждое имя станет кликабельной меткой.</p>
           </div>
           <div>
             <label class="studio-label">Пейринги</label>
             <div class="pairing-builder" id="work-pairings-builder" data-initial="Алекс | Маша">
-              <div class="pairing-list" aria-live="polite"></div>
               <div class="pairing-draft">
                 <select class="pairing-char pairing-char-left" aria-label="Первый персонаж">
                   <option value="">Первый</option>
                 </select>
                 <select class="pairing-sep" aria-label="Тип связи">
                   <option value="">—</option>
-                  <option value="/">/ — дом/пас</option>
-                  <option value="|">| — равные</option>
+                  <option value="/">/</option>
+                  <option value="|">|</option>
                 </select>
                 <select class="pairing-char pairing-char-right" aria-label="Второй персонаж">
                   <option value="">Второй</option>
                 </select>
-                <button type="button" class="pairing-add btn btn-outline" disabled aria-label="Подтвердить пейринг">✓</button>
+                <button type="button" class="pairing-add" disabled aria-label="Подтвердить пейринг">✓</button>
+              </div>
+              <div class="pairing-foot">
+                <div class="pairing-list" aria-live="polite"></div>
+                <div class="pairing-help">
+                  <p>Введите имена персонажей через соответствующий разделитель:</p>
+                  <p>Доминант / Пассив</p>
+                  <p>Универсал | Универсал</p>
+                  <p>Сначала выберите персонажей выше. Затем — первый, разделитель и второй; ✓ добавит пейринг. Можно несколько.</p>
+                </div>
               </div>
             </div>
             <input type="hidden" name="pairings" id="work-pairings-value" value="Алекс | Маша">
-            <p class="studio-hint">Сначала выберите персонажей выше. Затем — первый, разделитель и второй; ✓ добавит пейринг. Можно несколько.</p>
           </div>
           <div>
             <label class="studio-label" for="work-desc">Описание работы</label>
@@ -357,24 +966,34 @@
             <label class="studio-label" for="work-notes">Примечание автора</label>
             <textarea id="work-notes" name="author_notes">Ветки кафе и парка читаются независимо. Никиту в описании не спойлерить.</textarea>
           </div>
-          <div>
-            <span class="studio-label">Статус</span>
-            <div class="studio-radios">
-              <label><input type="radio" name="status" value="in_progress" checked> В процессе</label>
-              <label><input type="radio" name="status" value="completed"> Завершена</label>
+          <div class="studio-form-row">
+            <div>
+              <label class="studio-label" for="work-status">Статус</label>
+              <select id="work-status" name="status">
+                <option value="draft">Черновик</option>
+                <option value="in_progress" selected>В процессе</option>
+                <option value="completed">Завершена</option>
+              </select>
             </div>
-          </div>
-          <div>
-            <span class="studio-label">Размер</span>
-            <div class="studio-size-preview" id="work-size">После завершения: мини — до 20 глав, миди — до 50, макси — дальше.</div>
-            <p class="studio-hint">Число глав берётся из редактора — вручную указывать не нужно.</p>
+            <div>
+              <label class="studio-label" for="work-size">Размер планируется</label>
+              <select id="work-size" name="planned_size">
+                <option value="mini">Мини — до 20 глав</option>
+                <option value="midi" selected>Миди — до 50</option>
+                <option value="maxi">Макси — более</option>
+              </select>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary">Сохранить карточку</button>
         </form>
       </section>
     </main>
+    <div class="studio-item-modal" id="studio-item-modal" hidden>
+      <div class="studio-item-modal-backdrop" data-item-modal-close></div>
+      <div class="studio-item-modal-frame" id="studio-item-modal-frame"></div>
+    </div>
   </div>
-  <script src="taxonomy.js?v=11"></script>
-  <script src="studio.js?v=24"></script>
+  <script src="taxonomy.js?v=19"></script>
+  <script src="studio.js?v=48"></script>
 </body>
 </html>

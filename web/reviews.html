@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=82">
-  <script src="site.js?v=34"></script>
+  <link rel="stylesheet" href="styles.css?v=133">
+  <script src="site.js?v=44"></script>
 </head>
-<body>
+<body class="cabinet-page reviews-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -28,20 +28,55 @@
       </div>
     </aside>
     <main class="main page-main">
-      <header class="page-header">
-        <h1>Отзывы</h1>
-        <p>Отзывы к вашим работам и к историям, где вы соавтор или редактор. Имя автора отзыва ведёт в профиль.</p>
-      </header>
-      <div class="account-tabs" data-account-tabs>
-        <button type="button" class="active" data-tab="all">Все</button>
-        <button type="button" data-tab="author">Мои работы</button>
-        <button type="button" data-tab="credit">Соавтор / редактор</button>
+      <div class="cabinet-top">
+        <div class="cabinet-head">
+          <img class="cabinet-fox" src="assets/brand/лисичка.png" alt="">
+          <header class="cabinet-hero">
+            <div class="cabinet-hero-copy">
+              <h1>Отзывы <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
+              <p>Отзывы со всех работ, где вы автор, соавтор или редактор.</p>
+            </div>
+          </header>
+        </div>
+        <div class="account-tabs cabinet-tabs" data-account-tabs>
+          <button type="button" class="active" data-tab="all">Все <span data-cabinet-count="all">0</span></button>
+          <button type="button" data-tab="author"><img src="assets/svg/profile.svg" alt=""> Автор <span data-cabinet-count="author">0</span></button>
+          <button type="button" data-tab="coauthor"><img src="assets/svg/пейринг.svg" alt=""> Соавтор <span data-cabinet-count="coauthor">0</span></button>
+          <button type="button" data-tab="editor"><img src="assets/svg/редактировать.svg" alt=""> Редактор <span data-cabinet-count="editor">0</span></button>
+        </div>
       </div>
-      <section id="tab-all"><div class="empty-feed"><p>Отзывы появятся, когда читатели начнут оставлять их к историям.</p></div></section>
-      <section id="tab-author" hidden><div class="empty-feed"><p>Отзывы к работам, где вы автор, появятся здесь.</p></div></section>
-      <section id="tab-credit" hidden><div class="empty-feed"><p>Отзывы к работам, где вы соавтор или редактор, появятся здесь.</p></div></section>
+      <div class="cabinet-toolbar">
+        <label class="reviews-sort">
+          <span class="visually-hidden">Сортировка</span>
+          <select id="review-sort" aria-label="Сортировка">
+            <option value="new">Сначала новые</option>
+            <option value="old">Сначала старые</option>
+          </select>
+        </label>
+        <div class="cabinet-view reviews-view" role="group" aria-label="Вид отзывов">
+          <button type="button" data-review-view="grid" aria-pressed="false" aria-label="Сетка">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          </button>
+          <button type="button" class="is-active is-on" data-review-view="list" aria-pressed="true" aria-label="Список">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="0.5"/><rect x="1" y="7" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <section id="tab-all">
+        <div class="review-layout" data-review-feed="all"></div>
+      </section>
+      <section id="tab-author" hidden>
+        <div class="review-layout" data-review-feed="author"></div>
+      </section>
+      <section id="tab-coauthor" hidden>
+        <div class="review-layout" data-review-feed="coauthor"></div>
+      </section>
+      <section id="tab-editor" hidden>
+        <div class="review-layout" data-review-feed="editor"></div>
+      </section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <script src="reviews.js?v=1" defer></script>
 </body>
 </html>

@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=106">
-  <script src="site.js?v=35"></script>
+  <link rel="stylesheet" href="styles.css?v=133">
+  <script src="site.js?v=44"></script>
 </head>
 <body class="cabinet-page">
   <header class="header"></header>
@@ -56,6 +56,12 @@
           <option value="updated" selected>Последнее изменение</option>
           <option value="title">По названию</option>
         </select>
+        <select data-cabinet-status aria-label="Статус работы">
+          <option value="all" selected>Все статусы</option>
+          <option value="draft">Черновик</option>
+          <option value="in_progress">В процессе</option>
+          <option value="completed">Завершена</option>
+        </select>
         <div class="cabinet-view" role="group" aria-label="Вид">
           <button type="button" class="is-active" data-cabinet-view="grid" aria-label="Сетка">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
@@ -89,6 +95,6 @@
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
-  <script src="catalog.js?v=18" defer></script>
+  <script src="catalog.js?v=25" defer></script>
 </body>
 </html>

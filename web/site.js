@@ -31,7 +31,7 @@ function isUiIconImg(img) {
   }
   if (
     img.closest(
-      ".logo, .profile-ava, .header-avatar, .sidebar-ornament, .studio-nav-art, .feed-corner, .work-cover, .story-cover, .cabinet-cover-frame, .cabinet-fox, .blog-post-cover, .news-cover, .news-hero-art, .tile-image, .collection-cover, .featured-cover, .author-avatar, .cover-fallback, .footer-art, .news-editor, .news-comment-ava"
+      ".logo, .profile-ava, .header-avatar, .sidebar-ornament, .studio-nav-art, .feed-corner, .work-cover, .story-cover, .cabinet-cover-frame, .cabinet-fox, .blog-post-cover, .news-cover, .news-hero-art, .tile-image, .collection-cover, .featured-cover, .author-avatar, .cover-fallback, .footer-art, .news-editor, .news-comment-ava, .lost-art, .lost-art-wrap"
     )
   ) {
     return false;
@@ -39,13 +39,13 @@ function isUiIconImg(img) {
   return true;
 }
 
-const ICON_CACHE = "88";
+const ICON_CACHE = "90";
 
 function paintUiIcon(img) {
   const src = (img.getAttribute("src") || "").split("?")[0];
   const el = document.createElement("span");
   el.className = ["ui-icon", img.className].filter(Boolean).join(" ");
-  if (/(?:^|\/)(?:share|флаг)\.svg$/i.test(src)) el.classList.add("ui-icon-accent");
+  if (/(?:^|\/)(?:share|флаг|delete)\.svg$/i.test(src)) el.classList.add("ui-icon-accent");
   el.setAttribute("aria-hidden", "true");
   el.style.setProperty("--icon", `url("${encodeURI(src)}?v=${ICON_CACHE}")`);
   img.replaceWith(el);
@@ -230,6 +230,7 @@ function currentTab(file = currentPage()) {
   const have = new URLSearchParams(location.search).get("tab");
   if (have) return have;
   if (file === "library.html") return "likes";
+  if (file === "collections.html") return "mine";
   if (file === "feed.html" || file === "replies.html" || file === "reviews.html" || file === "author-home.html") return "all";
   return "";
 }
@@ -245,6 +246,11 @@ function ddOn(href) {
   } catch {
     return "";
   }
+}
+
+function ddOnLibrary(tabs) {
+  if (currentPage() !== "library.html") return "";
+  return tabs.includes(currentTab("library.html")) ? " class=\"active\"" : "";
 }
 
 function navOn(href) {
@@ -323,25 +329,23 @@ function headerMarkup() {
         </button>
         <div class="account-dd" hidden>
           <div class="account-dd-scroll">
-            <a href="feed.html"${ddOn("feed.html")}>Моя лента</a>
-            <a href="blog.html"${ddOn("blog.html")}>Мой блог</a>
-            <a href="profile.html"${ddOn("profile.html")}>Мой профиль</a>
-            <a href="replies.html"${ddOn("replies.html")}>Комментарии</a>
+            <a href="feed.html"${ddOn("feed.html")}><img src="assets/deco/paw.svg" alt=""> Моя лента</a>
+            <a href="blog.html"${ddOn("blog.html")}><img src="assets/deco/блог.svg" alt=""> Мой блог</a>
+            <a href="profile.html"${ddOn("profile.html")}><img src="assets/svg/profile.svg" alt=""> Мой профиль</a>
+            <a href="replies.html"${ddOn("replies.html")}><img src="assets/deco/heartcomm.svg" alt=""> Обсуждения</a>
             <span class="dd-sep"></span>
-            <a href="studio.html"${ddOn("studio.html")}>Новая история</a>
-            <a href="author-home.html"${ddOn("author-home.html")}>Мои истории</a>
-            <a href="reviews.html"${ddOn("reviews.html")}>Отзывы</a>
-            <a href="changes.html"${ddOn("changes.html")}>Изменения</a>
+            <a href="studio.html"${ddOn("studio.html")}><img src="assets/deco/plus.svg" alt=""> Новая история</a>
+            <a href="author-home.html"${ddOn("author-home.html")}><img src="assets/svg/читать.svg" alt=""> Мои истории</a>
+            <a href="reviews.html"${ddOn("reviews.html")}><img src="assets/svg/коммент.svg" alt=""> Отзывы</a>
+            <a href="changes.html"${ddOn("changes.html")}><img src="assets/deco/календарь.svg" alt=""> Изменения</a>
             <span class="dd-sep"></span>
-            <a href="library.html?tab=likes"${ddOn("library.html?tab=likes")}>Понравившиеся</a>
-            <a href="library.html?tab=read"${ddOn("library.html?tab=read")}>Прочитанные</a>
-            <a href="library.html?tab=packs"${ddOn("library.html?tab=packs")}>Сборники</a>
-            <a href="library.html?tab=authors"${ddOn("library.html?tab=authors")}>Любимые авторы</a>
+            <a href="library.html?tab=likes"${ddOnLibrary(["likes", "read", "follows"])}><img src="assets/svg/bookmark2.svg" alt=""> Закладки</a>
+            <a href="collections.html"${ddOn("collections.html")}><img src="assets/deco/сборник.svg" alt=""> Сборники</a>
           </div>
           <div class="account-dd-foot">
-            <a href="support.html"${ddOn("support.html")}>Написать в поддержку</a>
-            <a href="settings.html"${ddOn("settings.html")}>Настройки</a>
-            <button type="button" class="dd-signout" data-signout>Выйти</button>
+            <a href="support.html"${ddOn("support.html")}><img src="assets/svg/info.svg" alt=""> Написать в поддержку</a>
+            <a href="settings.html"${ddOn("settings.html")}><img src="assets/deco/настройки.svg" alt=""> Настройки</a>
+            <button type="button" class="dd-signout" data-signout><img src="assets/svg/Traced Image.svg" alt=""> Выйти</button>
           </div>
         </div>
       </div>
@@ -364,12 +368,12 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
       <div class="footer-links">
         <nav class="footer-col" aria-label="Приложение">
           <span>Приложение</span>
-          <a href="#">App Store</a>
-          <a href="#">Google Play</a>
+          <a href="404.html">App Store</a>
+          <a href="404.html">Google Play</a>
         </nav>
         <nav class="footer-col" aria-label="Контакты">
           <span>Контакты</span>
-          <a href="#">Почта</a>
+          <a href="404.html">Почта</a>
           <a href="https://t.me/foxcavemeit" target="_blank" rel="noopener noreferrer">Telegram</a>
         </nav>
       </div>
@@ -653,7 +657,7 @@ document.addEventListener("DOMContentLoaded", function messagesPage() {
 
 document.addEventListener("DOMContentLoaded", function accountTabs() {
   document.querySelectorAll(".account-tabs").forEach((nav) => {
-    const tabs = [...nav.querySelectorAll("[data-tab]")];
+    const tabs = [...nav.querySelectorAll(":scope > [data-tab]")];
     if (!tabs.length) return;
     const syncUrl = nav.hasAttribute("data-account-tabs");
     const names = tabs.map((tab) => tab.getAttribute("data-tab"));
@@ -759,9 +763,18 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       }
     }
 
+    function packSlug(title) {
+      const base = String(title || "")
+        .trim()
+        .toLowerCase()
+        .replace(/ё/g, "е")
+        .replace(/[^a-zа-я0-9]+/gi, "-")
+        .replace(/^-+|-+$/g, "");
+      return `${base || "pack"}-${Date.now().toString(36)}`;
+    }
+
     function openPackDialog() {
       close();
-      const lib = loadReaderLibrary();
       let dialog = document.querySelector(".work-dialog");
       if (!dialog) {
         dialog = document.createElement("div");
@@ -769,47 +782,80 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
         dialog.hidden = true;
         document.body.append(dialog);
       }
-      const packs = lib.packs.filter((pack) => pack.id);
-      dialog.innerHTML = `
-        <div class="work-dialog-card" role="dialog" aria-modal="true" aria-labelledby="work-pack-title">
-          <h2 id="work-pack-title">Добавить в сборник</h2>
-          ${
-            packs.length
-              ? `<ul class="work-pack-list">${packs
-                  .map((pack) => {
-                    const id = String(pack.id).replaceAll("&", "&amp;").replaceAll('"', "&quot;");
-                    const title = String(pack.title).replaceAll("&", "&amp;").replaceAll("<", "&lt;");
-                    const checked = pack.works.includes(workId) ? " checked" : "";
-                    return `<li><label><input type="checkbox" value="${id}"${checked}> ${title}</label></li>`;
-                  })
-                  .join("")}</ul>`
-              : `<p class="work-pack-empty">Пока нет личных сборников.</p>`
-          }
-          <div class="work-dialog-actions">
-            <button type="button" class="btn btn-outline" data-pack-cancel>Отмена</button>
-            <button type="button" class="btn btn-primary" data-pack-save ${packs.length ? "" : "disabled"}>Готово</button>
-          </div>
-        </div>`;
-      dialog.hidden = false;
+
       function hide() {
         dialog.hidden = true;
       }
-      dialog.querySelector("[data-pack-cancel]")?.addEventListener("click", hide);
-      dialog.addEventListener("click", (event) => {
-        if (event.target === dialog) hide();
-      });
-      dialog.querySelector("[data-pack-save]")?.addEventListener("click", () => {
-        const chosen = new Set(
-          [...dialog.querySelectorAll(".work-pack-list input:checked")].map((input) => input.value)
-        );
-        const next = loadReaderLibrary();
-        next.packs = next.packs.map((pack) => ({
-          ...pack,
-          works: toggleReaderList(pack.works, workId, chosen.has(pack.id)),
-        }));
-        saveReaderLibrary(next);
-        hide();
-      });
+
+      function packListHTML(packs) {
+        if (!packs.length) return `<p class="work-pack-empty">Пока нет личных сборников.</p>`;
+        return `<ul class="work-pack-list">${packs
+          .map((pack) => {
+            const id = String(pack.id).replaceAll("&", "&amp;").replaceAll('"', "&quot;");
+            const title = String(pack.title).replaceAll("&", "&amp;").replaceAll("<", "&lt;");
+            const checked = pack.works.includes(workId) ? " checked" : "";
+            return `<li><label><input type="checkbox" value="${id}"${checked}> ${title}</label></li>`;
+          })
+          .join("")}</ul>`;
+      }
+
+      function fill() {
+        const lib = loadReaderLibrary();
+        const packs = lib.packs.filter((pack) => pack.id);
+        dialog.innerHTML = `
+          <div class="work-dialog-card" role="dialog" aria-modal="true" aria-labelledby="work-pack-title">
+            <div class="work-dialog-head">
+              <h2 id="work-pack-title">Добавить в сборник</h2>
+              <button type="button" class="btn btn-outline work-pack-new" data-pack-new>+ Новый</button>
+            </div>
+            <form class="work-pack-create" data-pack-create hidden>
+              <input type="text" name="title" placeholder="Название сборника" maxlength="80" required>
+              <button type="submit" class="btn btn-primary">Создать</button>
+            </form>
+            ${packListHTML(packs)}
+            <div class="work-dialog-actions">
+              <button type="button" class="btn btn-outline" data-pack-cancel>Отмена</button>
+              <button type="button" class="btn btn-primary" data-pack-save ${packs.length ? "" : "disabled"}>Готово</button>
+            </div>
+          </div>`;
+        dialog.querySelector("[data-pack-cancel]")?.addEventListener("click", hide);
+        dialog.querySelector("[data-pack-new]")?.addEventListener("click", () => {
+          const form = dialog.querySelector("[data-pack-create]");
+          if (!form) return;
+          form.hidden = !form.hidden;
+          if (!form.hidden) form.querySelector("input")?.focus();
+        });
+        dialog.querySelector("[data-pack-create]")?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const title = String(new FormData(event.target).get("title") || "").trim();
+          if (!title) return;
+          const next = loadReaderLibrary();
+          next.packs = [{ id: packSlug(title), title, works: [workId] }, ...next.packs];
+          saveReaderLibrary(next);
+          fill();
+        });
+        dialog.querySelector("[data-pack-save]")?.addEventListener("click", () => {
+          const chosen = new Set(
+            [...dialog.querySelectorAll(".work-pack-list input:checked")].map((input) => input.value)
+          );
+          const next = loadReaderLibrary();
+          next.packs = next.packs.map((pack) => ({
+            ...pack,
+            works: toggleReaderList(pack.works, workId, chosen.has(pack.id)),
+          }));
+          saveReaderLibrary(next);
+          hide();
+        });
+      }
+
+      fill();
+      dialog.hidden = false;
+      if (!dialog.dataset.backdropBound) {
+        dialog.dataset.backdropBound = "1";
+        dialog.addEventListener("click", (event) => {
+          if (event.target === dialog) hide();
+        });
+      }
     }
 
     toggle.addEventListener("click", (event) => {

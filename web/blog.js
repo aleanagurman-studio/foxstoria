@@ -127,7 +127,7 @@
     comment: '<img src="assets/svg/коммент.svg" alt="">',
     like: '<img src="assets/svg/heart.svg" alt="">',
     eye: '<img src="assets/svg/eye.svg" alt="">',
-    more: '<img src="assets/ornaments/03_more.svg" alt="">',
+    more: '<img src="assets/ornaments/03_more.svg?v=2" alt="">',
   };
   const COMMENT_STORE = "foxtoria-blog-comments";
   const LIKE_STORE = "foxtoria-blog-liked";
@@ -501,10 +501,10 @@
         <div class="blog-menu${open ? " open" : ""}">
           <button type="button" class="blog-menu-btn" data-menu="${escapeHtml(post.id)}" aria-label="Ещё" aria-expanded="${open}">${ICO.more}</button>
           <div class="blog-menu-dd" ${open ? "" : "hidden"}>
-            <button type="button" data-act="edit">Редактировать</button>
-            <button type="button" data-act="schedule">Запланировать</button>
-            <button type="button" data-act="pin">${pinLabel}</button>
-            <button type="button" data-act="copy">Копировать ссылку</button>
+            <button type="button" data-act="edit"><img src="assets/svg/редактировать.svg" alt=""> Редактировать</button>
+            <button type="button" data-act="schedule"><img src="assets/deco/календарь.svg" alt=""> Запланировать</button>
+            <button type="button" data-act="pin"><img src="assets/svg/кнопка.svg" alt=""> ${pinLabel}</button>
+            <button type="button" data-act="copy"><img src="assets/svg/share.svg" alt=""> Копировать ссылку</button>
             <button type="button" class="is-danger" data-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
           </div>
         </div>

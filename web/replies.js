@@ -50,19 +50,20 @@
   function setStatus(card, status) {
     card.setAttribute("data-status", status);
     const badge = card.querySelector(".reply-status");
-    if (!badge) return;
-    badge.className = "reply-status";
     if (status === "new") {
-      badge.classList.add("is-new");
-      badge.textContent = "Новый";
-    } else if (status === "moderation") {
-      badge.classList.add("is-wait");
-      badge.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 4.5h11M6.5 19.5h11M8 4.5 12 12 8 19.5M16 4.5 12 12 16 19.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> На модерации';
-    } else {
-      badge.classList.add("is-live");
-      badge.textContent = "Опубликован";
+      if (!badge) {
+        const meta = card.querySelector(".reply-card-meta");
+        const next = document.createElement("span");
+        next.className = "reply-status is-new";
+        next.textContent = "Не прочитано";
+        meta?.append(next);
+      } else {
+        badge.className = "reply-status is-new";
+        badge.textContent = "Не прочитано";
+      }
+      return;
     }
+    badge?.remove();
   }
 
   tabs.addEventListener("click", (event) => {
@@ -98,7 +99,7 @@
     const card = event.target.closest(".reply-card");
     if (!card) return;
     if (event.target.closest("[data-reply-read]")) {
-      setStatus(card, "published");
+      setStatus(card, "read");
       closeMenus();
       apply();
       return;
@@ -111,6 +112,16 @@
 
   document.addEventListener("click", (event) => {
     if (!event.target.closest(".reply-more")) closeMenus();
+  });
+
+  document.querySelectorAll("[data-reply-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.getAttribute("data-reply-view");
+      document.querySelector(".replies-page")?.classList.toggle("is-grid", view === "grid");
+      document.querySelectorAll("[data-reply-view]").forEach((other) => {
+        other.classList.toggle("is-active", other === btn);
+      });
+    });
   });
 
   const fromUrl = new URLSearchParams(location.search).get("tab");

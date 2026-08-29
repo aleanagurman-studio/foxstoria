@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=82">
-  <script src="site.js?v=34"></script>
+  <link rel="stylesheet" href="styles.css?v=133">
+  <script src="site.js?v=44"></script>
 </head>
-<body>
+<body class="collections-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -29,19 +29,36 @@
     </aside>
     <main class="main page-main">
       <header class="page-header">
-        <h1>Сборники</h1>
-        <p>Подборки историй. Карточки компактные — маленькая обложка слева от названия.</p>
+        <h1>Сборники <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
+        <p>Все ваши сборники и сборники, за которыми вы следите.</p>
       </header>
-      <div class="tile-grid collection-list">
-        <a href="search.html" class="tile-card"><div class="tile-image collection-cover"><img src="assets/brand/collection-heart.png" alt=""></div><div><h3>Истории о любви</h3><p>Появится вместе с каталогом</p></div></a>
-        <a href="search.html" class="tile-card"><div class="tile-image collection-cover"><img src="assets/brand/collection-helm.png" alt=""></div><div><h3>Тёмное фэнтези</h3><p>Появится вместе с каталогом</p></div></a>
-        <a href="search.html" class="tile-card"><div class="tile-image collection-cover"><img src="assets/brand/collection-castle.png" alt=""></div><div><h3>Академия и магия</h3><p>Появится вместе с каталогом</p></div></a>
-        <a href="search.html" class="tile-card"><div class="tile-image collection-cover"><img src="assets/brand/collection-chair.png" alt=""></div><div><h3>У камина</h3><p>Появится вместе с каталогом</p></div></a>
-        <a href="search.html" class="tile-card"><div class="tile-image collection-cover"><img src="assets/deco/fox.svg" alt=""></div><div><h3>Ориджинал</h3><p>Появится вместе с каталогом</p></div></a>
-        <a href="search.html" class="tile-card"><div class="tile-image collection-cover"><img src="assets/deco/bookmark.svg" alt=""></div><div><h3>Новая подборка</h3><p>Появится вместе с каталогом</p></div></a>
+      <div class="account-tabs" data-account-tabs>
+        <button type="button" class="active" data-tab="mine">Мои</button>
+        <button type="button" data-tab="subs">Подписки</button>
       </div>
+      <div class="cabinet-toolbar">
+        <select data-pack-sort aria-label="Сортировка">
+          <option value="new" selected>По дате обновления</option>
+          <option value="old">Сначала старые</option>
+        </select>
+        <div class="cabinet-view" role="group" aria-label="Вид">
+          <button type="button" class="is-active" data-pack-view="grid" aria-label="Плитка">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          </button>
+          <button type="button" data-pack-view="list" aria-label="Список">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="0.5"/><rect x="1" y="7" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <section id="tab-mine">
+        <div class="pack-grid" data-pack-feed="mine"></div>
+      </section>
+      <section id="tab-subs" hidden>
+        <div class="pack-grid" data-pack-feed="subs"></div>
+      </section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <script src="collections.js?v=4" defer></script>
 </body>
 </html>

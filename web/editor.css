@@ -650,9 +650,16 @@ body.editor-page {
 
 .map-node-menu {
   color: var(--taupe);
-  font-size: 14px;
   line-height: 1;
   flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+.map-node-menu img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
 }
 
 .map-node-crown {
@@ -774,7 +781,10 @@ body.editor-page {
 }
 
 .canvas-tool-icon img,
-.canvas-tool-icon .ui-icon { width: 16px; height: 16px; }
+.canvas-tool-icon .ui-icon { width: 16px; height: 16px; object-fit: contain; }
+#tool-delete { color: var(--fox); }
+#tool-delete img,
+#tool-delete .ui-icon { width: 20px; height: 20px; color: var(--fox); }
 
 .palette-btn-icon img,
 .palette-btn-icon .ui-icon { width: 16px; height: 16px; margin: 0 auto; }
@@ -1081,7 +1091,8 @@ body.editor-page {
 }
 
 .btn-sm:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
-.btn-sm.danger:hover { border-color: var(--fox); color: var(--fox); }
+.btn-sm.danger { color: var(--fox); }
+.btn-sm.danger:hover { border-color: var(--fox); color: var(--fox-hover); }
 
 .toggle-row {
   display: flex;
@@ -1175,9 +1186,9 @@ body.editor-page {
 }
 .btn-delete-scene .ui-icon,
 .btn-delete-scene img {
-  width: 16px;
-  height: 16px;
-  color: currentColor;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 .btn-delete-scene:hover {

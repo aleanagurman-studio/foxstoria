@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Комментарии — FoxStoria</title>
+  <title>Обсуждения — FoxStoria</title>
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=88">
-  <script src="site.js?v=34"></script>
-  <script src="replies.js?v=1" defer></script>
+  <link rel="stylesheet" href="styles.css?v=133">
+  <script src="site.js?v=44"></script>
+  <script src="replies.js?v=5" defer></script>
 </head>
-<body>
+<body class="replies-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -30,7 +30,7 @@
     </aside>
     <main class="main page-main">
       <header class="page-header">
-        <h1>Комментарии</h1>
+        <h1>Обсуждения <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
         <p>Ответы на ваши комментарии под работами и в блогах.</p>
       </header>
       <div class="account-tabs" id="reply-tabs">
@@ -51,10 +51,8 @@
           <label class="reply-select">
             <span class="visually-hidden">Статус</span>
             <select id="reply-status">
-              <option value="all">Все статусы</option>
-              <option value="new">Новые</option>
-              <option value="published">Опубликованные</option>
-              <option value="moderation">На модерации</option>
+              <option value="all">Все</option>
+              <option value="new">Не прочитано</option>
             </select>
           </label>
         </div>
@@ -63,6 +61,14 @@
           <input type="search" id="reply-search" placeholder="Поиск по комментариям...">
           <img src="assets/deco/lupa1.svg" alt="">
         </label>
+        <div class="cabinet-view" role="group" aria-label="Вид">
+          <button type="button" data-reply-view="grid" aria-label="Плитка">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          </button>
+          <button type="button" class="is-active" data-reply-view="list" aria-label="Список">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="0.5"/><rect x="1" y="7" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>
+          </button>
+        </div>
       </div>
 
       <section class="reply-feed" id="reply-feed" aria-live="polite">
@@ -75,7 +81,7 @@
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-27T21:34">вчера, 21:34</time>
-              <span class="reply-status is-new">Новый</span>
+              <span class="reply-status is-new">Не прочитано</span>
             </div>
           </header>
           <blockquote class="reply-quote"><strong>Вы</strong> Кафе читается теплее парка, но парк честнее.</blockquote>
@@ -83,7 +89,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="story-interactive.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -92,7 +98,7 @@
           </div>
         </article>
 
-        <article class="reply-card" data-kind="work" data-status="published" data-time="2026-08-26T18:12:00">
+        <article class="reply-card" data-kind="work" data-status="read" data-time="2026-08-26T18:12:00">
           <header class="reply-card-top">
             <img class="reply-card-ava" src="assets/test/avatar-2.png" alt="">
             <div class="reply-card-who">
@@ -101,7 +107,6 @@
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-26T18:12">2 дня назад, 18:12</time>
-              <span class="reply-status is-live">Опубликован</span>
             </div>
           </header>
           <blockquote class="reply-quote"><strong>Вы</strong> Гримёрка после концерта — лучшая сцена.</blockquote>
@@ -109,7 +114,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="story-bts-slash.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -118,7 +123,7 @@
           </div>
         </article>
 
-        <article class="reply-card" data-kind="work" data-status="moderation" data-time="2026-08-25T12:40:00">
+        <article class="reply-card" data-kind="work" data-status="read" data-time="2026-08-25T12:40:00">
           <header class="reply-card-top">
             <img class="reply-card-ava" src="assets/test/avatar-7.png" alt="">
             <div class="reply-card-who">
@@ -127,7 +132,6 @@
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-25T12:40">3 дня назад, 12:40</time>
-              <span class="reply-status is-wait"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 4.5h11M6.5 19.5h11M8 4.5 12 12 8 19.5M16 4.5 12 12 16 19.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> На модерации</span>
             </div>
           </header>
           <blockquote class="reply-quote"><strong>Вы</strong> Конверт без марки — это же Никита?</blockquote>
@@ -135,7 +139,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="story-linear.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -153,7 +157,7 @@
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-24T16:08">4 дня назад, 16:08</time>
-              <span class="reply-status is-new">Новый</span>
+              <span class="reply-status is-new">Не прочитано</span>
             </div>
           </header>
           <blockquote class="reply-quote"><strong>Вы</strong> Любопытно, дождь в черновике тот же, что в прологе?</blockquote>
@@ -161,7 +165,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="blog.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -170,7 +174,7 @@
           </div>
         </article>
 
-        <article class="reply-card" data-kind="blog" data-status="published" data-time="2026-08-23T11:20:00">
+        <article class="reply-card" data-kind="blog" data-status="read" data-time="2026-08-23T11:20:00">
           <header class="reply-card-top">
             <img class="reply-card-ava" src="assets/test/avatar-2.png" alt="">
             <div class="reply-card-who">
@@ -179,7 +183,6 @@
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-23T11:20">5 дней назад, 11:20</time>
-              <span class="reply-status is-live">Опубликован</span>
             </div>
           </header>
           <blockquote class="reply-quote"><strong>Вы</strong> Запишусь, если успею доделать ветку с парком.</blockquote>
@@ -187,7 +190,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="blog.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
