@@ -300,9 +300,10 @@
 .linear-lib-item {
   display: flex;
   align-items: center;
+  gap: 2px;
   width: 100%;
   margin: 0;
-  padding: 10px 12px;
+  padding: 6px 8px 6px 12px;
   border: 0;
   border-bottom: 1px solid var(--linear-line);
   border-radius: 0;
@@ -312,12 +313,62 @@
   font-size: 0.8125rem;
   font-weight: 600;
   text-align: left;
-  cursor: pointer;
   box-sizing: border-box;
 }
 
 .linear-lib-item:hover {
   background: color-mix(in srgb, var(--beige) 32%, var(--white));
+}
+
+.linear-lib-item-name {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linear-lib-item-act {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--icon-primary);
+  opacity: 0.42;
+  cursor: pointer;
+}
+
+.linear-lib-item:hover .linear-lib-item-act,
+.linear-lib-item-act:hover {
+  opacity: 1;
+}
+
+.linear-lib-item-act:hover {
+  background: color-mix(in srgb, var(--beige) 40%, var(--white));
+}
+
+.linear-lib-item-act.is-danger:hover {
+  background: color-mix(in srgb, #c45c5c 12%, var(--white));
+  color: var(--fox);
+}
+
+.linear-lib-item-act img,
+.linear-lib-item-act .ui-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .linear-lib-empty {
@@ -418,7 +469,15 @@
 }
 
 .linear-lib-modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
   margin-top: 8px;
+}
+
+.linear-lib-modal-foot #lib-modal-delete {
+  margin-right: auto;
 }
 
 .linear-center {

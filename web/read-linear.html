@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=197">
+  <link rel="stylesheet" href="styles.css?v=198">
 </head>
 <body class="linear-read-page">
   <header class="header"></header>
@@ -27,7 +27,7 @@
       </a>
       <div class="linear-side-split" aria-hidden="true"></div>
       <h2 class="linear-toc-title">Оглавление</h2>
-      <ol class="linear-toc" id="toc"></ol>
+      <ol class="linear-toc story-nav" id="toc"></ol>
     </aside>
 
     <article class="linear-read-main">
@@ -228,14 +228,22 @@
       const on = chapterRead(i);
       readBtn.setAttribute("aria-pressed", on ? "true" : "false");
       readBtn.classList.toggle("is-on", on);
-      toc.querySelectorAll("a").forEach((link, index) => {
+      toc.querySelectorAll(".story-nav-link").forEach((link, index) => {
         link.classList.toggle("is-read", chapterRead(index));
       });
     }
 
     function renderToc() {
+      const chevron = `<svg class="story-nav-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
       toc.innerHTML = chapters.map((chapter, index) =>
-        `<li><a href="read-linear.html?chapter=${index + 1}" data-chapter="${index}"${index === i ? " aria-current=\"page\"" : ""}${chapterRead(index) ? " class=\"is-read\"" : ""}>${chapter.title}<img class="linear-toc-check" src="assets/svg/okay.svg" alt=""></a></li>`
+        `<li class="story-nav-node">
+          <button type="button" class="story-nav-fold is-empty" aria-hidden="true">${chevron}</button>
+          <a class="story-nav-link${index === i ? " is-current" : ""}${chapterRead(index) ? " is-read" : ""}" href="read-linear.html?chapter=${index + 1}" data-chapter="${index}"${index === i ? " aria-current=\"page\"" : ""}>
+            <span class="story-nav-num">${index + 1}</span>
+            <span class="story-nav-title">${chapter.title}</span>
+            <img class="linear-toc-check" src="assets/svg/okay.svg" alt="">
+          </a>
+        </li>`
       ).join("");
     }
 
@@ -246,7 +254,8 @@
       document.getElementById("crumb-chapter").textContent = c.title;
       document.getElementById("chapter-text").innerHTML = c.html;
       document.getElementById("chapter-hero").style.setProperty("--chapter-cover", `url("${c.cover}")`);
-      toc.querySelectorAll("a").forEach((link, index) => {
+      toc.querySelectorAll(".story-nav-link").forEach((link, index) => {
+        link.classList.toggle("is-current", index === i);
         if (index === i) link.setAttribute("aria-current", "page");
         else link.removeAttribute("aria-current");
         link.classList.toggle("is-read", chapterRead(index));

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=197">
+  <link rel="stylesheet" href="styles.css?v=198">
   <script src="site.js?v=68"></script>
 </head>
 <body>
@@ -30,23 +30,38 @@
       </div>
       <div class="work-chapters-block">
         <h2 class="work-chapters-title">Главы</h2>
-        <div class="work-chapters-list">
-        <div class="chapter-row">
-          <span class="ch-num">1</span>
-          <div><a href="read-interactive.html" class="ch-title"><strong>Гримёрка №7</strong></a></div>
-          <a href="read-interactive.html" class="ch-play" aria-label="Читать"><img src="assets/svg/unlocked.svg" alt=""></a>
-        </div>
-        <div class="chapter-row">
-          <span class="ch-num">2</span>
-          <div><a href="read-interactive.html" class="ch-title"><strong>Коридор за кулисами</strong></a></div>
-          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
-        </div>
-        <div class="chapter-row">
-          <span class="ch-num">3</span>
-          <div><a href="read-interactive.html" class="ch-title"><strong>Утро после премьеры</strong></a></div>
-          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
-        </div>
-        </div>
+        <ol class="work-chapters-list story-nav">
+          <li class="story-nav-node">
+            <button type="button" class="story-nav-fold is-empty" aria-hidden="true">
+              <svg class="story-nav-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <a class="story-nav-link" href="read-interactive.html">
+              <span class="story-nav-num">1</span>
+              <span class="story-nav-title">Гримёрка №7</span>
+              <img class="story-nav-lock" src="assets/svg/unlocked.svg" alt="">
+            </a>
+          </li>
+          <li class="story-nav-node">
+            <button type="button" class="story-nav-fold is-empty" aria-hidden="true">
+              <svg class="story-nav-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="story-nav-link is-locked">
+              <span class="story-nav-num">2</span>
+              <span class="story-nav-title">Коридор за кулисами</span>
+              <img class="story-nav-lock" src="assets/svg/locked.svg" alt="">
+            </span>
+          </li>
+          <li class="story-nav-node">
+            <button type="button" class="story-nav-fold is-empty" aria-hidden="true">
+              <svg class="story-nav-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="story-nav-link is-locked">
+              <span class="story-nav-num">3</span>
+              <span class="story-nav-title">Утро после премьеры</span>
+              <img class="story-nav-lock" src="assets/svg/locked.svg" alt="">
+            </span>
+          </li>
+        </ol>
       </div>
       </div>
       <div class="work-body">

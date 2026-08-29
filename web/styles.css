@@ -6893,6 +6893,7 @@ textarea {
 
 .work-hero-side .work-chapters-list {
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: 4px;
@@ -9364,14 +9365,16 @@ button.blog-post-cover {
 
 .linear-toc a {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  min-width: 0;
   padding: 8px 10px;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   color: var(--chestnut-dark);
   text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 .linear-toc a:hover {
@@ -9442,7 +9445,7 @@ button.blog-post-cover {
   cursor: pointer;
   position: relative;
   z-index: 1;
-  align-self: center;
+  align-self: start;
 }
 
 .story-nav-fold .story-nav-chevron {
@@ -9492,12 +9495,12 @@ button.blog-post-cover {
   grid-column: 2;
   grid-row: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   min-width: 0;
   min-height: 24px;
-  padding: 0 8px 0 4px;
-  line-height: 24px;
+  padding: 4px 8px 4px 4px;
+  line-height: 1.35;
   border-radius: 10px;
   font-family: var(--font-ui);
   font-size: 14px;
@@ -9531,9 +9534,11 @@ a.story-nav-link:hover {
 
 .story-nav-title {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1 1 auto;
+  padding-top: 2px;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .story-nav-lock,
@@ -9541,6 +9546,7 @@ a.story-nav-link:hover {
   width: 14px;
   height: 14px;
   margin-left: auto;
+  margin-top: 5px;
   flex-shrink: 0;
   object-fit: contain;
 }
@@ -9608,15 +9614,13 @@ a.story-nav-link:hover {
 }
 
 .work-chapters-list .story-nav-link {
-  padding: 0 0 0 4px;
+  padding: 4px 0 4px 4px;
   min-height: 24px;
-  line-height: 24px;
 }
 
 .linear-toc.story-nav a.story-nav-link {
-  padding: 0 8px 0 4px;
+  padding: 4px 8px 4px 4px;
   min-height: 24px;
-  line-height: 24px;
 }
 
 .linear-read-main {
@@ -9743,6 +9747,9 @@ a.story-nav-link:hover {
 }
 
 .linear-read-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   font-family: var(--font-ui);
   font-size: 1.125rem;
   line-height: 1.75;
@@ -9878,9 +9885,9 @@ a.story-nav-link:hover {
   font-size: 13px;
   font-weight: 500;
   color: var(--warm-brown);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .linear-chap-btn small:empty {

@@ -738,25 +738,25 @@
     const notes = $("note-list");
     if (!chars || !notes) return;
     chars.innerHTML = (story.characters || []).length
-      ? story.characters
-          .map(
-            (person) => `
-        <button type="button" class="linear-lib-item" data-peek="char" data-id="${escapeHtml(person.id)}">
-          ${escapeHtml(person.name || "Без имени")}
-        </button>`
-          )
-          .join("")
+      ? story.characters.map((person) => libRow("char", person.id, person.name || "Без имени")).join("")
       : `<p class="linear-lib-empty">Пока нет карточек</p>`;
     notes.innerHTML = (story.notes || []).length
-      ? story.notes
-          .map(
-            (note) => `
-        <button type="button" class="linear-lib-item" data-peek="note" data-id="${escapeHtml(note.id)}">
-          ${escapeHtml(note.title || "Без названия")}
-        </button>`
-          )
-          .join("")
+      ? story.notes.map((note) => libRow("note", note.id, note.title || "Без названия")).join("")
       : `<p class="linear-lib-empty">Пока нет заметок</p>`;
+  }
+
+  function libRow(kind, id, label) {
+    const safeId = escapeHtml(id);
+    return `
+      <div class="linear-lib-item">
+        <button type="button" class="linear-lib-item-name" data-peek="${kind}" data-id="${safeId}">${escapeHtml(label)}</button>
+        <button type="button" class="linear-lib-item-act" data-lib-edit="${kind}" data-id="${safeId}" aria-label="Редактировать">
+          <img src="assets/svg/редактировать.svg" alt="">
+        </button>
+        <button type="button" class="linear-lib-item-act is-danger" data-lib-del="${kind}" data-id="${safeId}" aria-label="Удалить">
+          <img src="assets/svg/удалить.svg" alt="">
+        </button>
+      </div>`;
   }
 
   function openPeek(kind, id) {
@@ -785,6 +785,7 @@
   }
 
   let libModalKind = "char";
+  let libModalId = null;
 
   function todayIso() {
     const now = new Date();
@@ -794,12 +795,19 @@
 
   function closeLibModal() {
     if ($("lib-modal")) $("lib-modal").hidden = true;
+    libModalId = null;
+    if ($("lib-modal-delete")) $("lib-modal-delete").hidden = true;
   }
 
-  function openLibModal(kind) {
+  function openLibModal(kind, id) {
+    if (!$("lib-modal")) return;
     libModalKind = kind === "note" ? "note" : "char";
+    libModalId = id || null;
     closePeek();
-    $("lib-modal-heading").textContent = libModalKind === "note" ? "Новая заметка" : "Новый персонаж";
+    const editing = Boolean(libModalId);
+    $("lib-modal-heading").textContent = libModalKind === "note"
+      ? (editing ? "Заметка" : "Новая заметка")
+      : (editing ? "Персонаж" : "Новый персонаж");
     $("lib-fields-char").hidden = libModalKind !== "char";
     $("lib-fields-note").hidden = libModalKind !== "note";
     $("lib-char-name").value = "";
@@ -808,6 +816,22 @@
     $("lib-char-traits").value = "";
     $("lib-note-title").value = "";
     $("lib-note-text").value = "";
+    if (libModalKind === "note" && editing) {
+      const note = (story.notes || []).find((item) => item.id === libModalId);
+      if (note) {
+        $("lib-note-title").value = note.title || "";
+        $("lib-note-text").value = note.text || "";
+      }
+    } else if (libModalKind === "char" && editing) {
+      const person = (story.characters || []).find((item) => item.id === libModalId);
+      if (person) {
+        $("lib-char-name").value = person.name || "";
+        $("lib-char-age").value = person.age || "";
+        $("lib-char-bio").value = person.bio || "";
+        $("lib-char-traits").value = person.traits || "";
+      }
+    }
+    if ($("lib-modal-delete")) $("lib-modal-delete").hidden = !editing;
     $("lib-modal").hidden = false;
     if (libModalKind === "note") $("lib-note-title").focus();
     else $("lib-char-name").focus();
@@ -816,29 +840,78 @@
   function saveLibModal() {
     if (libModalKind === "note") {
       const title = ($("lib-note-title").value || "").trim() || "Новая заметка";
+      const text = ($("lib-note-text").value || "").trim();
       story.notes = story.notes || [];
-      story.notes.push({
-        id: uid("note"),
-        title,
-        text: ($("lib-note-text").value || "").trim(),
-        created: todayIso(),
-      });
+      const existing = libModalId ? story.notes.find((item) => item.id === libModalId) : null;
+      if (existing) {
+        existing.title = title;
+        existing.text = text;
+      } else {
+        story.notes.push({
+          id: uid("note"),
+          title,
+          text,
+          created: todayIso(),
+        });
+      }
     } else {
       const name = ($("lib-char-name").value || "").trim() || "Новый персонаж";
+      const age = ($("lib-char-age").value || "").trim();
+      const bio = ($("lib-char-bio").value || "").trim();
+      const traits = ($("lib-char-traits").value || "").trim();
       story.characters = story.characters || [];
-      story.characters.push({
-        id: uid("char"),
-        name,
-        age: ($("lib-char-age").value || "").trim(),
-        bio: ($("lib-char-bio").value || "").trim(),
-        traits: ($("lib-char-traits").value || "").trim(),
-        pinned: "0",
-      });
+      const existing = libModalId ? story.characters.find((item) => item.id === libModalId) : null;
+      if (existing) {
+        existing.name = name;
+        existing.age = age;
+        existing.bio = bio;
+        existing.traits = traits;
+      } else {
+        story.characters.push({
+          id: uid("char"),
+          name,
+          age,
+          bio,
+          traits,
+          pinned: "0",
+        });
+      }
     }
     persist(true);
     persistLibrary();
     renderLibrary();
     closeLibModal();
+  }
+
+  function deleteLibItem(kind, id) {
+    if (!id) return;
+    if (kind === "note") {
+      story.notes = (story.notes || []).filter((item) => item.id !== id);
+    } else {
+      story.characters = (story.characters || []).filter((item) => item.id !== id);
+    }
+    persist(true);
+    persistLibrary();
+    renderLibrary();
+    closeLibModal();
+    closePeek();
+  }
+
+  function onLibListClick(event) {
+    const edit = event.target.closest("[data-lib-edit]");
+    if (edit) {
+      event.preventDefault();
+      openLibModal(edit.getAttribute("data-lib-edit"), edit.getAttribute("data-id"));
+      return;
+    }
+    const del = event.target.closest("[data-lib-del]");
+    if (del) {
+      event.preventDefault();
+      deleteLibItem(del.getAttribute("data-lib-del"), del.getAttribute("data-id"));
+      return;
+    }
+    const peek = event.target.closest("[data-peek]");
+    if (peek) openPeek(peek.getAttribute("data-peek"), peek.getAttribute("data-id"));
   }
 
   function moveScene(fromId, toId) {
@@ -1434,17 +1507,14 @@
       });
     });
   });
-  $("character-list")?.addEventListener("click", (event) => {
-    const btn = event.target.closest("[data-peek]");
-    if (btn) openPeek(btn.getAttribute("data-peek"), btn.getAttribute("data-id"));
-  });
-  $("note-list")?.addEventListener("click", (event) => {
-    const btn = event.target.closest("[data-peek]");
-    if (btn) openPeek(btn.getAttribute("data-peek"), btn.getAttribute("data-id"));
-  });
+  $("character-list")?.addEventListener("click", onLibListClick);
+  $("note-list")?.addEventListener("click", onLibListClick);
   $("lib-add-char")?.addEventListener("click", () => openLibModal("char"));
   $("lib-add-note")?.addEventListener("click", () => openLibModal("note"));
   $("lib-modal-dismiss")?.addEventListener("click", closeLibModal);
+  $("lib-modal-delete")?.addEventListener("click", () => {
+    if (libModalId) deleteLibItem(libModalKind, libModalId);
+  });
   $("lib-modal-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
     saveLibModal();
