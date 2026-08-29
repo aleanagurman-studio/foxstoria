@@ -188,37 +188,16 @@ body.editor-page {
 }
 
 .editor-header .theme-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  border: 1px solid var(--editor-outline);
-  background: var(--bg-card);
-  color: var(--icon-primary);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .editor-header .theme-btn:hover {
-  opacity: 1;
-  background: var(--bg-subtle);
-  color: var(--icon-accent);
-  border-color: color-mix(in srgb, var(--fox) 25%, var(--border-default));
-}
-
-.editor-header .theme-btn img,
-.editor-header .theme-btn .ui-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.editor-header .theme-btn .theme-day.ui-icon {
-  display: none;
-}
-
-[data-theme="dark"] .editor-header .theme-btn .theme-moon.ui-icon {
-  display: none;
-}
-
-[data-theme="dark"] .editor-header .theme-btn .theme-day.ui-icon {
-  display: inline-block;
+  background: transparent;
+  border-color: transparent;
+  opacity: 0.78;
 }
 
 .toolbar-divider {
