@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <g fill="#3B2A20">
-    <circle cx="12" cy="5" r="3"/>
-    <circle cx="12" cy="12" r="3"/>
-    <circle cx="12" cy="19" r="3"/>
+    <circle cx="12" cy="5.5" r="1.4"/>
+    <circle cx="12" cy="12" r="1.4"/>
+    <circle cx="12" cy="18.5" r="1.4"/>
   </g>
 </svg>

@@ -8,23 +8,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <link rel="stylesheet" href="studio.css?v=95">
-  <script src="site.js?v=44"></script>
+  <link rel="stylesheet" href="styles.css?v=147">
+  <link rel="stylesheet" href="studio.css?v=100">
+  <script src="site.js?v=73"></script>
 </head>
 <body class="studio-page">
   <header class="header"></header>
   <div class="studio-layout" data-side-layout>
     <aside class="studio-nav" id="side-panel" data-side-panel aria-label="Кабинет истории">
-      <p class="studio-nav-kicker">Моя история</p>
-      <button class="studio-item active" data-view="work"><img src="assets/svg/дом.svg" alt=""> Работа</button>
-      <button class="studio-item" data-view="timeline"><img src="assets/svg/ветки.svg" alt=""> Хронология</button>
-      <button class="studio-item" data-view="characters"><img src="assets/svg/пейринг.svg" alt=""> Персонажи</button>
-      <button class="studio-item" data-view="notes"><img src="assets/svg/заметки.svg" alt=""> Заметки</button>
-      <button class="studio-item" data-view="reviews"><img src="assets/svg/коммент.svg" alt=""> Отзывы</button>
-      <button class="studio-item" data-view="stats"><img src="assets/svg/стата.svg" alt=""> Статистика</button>
-      <button class="studio-item" data-view="settings"><img src="assets/svg/размер.svg" alt=""> Описание</button>
-      <a class="studio-item studio-public" id="studio-public-page" href="story-interactive.html" target="_blank" rel="noopener"><img src="assets/svg/читать.svg" alt=""> Страница работы</a>
+      <div class="studio-nav-items">
+        <p class="studio-nav-kicker">Моя история</p>
+        <button class="studio-item active" data-view="work"><img src="assets/svg/дом.svg" alt=""> Работа</button>
+        <button class="studio-item" data-view="timeline"><img src="assets/svg/ветки.svg" alt=""> Хронология</button>
+        <button class="studio-item" data-view="characters"><img src="assets/svg/пейринг.svg" alt=""> Персонажи</button>
+        <button class="studio-item" data-view="notes"><img src="assets/svg/заметки.svg" alt=""> Заметки</button>
+        <button class="studio-item" data-view="reviews"><img src="assets/svg/коммент.svg" alt=""> Отзывы</button>
+        <button class="studio-item" data-view="stats"><img src="assets/svg/стата.svg" alt=""> Статистика</button>
+        <button class="studio-item" data-view="settings"><img src="assets/svg/размер.svg" alt=""> Описание</button>
+        <a class="studio-item studio-public" id="studio-public-page" href="story-interactive.html" target="_blank" rel="noopener"><img src="assets/svg/читать.svg" alt=""> Страница работы</a>
+      </div>
       <div class="studio-nav-art" aria-hidden="true">
         <img src="assets/brand/castle.png" alt="">
       </div>
@@ -58,7 +60,7 @@
             <p class="work-dash-id">ID: #TP-001</p>
           </div>
           <div class="work-dash-stats" aria-label="Сводка работы">
-            <div><img src="assets/svg/размер.svg" alt=""><span><b>3</b><span>главы</span></span></div>
+            <div><img src="assets/deco/сборник.svg" alt=""><span><b>3</b><span>главы</span></span></div>
             <div data-studio-scenes><img src="assets/svg/ветки.svg" alt=""><span><b>12</b><span>сцен</span></span></div>
             <div><img src="assets/svg/пейринг.svg" alt=""><span><b>4</b><span>персонажа</span></span></div>
             <div><img src="assets/svg/заметки.svg" alt=""><span><b>8</b><span>заметок</span></span></div>
@@ -89,7 +91,7 @@
               <span class="work-chapter-status is-live">Опубликована</span>
               <div class="work-chapter-actions">
                 <a href="editor.html" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
-                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/удалить.svg" alt=""></button>
               </div>
             </li>
             <li class="work-chapter is-current">
@@ -103,7 +105,7 @@
               <span class="work-chapter-status">Черновик</span>
               <div class="work-chapter-actions">
                 <a href="editor.html" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
-                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/удалить.svg" alt=""></button>
               </div>
             </li>
             <li class="work-chapter">
@@ -117,7 +119,7 @@
               <span class="work-chapter-status">Черновик</span>
               <div class="work-chapter-actions">
                 <a href="editor.html" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
-                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+                <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/удалить.svg" alt=""></button>
               </div>
             </li>
           </ul>
@@ -153,11 +155,11 @@
               <time datetime="2024-05-24T18:42">24 мая 2024 в 18:42</time>
             </div>
             <div class="review-menu">
-              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="review-menu-dd" hidden>
                 <button type="button" data-review-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-review-act="reward"><img src="assets/deco/present.svg" alt=""> Наградить</button>
-                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
               </div>
             </div>
             <p class="review-text">Третья концовка стоит того, чтобы пройти заново. Кафе и парк читаются по-разному, но оба пути цепляют — особенно сцена у окна, когда Алекс молчит дольше, чем нужно.</p>
@@ -170,11 +172,11 @@
               <time datetime="2024-05-18T12:10">18 мая 2024 в 12:10</time>
             </div>
             <div class="review-menu">
-              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="review-menu-dd" hidden>
                 <button type="button" data-review-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-review-act="reward"><img src="assets/deco/present.svg" alt=""> Наградить</button>
-                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
               </div>
             </div>
             <p class="review-text">Кафе или парк — всё равно возвращаюсь к прологу. Хочется увидеть ветку с Никитой раньше, а не только намёками в письмах.</p>
@@ -187,11 +189,11 @@
               <time datetime="2024-05-12T09:03">12 мая 2024 в 9:03</time>
             </div>
             <div class="review-menu">
-              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="review-menu-dd" hidden>
                 <button type="button" data-review-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-review-act="reward"><img src="assets/deco/present.svg" alt=""> Наградить</button>
-                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
               </div>
             </div>
             <p class="review-text">Перекрёсток держит. Правда одна, пути разные — это чувствуется уже с первой сцены, и из-за этого хочется перечитывать выборы.</p>
@@ -231,7 +233,7 @@
                     <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
                   </button>
                   <button type="button" class="chrono-edit" aria-label="Редактировать событие"><img src="assets/svg/редактировать.svg" alt=""></button>
-                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/delete.svg" alt=""></button>
+                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/удалить.svg" alt=""></button>
                 </div>
               </div>
               <textarea class="chrono-text" rows="2" readonly placeholder="Краткое содержание события, сцены или ключевые моменты...">Конверт без марки. Утро, с которого всё начинается.</textarea>
@@ -250,7 +252,7 @@
                     <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
                   </button>
                   <button type="button" class="chrono-edit" aria-label="Редактировать событие"><img src="assets/svg/редактировать.svg" alt=""></button>
-                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/delete.svg" alt=""></button>
+                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/удалить.svg" alt=""></button>
                 </div>
               </div>
               <textarea class="chrono-text" rows="2" readonly placeholder="Краткое содержание события, сцены или ключевые моменты...">Адрес, которого нет. День путает следы.</textarea>
@@ -269,7 +271,7 @@
                     <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>
                   </button>
                   <button type="button" class="chrono-edit" aria-label="Редактировать событие"><img src="assets/svg/редактировать.svg" alt=""></button>
-                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/delete.svg" alt=""></button>
+                  <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/удалить.svg" alt=""></button>
                 </div>
               </div>
               <textarea class="chrono-text" rows="2" readonly placeholder="Краткое содержание события, сцены или ключевые моменты...">Вечер. Последняя строка письма.</textarea>
@@ -362,10 +364,10 @@
               <div class="char-card-actions">
                 <button type="button" class="char-edit" aria-label="Редактировать персонажа"><img src="assets/svg/редактировать.svg" alt=""></button>
                 <div class="char-menu">
-                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
                   <div class="char-menu-dd" hidden>
                     <button type="button" data-char-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
-                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
                   </div>
                 </div>
               </div>
@@ -403,10 +405,10 @@
               <div class="char-card-actions">
                 <button type="button" class="char-edit" aria-label="Редактировать персонажа"><img src="assets/svg/редактировать.svg" alt=""></button>
                 <div class="char-menu">
-                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
                   <div class="char-menu-dd" hidden>
                     <button type="button" data-char-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
-                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
                   </div>
                 </div>
               </div>
@@ -444,10 +446,10 @@
               <div class="char-card-actions">
                 <button type="button" class="char-edit" aria-label="Редактировать персонажа"><img src="assets/svg/редактировать.svg" alt=""></button>
                 <div class="char-menu">
-                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+                  <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
                   <div class="char-menu-dd" hidden>
                     <button type="button" data-char-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
-                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                    <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
                   </div>
                 </div>
               </div>
@@ -530,7 +532,7 @@
                 <input type="text" class="note-title" value="Идея: город в тумане" readonly>
                 <div class="note-card-actions">
                   <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
-                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/удалить.svg" alt=""></button>
                 </div>
               </div>
               <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">Город на скале, где всегда туман. Улицы помнят шаги, которых ещё не было.</textarea>
@@ -549,7 +551,7 @@
                 <input type="text" class="note-title" value="Цитата для начала" readonly>
                 <div class="note-card-actions">
                   <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
-                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/удалить.svg" alt=""></button>
                 </div>
               </div>
               <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">«Иногда путь выбирает нас». Не ставить в пролог — беречь для развилки в кафе.</textarea>
@@ -568,7 +570,7 @@
                 <input type="text" class="note-title" value="Деталь: кулон" readonly>
                 <div class="note-card-actions">
                   <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
-                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/удалить.svg" alt=""></button>
                 </div>
               </div>
               <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">Старинный кулон с трещиной. Маша носит его под пальто, Алекс замечает только в дождь.</textarea>
@@ -587,7 +589,7 @@
                 <input type="text" class="note-title" value="Мысль о финале" readonly>
                 <div class="note-card-actions">
                   <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
-                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+                  <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/удалить.svg" alt=""></button>
                 </div>
               </div>
               <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">Важно, чтобы финал оставлял надежду — даже в ветке, где они расходятся.</textarea>
@@ -993,7 +995,7 @@
       <div class="studio-item-modal-frame" id="studio-item-modal-frame"></div>
     </div>
   </div>
-  <script src="taxonomy.js?v=19"></script>
-  <script src="studio.js?v=48"></script>
+  <script src="taxonomy.js?v=21"></script>
+  <script src="studio.js?v=52"></script>
 </body>
 </html>

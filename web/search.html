@@ -3,140 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Поиск — FoxStoria</title>
+  <title>Каталог — FoxStoria</title>
   <link rel="icon" href="favicon.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
-  <script src="taxonomy.js?v=19"></script>
-  <script src="catalog.js?v=25" defer></script>
+  <link rel="canonical" href="catalog.html">
+  <script>
+    location.replace("catalog.html" + location.search + location.hash);
+  </script>
 </head>
 <body>
-  <header class="header"></header>
-
-  <div class="layout page">
-    <aside class="sidebar-left">
-            <nav class="sidebar-nav">
-        <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
-        <a href="catalog.html" class="active"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
-        <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
-        <a href="profile.html"><img src="assets/deco/fox.svg" alt=""> Мой профиль</a>
-        <a href="author-home.html"><img src="assets/deco/upload.svg" alt=""> Кабинет автора</a>
-        <a href="library.html"><img src="assets/deco/bookmark.svg" alt=""> Кабинет читателя</a>
-      </nav>
-      <div class="sidebar-ornament" aria-hidden="true">
-        <img src="assets/deco/уголок.svg" alt="">
-      </div>
-    </aside>
-
-    <main class="main page-main">
-      <header class="page-header">
-        <h1>Поиск работ</h1>
-        <p>Базовые фильтры сверху. Ниже — расширенный поиск: можно отметить несколько жанров, категорий, фандомов, персонажей и других меток.</p>
-      </header>
-      <form class="filter-panel" action="search.html">
-        <div class="filter-grid">
-          <div class="filter-group">
-            <label for="q">Название</label>
-            <input id="q" name="q" type="search" placeholder="Название истории…">
-          </div>
-          <div class="filter-group">
-            <label for="story_type">Тип</label>
-            <select id="story_type" name="type">
-              <option value="">Любой</option>
-              <option value="interactive">Интерактивная</option>
-              <option value="linear">Линейная</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="romance">Направленность</label>
-            <select id="romance" name="romance">
-              <option value="">Любая</option>
-              <option value="gen">Джен</option>
-              <option value="het">Гет</option>
-              <option value="slash">Слэш</option>
-              <option value="femslash">Фемслэш</option>
-              <option value="mixed">Смешанный</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="age">Возраст</label>
-            <select id="age" name="age">
-              <option value="">Любой</option>
-              <option value="0+">0+</option>
-              <option value="16+">16+</option>
-              <option value="18+">18+</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="status">Статус</label>
-            <select id="status" name="status">
-              <option value="">Любой</option>
-              <option value="in_progress">В процессе</option>
-              <option value="completed">Завершена</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="size">Размер</label>
-            <select id="size" name="size">
-              <option value="">Любой</option>
-              <option value="mini">Мини — до 20 глав</option>
-              <option value="midi">Миди — до 50 глав</option>
-              <option value="maxi">Макси</option>
-            </select>
-          </div>
-        </div>
-
-        <section class="filter-advanced">
-          <h2>Расширенный поиск</h2>
-          <p>Работа попадёт в выдачу только если в ней есть <strong>все</strong> выбранные пункты: каждый жанр, каждый фандом, каждый персонаж и каждая отметка. Кинки учитываются у работ 18+.</p>
-          <div class="filter-advanced-grid">
-            <div class="filter-group filter-group-wide">
-              <label>Категории</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="categories" data-name="categories" data-placeholder="Найти категорию…"></div>
-            </div>
-            <div class="filter-group filter-group-wide">
-              <label>Фандомы</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="fandoms" data-name="fandoms" data-placeholder="Название или другое написание…"></div>
-            </div>
-            <div class="filter-group filter-group-wide">
-              <label>Обязательные персонажи</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="characters" data-name="characters" data-placeholder="Сначала выберите фандом…"></div>
-              <p class="filter-hint">Персонажи подгружаются из выбранных фандомов. В выдачу попадут только работы, где есть каждый отмеченный персонаж.</p>
-            </div>
-            <div class="filter-group filter-group-wide">
-              <label>Пейринги</label>
-              <input type="text" name="pairings" placeholder="vasya/petya или masha | dasha — через запятую">
-              <p class="filter-hint"><strong>/</strong> — доминант и пассив, <strong>|</strong> — равные роли. Можно кликнуть пейринг на странице работы.</p>
-            </div>
-            <div class="filter-group filter-group-wide">
-              <label>Жанры</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…"></div>
-            </div>
-            <div class="filter-group filter-group-wide">
-              <label>Форматы</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…"></div>
-            </div>
-            <div class="filter-group filter-group-wide">
-              <label>Предупреждения</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…"></div>
-            </div>
-            <div class="filter-group filter-group-wide">
-              <label>Кинки</label>
-              <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…"></div>
-            </div>
-          </div>
-        </section>
-        <div class="filter-actions">
-          <button type="submit" class="btn btn-primary">Найти</button>
-          <a href="search.html" class="btn btn-outline">Сбросить</a>
-        </div>
-      </form>
-      <div class="stories-grid" data-feed="catalog"></div>
-    </main>
-  </div>
-  <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <p><a href="catalog.html">Каталог работ</a></p>
 </body>
 </html>

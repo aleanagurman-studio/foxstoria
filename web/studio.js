@@ -14,6 +14,31 @@
 
   const workId = new URLSearchParams(location.search).get("id") || "";
 
+  const WORK_STATUS_LABELS = {
+    draft: "Черновик",
+    in_progress: "В процессе",
+    completed: "Завершена",
+  };
+
+  function applyWorkStatus(status) {
+    if (!status || !WORK_STATUS_LABELS[status]) return;
+    const select = document.getElementById("work-status");
+    if (select) select.value = status;
+    const badge = document.querySelector(".work-dash-badge");
+    if (badge) badge.textContent = WORK_STATUS_LABELS[status];
+  }
+
+  if (workId && window.FoxWorkStatus) {
+    applyWorkStatus(FoxWorkStatus.get(workId));
+  }
+
+  document.getElementById("work-status")?.addEventListener("change", (event) => {
+    const status = event.target.value;
+    const key = workId || (storyTypeValue() === "linear" ? "letters" : "shadows");
+    if (window.FoxWorkStatus) FoxWorkStatus.set(key, status);
+    applyWorkStatus(status);
+  });
+
   const charModalApi = { close() {} };
 
   function showView(name) {
@@ -116,6 +141,8 @@
       const desc = document.getElementById("work-desc");
       if (desc && work.description) desc.value = work.description;
       setStoryType(work.story_type === "linear" ? "linear" : "interactive");
+      const storedStatus = window.FoxWorkStatus ? FoxWorkStatus.get(work.id) : "";
+      applyWorkStatus(storedStatus || (work.is_completed ? "completed" : ""));
       const idLine = document.querySelector(".work-dash-id");
       if (idLine) idLine.textContent = `ID: #${work.id}`;
       applyStoryType(work.story_type === "linear");
@@ -395,7 +422,7 @@
   function chapterActionsHTML(href) {
     return `<div class="work-chapter-actions">
       <a href="${href}" class="work-chapter-edit" aria-label="Редактировать главу"><img src="assets/svg/редактировать.svg" alt=""></a>
-      <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/delete.svg" alt=""></button>
+      <button type="button" class="work-chapter-delete" aria-label="Удалить главу"><img src="assets/svg/удалить.svg" alt=""></button>
     </div>`;
   }
 
@@ -492,7 +519,7 @@
           <div class="chrono-card-actions">
             ${CHRONO_GRIP}
             <button type="button" class="chrono-edit" aria-label="Редактировать событие"><img src="assets/svg/редактировать.svg" alt=""></button>
-            <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/delete.svg" alt=""></button>
+            <button type="button" class="chrono-delete" aria-label="Удалить событие"><img src="assets/svg/удалить.svg" alt=""></button>
           </div>
         </div>
         <textarea class="chrono-text" rows="2" readonly placeholder="Краткое содержание события, сцены или ключевые моменты...">${safeText}</textarea>
@@ -669,12 +696,14 @@
       itemSlot?.remove();
     }
     hideItemModalShell();
+    persistWorkLibrary();
   }
 
   function discardItemModal() {
     itemFrame?.replaceChildren();
     itemSlot?.remove();
     hideItemModalShell();
+    persistWorkLibrary();
   }
 
   charModalApi.close = closeItemModal;
@@ -868,10 +897,10 @@
         <div class="char-card-actions">
           <button type="button" class="char-edit" aria-label="Редактировать персонажа"><img src="assets/svg/редактировать.svg" alt=""></button>
           <div class="char-menu">
-            <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+            <button type="button" class="char-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
             <div class="char-menu-dd" hidden>
               <button type="button" data-char-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
-              <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+              <button type="button" class="is-danger" data-char-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
             </div>
           </div>
         </div>
@@ -991,6 +1020,7 @@
       } else if (act.getAttribute("data-char-act") === "delete") {
         if (card.parentElement === itemFrame) discardItemModal();
         else card.remove();
+        persistWorkLibrary();
       }
       closeCharMenus();
       return;
@@ -1003,6 +1033,7 @@
       stopCharEdit(event.target.closest(".char-card"));
       closeItemModal();
       applyCharFilters();
+      persistWorkLibrary();
     }
   }
 
@@ -1053,7 +1084,7 @@
           <input type="text" class="note-title" value="${safeTitle}" readonly>
           <div class="note-card-actions">
             <button type="button" class="note-edit" aria-label="Редактировать заметку"><img src="assets/svg/редактировать.svg" alt=""></button>
-            <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/delete.svg" alt=""></button>
+            <button type="button" class="note-delete" aria-label="Удалить заметку"><img src="assets/svg/удалить.svg" alt=""></button>
           </div>
         </div>
         <textarea class="note-text" rows="2" readonly placeholder="Текст заметки…">${safeText}</textarea>
@@ -1107,6 +1138,60 @@
     cards.forEach((card) => layout.appendChild(card));
   }
 
+  function persistWorkLibrary() {
+    if (!window.FoxLibrary) return;
+    FoxLibrary.save({
+      characters: [...document.querySelectorAll("#char-layout .char-card")].map((card) => ({
+        id: card.dataset.charCard || `char-${Date.now()}`,
+        name: card.querySelector(".char-name")?.value || "",
+        age: card.querySelector(".char-age")?.value || "",
+        bio: card.querySelector(".char-bio")?.value || "",
+        traits: card.querySelector(".char-traits")?.value || "",
+        pinned: card.dataset.pinned === "1" ? "1" : "0",
+      })),
+      notes: [...document.querySelectorAll("#notes-list .note-card")].map((card, index) => ({
+        id: card.dataset.noteId || `note-${card.dataset.created || index}`,
+        title: card.querySelector(".note-title")?.value || "",
+        text: card.querySelector(".note-text")?.value || "",
+        created: card.dataset.created || "",
+      })),
+    });
+  }
+
+  function hydrateWorkLibrary() {
+    if (!window.FoxLibrary) return;
+    if (!localStorage.getItem(FoxLibrary.KEY)) {
+      persistWorkLibrary();
+      return;
+    }
+    const lib = FoxLibrary.load();
+    const charLayout = document.getElementById("char-layout");
+    const notesRoot = document.getElementById("notes-list");
+    if (charLayout) {
+      charLayout.innerHTML = (lib.characters || [])
+        .map(
+          (person) => `
+        <article class="char-card${person.pinned === "1" ? " is-pinned" : ""}" data-char-card="${String(person.id || "").replace(/"/g, "")}" data-pinned="${person.pinned === "1" ? "1" : "0"}">
+          ${charCardInnerHTML(person.name, person.age, person.bio, person.traits)}
+        </article>`
+        )
+        .join("");
+      charLayout.querySelectorAll(".char-card").forEach((card) => syncCharPinButton(card));
+    }
+    if (notesRoot) {
+      notesRoot.innerHTML = (lib.notes || [])
+        .map(
+          (note) => `
+        <article class="note-card" data-note-id="${String(note.id || "").replace(/"/g, "")}" data-created="${String(note.created || "").replace(/"/g, "")}">
+          ${noteCardHTML(note.title, note.text, note.created)}
+        </article>`
+        )
+        .join("");
+    }
+    applyCharFilters();
+    applyNoteFilters();
+  }
+
   const notesList = document.getElementById("notes-list");
   bindChronoSort(notesList, ".note-card");
   document.getElementById("note-search")?.addEventListener("input", applyNoteFilters);
@@ -1131,12 +1216,14 @@
       stopNoteEdit(event.target.closest(".note-card"));
       closeItemModal();
       applyNoteFilters();
+      persistWorkLibrary();
       return;
     }
     if (event.target.closest(".note-delete")) {
       const card = event.target.closest(".note-card");
       if (card?.parentElement === itemFrame) discardItemModal();
       else card?.remove();
+      persistWorkLibrary();
     }
   });
   document.getElementById("add-note")?.addEventListener("click", () => {
@@ -1150,6 +1237,10 @@
     openItemModal(card);
   });
   applyNoteFilters();
+  hydrateWorkLibrary();
+  window.addEventListener("storage", (event) => {
+    if (event.key === FoxLibrary?.KEY) hydrateWorkLibrary();
+  });
 
   itemModal?.addEventListener("click", (event) => {
     if (event.target.closest("[data-item-modal-close]")) {
@@ -1171,6 +1262,7 @@
         stopNoteEdit(item);
         closeItemModal();
         applyNoteFilters();
+        persistWorkLibrary();
         return;
       }
       if (event.target.closest(".note-delete")) discardItemModal();

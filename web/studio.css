@@ -38,12 +38,19 @@ body.studio-page {
   flex-direction: column;
   grid-column: 1;
   grid-row: 1;
+  height: 100%;
   min-height: 0;
   border-right: 1px solid color-mix(in srgb, var(--sand) 50%, transparent);
   padding: 20px 14px 0;
-  padding-bottom: calc(1418 / 1109 * 100%);
-  background: var(--paper);
-  overflow: visible;
+  background: var(--side-bg);
+  overflow: hidden;
+}
+.studio-nav-items {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
 }
 .studio-nav-kicker {
   font-size: 0.68rem;
@@ -90,20 +97,18 @@ body.studio-page {
   color: var(--icon-accent);
 }
 .studio-nav .studio-public { margin-top: 0; }
-.studio-nav > :not(.studio-nav-art) {
+.studio-nav-items > * {
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
 }
 .studio-nav-art {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  flex: 0 0 auto;
   z-index: 0;
-  width: 100%;
-  height: auto;
-  margin: 0;
-  overflow: visible;
+  width: calc(100% + 28px);
+  margin: auto -14px 0;
+  overflow: hidden;
   line-height: 0;
   pointer-events: none;
 }
@@ -1861,8 +1866,8 @@ body.studio-page {
   object-fit: contain;
 }
 .char-menu-btn img {
-  width: 22px;
-  height: 22px;
+  width: 14px;
+  height: 14px;
   object-fit: contain;
 }
 .char-menu { position: relative; }
@@ -2219,8 +2224,8 @@ body.studio-page {
 }
 .review-menu-btn:hover { color: var(--fox); background: var(--bg-accent-soft); }
 .review-menu-btn img {
-  width: 22px;
-  height: 22px;
+  width: 14px;
+  height: 14px;
   object-fit: contain;
 }
 .review-menu-dd {
@@ -2551,22 +2556,21 @@ body.studio-page {
     top: 0;
     bottom: 0;
     left: 0;
+    height: auto;
     width: min(280px, 86vw);
-    overflow: auto;
+    overflow: hidden;
     background: var(--bg-card);
     transform: translateX(-110%);
     transition: transform 0.2s ease;
     border-right: 1px solid var(--border-default);
     border-bottom: none;
     padding: 12px 10px 0;
-    padding-bottom: calc(1418 / 1109 * 100%);
     min-width: 0;
     box-shadow: var(--shadow);
   }
   .studio-nav-art {
-    margin: 0;
-    width: 100%;
-    height: auto;
+    width: calc(100% + 20px);
+    margin: auto -10px 0;
   }
   .studio-layout.is-side-open .studio-nav {
     transform: translateX(0);

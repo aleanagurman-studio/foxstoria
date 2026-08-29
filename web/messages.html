@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
+  <link rel="stylesheet" href="styles.css?v=178">
+  <script src="site.js?v=60"></script>
   </head>
-<body>
+<body class="messages-page">
   <header class="header"></header>
 
   <div class="layout page">
@@ -30,42 +30,177 @@
     </aside>
 
     <main class="main page-main">
-        <nav class="account-subnav">
-          <a href="profile.html">Профиль</a>
-          <a href="messages.html" class="active">Сообщения</a>
-          <a href="author-home.html">Кабинет автора</a>
-          <a href="library.html">Кабинет читателя</a>
-          <a href="settings.html">Настройки</a>
-        </nav>
-
       <header class="page-header">
-        <h1>Сообщения</h1>
+        <h1>Сообщения <img class="title-leaf" src="assets/svg/3.svg" alt=""></h1>
       </header>
-      <div class="msg-layout">
-        <div class="msg-list">
-          <div class="msg-item active" data-thread="lisa">
-            <b data-user-name="Лиса с фонарём">Лиса с фонарём</b>
-            <span>Спасибо за редактор — ветки больше не путаются.</span>
-          </div>
-          <div class="msg-item" data-thread="nikita">
-            <b data-user-name="Никита">Никита</b>
-            <span>Когда открывается осенний марафон?</span>
-          </div>
+      <div class="msg-layout" data-side-layout>
+        <div class="msg-list" id="msg-chats" data-side-panel role="list">
+          <button type="button" class="msg-item active" data-thread="lisa">
+            <img class="msg-ava" src="assets/test/avatar-3.png" alt="">
+            <span class="msg-item-text">
+              <span class="msg-item-top">
+                <b>Лиса с фонарём</b>
+                <time datetime="2026-08-28T18:40">18:40</time>
+              </span>
+              <span class="msg-item-preview">Рада, что зашло. Если найдёте сбой, напишите сюда.</span>
+            </span>
+          </button>
+          <button type="button" class="msg-item" data-thread="nikita">
+            <img class="msg-ava" src="assets/test/avatar-7.png" alt="">
+            <span class="msg-item-text">
+              <span class="msg-item-top">
+                <b>Никита</b>
+                <time datetime="2026-08-28T12:11">12:11</time>
+              </span>
+              <span class="msg-item-preview">С 1 сентября. Анонс уже в новостях.</span>
+            </span>
+          </button>
         </div>
         <div class="msg-panes">
           <div class="msg-thread" data-thread="lisa">
             <div class="msg-thread-head">
-              <b data-user-name="Лиса с фонарём">Лиса с фонарём</b>
+              <button type="button" class="side-toggle msg-chats-toggle" data-side-toggle aria-controls="msg-chats" aria-expanded="false" aria-label="Чаты">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </button>
+              <img class="msg-ava" src="assets/test/avatar-3.png" alt="">
+              <div class="msg-thread-who">
+                <b data-user-name="Лиса с фонарём">Лиса с фонарём</b>
+                <span class="msg-thread-status">была недавно</span>
+              </div>
+              <div class="msg-menu">
+                <button type="button" class="msg-menu-btn" data-msg-menu aria-label="Ещё" aria-expanded="false">
+                  <img src="assets/ornaments/03_more.svg?v=3" alt="">
+                </button>
+                <div class="msg-menu-dd" hidden>
+                  <button type="button" data-msg-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить чат</button>
+                  <button type="button" data-msg-act="clear"><img src="assets/svg/none.svg" alt=""> Очистить историю</button>
+                  <button type="button" data-msg-act="mute"><img src="assets/svg/mute.svg" alt=""> Выключить уведомления</button>
+                  <button type="button" class="is-danger" data-msg-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить чат</button>
+                  <button type="button" data-msg-act="block"><img src="assets/svg/warn.svg" alt=""> Заблокировать</button>
+                </div>
+              </div>
             </div>
-            <p class="msg-bubble">Спасибо за редактор — ветки больше не путаются.</p>
-            <p class="msg-bubble mine">Рада, что зашло. Если найдёте сбой, напишите сюда.</p>
+            <div class="msg-select-bar" data-msg-select-bar hidden>
+              <span data-msg-select-count>0 выбрано</span>
+              <button type="button" data-msg-select-cancel>Отмена</button>
+            </div>
+            <div class="msg-pin-bar" data-msg-pin-bar hidden>
+              <img src="assets/svg/кнопка.svg" alt="">
+              <div class="msg-pin-copy">
+                <b>Закреплено</b>
+                <span data-msg-pin-text></span>
+              </div>
+              <button type="button" class="msg-pin-off" data-msg-unpin aria-label="Открепить">×</button>
+            </div>
+            <div class="msg-thread-log">
+              <div class="msg-row">
+                <img class="msg-ava" src="assets/test/avatar-3.png" alt="">
+                <div class="msg-bubble">
+                  <p>Привет! Зашла поблагодарить за правки в интерактивном редакторе.</p>
+                  <time>18:36</time>
+                </div>
+              </div>
+              <div class="msg-row">
+                <img class="msg-ava" src="assets/test/avatar-3.png" alt="">
+                <div class="msg-bubble">
+                  <p>Спасибо за редактор — ветки больше не путаются.</p>
+                  <time>18:37</time>
+                </div>
+              </div>
+              <div class="msg-row is-mine">
+                <div class="msg-bubble mine">
+                  <p>Рада, что зашло. Если найдёте сбой, напишите сюда.</p>
+                  <time>18:40</time>
+                </div>
+              </div>
+            </div>
+            <form class="msg-composer" data-msg-composer>
+              <div class="msg-reply-bar" data-msg-reply hidden>
+                <div>
+                  <b>Ответ</b>
+                  <span data-msg-reply-text></span>
+                </div>
+                <button type="button" data-msg-reply-cancel aria-label="Отменить ответ">×</button>
+              </div>
+              <div class="msg-attach-list" data-msg-attach-list hidden></div>
+              <div class="msg-composer-row">
+                <button type="button" class="icon-btn" data-msg-attach aria-label="Прикрепить файл">
+                  <img src="assets/svg/скрепка.svg" alt="">
+                </button>
+                <input type="file" hidden multiple data-msg-file accept="image/*,.pdf,.txt,.doc,.docx,.zip,.epub">
+                <textarea name="text" rows="1" placeholder="Сообщение"></textarea>
+                <button type="submit" class="btn btn-primary">Отправить</button>
+              </div>
+            </form>
           </div>
           <div class="msg-thread" data-thread="nikita" hidden>
             <div class="msg-thread-head">
-              <b data-user-name="Никита">Никита</b>
+              <button type="button" class="side-toggle msg-chats-toggle" data-side-toggle aria-controls="msg-chats" aria-expanded="false" aria-label="Чаты">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </button>
+              <img class="msg-ava" src="assets/test/avatar-7.png" alt="">
+              <div class="msg-thread-who">
+                <b data-user-name="Никита">Никита</b>
+                <span class="msg-thread-status">в сети</span>
+              </div>
+              <div class="msg-menu">
+                <button type="button" class="msg-menu-btn" data-msg-menu aria-label="Ещё" aria-expanded="false">
+                  <img src="assets/ornaments/03_more.svg?v=3" alt="">
+                </button>
+                <div class="msg-menu-dd" hidden>
+                  <button type="button" data-msg-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить чат</button>
+                  <button type="button" data-msg-act="clear"><img src="assets/svg/none.svg" alt=""> Очистить историю</button>
+                  <button type="button" data-msg-act="mute"><img src="assets/svg/mute.svg" alt=""> Выключить уведомления</button>
+                  <button type="button" class="is-danger" data-msg-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить чат</button>
+                  <button type="button" data-msg-act="block"><img src="assets/svg/warn.svg" alt=""> Заблокировать</button>
+                </div>
+              </div>
             </div>
-            <p class="msg-bubble">Когда открывается осенний марафон?</p>
-            <p class="msg-bubble mine">С 1 сентября. Анонс уже в новостях.</p>
+            <div class="msg-select-bar" data-msg-select-bar hidden>
+              <span data-msg-select-count>0 выбрано</span>
+              <button type="button" data-msg-select-cancel>Отмена</button>
+            </div>
+            <div class="msg-pin-bar" data-msg-pin-bar hidden>
+              <img src="assets/svg/кнопка.svg" alt="">
+              <div class="msg-pin-copy">
+                <b>Закреплено</b>
+                <span data-msg-pin-text></span>
+              </div>
+              <button type="button" class="msg-pin-off" data-msg-unpin aria-label="Открепить">×</button>
+            </div>
+            <div class="msg-thread-log">
+              <div class="msg-row">
+                <img class="msg-ava" src="assets/test/avatar-7.png" alt="">
+                <div class="msg-bubble">
+                  <p>Когда открывается осенний марафон?</p>
+                  <time>12:08</time>
+                </div>
+              </div>
+              <div class="msg-row is-mine">
+                <div class="msg-bubble mine">
+                  <p>С 1 сентября. Анонс уже в новостях.</p>
+                  <time>12:11</time>
+                </div>
+              </div>
+            </div>
+            <form class="msg-composer" data-msg-composer>
+              <div class="msg-reply-bar" data-msg-reply hidden>
+                <div>
+                  <b>Ответ</b>
+                  <span data-msg-reply-text></span>
+                </div>
+                <button type="button" data-msg-reply-cancel aria-label="Отменить ответ">×</button>
+              </div>
+              <div class="msg-attach-list" data-msg-attach-list hidden></div>
+              <div class="msg-composer-row">
+                <button type="button" class="icon-btn" data-msg-attach aria-label="Прикрепить файл">
+                  <img src="assets/svg/скрепка.svg" alt="">
+                </button>
+                <input type="file" hidden multiple data-msg-file accept="image/*,.pdf,.txt,.doc,.docx,.zip,.epub">
+                <textarea name="text" rows="1" placeholder="Сообщение"></textarea>
+                <button type="submit" class="btn btn-primary">Отправить</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

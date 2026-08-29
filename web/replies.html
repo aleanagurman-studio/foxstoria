@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
-  <script src="replies.js?v=5" defer></script>
+  <link rel="stylesheet" href="styles.css?v=167">
+  <script src="site.js?v=64"></script>
+  <script src="replies.js?v=6" defer></script>
 </head>
 <body class="replies-page">
   <header class="header"></header>
@@ -31,12 +31,13 @@
     <main class="main page-main">
       <header class="page-header">
         <h1>Обсуждения <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
-        <p>Ответы на ваши комментарии под работами и в блогах.</p>
+        <p>Ответы на комментарии и упоминания по вашему юзернейму.</p>
       </header>
-      <div class="account-tabs" id="reply-tabs">
-        <button type="button" class="active" data-reply-tab="all">Все</button>
-        <button type="button" data-reply-tab="work">К работам</button>
-        <button type="button" data-reply-tab="blog">К блогам</button>
+      <div class="account-tabs cabinet-tabs" id="reply-tabs">
+        <button type="button" class="active" data-reply-tab="all"><img src="assets/deco/paw.svg" alt=""> Все</button>
+        <button type="button" data-reply-tab="mention"><span class="tab-at" aria-hidden="true">@</span> Упоминания</button>
+        <button type="button" data-reply-tab="work"><img src="assets/svg/читать.svg" alt=""> К работам</button>
+        <button type="button" data-reply-tab="blog"><img src="assets/deco/блог.svg" alt=""> К блогам</button>
       </div>
 
       <div class="reply-toolbar">
@@ -89,7 +90,32 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="story-interactive.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
+              <div class="reply-more-dd" hidden>
+                <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="reply-card" data-kind="mention" data-status="new" data-time="2026-08-28T16:08:00">
+          <header class="reply-card-top">
+            <img class="reply-card-ava" src="assets/test/avatar-3.png" alt="">
+            <div class="reply-card-who">
+              <strong data-user-name="Лиса с фонарём"></strong>
+              <p class="reply-card-place">упоминание · <a href="news.html#editor-update">Новости</a></p>
+            </div>
+            <div class="reply-card-meta">
+              <time datetime="2026-08-28T16:08">сегодня, 16:08</time>
+              <span class="reply-status is-new">Не прочитано</span>
+            </div>
+          </header>
+          <p class="reply-text" data-mention-text="Эй, @moonwander, ветки наконец не путаются — спасибо за правки в редакторе."></p>
+          <div class="reply-card-actions">
+            <a class="reply-thread" href="news.html#editor-update">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <div class="reply-more">
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -114,7 +140,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="story-bts-slash.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -139,7 +165,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="story-linear.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -165,7 +191,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="blog.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
@@ -190,7 +216,7 @@
           <div class="reply-card-actions">
             <a class="reply-thread" href="blog.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
-              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>
                 <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
                 <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>

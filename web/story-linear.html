@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
+  <link rel="stylesheet" href="styles.css?v=197">
+  <script src="site.js?v=68"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -24,13 +24,45 @@
     </nav>
 
     <section class="work-hero">
+      <div class="work-hero-side">
       <div class="work-cover">
         <img src="assets/test/cover-2.png" alt="Обложка «Письма из прошлого»">
       </div>
+      <div class="work-chapters-block">
+        <h2 class="work-chapters-title">Главы</h2>
+        <div class="work-chapters-list">
+        <div class="chapter-row">
+          <span class="ch-num">1</span>
+          <div><a href="read-linear.html" class="ch-title"><strong>Конверт</strong></a></div>
+          <a href="read-linear.html" class="ch-play" aria-label="Читать"><img src="assets/svg/unlocked.svg" alt=""></a>
+        </div>
+        <div class="chapter-row">
+          <span class="ch-num">2</span>
+          <div><a href="read-linear.html" class="ch-title"><strong>Адрес, которого нет</strong></a></div>
+          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
+        </div>
+        <div class="chapter-row">
+          <span class="ch-num">3</span>
+          <div><a href="read-linear.html" class="ch-title"><strong>Последняя строка</strong></a></div>
+          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
+        </div>
+        </div>
+      </div>
+      </div>
       <div class="work-body">
         <div class="work-main">
+          <div class="work-top">
+          <div class="work-top-main">
           <div class="work-type-row">
             <a href="search.html?type=linear" class="work-tag-tile work-type-tile">Линейная</a>
+            <div class="work-actions-more">
+              <button type="button" class="work-icon-btn" aria-label="Поделиться">
+                <img src="assets/svg/share.svg" class="work-icon" alt="">
+              </button>
+              <button type="button" class="work-icon-btn" aria-label="Пожаловаться">
+                <img src="assets/svg/флаг.svg" class="work-icon" alt="">
+              </button>
+            </div>
           </div>
           <header class="work-head">
             <div class="work-badges">
@@ -41,6 +73,24 @@
             </div>
             <h1>Письма из прошлого</h1>
           </header>
+          </div>
+          <div class="work-actions">
+            <button type="button" class="work-icon-btn work-like-btn" aria-label="Нравится" aria-pressed="false" data-work-like>
+              <img src="assets/svg/heart.svg" class="work-icon work-like-icon" alt="">
+            </button>
+            <a href="read-linear.html" class="work-btn work-btn-read"><img src="assets/svg/читать.svg" class="work-btn-icon" alt=""> Читать</a>
+            <div class="work-split-btn" data-work-id="letters">
+              <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark2.svg" class="work-btn-icon" alt=""> Подписаться</button>
+              <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Ещё действия">
+                <svg class="work-icon" aria-hidden="true"><use href="icons.svg#i-chevron-down"></use></svg>
+              </button>
+              <div class="work-split-menu" hidden>
+                <button type="button" data-work-pack>Добавить в сборник</button>
+                <button type="button" data-work-read>Прочитано</button>
+              </div>
+            </div>
+          </div>
+          </div>
 
           <div class="work-people">
             <a href="profile.html" class="work-person" data-user-name="Звёздная пыль">
@@ -68,6 +118,7 @@
 
           <hr class="work-divider">
 
+          <div class="work-meta-row">
           <div class="work-meta">
             <div class="work-meta-item">
               <span class="work-meta-label">
@@ -97,29 +148,29 @@
               </div>
             </div>
           </div>
-
-          <div class="work-actions">
-            <a href="read-linear.html" class="work-btn work-btn-read"><img src="assets/svg/читать.svg" class="work-btn-icon" alt=""> Читать</a>
-            <div class="work-split-btn" data-work-id="letters">
-              <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark2.svg" class="work-btn-icon" alt=""> Подписаться</button>
-              <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Ещё действия">
-                <svg class="work-icon" aria-hidden="true"><use href="icons.svg#i-chevron-down"></use></svg>
-              </button>
-              <div class="work-split-menu" hidden>
-                <button type="button" data-work-pack>Добавить в сборник</button>
-                <button type="button" data-work-read>Прочитано</button>
-              </div>
+          <div class="work-structure-stats" aria-label="Статистика">
+            <h2 class="work-stats-title">Статистика</h2>
+            <div class="work-stat-cell">
+              <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
+              <span class="work-stat-value">9.8K</span>
+              <span class="work-stat-label">просмотров</span>
             </div>
-
-            <button type="button" class="work-icon-btn work-like-btn" aria-label="Нравится" aria-pressed="false" data-work-like>
-              <img src="assets/svg/heart.svg" class="work-icon work-like-icon" alt="">
-            </button>
-            <button type="button" class="work-icon-btn" aria-label="Поделиться">
-                  <img src="assets/svg/share.svg" class="work-icon" alt="">
-            </button>
-            <button type="button" class="work-icon-btn" aria-label="Пожаловаться">
-                  <img src="assets/svg/флаг.svg" class="work-icon" alt="">
-            </button>
+            <div class="work-stat-cell">
+              <img src="assets/svg/heart.svg" class="work-stat-icon" alt="">
+              <span class="work-stat-value">340</span>
+              <span class="work-stat-label">лайков</span>
+            </div>
+            <div class="work-stat-cell">
+              <img src="assets/svg/коммент.svg" class="work-stat-icon" alt="">
+              <span class="work-stat-value">48</span>
+              <span class="work-stat-label">комментариев</span>
+            </div>
+            <div class="work-stat-cell">
+              <img src="assets/deco/сборник.svg" class="work-stat-icon" alt="">
+              <span class="work-stat-value">3</span>
+              <span class="work-stat-label">главы</span>
+            </div>
+          </div>
           </div>
 
           <div class="work-text-blocks">
@@ -127,60 +178,13 @@
               <h2>Описание <img src="assets/svg/leaf.svg" class="work-section-icon" alt=""></h2>
               <p>Конверт без марки, адрес, которого нет, и три главы без развилок. Вы только листаете историю вперёд.</p>
             </section>
-          </div>
-        </div>
-
-        <aside class="work-aside">
-              <div class="work-structure-stats" aria-label="Статистика">
-                <h2 class="work-stats-title">Статистика</h2>
-                <div class="work-stat-cell">
-                      <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
-                      <span class="work-stat-value">9.8K</span>
-                      <span class="work-stat-label">просмотров</span>
-                </div>
-                <div class="work-stat-cell">
-                      <img src="assets/svg/heart.svg" class="work-stat-icon" alt="">
-                      <span class="work-stat-value">340</span>
-                      <span class="work-stat-label">лайков</span>
-                </div>
-                <div class="work-stat-cell">
-                      <img src="assets/svg/коммент.svg" class="work-stat-icon" alt="">
-                      <span class="work-stat-value">48</span>
-                      <span class="work-stat-label">комментариев</span>
-                </div>
-                <div class="work-stat-cell">
-                  <span class="work-stat-value">3</span>
-                  <span class="work-stat-label">главы</span>
-                </div>
-              </div>
-            </aside>
-
-        <section class="work-notes-block">
+            <section class="work-notes-block">
               <h2>Примечания автора <img src="assets/svg/3.svg" class="work-section-icon" alt=""></h2>
               <p>Три главы без развилок. Письма лучше читать подряд, не перескакивая.</p>
             </section>
+          </div>
+        </div>
 
-      </div>
-    </section>
-
-    <section class="work-lower work-lower--chapters">
-      <div class="work-chapters-block">
-        <h2 class="work-chapters-title">Главы</h2>
-        <div class="chapter-row">
-          <span class="ch-num">1</span>
-          <div><a href="read-linear.html" class="ch-title"><strong>Конверт</strong></a></div>
-          <a href="read-linear.html" class="ch-play" aria-label="Читать"><img src="assets/svg/unlocked.svg" alt=""></a>
-        </div>
-        <div class="chapter-row">
-          <span class="ch-num">2</span>
-          <div><a href="read-linear.html" class="ch-title"><strong>Адрес, которого нет</strong></a></div>
-          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
-        </div>
-        <div class="chapter-row">
-          <span class="ch-num">3</span>
-          <div><a href="read-linear.html" class="ch-title"><strong>Последняя строка</strong></a></div>
-          <span class="ch-lock"><img src="assets/svg/locked.svg" alt=""></span>
-        </div>
       </div>
     </section>
   </div>

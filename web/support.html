@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Поддержка — FoxStoria</title>
+  <title>Помощь — FoxStoria</title>
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
+  <link rel="stylesheet" href="styles.css?v=160">
+  <script src="site.js?v=62"></script>
 </head>
-<body>
+<body class="cabinet-page help-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -29,21 +29,68 @@
     </aside>
     <main class="main page-main">
       <header class="page-header">
-        <h1>Написать в поддержку</h1>
-        <p>Сообщите о сбое, ошибке в тексте или вопросе по аккаунту.</p>
+        <h1>Помощь <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
       </header>
-      <form class="settings-block" data-support-form>
-        <label>Тема
-          <input type="text" name="topic" required placeholder="Коротко, о чём письмо">
-        </label>
-        <label>Сообщение
-          <textarea name="body" rows="6" required placeholder="Что произошло и на какой странице"></textarea>
-        </label>
-        <button type="submit" class="btn btn-primary">Отправить</button>
-      </form>
-      <p class="empty-feed" data-support-done hidden>Мы получили обращение и ответим на почту аккаунта.</p>
+      <div class="account-tabs cabinet-tabs" data-account-tabs>
+        <button type="button" class="active" data-tab="contact"><img src="assets/svg/mail.svg" alt=""> Связь с поддержкой</button>
+        <button type="button" data-tab="docs"><img src="assets/svg/размер.svg" alt=""> Документы</button>
+      </div>
+
+      <section class="settings-block help-guide-block" id="tab-contact">
+        <div class="help-chat" data-help-guide>
+          <header class="help-chat-head">
+            <span class="help-ava"><img src="assets/brand/помощник.png" alt=""></span>
+            <div>
+              <strong>Помощник FoxStoria</strong>
+              <span>Диалог со справкой. Если ответа нет — передадим человеку.</span>
+            </div>
+          </header>
+          <div class="help-chat-log" data-help-log role="log" aria-live="polite"></div>
+          <div class="help-chat-chips" data-help-chips></div>
+          <form class="help-chat-composer" data-help-composer hidden>
+            <label class="visually-hidden" for="help-chat-input">Сообщение в поддержку</label>
+            <textarea id="help-chat-input" name="body" rows="2" required placeholder="Напишите сообщение…"></textarea>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="settings-block help-docs-block" id="tab-docs" hidden>
+        <div class="help-docs" data-help-docs>
+          <div class="help-doc-list" role="tablist" aria-label="Документы">
+            <button type="button" class="active" data-doc="rules">Правила сайта</button>
+            <button type="button" data-doc="publish">Правила публикации</button>
+            <button type="button" data-doc="sopd">СОПД</button>
+            <button type="button" data-doc="privacy">Политика конфиденциальности</button>
+            <button type="button" data-doc="terms">Пользовательское соглашение</button>
+          </div>
+          <div class="help-doc-panes">
+            <article class="help-doc" data-doc-panel="rules">
+              <h2>Правила сайта</h2>
+              <p class="profile-meta">Текст появится здесь. Раздел для норм поведения, модерации и ограничений на платформе.</p>
+            </article>
+            <article class="help-doc" hidden data-doc-panel="publish">
+              <h2>Правила публикации</h2>
+              <p class="profile-meta">Текст появится здесь. Раздел для требований к работам, меткам, возрастным ограничениям и оформлению.</p>
+            </article>
+            <article class="help-doc" hidden data-doc-panel="sopd">
+              <h2>СОПД</h2>
+              <p class="profile-meta">Текст появится здесь. Согласие на обработку персональных данных.</p>
+            </article>
+            <article class="help-doc" hidden data-doc-panel="privacy">
+              <h2>Политика конфиденциальности</h2>
+              <p class="profile-meta">Текст появится здесь. Какие данные собираем, зачем храним и с кем можем делиться.</p>
+            </article>
+            <article class="help-doc" hidden data-doc-panel="terms">
+              <h2>Пользовательское соглашение</h2>
+              <p class="profile-meta">Текст появится здесь. Условия использования FoxStoria для читателей и авторов.</p>
+            </article>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <script src="help.js?v=6" defer></script>
 </body>
 </html>

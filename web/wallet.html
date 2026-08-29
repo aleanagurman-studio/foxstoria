@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кошелёк — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=176">
+  <script src="site.js?v=62"></script>
+  <script>
+    (function remapWalletTabs() {
+      const tab = new URLSearchParams(location.search).get("tab");
+      if (tab !== "pay" && tab !== "payout" && tab !== "requisites") return;
+      const url = new URL(location.href);
+      url.searchParams.set("tab", "balance");
+      history.replaceState({}, "", url.pathname + url.search + url.hash);
+    })();
+  </script>
+</head>
+<body class="cabinet-page wallet-page">
+  <header class="header"></header>
+  <div class="layout page">
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
+        <a href="catalog.html"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
+        <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
+        <a href="profile.html"><img src="assets/deco/fox.svg" alt=""> Мой профиль</a>
+        <a href="author-home.html"><img src="assets/deco/upload.svg" alt=""> Кабинет автора</a>
+        <a href="library.html"><img src="assets/deco/bookmark.svg" alt=""> Кабинет читателя</a>
+      </nav>
+      <div class="sidebar-ornament" aria-hidden="true">
+        <img src="assets/deco/уголок.svg" alt="">
+      </div>
+    </aside>
+    <main class="main page-main">
+      <header class="page-header">
+        <h1>Кошелёк <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
+      </header>
+      <div class="account-tabs cabinet-tabs" data-account-tabs>
+        <button type="button" class="active" data-tab="balance"><img src="assets/svg/монетки.svg" alt=""> Баланс</button>
+        <button type="button" data-tab="history"><img src="assets/deco/календарь.svg" alt=""> История</button>
+      </div>
+
+      <section class="settings-block wallet-block wallet-split-block" id="tab-balance">
+        <div class="wallet-split">
+          <div class="wallet-split-main">
+            <article class="wallet-balance is-compact">
+              <p class="profile-meta">Доступно</p>
+              <p class="wallet-sum" data-wallet-sum></p>
+              <div class="wallet-balance-actions">
+                <button type="button" class="btn btn-primary" data-wallet-topup>Пополнить</button>
+                <button type="button" class="btn btn-outline" data-wallet-cashout>Вывести</button>
+              </div>
+            </article>
+            <p class="profile-meta">Баланс можно тратить на платные главы и сборы авторов.</p>
+          </div>
+          <aside class="wallet-requisites" aria-labelledby="wallet-requisites-title">
+            <h2 id="wallet-requisites-title">Реквизиты</h2>
+            <p class="profile-meta">Карты и счета СБП для пополнения и вывода.</p>
+            <div class="wallet-methods" data-wallet-methods></div>
+            <div class="wallet-add-actions">
+              <button type="button" class="btn btn-outline" data-wallet-add="card">Добавить карту</button>
+              <button type="button" class="btn btn-outline" data-wallet-add="sbp">Добавить СБП</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="settings-block wallet-block wallet-history-block" id="tab-history" hidden>
+        <div class="wallet-history">
+          <div class="wallet-history-main">
+            <div class="wallet-ops-head">
+              <h2>Операции</h2>
+              <div class="wallet-ops-tools">
+                <select data-wallet-op-filter aria-label="Тип операции">
+                  <option value="all" selected>Все</option>
+                  <option value="topup">Пополнения</option>
+                  <option value="buy">Покупки</option>
+                  <option value="refund">Возвраты</option>
+                  <option value="payout">Выводы</option>
+                </select>
+                <select data-wallet-op-sort aria-label="Сортировка по дате">
+                  <option value="new" selected>Сначала новые</option>
+                  <option value="old">Сначала старые</option>
+                </select>
+              </div>
+            </div>
+            <div class="wallet-ops" data-wallet-ops></div>
+          </div>
+          <aside class="wallet-stat" aria-labelledby="wallet-stat-title">
+            <div class="wallet-stat-head">
+              <h2 id="wallet-stat-title">Выплаты</h2>
+              <select data-wallet-chart-grain aria-label="Разбивка графика">
+                <option value="day" selected>По дням</option>
+                <option value="week">По неделям</option>
+                <option value="month">По месяцам</option>
+                <option value="range">Выбрать даты</option>
+              </select>
+            </div>
+            <div class="wallet-stat-range" data-wallet-chart-range hidden>
+              <label>
+                <span>С:</span>
+                <input type="date" data-wallet-chart-from>
+              </label>
+              <label>
+                <span>По:</span>
+                <input type="date" data-wallet-chart-to>
+              </label>
+              <div class="wallet-cal" data-wallet-cal hidden>
+                <div class="wallet-cal-head">
+                  <button type="button" class="wallet-cal-nav" data-cal-prev aria-label="Назад">‹</button>
+                  <button type="button" class="wallet-cal-title" data-cal-title></button>
+                  <button type="button" class="wallet-cal-nav" data-cal-next aria-label="Вперёд">›</button>
+                </div>
+                <div class="wallet-cal-days" data-cal-days></div>
+                <div class="wallet-cal-pick" data-cal-pick hidden></div>
+              </div>
+            </div>
+            <article class="wallet-stat-tile">
+              <p class="wallet-stat-tile-label">Выплаты</p>
+              <p class="wallet-stat-tile-value" data-wallet-chart-total></p>
+            </article>
+            <div class="wallet-chart" data-wallet-chart></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+
+  <div class="work-dialog" id="wallet-pick-dialog" hidden>
+    <div class="work-dialog-card" role="dialog" aria-modal="true" aria-labelledby="wallet-pick-title">
+      <h2 id="wallet-pick-title">Выберите способ</h2>
+      <p class="profile-meta" data-wallet-pick-empty hidden>Сначала добавьте карту или счёт СБП в реквизитах.</p>
+      <div class="wallet-pick-list" data-wallet-pick-list></div>
+      <div class="work-dialog-actions">
+        <button type="button" class="btn btn-outline" data-wallet-pick-cancel>Отмена</button>
+        <button type="button" class="btn btn-primary" data-wallet-pick-go hidden>К реквизитам</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="work-dialog" id="wallet-add-dialog" hidden>
+    <div class="work-dialog-card" role="dialog" aria-modal="true" aria-labelledby="wallet-add-title">
+      <h2 id="wallet-add-title">Новые реквизиты</h2>
+      <form data-wallet-add-form>
+        <label class="settings-field">
+          <span data-wallet-add-label>Номер</span>
+          <input type="text" name="detail" maxlength="32" required autocomplete="off">
+        </label>
+        <div class="work-dialog-actions">
+          <button type="button" class="btn btn-outline" data-wallet-add-cancel>Отмена</button>
+          <button type="submit" class="btn btn-primary" data-wallet-add-submit>Добавить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="wallet.js?v=14" defer></script>
+</body>
+</html>

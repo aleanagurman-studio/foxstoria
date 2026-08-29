@@ -723,9 +723,15 @@
   function restoreSimpleFields() {
     const params = new URLSearchParams(location.search);
     document.querySelectorAll(".filter-panel [name]").forEach((field) => {
-      if (field.type === "hidden" || field.closest(".tax-picker")) return;
+      if (field.closest(".tax-picker")) return;
+      if (field.type === "checkbox") {
+        const value = params.get(field.name);
+        field.checked = value === field.value || value === "1" || value === "on" || value === "true";
+        return;
+      }
+      if (field.type === "hidden") return;
       const value = params.get(field.name);
-      if (value != null && "value" in field && field.type !== "checkbox" && field.type !== "radio") {
+      if (value != null && "value" in field && field.type !== "radio") {
         field.value = value;
       }
     });
@@ -784,6 +790,108 @@
       input.addEventListener("change", syncKinkFields);
     });
     syncKinkFields();
+    initSearchPairingBuilders();
     document.dispatchEvent(new CustomEvent("taxonomy:ready"));
   });
+
+  function initSearchPairingBuilders() {
+    document.querySelectorAll("[data-search-pairings]").forEach((container) => {
+      const hidden = container.querySelector('input[name="pairings"]');
+      const listEl = container.querySelector(".pairing-list");
+      const leftSel = container.querySelector(".pairing-char-left");
+      const sepSel = container.querySelector(".pairing-sep");
+      const rightSel = container.querySelector(".pairing-char-right");
+      const addBtn = container.querySelector(".pairing-add");
+      if (!hidden || !listEl || !leftSel || !sepSel || !rightSel || !addBtn) return;
+
+      const parseLine = typeof parsePairingLine === "function" ? parsePairingLine : () => null;
+      const slugOf = typeof pairingSlug === "function" ? pairingSlug : (pairing) => `${pairing.left}${pairing.mode === "equal" ? "|" : "/"}${pairing.right}`;
+      const labelOf = typeof pairingLabel === "function" ? pairingLabel : (pairing) => (pairing.mode === "equal" ? `${pairing.left} | ${pairing.right}` : `${pairing.left}/${pairing.right}`);
+      const titleOf = typeof pairingTitle === "function" ? pairingTitle : labelOf;
+
+      const fromUrl = new URLSearchParams(location.search).get("pairings") || hidden.value || "";
+      let pairings = fromUrl
+        .split(",")
+        .flatMap((chunk) => String(chunk).split("\n"))
+        .map((line) => parseLine(line))
+        .filter(Boolean);
+
+      function workCharacters() {
+        const picker = document.querySelector('[data-tax-picker="characters"]');
+        if (!picker) return [];
+        return [...picker.querySelectorAll(".tax-chip")]
+          .map((chip) => chip.textContent.replace(/\s*×\s*$/, "").trim())
+          .filter(Boolean);
+      }
+
+      function syncHidden() {
+        hidden.value = pairings.map(slugOf).join(",");
+      }
+
+      function updateAddButton() {
+        addBtn.disabled = !(leftSel.value && sepSel.value && rightSel.value);
+      }
+
+      function fillSelect(select, placeholder) {
+        const chars = workCharacters();
+        const prev = select.value;
+        select.innerHTML =
+          `<option value="">${escapeHtml(placeholder)}</option>` +
+          chars.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+        select.value = chars.includes(prev) ? prev : "";
+      }
+
+      function refreshOptions() {
+        fillSelect(leftSel, "Первый");
+        fillSelect(rightSel, "Второй");
+        updateAddButton();
+      }
+
+      function renderList() {
+        listEl.innerHTML = pairings
+          .map(
+            (pairing, index) =>
+              `<span class="pairing-chip" title="${escapeHtml(titleOf(pairing))}">${escapeHtml(labelOf(pairing))}<button type="button" class="pairing-chip-remove" data-index="${index}" aria-label="Удалить пейринг">×</button></span>`
+          )
+          .join("");
+        syncHidden();
+        updateAddButton();
+      }
+
+      function resetDraft() {
+        leftSel.value = "";
+        sepSel.value = "";
+        rightSel.value = "";
+        updateAddButton();
+      }
+
+      leftSel.addEventListener("change", updateAddButton);
+      sepSel.addEventListener("change", updateAddButton);
+      rightSel.addEventListener("change", updateAddButton);
+
+      addBtn.addEventListener("click", () => {
+        if (addBtn.disabled) return;
+        pairings.push({
+          left: leftSel.value,
+          right: rightSel.value,
+          mode: sepSel.value === "|" ? "equal" : "domsub",
+        });
+        resetDraft();
+        renderList();
+      });
+
+      listEl.addEventListener("click", (event) => {
+        const btn = event.target.closest(".pairing-chip-remove");
+        if (!btn) return;
+        pairings.splice(Number(btn.getAttribute("data-index")), 1);
+        renderList();
+      });
+
+      const charPicker = document.querySelector('[data-tax-picker="characters"]');
+      charPicker?.querySelector('input[type="hidden"]')?.addEventListener("change", refreshOptions);
+
+      renderList();
+      refreshOptions();
+    });
+  }
 })();

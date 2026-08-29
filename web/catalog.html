@@ -8,11 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
-  <script src="catalog.js?v=25" defer></script>
+  <link rel="stylesheet" href="styles.css?v=170">
+  <script src="site.js?v=63"></script>
+  <script src="taxonomy.js?v=21"></script>
+  <script src="catalog.js?v=38" defer></script>
 </head>
-<body>
+<body class="catalog-page">
   <header class="header"></header>
 
   <div class="layout page">
@@ -32,22 +33,141 @@
 
     <main class="main page-main">
       <header class="page-header">
-        <h1>Каталог работ</h1>
-        <p>Интерактивные и линейные истории в одном месте. Тип можно выбрать ниже или в расширенном поиске.</p>
+        <h1>Каталог работ <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
+        <p>Интерактивные и линейные истории в одном месте. Тип, метки и пейринги можно выбрать в расширенном поиске.</p>
       </header>
-      <div class="catalog-toolbar">
-        <div class="type-tabs" data-catalog-tabs>
-          <a href="catalog.html" class="type-tab" data-type="">Все</a>
-          <a href="catalog.html?type=interactive" class="type-tab" data-type="interactive">Интерактивные</a>
-          <a href="catalog.html?type=linear" class="type-tab" data-type="linear">Линейные</a>
+      <form class="filter-panel" action="catalog.html">
+        <details class="filter-fold" data-filter-fold>
+          <summary>Расширенный поиск</summary>
+          <p class="filter-lead">Работа попадёт в выдачу только если в ней есть <strong>все</strong> выбранные пункты: каждый жанр, каждый фандом, каждый персонаж и каждая отметка. Кинки учитываются у работ 18+.</p>
+          <div class="filter-grid">
+          <div class="filter-group">
+            <label for="type">Тип</label>
+            <select id="type" name="type">
+              <option value="">Все</option>
+              <option value="interactive">Интерактивные</option>
+              <option value="linear">Линейные</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="romance">Направленность</label>
+            <select id="romance" name="romance">
+              <option value="">Любая</option>
+              <option value="gen">Джен</option>
+              <option value="het">Гет</option>
+              <option value="slash">Слэш</option>
+              <option value="femslash">Фемслэш</option>
+              <option value="mixed">Смешанный</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="age">Возраст</label>
+            <select id="age" name="age">
+              <option value="">Любой</option>
+              <option value="0+">0+</option>
+              <option value="16+">16+</option>
+              <option value="18+">18+</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="status">Статус</label>
+            <select id="status" name="status">
+              <option value="">Любой</option>
+              <option value="in_progress">В процессе</option>
+              <option value="completed">Завершена</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="size">Размер</label>
+            <select id="size" name="size">
+              <option value="">Любой</option>
+              <option value="mini">Мини — до 20 глав</option>
+              <option value="midi">Миди — до 50 глав</option>
+              <option value="maxi">Макси</option>
+            </select>
+          </div>
         </div>
-        <a href="search.html" class="btn btn-outline">Расширенный поиск</a>
-      </div>
+        <div class="filter-advanced-grid">
+          <div class="filter-group filter-group-wide">
+            <label>Фандомы</label>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="fandoms" data-name="fandoms" data-fandom-step></div>
+          </div>
+          <div class="filter-group filter-group-wide">
+            <label>Обязательные персонажи</label>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="characters" data-name="characters" data-placeholder="Сначала выберите фандом…"></div>
+            <p class="filter-hint">Персонажи подгружаются из выбранных фандомов. В выдачу попадут только работы, где есть каждый отмеченный персонаж.</p>
+          </div>
+          <div class="filter-group filter-group-wide">
+            <label>Пейринги</label>
+            <div class="pairing-builder" data-search-pairings>
+              <div class="pairing-draft">
+                <select class="pairing-char pairing-char-left" aria-label="Первый персонаж">
+                  <option value="">Первый</option>
+                </select>
+                <select class="pairing-sep" aria-label="Тип связи">
+                  <option value="">—</option>
+                  <option value="/">/</option>
+                  <option value="|">|</option>
+                </select>
+                <select class="pairing-char pairing-char-right" aria-label="Второй персонаж">
+                  <option value="">Второй</option>
+                </select>
+                <button type="button" class="pairing-add" disabled aria-label="Подтвердить пейринг">✓</button>
+              </div>
+              <div class="pairing-foot">
+                <div class="pairing-list" aria-live="polite"></div>
+                <div class="pairing-help">
+                  <div>
+                    <p>Доминант / Пассив</p>
+                    <p>Универсал | Универсал</p>
+                  </div>
+                  <div>
+                    <p>✓ добавит пейринг. Можно несколько.</p>
+                  </div>
+                </div>
+              </div>
+              <input type="hidden" name="pairings" value="">
+            </div>
+          </div>
+          <div class="filter-group filter-group-wide">
+            <label>Жанры</label>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…"></div>
+          </div>
+          <div class="filter-group filter-group-wide">
+            <label>Форматы</label>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…"></div>
+          </div>
+          <div class="filter-group filter-group-wide">
+            <label>Предупреждения</label>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…"></div>
+          </div>
+          <div class="filter-group filter-group-wide">
+            <label>Кинки</label>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…"></div>
+          </div>
+        </div>
+        <div class="filter-checks">
+          <label class="filter-check"><input type="checkbox" name="hide_read" value="1"> Скрыть прочитанные</label>
+          <label class="filter-check"><input type="checkbox" name="hide_liked" value="1"> Скрыть понравившиеся</label>
+        </div>
+        <div class="filter-actions">
+          <button type="submit" class="btn btn-primary">Найти</button>
+          <a href="catalog.html" class="btn btn-outline">Сбросить</a>
+        </div>
+        </details>
+      </form>
       <div class="sort-bar">
         <span>Сортировка:</span>
         <button type="button" class="sort-btn active" data-sort="popular">Популярные</button>
-        <button type="button" class="sort-btn" data-sort="likes">По лайкам</button>
         <button type="button" class="sort-btn" data-sort="latest">Новинки</button>
+        <div class="cabinet-view" role="group" aria-label="Вид">
+          <button type="button" class="is-active" data-catalog-view="grid" aria-label="Плитка">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          </button>
+          <button type="button" data-catalog-view="list" aria-label="Список">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="0.5"/><rect x="1" y="7" width="14" height="2" rx="0.5"/><rect x="1" y="12" width="14" height="2" rx="0.5"/></svg>
+          </button>
+        </div>
       </div>
       <div class="stories-grid" data-feed="catalog"></div>
     </main>
@@ -55,10 +175,12 @@
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const type = new URLSearchParams(location.search).get("type") || "";
-      document.querySelectorAll("[data-catalog-tabs] .type-tab").forEach((tab) => {
-        tab.classList.toggle("active", tab.getAttribute("data-type") === type);
-      });
+      const params = new URLSearchParams(location.search);
+      const fold = document.querySelector("[data-filter-fold]");
+      if (fold) {
+        const openKeys = ["type", "romance", "age", "status", "size", "fandoms", "characters", "pairings", "genres", "formats", "warnings", "kinks", "hide_read", "hide_liked"];
+        if (openKeys.some((key) => params.get(key))) fold.open = true;
+      }
     });
   </script>
 </body>

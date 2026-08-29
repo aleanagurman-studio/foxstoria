@@ -1,16 +1,12 @@
 (function editorApp() {
   const STORE = "foxtoria-editor";
-  const CARD_W = 180;
-  const CARD_H = 92;
-  const HGAP = 56;
-  const VGAP = 108;
-  const START = 40;
-
+  const CARD_W = FoxStoryMap.CARD_W;
+  const CARD_H = FoxStoryMap.CARD_H;
+  const HGAP = FoxStoryMap.HGAP;
+  const VGAP = FoxStoryMap.VGAP;
+  const START = FoxStoryMap.START;
+  const uid = FoxStoryMap.uid;
   const $ = (id) => document.getElementById(id);
-
-  function uid(prefix) {
-    return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
-  }
 
   function emptyStory() {
     const chapterId = uid("ch");
@@ -28,7 +24,7 @@
           title: "Пролог",
           description: "Главный герой просыпается в незнакомом месте...",
           notes: "",
-          background: "",
+          background: "assets/test/cover-1.png",
           isStart: true,
           isEnding: false,
           blocks: [],
@@ -43,7 +39,7 @@
           title: "Путь согласия",
           description: "Герой принимает предложение и идёт дальше.",
           notes: "",
-          background: "",
+          background: "assets/test/cover-2.png",
           isStart: false,
           isEnding: false,
           blocks: [],
@@ -55,7 +51,7 @@
           title: "Путь отказа",
           description: "Герой отказывается и ищет другой выход.",
           notes: "",
-          background: "",
+          background: "assets/test/cover-3.png",
           isStart: false,
           isEnding: false,
           blocks: [],
@@ -67,7 +63,7 @@
           title: "Развилка",
           description: "Два пути снова сходятся у старого моста.",
           notes: "",
-          background: "",
+          background: "assets/test/cover-4.png",
           isStart: false,
           isEnding: false,
           blocks: [],
@@ -75,6 +71,8 @@
         },
       ],
       selectedId: sceneId,
+      characters: window.FoxLibrary ? FoxLibrary.load().characters : [],
+      notes: window.FoxLibrary ? FoxLibrary.load().notes : [],
     };
   }
 
@@ -84,6 +82,13 @@
       if (!raw) return emptyStory();
       const data = JSON.parse(raw);
       if (!data.scenes || !data.scenes.length) return emptyStory();
+      if (window.FoxLibrary) {
+        const lib = FoxLibrary.load();
+        data.characters = lib.characters;
+        data.notes = lib.notes;
+      }
+      data.characters = data.characters || [];
+      data.notes = data.notes || [];
       return data;
     } catch {
       return emptyStory();
@@ -91,8 +96,18 @@
   }
 
   let story = loadStory();
-  let tool = "select";
+  persist(true);
+  let tool = "pan";
   let zoom = 1;
+  let lastLayout = null;
+  let linkFromId = null;
+  let skipNodeClick = false;
+  let previewPath = [];
+  const GRIP = `<svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg>`;
+  const expanded = new Set();
+  const startScene = story.scenes.find((scene) => scene.isStart) || story.scenes[0];
+  if (startScene) expanded.add(startScene.id);
+  if (story.selectedId) expanded.add(story.selectedId);
   let history = [JSON.stringify(story)];
   let histIndex = 0;
 
@@ -104,7 +119,160 @@
     return sceneById(story.selectedId) || story.scenes[0];
   }
 
-  function persist() {
+  let workspaceOpen = false;
+  let fnTarget = null;
+  let fnHideTimer = 0;
+
+  function wordCount(html) {
+    const text = html
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!text) return 0;
+    return text.split(" ").filter(Boolean).length;
+  }
+
+  function pluralWords(count) {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+    if (mod10 === 1 && mod100 !== 11) return "слово";
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "слова";
+    return "слов";
+  }
+
+  function scenePlain(scene) {
+    const fromHtml = String(scene.html || "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    return fromHtml || String(scene.description || "").trim();
+  }
+
+  function sceneBodyHtml(scene) {
+    if (scene.html) return scene.html;
+    const parts = [];
+    (scene.blocks || []).forEach((block) => {
+      if (block.type === "text" && block.text) {
+        String(block.text)
+          .split(/\n+/)
+          .forEach((line) => parts.push(`<p>${escapeHtml(line)}</p>`));
+      }
+      if (block.type === "image" && block.image) {
+        parts.push(`<img src="${escapeAttr(block.image)}" alt="">`);
+      }
+    });
+    if (!parts.length && scene.description) parts.push(`<p>${escapeHtml(scene.description)}</p>`);
+    return parts.join("") || "<p></p>";
+  }
+
+  function editorHtml() {
+    const editor = $("scene-editor");
+    if (!editor) return "";
+    const clone = editor.cloneNode(true);
+    clone.querySelectorAll(".linear-break-del").forEach((el) => el.remove());
+    clone.querySelectorAll(".linear-break.is-selected").forEach((el) => el.classList.remove("is-selected"));
+    return clone.innerHTML;
+  }
+
+  function normalizeBreaks(root, withDelete) {
+    root.querySelectorAll(".linear-break").forEach((el) => {
+      el.classList.add("linear-read-ornament");
+      el.contentEditable = "false";
+      el.classList.remove("is-selected");
+      const img = el.querySelector("img:not(.linear-break-del img)");
+      const src = img?.getAttribute("src") || "";
+      if (!/перо1\.svg/.test(src)) {
+        el.querySelectorAll(":scope > :not(.linear-break-del)").forEach((child) => child.remove());
+        const feather = document.createElement("img");
+        feather.src = "assets/deco/перо1.svg";
+        feather.alt = "";
+        el.prepend(feather);
+      }
+      el.querySelectorAll(".linear-break-del").forEach((btn) => btn.remove());
+      if (withDelete) {
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "linear-break-del";
+        del.setAttribute("aria-label", "Удалить разделитель");
+        del.innerHTML = '<img src="assets/svg/удалить.svg" alt="">';
+        el.appendChild(del);
+      }
+    });
+  }
+
+  function normalizeFootnotes(root) {
+    root.querySelectorAll(".linear-fn").forEach((el) => {
+      const note = el.getAttribute("data-note") || "";
+      if (el.tagName === "SPAN" && el.textContent === "*" && el.getAttribute("contenteditable") === "false") {
+        return;
+      }
+      const span = document.createElement("span");
+      span.className = "linear-fn";
+      span.contentEditable = "false";
+      span.setAttribute("data-note", note);
+      span.textContent = "*";
+      el.replaceWith(span);
+    });
+  }
+
+  function saveSceneHtml(force) {
+    const scene = selected();
+    if (!scene || !workspaceOpen) return;
+    scene.html = editorHtml();
+    scene.description = scenePlain(scene).slice(0, 220);
+    const count = wordCount(scene.html);
+    if ($("scene-word-count")) $("scene-word-count").textContent = `${count} ${pluralWords(count)}`;
+    persist(force);
+  }
+
+  function syncWorkspaceCover(scene) {
+    const hero = $("scene-cover-hero");
+    const box = $("scene-cover-preview");
+    const img = box?.querySelector("img");
+    const remove = $("scene-cover-remove");
+    const btn = $("scene-cover-btn");
+    if (hero) {
+      if (scene.background) {
+        hero.hidden = false;
+        hero.style.setProperty("--chapter-cover", `url("${scene.background}")`);
+      } else {
+        hero.hidden = true;
+        hero.style.removeProperty("--chapter-cover");
+      }
+    }
+    if (!box || !img || !remove || !btn) return;
+    if (scene.background) {
+      img.src = scene.background;
+      box.hidden = false;
+      remove.hidden = false;
+      btn.textContent = "Изменить обложку";
+    } else {
+      img.removeAttribute("src");
+      box.hidden = true;
+      remove.hidden = true;
+      btn.textContent = "Добавить обложку";
+    }
+  }
+
+  function fillWorkspace() {
+    const scene = selected();
+    if (!scene) return;
+    const editor = $("scene-editor");
+    hideFnPop();
+    if (editor) {
+      editor.innerHTML = sceneBodyHtml(scene);
+      normalizeFootnotes(editor);
+      normalizeBreaks(editor, true);
+    }
+    if ($("scene-sheet-title")) $("scene-sheet-title").textContent = scene.title || "";
+    const count = wordCount(scene.html || sceneBodyHtml(scene));
+    if ($("scene-word-count")) $("scene-word-count").textContent = `${count} ${pluralWords(count)}`;
+    $("scene-end-toggle")?.classList.toggle("on", scene.isEnding);
+    syncWorkspaceCover(scene);
+  }
+
+  function persist(force) {
+    if (!force && foxPref("autosave") === false) return;
     try {
       localStorage.setItem(STORE, JSON.stringify(story));
     } catch {
@@ -112,12 +280,22 @@
     }
   }
 
-  function snapshot() {
+  function persistLibrary() {
+    if (!window.FoxLibrary) return;
+    FoxLibrary.save({ characters: story.characters || [], notes: story.notes || [] });
+  }
+
+  function snapshot(scope) {
     history = history.slice(0, histIndex + 1);
     history.push(JSON.stringify(story));
     if (history.length > 40) history.shift();
     histIndex = history.length - 1;
     persist();
+    if (scope === "graph") {
+      renderMap();
+      renderTree();
+      return;
+    }
     render();
   }
 
@@ -127,24 +305,14 @@
     story = JSON.parse(history[histIndex]);
     persist();
     render();
+    if (workspaceOpen) fillWorkspace();
   }
 
-  function currentChapterId() {
-    const scene = selected();
-    return scene ? scene.chapterId : story.chapters[0].id;
-  }
-
-  function addChapter() {
-    const n = story.chapters.length + 1;
-    story.chapters.push({ id: uid("ch"), title: `Глава ${n}` });
-    snapshot();
-  }
-
-  function addScene(asChild) {
-    const parent = selected();
+  function addScene(asChild, parentId) {
+    const parent = asChild ? sceneById(parentId) : null;
+    if (asChild && !parent) return;
     const scene = {
       id: uid("sc"),
-      chapterId: currentChapterId(),
       title: "",
       description: "",
       notes: "",
@@ -152,18 +320,40 @@
       isStart: false,
       isEnding: false,
       blocks: [],
+      html: "",
       choices: [],
     };
     story.scenes.push(scene);
-    if (asChild && parent) {
+    if (asChild) {
       parent.choices.push({
         id: uid("chc"),
         label: `Вариант ${parent.choices.length + 1}`,
         targetId: scene.id,
       });
-    } else {
-      story.selectedId = scene.id;
+      const points = layout().pos;
+      const parentPos = points[parent.id] || { x: 80, y: 88 };
+      const siblings = parent.choices
+        .map((choice) => choice.targetId)
+        .filter((id) => id !== scene.id)
+        .map((id) => points[id])
+        .filter(Boolean);
+      let x = parentPos.x;
+      let y = parentPos.y + CARD_H + VGAP;
+      if (siblings.length) {
+        const right = siblings.reduce((max, point) => (point.x > max.x ? point : max), siblings[0]);
+        x = right.x + CARD_W + HGAP;
+        y = right.y;
+      }
+      const spot = emptyMapSpot(x, y, scene.id, points);
+      scene.mapX = spot.x;
+      scene.mapY = spot.y;
+      story.selectedId = parent.id;
+      expanded.add(parent.id);
+      snapshot("graph");
+      requestAnimationFrame(() => revealScene(scene.id));
+      return;
     }
+    story.selectedId = scene.id;
     snapshot();
   }
 
@@ -180,9 +370,19 @@
     snapshot();
   }
 
+  function setStart(id) {
+    const scene = sceneById(id);
+    if (!scene || scene.isStart) return;
+    story.scenes.forEach((item) => {
+      item.isStart = item.id === id;
+    });
+    snapshot("graph");
+  }
+
   function addChoice(fromId, toId, label) {
     const from = sceneById(fromId);
     if (!from || fromId === toId) return;
+    if ((from.choices || []).some((choice) => choice.targetId === toId)) return;
     from.choices.push({
       id: uid("chc"),
       label: label || `Вариант ${from.choices.length + 1}`,
@@ -194,7 +394,7 @@
     const scene = selected();
     if (!scene) return;
     if (type === "choice") {
-      addScene(true);
+      addScene(true, selected()?.id);
       return;
     }
     scene.blocks.push({
@@ -207,74 +407,54 @@
   }
 
   function layout() {
-    const start = story.scenes.find((scene) => scene.isStart) || story.scenes[0];
-    const pos = {};
-    function widthOf(id, seen) {
-      if (seen.has(id)) return CARD_W;
-      seen.add(id);
-      const scene = sceneById(id);
-      const kids = (scene?.choices || []).map((choice) => choice.targetId).filter((target) => sceneById(target));
-      if (!kids.length) return CARD_W;
-      return Math.max(
-        CARD_W,
-        kids.reduce((sum, kid) => sum + widthOf(kid, new Set(seen)) + HGAP, -HGAP)
-      );
-    }
-    function place(id, x, y, seen) {
-      if (seen.has(id) || !sceneById(id)) return;
-      seen.add(id);
-      pos[id] = { x, y };
-      const scene = sceneById(id);
-      const kids = scene.choices.map((choice) => choice.targetId).filter((target) => sceneById(target));
-      const widths = kids.map((kid) => widthOf(kid, new Set(seen)));
-      const total = widths.reduce((sum, w) => sum + w, 0) + HGAP * Math.max(0, kids.length - 1);
-      let cursor = x + CARD_W / 2 - total / 2;
-      kids.forEach((kid, index) => {
-        place(kid, cursor + widths[index] / 2 - CARD_W / 2, y + CARD_H + VGAP, seen);
-        cursor += widths[index] + HGAP;
+    return FoxStoryMap.layout(story);
+  }
+
+  function emptyMapSpot(x, y, skipId, points) {
+    const used = points || layout().pos;
+    let nx = Math.max(16, x);
+    let ny = Math.max(88, y);
+    for (let step = 0; step < 48; step += 1) {
+      const hit = story.scenes.some((item) => {
+        if (item.id === skipId) return false;
+        const point = used[item.id];
+        if (!point) return false;
+        return Math.abs(point.x - nx) < CARD_W - 12 && Math.abs(point.y - ny) < CARD_H - 12;
       });
+      if (!hit) return { x: nx, y: ny };
+      nx += CARD_W + HGAP;
     }
-    place(start.id, 80, 88, new Set());
-    story.scenes.forEach((scene) => {
-      if (pos[scene.id]) return;
-      const extras = Object.keys(pos).length;
-      pos[scene.id] = { x: 80 + (extras % 4) * (CARD_W + HGAP), y: 88 + Math.floor(extras / 4) * (CARD_H + VGAP) };
-    });
-    let minX = Infinity;
-    let maxX = 0;
-    let maxY = 0;
-    Object.values(pos).forEach((point) => {
-      minX = Math.min(minX, point.x);
-      maxX = Math.max(maxX, point.x + CARD_W);
-      maxY = Math.max(maxY, point.y + CARD_H + 16);
-    });
-    const shift = 48 - minX;
-    Object.values(pos).forEach((point) => {
-      point.x += shift;
-    });
-    return {
-      pos,
-      start,
-      width: Math.max(640, maxX - minX + 96),
-      height: Math.max(420, maxY + 48),
-      startX: pos[start.id].x + CARD_W / 2 - START / 2,
-    };
+    return { x: nx, y: ny };
+  }
+
+  function revealScene(id) {
+    const node = document.querySelector(`.canvas-graph .map-node[data-select="${id}"]`);
+    node?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 
   function path(x1, y1, x2, y2) {
-    const r = 12;
-    const mid = Math.round((y1 + y2) / 2);
-    if (Math.abs(x1 - x2) < 2) return `M ${x1} ${y1} L ${x2} ${y2}`;
-    const dir = x2 >= x1 ? 1 : -1;
-    if (Math.abs(x2 - x1) < r * 2 || Math.abs(y2 - y1) < r * 2) {
-      return `M ${x1} ${y1} L ${x1} ${mid} L ${x2} ${mid} L ${x2} ${y2}`;
-    }
-    return `M ${x1} ${y1} L ${x1} ${mid - r} Q ${x1} ${mid} ${x1 + dir * r} ${mid} L ${x2 - dir * r} ${mid} Q ${x2} ${mid} ${x2} ${mid + r} L ${x2} ${y2}`;
+    return FoxStoryMap.edgePath(x1, y1, x2, y2);
+  }
+
+  function setZoom(next) {
+    zoom = Math.min(1.6, Math.max(0.5, next));
+    render();
+  }
+
+  function fitView() {
+    const area = $("canvas-area");
+    if (!area) return;
+    const { width, height } = layout();
+    const pad = 96;
+    const sx = (area.clientWidth - pad) / Math.max(width, 1);
+    const sy = (area.clientHeight - pad) / Math.max(height, 1);
+    setZoom(Math.min(1, sx, sy));
   }
 
   function renderMap() {
     const graph = $("canvas-graph");
-    const { pos, start, width, height, startX } = layout();
+    lastLayout = layout();
+    const { pos, start, width, height, startX } = lastLayout;
     graph.style.width = `${width}px`;
     graph.style.height = `${height}px`;
     graph.style.transform = `scale(${zoom})`;
@@ -297,6 +477,7 @@
         const labelX = (from.x + CARD_W / 2 + to.x + CARD_W / 2) / 2;
         const labelY = from.y + CARD_H + Math.max(18, (to.y - from.y - CARD_H) / 2);
         choiceLabels.push({
+          id: choice.id,
           x: labelX,
           y: labelY,
           text: choice.label.trim() || `Вариант ${choiceIndex + 1}`,
@@ -331,134 +512,159 @@
         sceneIndex += 1;
         const point = pos[scene.id];
         const title = scene.title.trim() || "Без названия";
-        const desc = scene.description.trim() || "Краткое описание сцены";
+        const desc = scenePlain(scene) || "Краткое описание сцены";
         return `
-          <button type="button" class="map-node${scene.id === story.selectedId ? " selected" : ""}${scene.isStart ? " is-start" : ""}${scene.isEnding ? " ending" : ""}" data-select="${scene.id}" style="left:${point.x}px;top:${point.y}px">
-            ${scene.isStart ? `<span class="map-node-crown" aria-hidden="true"><img src="assets/deco/sparcle.svg" alt=""></span>` : ""}
+          <div class="map-node${scene.id === story.selectedId ? " selected" : ""}${scene.id === linkFromId ? " is-link-from" : ""}${scene.isStart ? " is-start" : ""}${scene.isEnding ? " ending" : ""}${scene.background ? " has-cover" : ""}" data-select="${scene.id}" style="left:${point.x}px;top:${point.y}px">
+            ${scene.background ? `<span class="map-node-cover" aria-hidden="true" style="background-image:url(&quot;${escapeAttr(scene.background)}&quot;)"></span>` : ""}
             <span class="map-node-head">
               <span class="map-node-title">${sceneIndex}. ${escapeHtml(title)}</span>
-              <span class="map-node-menu" aria-hidden="true"><img src="assets/ornaments/03_more.svg?v=2" alt=""></span>
+              <button type="button" class="map-node-menu" data-node-menu="${scene.id}" aria-label="Меню сцены">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+              </button>
             </span>
-            <span class="map-node-desc">${escapeHtml(desc.slice(0, 72))}${desc.length > 72 ? "…" : ""}</span>
-          </button>`;
+            <span class="map-node-body">
+              <span class="map-node-desc">${escapeHtml(desc.slice(0, 72))}${desc.length > 72 ? "…" : ""}</span>
+            </span>
+            <div class="map-node-pop" data-node-pop="${scene.id}">
+              <button type="button" data-node-act="edit" data-scene="${scene.id}">Редактировать</button>
+              <button type="button" data-node-act="choice" data-scene="${scene.id}">Добавить выбор</button>
+              <button type="button" data-node-act="start" data-scene="${scene.id}" ${scene.isStart ? "disabled" : ""}>Сделать началом</button>
+              <button type="button" class="is-danger" data-node-act="delete" data-scene="${scene.id}">Удалить</button>
+            </div>
+          </div>`;
       })
       .join("");
 
     const labels = choiceLabels
       .map(
         (label) =>
-          `<span class="map-choice-label tone-${label.tone}" style="left:${label.x}px;top:${label.y}px">${escapeHtml(label.text)}</span>`
+          `<button type="button" class="map-choice-label tone-${label.tone}" data-edit-choice="${label.id}" style="left:${label.x}px;top:${label.y}px">${escapeHtml(label.text)}</button>`
       )
       .join("");
 
     graph.innerHTML = svg + startHtml + nodes + labels;
-    renderMinimap(pos, width, height);
   }
 
-  function renderMinimap(pos, width, height) {
-    const root = $("minimap");
-    const dots = Object.values(pos)
-      .map((point) => {
-        const left = (point.x / width) * 100;
-        const top = (point.y / height) * 100;
-        return `<span class="minimap-dot" style="left:${left}%;top:${top}%"></span>`;
-      })
-      .join("");
-    root.innerHTML = `<div class="minimap-viewport"></div>${dots}`;
+  function branchKids(scene) {
+    const seen = new Set();
+    const kids = [];
+    (scene.choices || []).forEach((choice) => {
+      const target = sceneById(choice.targetId);
+      if (!target || target.id === scene.id || seen.has(target.id)) return;
+      seen.add(target.id);
+      kids.push(target);
+    });
+    return kids;
   }
 
   function renderTree() {
     const query = ($("scene-search").value || "").trim().toLowerCase();
-    $("structure-tree").innerHTML = story.chapters
-      .map((chapter) => {
-        const scenes = story.scenes.filter((scene) => scene.chapterId === chapter.id);
-        const items = scenes
-          .filter((scene) => !query || (scene.title || "без названия").toLowerCase().includes(query))
-          .map((scene, index) => {
-            const name = scene.title.trim() || "Без названия";
-            return `
-              <button type="button" class="scene-item${scene.id === story.selectedId ? " active" : ""}" data-select="${scene.id}">
-                <span class="scene-num">${index + 1}</span>
-                <span class="scene-item-name">${escapeHtml(name)}</span>
-                ${scene.isStart ? `<span class="scene-item-badge">Начало</span>` : ""}
-                ${scene.isEnding ? `<span class="scene-item-badge">Финал</span>` : ""}
-              </button>`;
-          })
-          .join("");
-        return `
-          <div class="chapter-group">
-            <input class="chapter-label" data-chapter="${chapter.id}" value="${escapeAttr(chapter.title)}">
-            ${items || `<p class="empty-hint">В главе пока нет сцен</p>`}
-          </div>`;
-      })
-      .join("");
+    const tree = $("structure-tree");
+    if (!tree) return;
+    if (!story.scenes.length) {
+      tree.innerHTML = `<p class="empty-hint">Сцен пока нет</p>`;
+      return;
+    }
+    if (query) {
+      const scenes = story.scenes.filter((scene) => (scene.title || "без названия").toLowerCase().includes(query));
+      tree.innerHTML = scenes
+        .map((scene, index) => tocRow(scene, index + 1, 0, []))
+        .join("") || `<p class="empty-hint">Ничего не найдено</p>`;
+      return;
+    }
+    const reachable = new Set();
+    function markReachable(scene) {
+      if (!scene || reachable.has(scene.id)) return;
+      reachable.add(scene.id);
+      branchKids(scene).forEach(markReachable);
+    }
+    const placed = new Set();
+    let index = 0;
+    function walk(scene, depth) {
+      if (!scene || placed.has(scene.id)) return "";
+      placed.add(scene.id);
+      const kids = branchKids(scene).filter((kid) => !placed.has(kid.id));
+      index += 1;
+      const row = tocRow(scene, index, depth, kids);
+      const nested = kids.length && expanded.has(scene.id) ? kids.map((kid) => walk(kid, depth + 1)).join("") : "";
+      return row + nested;
+    }
+    function tocRow(scene, num, depth, kids) {
+      const name = scene.title.trim() || "Без названия";
+      const hasKids = kids.length > 0;
+      const open = expanded.has(scene.id);
+      return `
+        <div class="toc-group" data-scene-row="${scene.id}" style="--toc-depth:${depth}">
+          <div class="toc-row${scene.id === story.selectedId ? " is-active" : ""}" data-drop="${scene.id}">
+            <button type="button" class="toc-caret" data-toggle-toc="${scene.id}" aria-expanded="${open ? "true" : "false"}" ${hasKids ? "" : "disabled"} aria-label="Ветки">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 6 6 6-6 6"/></svg>
+            </button>
+            <button type="button" class="scene-item-pick" data-select="${scene.id}">
+              <span class="scene-num">${num}</span>
+              <span class="scene-item-name">${escapeHtml(name)}</span>
+              ${scene.isStart ? `<span class="scene-item-badge">Начало</span>` : ""}
+              ${scene.isEnding ? `<span class="scene-item-badge">Финал</span>` : ""}
+            </button>
+            <button type="button" class="scene-grip" draggable="true" data-grip="${scene.id}" aria-label="Перетащить сцену">${GRIP}</button>
+            <button type="button" class="scene-item-del" data-del-scene="${scene.id}" ${story.scenes.length === 1 ? "disabled" : ""} aria-label="Удалить сцену">
+              <img src="assets/svg/удалить.svg" alt="">
+            </button>
+          </div>
+        </div>`;
+    }
+    const start = story.scenes.find((scene) => scene.isStart) || story.scenes[0];
+    markReachable(start);
+    let html = walk(start, 0);
+    story.scenes.forEach((scene) => {
+      if (!reachable.has(scene.id)) html += walk(scene, 0);
+    });
+    tree.innerHTML = html;
   }
 
   function renderRight() {
-    const scene = selected();
-    if (!scene) return;
-    $("right-label").textContent = scene.title.trim() || "Новая сцена";
-    $("scene-name").value = scene.title;
-    $("scene-desc").value = scene.description;
-    $("scene-notes").value = scene.notes;
-    $("start-toggle").classList.toggle("on", scene.isStart);
-    $("end-toggle").classList.toggle("on", scene.isEnding);
-    $("scene-bg").style.backgroundImage = scene.background ? `url("${scene.background}")` : "";
-    $("scene-bg").classList.toggle("empty-bg", !scene.background);
-    $("transitions-list").innerHTML = scene.choices.length
-      ? scene.choices
-          .map((choice) => {
-            const target = sceneById(choice.targetId);
-            return `
-              <div class="transition-item" data-choice="${choice.id}">
-                <input type="text" value="${escapeAttr(choice.label)}" data-choice-label="${choice.id}" placeholder="Текст выбора">
-                <span class="arrow">→</span>
-                <span class="target">${escapeHtml(target?.title.trim() || "Новая сцена")}</span>
-                <button type="button" class="icon-btn-sm" data-remove-choice="${choice.id}" aria-label="Удалить переход">×</button>
-              </div>`;
-          })
-          .join("")
-      : `<p class="empty-hint">Переходов нет. Добавьте выбор — появится новая сцена на карте.</p>`;
+    if (workspaceOpen) {
+      $("scene-end-toggle")?.classList.toggle("on", Boolean(selected()?.isEnding));
+      syncWorkspaceCover(selected());
+    }
   }
 
-  function renderBlocks() {
-    const scene = selected();
-    const strip = $("blocks-strip");
-    if (!scene.blocks.length) {
-      strip.innerHTML = `<div class="empty-feed"><p>Здесь будут текст, изображения и выборы сцены. Добавьте блок кнопками справа.</p></div>`;
-      return;
-    }
-    strip.innerHTML = scene.blocks
-      .map((block) => {
-        if (block.type === "image") {
-          return `
-            <div class="content-block type-image" data-block-id="${block.id}">
-              <div class="block-type-label"><span class="block-type-icon">▢</span> Изображение</div>
-              ${
-                block.image
-                  ? `<img class="block-image-preview" src="${block.image}" alt="">`
-                  : `<label class="block-image-empty">Добавить изображение<input type="file" accept="image/*" data-block-image="${block.id}" hidden></label>`
-              }
-            </div>`;
-        }
-        return `
-          <div class="content-block type-text" data-block-id="${block.id}">
-            <div class="block-type-label"><span class="block-type-icon">T</span> Текст</div>
-            <textarea data-block-text="${block.id}" placeholder="Напишите текст сцены…">${escapeHtml(block.text)}</textarea>
-          </div>`;
-      })
-      .join("");
-  }
+  function renderBlocks() {}
 
   function renderPreview() {
     const scene = selected();
-    const textBlock = scene.blocks.find((block) => block.type === "text" && block.text.trim());
-    $("preview-kicker").textContent = scene.isStart ? "Начало" : scene.isEnding ? "Финал" : "Сцена";
+    if (!scene || !$("preview")) return;
     $("preview-title").textContent = scene.title.trim() || "Без названия";
-    $("preview-text").textContent =
-      textBlock?.text.trim() || scene.description.trim() || "Текст сцены пока пуст. Вернитесь в редактор и заполните поля.";
-    $("preview-choices").innerHTML = scene.choices
-      .map((choice) => `<button type="button" class="choice-btn" data-preview-to="${choice.targetId}">${escapeHtml(choice.label || "Дальше")}</button>`)
+    const html = scene.html || sceneBodyHtml(scene);
+    const body = $("preview-body");
+    body.innerHTML = html && html.replace(/\s/g, "") ? html : `<p class="empty-hint">Текст сцены пока пуст.</p>`;
+    normalizeFootnotes(body);
+    normalizeBreaks(body, false);
+    const hero = $("preview-hero");
+    if (scene.background) {
+      hero.style.setProperty("--chapter-cover", `url("${scene.background}")`);
+    } else {
+      hero.style.removeProperty("--chapter-cover");
+    }
+    const choices = scene.choices || [];
+    const prevId = previewPath.length > 1 ? previewPath[previewPath.length - 2] : null;
+    const prevBtn = $("preview-prev");
+    if (prevBtn) {
+      prevBtn.hidden = !prevId;
+      prevBtn.disabled = !prevId;
+    }
+    if ($("preview-prev-name")) {
+      $("preview-prev-name").textContent = prevId ? sceneById(prevId)?.title.trim() || "Без названия" : "";
+    }
+    if ($("preview-choice-head")) $("preview-choice-head").hidden = !choices.length;
+    if ($("preview-random")) $("preview-random").hidden = !choices.length;
+    if ($("preview-choice-block")) $("preview-choice-block").hidden = !choices.length && !prevId;
+    $("preview-choices").innerHTML = choices
+      .map(
+        (choice) => `
+        <button type="button" class="scene-choice" data-preview-to="${choice.targetId}">
+          <span class="scene-choice-text"><b>${escapeHtml(choice.label || "Дальше")}</b><small></small></span>
+        </button>`
+      )
       .join("");
   }
 
@@ -475,23 +681,211 @@
 
   function render() {
     $("story-title").textContent = (story.title || "").trim() || "Тени прошлого";
-    $("zoom-label").textContent = `${Math.round(zoom * 100)}%`;
+    const zoomLabel = $("zoom-label");
+    if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
     renderMap();
     renderTree();
     renderRight();
     renderBlocks();
+    renderLibrary();
     document.querySelectorAll("[data-tool]").forEach((btn) => {
       btn.classList.toggle("active", btn.getAttribute("data-tool") === tool);
     });
-    $("tool-link").classList.toggle("active", tool === "link");
     $("canvas-wrap").dataset.tool = tool;
+    $("canvas-wrap").classList.toggle("is-linking", tool === "link");
+  }
+
+  function findChoice(id) {
+    for (const scene of story.scenes) {
+      const choice = (scene.choices || []).find((item) => item.id === id);
+      if (choice) return choice;
+    }
+    return null;
+  }
+
+  let menuSceneId = null;
+
+  function closeNodeMenus() {
+    document.querySelectorAll(".map-node-pop.open").forEach((pop) => pop.classList.remove("open"));
+  }
+
+  function beginChoiceEdit(label) {
+    if (label.querySelector("input")) return;
+    const id = label.getAttribute("data-edit-choice");
+    const choice = findChoice(id);
+    if (!choice) return;
+    const input = document.createElement("input");
+    input.className = "map-choice-input";
+    input.value = choice.label || "";
+    label.replaceChildren(input);
+    input.focus();
+    input.select();
+    const commit = () => {
+      choice.label = input.value.trim() || choice.label;
+      snapshot();
+    };
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        input.blur();
+      }
+    });
+  }
+
+  function renderLibrary() {
+    const chars = $("character-list");
+    const notes = $("note-list");
+    if (!chars || !notes) return;
+    chars.innerHTML = (story.characters || []).length
+      ? story.characters
+          .map(
+            (person) => `
+        <button type="button" class="linear-lib-item" data-peek="char" data-id="${escapeHtml(person.id)}">
+          ${escapeHtml(person.name || "Без имени")}
+        </button>`
+          )
+          .join("")
+      : `<p class="linear-lib-empty">Пока нет карточек</p>`;
+    notes.innerHTML = (story.notes || []).length
+      ? story.notes
+          .map(
+            (note) => `
+        <button type="button" class="linear-lib-item" data-peek="note" data-id="${escapeHtml(note.id)}">
+          ${escapeHtml(note.title || "Без названия")}
+        </button>`
+          )
+          .join("")
+      : `<p class="linear-lib-empty">Пока нет заметок</p>`;
+  }
+
+  function openPeek(kind, id) {
+    const body = $("peek-body");
+    if (!body) return;
+    if (kind === "char") {
+      const person = (story.characters || []).find((item) => item.id === id);
+      if (!person) return;
+      body.innerHTML = `
+        <h3>${escapeHtml(person.name)}</h3>
+        <p class="linear-peek-meta">${escapeHtml(person.age || "")}</p>
+        <p>${escapeHtml(person.bio || "")}</p>
+        <p class="linear-peek-meta">${escapeHtml(person.traits || "")}</p>`;
+    } else {
+      const note = (story.notes || []).find((item) => item.id === id);
+      if (!note) return;
+      body.innerHTML = `
+        <h3>${escapeHtml(note.title)}</h3>
+        <p>${escapeHtml(note.text || "")}</p>`;
+    }
+    $("linear-peek").hidden = false;
+  }
+
+  function closePeek() {
+    if ($("linear-peek")) $("linear-peek").hidden = true;
+  }
+
+  let libModalKind = "char";
+
+  function todayIso() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  }
+
+  function closeLibModal() {
+    if ($("lib-modal")) $("lib-modal").hidden = true;
+  }
+
+  function openLibModal(kind) {
+    libModalKind = kind === "note" ? "note" : "char";
+    closePeek();
+    $("lib-modal-heading").textContent = libModalKind === "note" ? "Новая заметка" : "Новый персонаж";
+    $("lib-fields-char").hidden = libModalKind !== "char";
+    $("lib-fields-note").hidden = libModalKind !== "note";
+    $("lib-char-name").value = "";
+    $("lib-char-age").value = "";
+    $("lib-char-bio").value = "";
+    $("lib-char-traits").value = "";
+    $("lib-note-title").value = "";
+    $("lib-note-text").value = "";
+    $("lib-modal").hidden = false;
+    if (libModalKind === "note") $("lib-note-title").focus();
+    else $("lib-char-name").focus();
+  }
+
+  function saveLibModal() {
+    if (libModalKind === "note") {
+      const title = ($("lib-note-title").value || "").trim() || "Новая заметка";
+      story.notes = story.notes || [];
+      story.notes.push({
+        id: uid("note"),
+        title,
+        text: ($("lib-note-text").value || "").trim(),
+        created: todayIso(),
+      });
+    } else {
+      const name = ($("lib-char-name").value || "").trim() || "Новый персонаж";
+      story.characters = story.characters || [];
+      story.characters.push({
+        id: uid("char"),
+        name,
+        age: ($("lib-char-age").value || "").trim(),
+        bio: ($("lib-char-bio").value || "").trim(),
+        traits: ($("lib-char-traits").value || "").trim(),
+        pinned: "0",
+      });
+    }
+    persist(true);
+    persistLibrary();
+    renderLibrary();
+    closeLibModal();
+  }
+
+  function moveScene(fromId, toId) {
+    if (!fromId || !toId || fromId === toId) return;
+    const from = story.scenes.findIndex((scene) => scene.id === fromId);
+    const to = story.scenes.findIndex((scene) => scene.id === toId);
+    if (from < 0 || to < 0) return;
+    const [item] = story.scenes.splice(from, 1);
+    story.scenes.splice(to, 0, item);
+    snapshot();
+  }
+
+  function openSettings() {
+    workspaceOpen = true;
+    document.body.classList.add("is-scene-workspace");
+    $("scene-workspace").hidden = false;
+    fillWorkspace();
+    requestAnimationFrame(() => $("scene-sheet-title")?.focus());
+  }
+
+  function closeSettings() {
+    if (!workspaceOpen) return;
+    saveSceneHtml(true);
+    hideFnPop();
+    workspaceOpen = false;
+    document.body.classList.remove("is-scene-workspace");
+    $("scene-workspace").hidden = true;
+    renderMap();
+    renderTree();
   }
 
   function selectScene(id) {
-    if (tool === "link" && story.selectedId && story.selectedId !== id) {
-      addChoice(story.selectedId, id);
-      tool = "select";
-      snapshot();
+    if (tool === "link") {
+      if (!linkFromId) {
+        linkFromId = id;
+        story.selectedId = id;
+        persist();
+        render();
+        return;
+      }
+      if (linkFromId !== id) {
+        addChoice(linkFromId, id);
+        expanded.add(linkFromId);
+        linkFromId = null;
+        tool = "pan";
+        snapshot();
+      }
       return;
     }
     story.selectedId = id;
@@ -504,46 +898,120 @@
     if (previewTo) {
       const id = previewTo.getAttribute("data-preview-to");
       if (sceneById(id)) {
+        if (previewPath[previewPath.length - 1] !== id) previewPath.push(id);
         story.selectedId = id;
         persist();
         renderPreview();
+        renderTree();
       }
       return;
     }
+    const editChoice = event.target.closest("[data-edit-choice]");
+    if (editChoice) {
+      event.stopPropagation();
+      beginChoiceEdit(editChoice);
+      return;
+    }
+    const nodeAct = event.target.closest("[data-node-act]");
+    if (nodeAct) {
+      event.preventDefault();
+      event.stopPropagation();
+      const sceneId = nodeAct.getAttribute("data-scene") || menuSceneId;
+      const act = nodeAct.getAttribute("data-node-act");
+      closeNodeMenus();
+      if (act === "edit") {
+        story.selectedId = sceneId;
+        persist();
+        render();
+        openSettings();
+      } else if (act === "choice") {
+        setTimeout(() => addScene(true, sceneId), 0);
+      } else if (act === "start") {
+        setStart(sceneId);
+      } else if (act === "delete") {
+        deleteScene(sceneId);
+      }
+      return;
+    }
+    const nodeMenu = event.target.closest("[data-node-menu]");
+    if (nodeMenu) {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = nodeMenu.getAttribute("data-node-menu");
+      menuSceneId = id;
+      const pop = document.querySelector(`[data-node-pop="${id}"]`);
+      const wasOpen = pop?.classList.contains("open");
+      closeNodeMenus();
+      if (pop && !wasOpen) pop.classList.add("open");
+      return;
+    }
+    const tocDel = event.target.closest("[data-del-scene]");
+    if (tocDel) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!tocDel.disabled) deleteScene(tocDel.getAttribute("data-del-scene"));
+      return;
+    }
+    const tocToggle = event.target.closest("[data-toggle-toc]");
+    if (tocToggle && !tocToggle.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = tocToggle.getAttribute("data-toggle-toc");
+      if (expanded.has(id)) expanded.delete(id);
+      else expanded.add(id);
+      renderTree();
+      return;
+    }
+    if (!event.target.closest(".map-node-pop")) closeNodeMenus();
     const select = event.target.closest("[data-select]");
     if (select) {
+      if (skipNodeClick) {
+        skipNodeClick = false;
+        return;
+      }
+      if (tool === "link" && !select.classList.contains("map-node")) return;
       selectScene(select.getAttribute("data-select"));
       return;
     }
     const mode = event.target.closest("[data-mode]");
     if (mode) {
       const value = mode.getAttribute("data-mode");
+      if (workspaceOpen && value === "preview") closeSettings();
       document.querySelectorAll(".mode-tab").forEach((tab) => tab.classList.toggle("active", tab.getAttribute("data-mode") === value));
       $("preview").hidden = value !== "preview";
-      $("bottom-panel").hidden = value === "preview";
-      if (value === "preview") renderPreview();
+      if (value === "preview") {
+        previewPath = [selected()?.id].filter(Boolean);
+        renderPreview();
+      }
       return;
     }
     const toolBtn = event.target.closest("[data-tool]");
     if (toolBtn) {
       const next = toolBtn.getAttribute("data-tool");
-      tool = tool === next && next !== "select" ? "select" : next;
+      if (next === "link") {
+        tool = tool === "link" ? "pan" : "link";
+        linkFromId = null;
+      } else {
+        tool = next;
+        linkFromId = null;
+      }
       render();
       return;
     }
-    const bottom = event.target.closest("[data-bottom]");
-    if (bottom) {
-      const name = bottom.getAttribute("data-bottom");
-      document.querySelectorAll(".bottom-tab").forEach((tab) => tab.classList.toggle("active", tab.getAttribute("data-bottom") === name));
-      $("blocks-strip").hidden = name !== "content";
-      $("notes-panel").hidden = name !== "notes";
+    const zoomBtn = event.target.closest("[data-zoom]");
+    if (zoomBtn) {
+      const action = zoomBtn.getAttribute("data-zoom");
+      if (action === "in") setZoom(zoom + 0.1);
+      else if (action === "out") setZoom(zoom - 0.1);
+      else fitView();
       return;
     }
     const right = event.target.closest("[data-right]");
-    if (right) {
+    if (right && $("right-settings")) {
       const name = right.getAttribute("data-right");
       document.querySelectorAll(".right-tab").forEach((tab) => tab.classList.toggle("active", tab.getAttribute("data-right") === name));
       $("right-settings").hidden = name !== "settings";
+      if ($("right-blocks")) $("right-blocks").hidden = name !== "blocks";
       return;
     }
     const blockType = event.target.closest("[data-block]");
@@ -559,97 +1027,331 @@
     }
   });
 
-  $("add-chapter").addEventListener("click", addChapter);
-  $("add-scene").addEventListener("click", () => addScene(false));
-  $("tool-center").addEventListener("click", () => {
-    $("canvas-area").scrollTo({ top: 0, left: 0, behavior: "smooth" });
-  });
-  $("tool-delete").addEventListener("click", () => deleteScene(story.selectedId));
-  $("delete-scene").addEventListener("click", () => deleteScene(story.selectedId));
-  $("add-transition").addEventListener("click", () => addScene(true));
+  $("add-scene")?.addEventListener("click", () => addScene(false));
   $("undo-btn").addEventListener("click", () => restore(histIndex - 1));
   $("redo-btn").addEventListener("click", () => restore(histIndex + 1));
-  $("zoom-in").addEventListener("click", () => {
-    zoom = Math.min(1.6, zoom + 0.1);
-    render();
-  });
-  $("zoom-out").addEventListener("click", () => {
-    zoom = Math.max(0.6, zoom - 0.1);
-    render();
-  });
-  $("preview-restart").addEventListener("click", () => {
-    const start = story.scenes.find((scene) => scene.isStart) || story.scenes[0];
-    story.selectedId = start.id;
+  $("tool-new-scene")?.addEventListener("click", () => addScene(false));
+  $("tool-choice")?.addEventListener("click", () => addScene(true, selected()?.id));
+  $("zoom-in")?.addEventListener("click", () => setZoom(zoom + 0.1));
+  $("zoom-out")?.addEventListener("click", () => setZoom(zoom - 0.1));
+  $("preview-prev")?.addEventListener("click", () => {
+    if (previewPath.length < 2) return;
+    previewPath.pop();
+    const id = previewPath[previewPath.length - 1];
+    if (!sceneById(id)) return;
+    story.selectedId = id;
     persist();
     renderPreview();
+    renderTree();
   });
-  $("toggle-start").addEventListener("click", () => {
-    story.scenes.forEach((scene) => {
-      scene.isStart = scene.id === story.selectedId;
-    });
-    snapshot();
+  $("preview-random")?.addEventListener("click", () => {
+    const choices = selected()?.choices || [];
+    if (!choices.length) return;
+    const pick = choices[Math.floor(Math.random() * choices.length)];
+    if (!pick?.targetId || !sceneById(pick.targetId)) return;
+    if (previewPath[previewPath.length - 1] !== pick.targetId) previewPath.push(pick.targetId);
+    story.selectedId = pick.targetId;
+    persist();
+    renderPreview();
+    renderTree();
   });
-  $("toggle-end").addEventListener("click", () => {
+
+  function commitFnPop() {
+    if (!fnTarget || !document.contains(fnTarget)) return;
+    fnTarget.setAttribute("data-note", $("fn-text").value.trim());
+    saveSceneHtml();
+  }
+
+  function hideFnPop() {
+    clearTimeout(fnHideTimer);
+    commitFnPop();
+    if ($("fn-pop")) $("fn-pop").hidden = true;
+    fnTarget = null;
+  }
+
+  function showFnPop(mark, focus) {
+    clearTimeout(fnHideTimer);
+    if (fnTarget && fnTarget !== mark) commitFnPop();
+    fnTarget = mark;
+    const pop = $("fn-pop");
+    if (!pop) return;
+    $("fn-text").value = mark.getAttribute("data-note") || "";
+    pop.hidden = false;
+    const r = mark.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - Math.max(pop.offsetWidth, 200) - 8));
+    let top = r.bottom + 8;
+    if (top + pop.offsetHeight > window.innerHeight - 8) {
+      top = Math.max(8, r.top - pop.offsetHeight - 8);
+    }
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+    if (focus) $("fn-text").focus();
+  }
+
+  function removeBreak(el) {
+    if (!el) return;
+    el.remove();
+    saveSceneHtml();
+    snapshot("graph");
+  }
+
+  function breakBesideCaret(range, backwards) {
+    if (!range) return null;
+    const node = range.startContainer;
+    const offset = range.startOffset;
+    const asBreak = (item) => {
+      if (!item) return null;
+      if (item.nodeType === 1 && item.classList.contains("linear-break")) return item;
+      return item.nodeType === 1 ? item.closest(".linear-break") : item.parentElement?.closest(".linear-break") || null;
+    };
+    if (!range.collapsed) return null;
+    if (backwards) {
+      if (node.nodeType === Node.TEXT_NODE && offset === 0) return asBreak(node.previousSibling) || asBreak(node.parentElement?.previousSibling);
+      if (node.nodeType === Node.ELEMENT_NODE && offset > 0) return asBreak(node.childNodes[offset - 1]);
+      if (node.nodeType === Node.ELEMENT_NODE && offset === 0) return asBreak(node.previousSibling);
+    } else {
+      if (node.nodeType === Node.TEXT_NODE && offset === node.length) return asBreak(node.nextSibling) || asBreak(node.parentElement?.nextSibling);
+      if (node.nodeType === Node.ELEMENT_NODE) return asBreak(node.childNodes[offset]);
+    }
+    return null;
+  }
+
+  function insertSceneNode(node) {
+    const editor = $("scene-editor");
+    editor.focus();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      range.collapse(false);
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      editor.appendChild(node);
+    }
+    saveSceneHtml();
+    snapshot("graph");
+  }
+
+  function insertSceneImage(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const editor = $("scene-editor");
+      editor.focus();
+      const img = document.createElement("img");
+      img.src = String(reader.result);
+      img.alt = "";
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        range.collapse(false);
+        range.insertNode(img);
+        const spacer = document.createElement("p");
+        spacer.innerHTML = "<br>";
+        img.after(spacer);
+        range.setStart(spacer, 0);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } else {
+        editor.appendChild(img);
+        editor.appendChild(document.createElement("p"));
+      }
+      saveSceneHtml();
+      snapshot("graph");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  $("scene-workspace-close")?.addEventListener("click", closeSettings);
+  $("scene-ws-undo")?.addEventListener("click", () => restore(histIndex - 1));
+  $("scene-ws-redo")?.addEventListener("click", () => restore(histIndex + 1));
+  $("scene-end-switch")?.addEventListener("click", () => {
     const scene = selected();
     scene.isEnding = !scene.isEnding;
-    snapshot();
+    $("scene-end-toggle")?.classList.toggle("on", scene.isEnding);
+    snapshot("graph");
   });
-  $("scene-bg-file").addEventListener("change", (event) => {
+  $("scene-cover-btn")?.addEventListener("click", () => $("scene-cover-file").click());
+  $("scene-cover-file")?.addEventListener("change", (event) => {
     const file = event.target.files?.[0];
+    event.target.value = "";
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       selected().background = String(reader.result);
-      snapshot();
+      snapshot("graph");
+      syncWorkspaceCover(selected());
     };
     reader.readAsDataURL(file);
   });
-  $("scene-bg-clear").addEventListener("click", () => {
+  $("scene-cover-remove")?.addEventListener("click", () => {
     selected().background = "";
-    snapshot();
+    snapshot("graph");
+    syncWorkspaceCover(selected());
   });
-
-  function onSceneName(event) {
-    selected().title = event.target.value;
+  $("scene-sheet-title")?.addEventListener("input", () => {
+    selected().title = ($("scene-sheet-title").textContent || "").slice(0, 100);
     persist();
-    renderMap();
     renderTree();
-    $("right-label").textContent = event.target.value.trim() || "Новая сцена";
-  }
-  $("scene-name").addEventListener("input", onSceneName);
-  $("scene-name").addEventListener("change", onSceneName);
-  $("scene-desc").addEventListener("input", (event) => {
-    selected().description = event.target.value;
-    persist();
+    renderMap();
   });
-  $("scene-notes").addEventListener("input", (event) => {
-    selected().notes = event.target.value;
-    persist();
+  document.querySelectorAll("[data-scene-cmd]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $("scene-editor")?.focus();
+      document.execCommand(btn.getAttribute("data-scene-cmd"), false);
+      saveSceneHtml();
+    });
+  });
+  $("scene-insert-break")?.addEventListener("click", () => {
+    const wrap = document.createElement("div");
+    wrap.className = "linear-break linear-read-ornament";
+    wrap.contentEditable = "false";
+    wrap.innerHTML = '<img src="assets/deco/перо1.svg" alt="">';
+    const editor = $("scene-editor");
+    editor.focus();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      range.collapse(false);
+      const host =
+        range.startContainer.nodeType === Node.ELEMENT_NODE
+          ? range.startContainer.closest("p")
+          : range.startContainer.parentElement?.closest("p");
+      if (host && editor.contains(host)) host.after(wrap);
+      else range.insertNode(wrap);
+    } else {
+      editor.appendChild(wrap);
+    }
+    if (!wrap.nextElementSibling) {
+      const spacer = document.createElement("p");
+      spacer.innerHTML = "<br>";
+      wrap.after(spacer);
+    }
+    saveSceneHtml();
+    snapshot("graph");
+  });
+  $("scene-insert-note")?.addEventListener("click", () => {
+    const mark = document.createElement("span");
+    mark.className = "linear-fn";
+    mark.contentEditable = "false";
+    mark.setAttribute("data-note", "");
+    mark.textContent = "*";
+    insertSceneNode(mark);
+    const live = [...$("scene-editor").querySelectorAll(".linear-fn")].at(-1);
+    if (live) showFnPop(live, true);
+  });
+  $("scene-insert-image")?.addEventListener("click", () => $("scene-image-file").click());
+  $("scene-image-file")?.addEventListener("change", (event) => {
+    insertSceneImage(event.target.files?.[0]);
+    event.target.value = "";
+  });
+  $("scene-editor")?.addEventListener("input", () => saveSceneHtml());
+  $("scene-editor")?.addEventListener("click", (event) => {
+    const editor = $("scene-editor");
+    const del = event.target.closest(".linear-break-del");
+    if (del) {
+      event.preventDefault();
+      event.stopPropagation();
+      removeBreak(del.closest(".linear-break"));
+      return;
+    }
+    const br = event.target.closest(".linear-break");
+    editor.querySelectorAll(".linear-break.is-selected").forEach((el) => el.classList.remove("is-selected"));
+    if (br && editor.contains(br)) br.classList.add("is-selected");
+  });
+  $("scene-editor")?.addEventListener("keydown", (event) => {
+    if (event.key !== "Backspace" && event.key !== "Delete") return;
+    const editor = $("scene-editor");
+    const selectedBreak = editor.querySelector(".linear-break.is-selected");
+    if (selectedBreak) {
+      event.preventDefault();
+      removeBreak(selectedBreak);
+      return;
+    }
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const nearby = breakBesideCaret(sel.getRangeAt(0), event.key === "Backspace");
+    if (!nearby || !editor.contains(nearby)) return;
+    event.preventDefault();
+    removeBreak(nearby);
+  });
+  $("scene-editor")?.addEventListener("mouseover", (event) => {
+    const mark = event.target.closest(".linear-fn");
+    if (mark && $("scene-editor").contains(mark)) showFnPop(mark, false);
+  });
+  $("scene-editor")?.addEventListener("mouseout", (event) => {
+    const mark = event.target.closest(".linear-fn");
+    if (!mark) return;
+    const next = event.relatedTarget;
+    if (next && (mark.contains(next) || next.closest("#fn-pop"))) return;
+    fnHideTimer = window.setTimeout(hideFnPop, 220);
+  });
+  $("fn-pop")?.addEventListener("mouseenter", () => clearTimeout(fnHideTimer));
+  $("fn-pop")?.addEventListener("mouseleave", (event) => {
+    const next = event.relatedTarget;
+    if (next && next.closest && next.closest(".linear-fn")) return;
+    fnHideTimer = window.setTimeout(hideFnPop, 220);
+  });
+  $("fn-text")?.addEventListener("input", () => {
+    if (fnTarget) fnTarget.setAttribute("data-note", $("fn-text").value);
+  });
+  $("fn-done")?.addEventListener("click", hideFnPop);
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !workspaceOpen) return;
+    if ($("fn-pop") && !$("fn-pop").hidden) {
+      hideFnPop();
+      return;
+    }
+    if ($("lib-modal") && !$("lib-modal").hidden) return;
+    if ($("linear-peek") && !$("linear-peek").hidden) return;
+    closeSettings();
   });
   $("scene-search").addEventListener("input", renderTree);
-  $("structure-tree").addEventListener("input", (event) => {
-    const chapterId = event.target.getAttribute("data-chapter");
-    if (chapterId) {
-      const chapter = story.chapters.find((item) => item.id === chapterId);
-      if (chapter) chapter.title = event.target.value;
-      persist();
+  $("structure-tree").addEventListener("dragstart", (event) => {
+    const grip = event.target.closest("[data-grip]");
+    if (!grip) {
+      event.preventDefault();
+      return;
     }
+    event.dataTransfer.setData("text/plain", grip.getAttribute("data-grip"));
+    event.dataTransfer.effectAllowed = "move";
+    grip.closest(".toc-row")?.classList.add("is-dragging");
   });
-  $("transitions-list").addEventListener("input", (event) => {
+  $("structure-tree").addEventListener("dragend", (event) => {
+    event.target.closest(".toc-row")?.classList.remove("is-dragging");
+  });
+  $("structure-tree").addEventListener("dragover", (event) => {
+    if (!event.target.closest("[data-drop]")) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  });
+  $("structure-tree").addEventListener("drop", (event) => {
+    const row = event.target.closest("[data-drop]");
+    if (!row) return;
+    event.preventDefault();
+    moveScene(event.dataTransfer.getData("text/plain"), row.getAttribute("data-drop"));
+  });
+  $("transitions-list")?.addEventListener("input", (event) => {
     const choiceId = event.target.getAttribute("data-choice-label");
     if (!choiceId) return;
     const choice = selected().choices.find((item) => item.id === choiceId);
     if (choice) choice.label = event.target.value;
     persist();
+    renderMap();
+    renderTree();
   });
-  $("blocks-strip").addEventListener("input", (event) => {
+  $("right-blocks")?.addEventListener("input", (event) => {
     const id = event.target.getAttribute("data-block-text");
     if (!id) return;
     const block = selected().blocks.find((item) => item.id === id);
     if (block) block.text = event.target.value;
     persist();
   });
-  $("blocks-strip").addEventListener("change", (event) => {
+  $("right-blocks")?.addEventListener("change", (event) => {
     const id = event.target.getAttribute("data-block-image");
     const file = event.target.files?.[0];
     if (!id || !file) return;
@@ -665,20 +1367,98 @@
   let panning = false;
   let panX = 0;
   let panY = 0;
+  let dragId = null;
+  let dragMoved = false;
+  let dragStart = { x: 0, y: 0 };
+  let nodeStart = { x: 0, y: 0 };
   $("canvas-area").addEventListener("mousedown", (event) => {
+    if (event.button !== 0) return;
+    if (event.target.closest(".canvas-toolbar, .map-node-menu, .map-node-pop, .map-choice-label")) return;
+    if (tool === "link") return;
     if (tool !== "pan") return;
+    const node = event.target.closest(".map-node[data-select]");
+    if (node) {
+      const id = node.getAttribute("data-select");
+      const point = lastLayout?.pos?.[id];
+      if (!point) return;
+      dragId = id;
+      dragMoved = false;
+      skipNodeClick = false;
+      dragStart = { x: event.clientX, y: event.clientY };
+      nodeStart = { x: point.x, y: point.y };
+      return;
+    }
     panning = true;
     panX = event.clientX;
     panY = event.clientY;
   });
   window.addEventListener("mousemove", (event) => {
+    if (dragId) {
+      const dx = (event.clientX - dragStart.x) / zoom;
+      const dy = (event.clientY - dragStart.y) / zoom;
+      if (Math.hypot(dx, dy) > 4) dragMoved = true;
+      const scene = sceneById(dragId);
+      if (!scene) return;
+      scene.mapX = Math.max(16, nodeStart.x + dx);
+      scene.mapY = Math.max(16, nodeStart.y + dy);
+      renderMap();
+      return;
+    }
     if (!panning) return;
     $("canvas-area").scrollBy(panX - event.clientX, panY - event.clientY);
     panX = event.clientX;
     panY = event.clientY;
   });
   window.addEventListener("mouseup", () => {
+    if (dragId) {
+      if (dragMoved) {
+        skipNodeClick = true;
+        snapshot("graph");
+      }
+      dragId = null;
+      dragMoved = false;
+    }
     panning = false;
+  });
+
+  document.querySelectorAll(".linear-lib-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const name = tab.getAttribute("data-lib");
+      document.querySelectorAll(".linear-lib-tab").forEach((other) => {
+        const on = other === tab;
+        other.classList.toggle("active", on);
+        other.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      document.querySelectorAll("[data-lib-panel]").forEach((panel) => {
+        panel.hidden = panel.getAttribute("data-lib-panel") !== name;
+      });
+    });
+  });
+  $("character-list")?.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-peek]");
+    if (btn) openPeek(btn.getAttribute("data-peek"), btn.getAttribute("data-id"));
+  });
+  $("note-list")?.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-peek]");
+    if (btn) openPeek(btn.getAttribute("data-peek"), btn.getAttribute("data-id"));
+  });
+  $("lib-add-char")?.addEventListener("click", () => openLibModal("char"));
+  $("lib-add-note")?.addEventListener("click", () => openLibModal("note"));
+  $("lib-modal-dismiss")?.addEventListener("click", closeLibModal);
+  $("lib-modal-form")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    saveLibModal();
+  });
+  $("peek-close")?.addEventListener("click", closePeek);
+  $("linear-peek")?.addEventListener("click", (event) => {
+    if (event.target === $("linear-peek")) closePeek();
+  });
+  window.addEventListener("storage", (event) => {
+    if (!window.FoxLibrary || event.key !== FoxLibrary.KEY || !event.newValue) return;
+    const lib = FoxLibrary.load();
+    story.characters = lib.characters;
+    story.notes = lib.notes;
+    renderLibrary();
   });
 
   render();

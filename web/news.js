@@ -281,7 +281,7 @@
     if (signed()) buttons.push(`<button type="button" data-comment-reply>Ответить</button>`);
     if (isOwnComment(item)) {
       buttons.push(`<button type="button" data-comment-edit>Изменить</button>`);
-      buttons.push(`<button type="button" data-comment-delete><img src="assets/svg/delete.svg" alt=""> Удалить</button>`);
+      buttons.push(`<button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button>`);
     }
     return buttons.length ? `<span class="news-comment-tools">${buttons.join("")}</span>` : "";
   }
@@ -302,11 +302,11 @@
             parent
               ? `<div class="news-comment-quote">
                   <strong>${userNameLink(parent.author || "Читатель")}</strong>
-                  <span>${escapeHtml(truncateComment(parent.text))}</span>
+                  <span>${typeof mentionHtml === "function" ? mentionHtml(truncateComment(parent.text)) : escapeHtml(truncateComment(parent.text))}</span>
                 </div>`
               : ""
           }
-          <p>${escapeHtml(item.text)}</p>
+          <p>${typeof mentionHtml === "function" ? mentionHtml(item.text) : escapeHtml(item.text)}</p>
           <time>${escapeHtml(displayCommentWhen(item))}</time>
         </div>
       </article>
@@ -436,7 +436,7 @@
             owner()
               ? `<div class="news-admin">
                   <button type="button" class="btn btn-ghost" data-edit>Редактировать</button>
-                  <button type="button" class="btn btn-ghost" data-delete><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+                  <button type="button" class="btn btn-ghost" data-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
                 </div>`
               : ""
           }
@@ -445,7 +445,7 @@
             ${
               signed()
                 ? `<form class="news-comment-form" data-comment-form>
-                    <textarea name="text" rows="3" required placeholder="Ваш комментарий…"></textarea>
+                    <textarea name="text" rows="3" required placeholder="Комментарий. Можно отметить через @юзернейм"></textarea>
                     <button type="submit" class="btn btn-primary">Отправить</button>
                   </form>`
                 : `<p class="news-comment-empty">Чтобы оставить комментарий, <button type="button" class="news-text-link" data-signin>войдите</button>.</p>`
@@ -735,7 +735,7 @@
     if (!localStorage.getItem(COMMENTS)) {
       saveJson(COMMENTS, {
         "editor-update": [
-          { author: "Лиса с фонарём", text: "Ветки наконец не путаются. Спасибо.", when: "24 августа, 18:40" },
+          { author: "Лиса с фонарём", text: "@moonwander, ветки наконец не путаются. Спасибо.", when: "24 августа, 18:40" },
           { author: "Никита", text: "Автосохранение спасло черновик дважды за вечер.", when: "24 августа, 19:12" },
           { author: "Маша", text: "Жду шаблоны сцен.", when: "25 августа, 09:04" },
         ],

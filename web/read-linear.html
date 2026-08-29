@@ -8,57 +8,175 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
+  <link rel="stylesheet" href="styles.css?v=197">
 </head>
-<body>
+<body class="linear-read-page">
   <header class="header"></header>
 
-  <div class="reader">
-    <article class="reader-stage">
-      <div class="reader-image linear">
-        <div class="reader-music">Линейная история · без ветвлений</div>
+  <div class="linear-read" data-side-layout>
+    <aside class="linear-read-side" id="side-panel" data-side-panel>
+      <a class="linear-work-card" href="story-linear.html">
+        <span class="linear-work-cover">
+          <img src="assets/test/cover-2.png" alt="">
+        </span>
+        <span class="linear-work-card-body">
+          <span class="linear-work-card-title">Письма из прошлого</span>
+          <span class="linear-work-card-author">Звёздная пыль</span>
+          <span class="linear-work-card-meta">Ориджинал · Гет · 16+ · мини</span>
+        </span>
+      </a>
+      <div class="linear-side-split" aria-hidden="true"></div>
+      <h2 class="linear-toc-title">Оглавление</h2>
+      <ol class="linear-toc" id="toc"></ol>
+    </aside>
+
+    <article class="linear-read-main">
+      <div class="linear-read-hero" id="chapter-hero">
+        <button type="button" class="side-toggle linear-toc-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Оглавление">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <nav class="crumbs linear-read-crumbs">
+          <a href="index.html">Главная</a>
+          <span>›</span>
+          <a href="catalog.html">Каталог</a>
+          <span>›</span>
+          <a href="story-linear.html">Письма из прошлого</a>
+          <span>›</span>
+          <span id="crumb-chapter"></span>
+        </nav>
+        <a class="linear-edit-btn" id="edit-chapter" href="editor-linear.html?chapter=1" aria-label="Редактировать главу">
+          <img src="assets/svg/редактировать.svg" alt="">
+        </a>
       </div>
-      <div class="reader-body">
-        <div class="reader-kicker">Глава <span id="num">1</span> из 3 · Ориджинал · Гет · 16+ · мини</div>
-        <h1 id="chapter-title"></h1>
-        <p class="reader-text" id="chapter-text"></p>
-        <div class="divider"></div>
-        <div class="reader-nav">
-          <button class="btn btn-outline" id="prev">Предыдущая</button>
-          <button class="btn btn-primary" id="next">Следующая глава</button>
+
+      <div class="linear-read-body">
+        <h1 class="linear-read-title" id="chapter-title"></h1>
+        <div class="linear-read-ornament" aria-hidden="true">
+          <img src="assets/deco/перо1.svg" alt="">
         </div>
+        <div class="linear-read-text" id="chapter-text"></div>
+
+        <nav class="linear-chap-nav" aria-label="Главы">
+          <button type="button" class="linear-chap-btn" id="prev">
+            <img src="assets/svg/left.svg" alt="">
+            <span>
+              <b>Предыдущая</b>
+              <small id="prev-name"></small>
+            </span>
+          </button>
+          <button type="button" class="linear-chap-btn linear-chap-btn--next" id="next">
+            <span>
+              <b>Следующая</b>
+              <small id="next-name"></small>
+            </span>
+            <img src="assets/svg/right.svg" alt="">
+          </button>
+          <button type="button" class="linear-chap-btn linear-chap-btn--next linear-wait-btn" id="wait" hidden aria-pressed="false">
+            <span>
+              <b>Жду продолжения</b>
+            </span>
+            <img src="assets/svg/ждуля2.svg" alt="">
+          </button>
+        </nav>
+
+        <div class="linear-read-stats">
+          <div class="linear-read-stats-acts">
+            <button type="button" class="linear-action-btn work-like-btn" data-work-like aria-pressed="false" aria-label="Нравится">
+              <img class="work-like-icon" src="assets/svg/heart.svg" alt=""> Нравится
+            </button>
+            <button type="button" class="linear-action-btn" id="read-btn" aria-pressed="false">
+              <img src="assets/svg/okay.svg" alt=""> Прочитано
+            </button>
+            <button type="button" class="linear-action-btn" id="follow-btn" data-work-id="letters" aria-pressed="false">
+              <img src="assets/svg/bookmark2.svg" alt=""> <span id="follow-label">Подписаться</span>
+            </button>
+          </div>
+          <div class="linear-read-stats-tools">
+            <button type="button" class="linear-read-icon-btn" aria-label="Поделиться">
+              <img src="assets/svg/share.svg" alt="">
+            </button>
+            <button type="button" class="linear-read-icon-btn linear-read-report" aria-label="Пожаловаться">
+              <img src="assets/svg/флаг.svg" alt="">
+            </button>
+          </div>
+        </div>
+
+        <section class="linear-comments" aria-labelledby="comments-heading">
+          <div class="linear-comments-head">
+            <h2 id="comments-heading">Комментарии <span>48</span></h2>
+            <label class="linear-comments-sort">
+              <span class="visually-hidden">Сортировка</span>
+              <select>
+                <option>Сначала новые</option>
+                <option>Сначала старые</option>
+              </select>
+            </label>
+          </div>
+          <form class="linear-comment-form">
+            <img class="linear-comment-ava" src="assets/test/avatar-7.png" alt="">
+            <label class="linear-comment-field">
+              <span class="visually-hidden">Комментарий</span>
+              <textarea rows="2" placeholder="Напишите комментарий..."></textarea>
+              <button type="submit" class="linear-comment-send" aria-label="Отправить">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </label>
+          </form>
+          <article class="linear-comment">
+            <img class="linear-comment-ava" src="assets/test/avatar-1.png" alt="">
+            <div class="linear-comment-main">
+              <header>
+                <a href="profile.html" class="user-link" data-user-name="Лунный странник">Лунный странник</a>
+                <time>только что</time>
+                <div class="linear-comment-menu">
+                  <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false" aria-haspopup="menu">
+                    <img src="assets/ornaments/03_more.svg?v=3" alt="">
+                  </button>
+                  <div class="review-menu-dd" hidden>
+                    <button type="button"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                    <button type="button" class="is-danger" data-comment-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
+                  </div>
+                </div>
+              </header>
+              <p>Эта глава легла иначе, чем предыдущие — как будто ветер и правда что-то шепчет между строк.</p>
+              <footer>
+                <button type="button">Ответить</button>
+                <button type="button" class="linear-comment-like"><img src="assets/svg/heart.svg" alt=""> 12</button>
+              </footer>
+            </div>
+          </article>
+        </section>
       </div>
     </article>
-
-    <aside class="reader-side card-ornament">
-      <h2>Письма из прошлого</h2>
-      <p>Автор: Звёздная пыль · редактор: Лунный странник</p>
-      <p>Ориджинал · Гет · 16+ · завершена · мини</p>
-      <div class="progress-line"><span id="progress" style="width:33%"></span></div>
-      <p>Главы</p>
-      <ul>
-        <li>1. Конверт</li>
-        <li>2. Адрес, которого нет</li>
-        <li>3. Последняя строка</li>
-      </ul>
-      <p>Линейное чтение: сюжет один, выборов нет.</p>
-    </aside>
   </div>
 
-  <script src="site.js?v=44"></script>
+  <script src="site.js?v=68"></script>
   <script>
+    const WORK_ID = "letters";
+    const CHAPTER_READ_KEY = "foxtoria-chapter-read:" + WORK_ID;
+    const WAIT_KEY = "foxtoria-wait-work:" + WORK_ID;
     const chapters = [
       {
         title: "Конверт",
-        text: "Письмо пришло без марки — только имя, выведенное чернилами, которые уже выцвели. Вы открываете его на кухне, где ещё пахнет утром. «Если ты это читаешь, значит, я всё-таки решилась написать». Дальше — три страницы чужого почерка и один адрес."
+        cover: "assets/brand/banner-footer.jpg",
+        html: `<p>Письмо пришло без марки — только имя, выведенное чернилами, которые уже выцвели. Вы открываете его на кухне, где ещё пахнет утром. За окном мокрый двор, и чайник щелкает, как будто тоже ждёт, пока вы решитесь.</p>
+<p>«Если ты это читаешь, значит, я всё-таки решилась написать». Дальше — три страницы чужого почерка и один адрес. Строки торопятся, потом замедляются, будто автор несколько раз оглядывалась на дверь.</p>
+<img src="assets/brand/banner-hero.jpg" alt="">
+<p>Вы складываете лист по старым сгибам. На обороте — пятно от чая и крошечный рисунок листка. История начинается не с исповеди, а с просьбы: дойти до конца улицы и не спрашивать, кто жил в доме, которого уже нет.</p>`
       },
       {
         title: "Адрес, которого нет",
-        text: "Дом на карте есть. На улице — пустырь и старая липа. Соседка говорит, что здесь когда-то жила женщина с рыжими волосами и привычкой оставлять письма в книгах. Вы находите в корнях липы второй конверт. Он адресован вам."
+        cover: "assets/brand/banner-hero.jpg",
+        html: `<p>Дом на карте есть. На улице — пустырь и старая липа. Соседка говорит, что здесь когда-то жила женщина с рыжими волосами и привычкой оставлять письма в книгах.</p>
+<p>Вы стоите у корней, пока ветер теребит пустые ветки. В земле — второй конверт, уже сырой, но имя на нём ваше, выведенное той же рукой.</p>
+<p>Адрес внутри ведёт дальше, в город, где вы никогда не бывали. Линейная дорога не спрашивает, хотите ли вы сворачивать. Она только кладёт в ладонь следующий лист.</p>`
       },
       {
         title: "Последняя строка",
-        text: "«Не ищи меня. Ищи, кем ты стала без меня». Вы складываете письма в ящик стола. История линейная: у неё одна дорога и одна тишина в конце. Но после последней строки всё равно хочется перечитать первую."
+        cover: "assets/brand/banner-footer.jpg",
+        html: `<p>«Не ищи меня. Ищи, кем ты стала без меня». Вы складываете письма в ящик стола. За окном тот же двор, но свет уже другой — как после долгого разговора, который кончился сам.</p>
+<p>История линейная: у неё одна дорога и одна тишина в конце. Но после последней строки всё равно хочется перечитать первую, будто конверт ещё тёплый.</p>
+<p>Вы гасите лампу. Письма остаются. Ветер за стеклом шевелит листву так тихо, что это почти можно принять за чужой голос.</p>`
       }
     ];
     let i = 0;
@@ -66,20 +184,146 @@
     if (Number.isFinite(requested) && requested >= 1) {
       i = Math.min(chapters.length, Math.floor(requested)) - 1;
     }
+
+    function loadReadSet() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(CHAPTER_READ_KEY) || "[]");
+        return new Set(Array.isArray(raw) ? raw.map(Number) : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveReadSet(set) {
+      localStorage.setItem(CHAPTER_READ_KEY, JSON.stringify([...set]));
+    }
+
+    const toc = document.getElementById("toc");
+    const followBtn = document.getElementById("follow-btn");
+    const readBtn = document.getElementById("read-btn");
+    const waitBtn = document.getElementById("wait");
+    const nextBtn = document.getElementById("next");
+
+    function chapterRead(index) {
+      return loadReadSet().has(index);
+    }
+
+    function paintFollow() {
+      const followed = loadReaderLibrary().follows.includes(WORK_ID);
+      followBtn.setAttribute("aria-pressed", followed ? "true" : "false");
+      followBtn.classList.toggle("is-on", followed);
+      document.getElementById("follow-label").textContent = followed ? "Вы подписаны" : "Подписаться";
+      const icon = followBtn.querySelector("img, .ui-icon");
+      if (icon) setUiIcon(icon, followed ? "assets/svg/bookmark.svg" : "assets/svg/bookmark2.svg");
+    }
+
+    function paintWait() {
+      const on = localStorage.getItem(WAIT_KEY) === "1";
+      waitBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      waitBtn.classList.toggle("is-on", on);
+      waitBtn.querySelector("b").textContent = on ? "Вы ждёте продолжения" : "Жду продолжения";
+    }
+
+    function paintRead() {
+      const on = chapterRead(i);
+      readBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      readBtn.classList.toggle("is-on", on);
+      toc.querySelectorAll("a").forEach((link, index) => {
+        link.classList.toggle("is-read", chapterRead(index));
+      });
+    }
+
+    function renderToc() {
+      toc.innerHTML = chapters.map((chapter, index) =>
+        `<li><a href="read-linear.html?chapter=${index + 1}" data-chapter="${index}"${index === i ? " aria-current=\"page\"" : ""}${chapterRead(index) ? " class=\"is-read\"" : ""}>${chapter.title}<img class="linear-toc-check" src="assets/svg/okay.svg" alt=""></a></li>`
+      ).join("");
+    }
+
     function render() {
       const c = chapters[i];
-      document.getElementById("num").textContent = String(i + 1);
+      document.title = `${c.title} — Письма из прошлого — FoxStoria`;
       document.getElementById("chapter-title").textContent = c.title;
-      document.getElementById("chapter-text").textContent = c.text;
-      document.getElementById("progress").style.width = ((i + 1) / chapters.length) * 100 + "%";
+      document.getElementById("crumb-chapter").textContent = c.title;
+      document.getElementById("chapter-text").innerHTML = c.html;
+      document.getElementById("chapter-hero").style.setProperty("--chapter-cover", `url("${c.cover}")`);
+      toc.querySelectorAll("a").forEach((link, index) => {
+        if (index === i) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+        link.classList.toggle("is-read", chapterRead(index));
+      });
+
+      const last = i === chapters.length - 1;
       document.getElementById("prev").disabled = i === 0;
-      document.getElementById("next").textContent = i === chapters.length - 1 ? "В каталог" : "Следующая глава";
+      document.getElementById("prev-name").textContent = i === 0 ? "" : chapters[i - 1].title;
+      nextBtn.hidden = last;
+      waitBtn.hidden = !last;
+      if (!last) {
+        document.querySelector("#next b").textContent = "Следующая";
+        document.getElementById("next-name").textContent = chapters[i + 1].title;
+      }
+      paintWait();
+      paintRead();
+      const edit = document.getElementById("edit-chapter");
+      if (edit) edit.href = `editor-linear.html?chapter=${i + 1}`;
+      history.replaceState(null, "", `read-linear.html?chapter=${i + 1}`);
     }
-    document.getElementById("prev").onclick = () => { if (i > 0) { i -= 1; render(); } };
-    document.getElementById("next").onclick = () => {
-      if (i < chapters.length - 1) { i += 1; render(); }
-      else location.href = "catalog.html?type=linear";
+
+    renderToc();
+    toc.addEventListener("click", (event) => {
+      const link = event.target.closest("[data-chapter]");
+      if (!link) return;
+      event.preventDefault();
+      i = Number(link.getAttribute("data-chapter"));
+      render();
+    });
+    document.getElementById("prev").onclick = () => {
+      if (i > 0) { i -= 1; render(); }
     };
+    nextBtn.onclick = () => {
+      if (i < chapters.length - 1) { i += 1; render(); }
+    };
+    waitBtn.addEventListener("click", () => {
+      localStorage.setItem(WAIT_KEY, localStorage.getItem(WAIT_KEY) === "1" ? "0" : "1");
+      paintWait();
+    });
+    followBtn.addEventListener("click", () => {
+      const lib = loadReaderLibrary();
+      const on = !lib.follows.includes(WORK_ID);
+      lib.follows = toggleReaderList(lib.follows, WORK_ID, on);
+      saveReaderLibrary(lib);
+      paintFollow();
+    });
+    readBtn.addEventListener("click", () => {
+      const set = loadReadSet();
+      if (set.has(i)) set.delete(i);
+      else set.add(i);
+      saveReadSet(set);
+      paintRead();
+    });
+    document.querySelector(".linear-comment-form").addEventListener("submit", (event) => event.preventDefault());
+    document.addEventListener("click", (event) => {
+      const del = event.target.closest("[data-comment-act=\"delete\"]");
+      if (del) {
+        event.preventDefault();
+        del.closest(".linear-comment")?.remove();
+        return;
+      }
+      const btn = event.target.closest(".linear-comment-menu .review-menu-btn");
+      document.querySelectorAll(".linear-comment-menu").forEach((menu) => {
+        const dd = menu.querySelector(".review-menu-dd");
+        const more = menu.querySelector(".review-menu-btn");
+        if (btn && menu.contains(btn)) {
+          const open = dd.hidden;
+          dd.hidden = !open;
+          more.setAttribute("aria-expanded", open ? "true" : "false");
+        } else if (!event.target.closest(".review-menu-dd")) {
+          dd.hidden = true;
+          more.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+    paintFollow();
+    paintWait();
     render();
   </script>
 </body>

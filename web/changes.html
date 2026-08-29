@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
+  <link rel="stylesheet" href="styles.css?v=178">
+  <script src="site.js?v=62"></script>
 </head>
-<body>
+<body class="changes-page">
   <header class="header"></header>
   <div class="layout page">
     <aside class="sidebar-left">
@@ -29,10 +29,121 @@
     </aside>
     <main class="main page-main">
       <header class="page-header">
-        <h1>Изменения</h1>
+        <h1>Изменения <img class="title-leaf" src="assets/svg/3.svg" alt=""></h1>
         <p>Если редактор правит текст, это увидит автор. Если автор публикует новое, это увидят соавтор и редактор.</p>
       </header>
-      <div class="empty-feed"><p>Лента правок и публикаций по общим историям появится здесь.</p></div>
+
+      <div class="account-tabs cabinet-tabs" id="change-tabs">
+        <button type="button" class="active" data-change-tab="all"><img src="assets/deco/sparcle.svg" alt=""> Все</button>
+        <button type="button" data-change-tab="edit"><img src="assets/svg/редактировать.svg" alt=""> Правки</button>
+        <button type="button" data-change-tab="pub"><img src="assets/svg/читать.svg" alt=""> Публикации</button>
+      </div>
+
+      <div class="changes-feed">
+        <article class="change-card is-new" data-kind="edit">
+          <img class="change-ava" src="assets/test/avatar-7.png" alt="">
+          <div class="change-body">
+            <header class="change-top">
+              <p class="change-who">
+                <b data-user-name="Никита">Никита</b>
+                <span class="change-kind">Правка</span>
+              </p>
+              <time datetime="2026-08-29T14:20">сегодня, 14:20</time>
+            </header>
+            <p class="change-place"><a href="story-linear.html">Тени прошлого</a> · Глава 3. Кафе у окна</p>
+            <p class="change-text">Поправил реплику в сцене у окна: «дождь» на «морось», чтобы совпало с концовкой ветки.</p>
+            <blockquote class="change-diff">
+              <p><del>За окном шёл дождь, и она всё ещё ждала.</del></p>
+              <p><ins>За окном шла морось, и она всё ещё ждала.</ins></p>
+            </blockquote>
+            <a class="change-open" href="editor-linear.html">Открыть в редакторе</a>
+          </div>
+        </article>
+
+        <article class="change-card is-new" data-kind="pub">
+          <img class="change-ava" src="assets/test/avatar-3.png" alt="">
+          <div class="change-body">
+            <header class="change-top">
+              <p class="change-who">
+                <b data-user-name="Лиса с фонарём">Лиса с фонарём</b>
+                <span class="change-kind is-pub">Публикация</span>
+              </p>
+              <time datetime="2026-08-29T11:05">сегодня, 11:05</time>
+            </header>
+            <p class="change-place"><a href="story-interactive.html">Тени прошлого</a> · Глава 4. Перекрёсток</p>
+            <p class="change-text">Опубликована новая глава с двумя выборами. Редактору и соавтору придёт уведомление.</p>
+            <a class="change-open" href="story-interactive.html">К странице работы</a>
+          </div>
+        </article>
+
+        <article class="change-card" data-kind="edit">
+          <img class="change-ava" src="assets/test/avatar-7.png" alt="">
+          <div class="change-body">
+            <header class="change-top">
+              <p class="change-who">
+                <b data-user-name="Никита">Никита</b>
+                <span class="change-kind">Правка</span>
+              </p>
+              <time datetime="2026-08-28T19:40">вчера, 19:40</time>
+            </header>
+            <p class="change-place"><a href="story-interactive.html">Тени прошлого</a> · Сцена «Парк»</p>
+            <p class="change-text">В интерактивном редакторе сдвинул связь ветки: выбор «остаться» больше не ведёт сразу к концовке.</p>
+            <a class="change-open" href="editor.html">Открыть карту сцен</a>
+          </div>
+        </article>
+
+        <article class="change-card" data-kind="pub">
+          <img class="change-ava" src="assets/test/avatar-5.png" alt="">
+          <div class="change-body">
+            <header class="change-top">
+              <p class="change-who">
+                <b data-user-name="Аля">Аля</b>
+                <span class="change-kind is-pub">Публикация</span>
+              </p>
+              <time datetime="2026-08-28T12:11">вчера, 12:11</time>
+            </header>
+            <p class="change-place"><a href="story-bts-slash.html">Между кулисами</a> · Концовка «Тихий зал»</p>
+            <p class="change-text">Соавтор выложил новую концовку. Текст в кабинете истории, метки не трогали.</p>
+            <a class="change-open" href="story-bts-slash.html">Читать концовку</a>
+          </div>
+        </article>
+
+        <article class="change-card" data-kind="pub">
+          <img class="change-ava" src="assets/test/avatar-3.png" alt="">
+          <div class="change-body">
+            <header class="change-top">
+              <p class="change-who">
+                <b data-user-name="Лиса с фонарём">Лиса с фонарём</b>
+                <span class="change-kind is-pub">Публикация</span>
+              </p>
+              <time datetime="2026-08-26T10:18">26 августа, 10:18</time>
+            </header>
+            <p class="change-place"><a href="story-linear.html">Тени прошлого</a> · Описание</p>
+            <p class="change-text">Обновила аннотацию и возрастной рейтинг. Редактору стоит глянуть метки перед следующей вычиткой.</p>
+            <a class="change-open" href="studio.html">В кабинет истории</a>
+          </div>
+        </article>
+
+        <article class="change-card" data-kind="edit">
+          <img class="change-ava" src="assets/test/avatar-7.png" alt="">
+          <div class="change-body">
+            <header class="change-top">
+              <p class="change-who">
+                <b data-user-name="Никита">Никита</b>
+                <span class="change-kind">Правка</span>
+              </p>
+              <time datetime="2026-08-24T16:02">24 августа, 16:02</time>
+            </header>
+            <p class="change-place"><a href="editor-linear.html">Тени прошлого</a> · Глава 1. Фонарь</p>
+            <p class="change-text">Сократил абзац в начале: повтор про фонарь убран, ритм ближе к главе 2.</p>
+            <blockquote class="change-diff">
+              <p><del>Она снова подняла фонарь и снова посмотрела на огонь, хотя уже знала, что он тот же.</del></p>
+              <p><ins>Она подняла фонарь. Огонь был тот же.</ins></p>
+            </blockquote>
+            <a class="change-open" href="editor-linear.html">Открыть главу</a>
+          </div>
+        </article>
+      </div>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>

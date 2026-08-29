@@ -127,7 +127,7 @@
     comment: '<img src="assets/svg/коммент.svg" alt="">',
     like: '<img src="assets/svg/heart.svg" alt="">',
     eye: '<img src="assets/svg/eye.svg" alt="">',
-    more: '<img src="assets/ornaments/03_more.svg?v=2" alt="">',
+    more: '<img src="assets/ornaments/03_more.svg?v=3" alt="">',
   };
   const COMMENT_STORE = "foxtoria-blog-comments";
   const LIKE_STORE = "foxtoria-blog-liked";
@@ -256,7 +256,7 @@
     const own = Boolean(item.own) || item.author === "Вы";
     const tools =
       signed() && own
-        ? `<span class="news-comment-tools"><button type="button" data-comment-delete><img src="assets/svg/delete.svg" alt=""> Удалить</button></span>`
+        ? `<span class="news-comment-tools"><button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button></span>`
         : "";
     return `
       <article class="news-comment${own ? " is-own" : ""}" data-comment-id="${escapeHtml(item.id)}">
@@ -266,7 +266,7 @@
             ${authorLabel(item.author || "Читатель")}
             ${tools}
           </div>
-          <p>${escapeHtml(item.text)}</p>
+          <p>${typeof mentionHtml === "function" ? mentionHtml(item.text) : escapeHtml(item.text)}</p>
           <time>${escapeHtml(item.when || "")}</time>
         </div>
       </article>`;
@@ -295,7 +295,7 @@
       return `<p class="news-comment-empty">Чтобы оставить комментарий, <button type="button" class="news-text-link" data-signin>войдите</button>.</p>`;
     }
     return `<form class="news-comment-form" data-comment-form>
-      <textarea name="text" rows="3" required placeholder="Написать комментарий…"></textarea>
+      <textarea name="text" rows="3" required placeholder="Комментарий. Можно отметить через @юзернейм"></textarea>
       <button type="submit" class="btn btn-primary">Отправить</button>
     </form>`;
   }
@@ -505,7 +505,7 @@
             <button type="button" data-act="schedule"><img src="assets/deco/календарь.svg" alt=""> Запланировать</button>
             <button type="button" data-act="pin"><img src="assets/svg/кнопка.svg" alt=""> ${pinLabel}</button>
             <button type="button" data-act="copy"><img src="assets/svg/share.svg" alt=""> Копировать ссылку</button>
-            <button type="button" class="is-danger" data-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+            <button type="button" class="is-danger" data-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
           </div>
         </div>
         <div class="blog-post-tools">

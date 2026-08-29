@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <link rel="stylesheet" href="editor.css?v=22">
-  <link rel="stylesheet" href="editor-linear.css?v=6">
-  <script src="site.js?v=44"></script>
+  <link rel="stylesheet" href="styles.css?v=197">
+  <link rel="stylesheet" href="editor.css?v=42">
+  <link rel="stylesheet" href="editor-linear.css?v=46">
+  <script src="site.js?v=73"></script>
 </head>
 <body class="editor-page editor-linear-page">
   <header class="editor-header">
-    <button type="button" class="side-toggle" data-props-toggle aria-controls="props-panel" aria-expanded="false" aria-label="Параметры главы">
+    <button type="button" class="side-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Оглавление">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
     <a href="index.html" class="logo">
@@ -24,7 +24,7 @@
     </a>
 
     <div class="story-title-block">
-      <h1 id="story-title" class="story-title-text">Тени прошлого</h1>
+      <h1 id="story-title" class="story-title-text">Письма из прошлого</h1>
     </div>
 
     <div class="mode-tabs">
@@ -33,98 +33,195 @@
     </div>
 
     <div class="editor-toolbar">
-      <button type="button" class="icon-btn" id="undo-btn" aria-label="Отменить">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      <button type="button" class="theme-btn" id="theme-toggle" aria-label="Переключить тему">
+        <img class="theme-moon" src="assets/deco/moon.svg" alt="">
+        <img class="theme-day" src="assets/deco/день.svg" alt="">
       </button>
-      <button type="button" class="icon-btn" id="redo-btn" aria-label="Повторить">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
-      </button>
-      <div class="toolbar-divider"></div>
-      <a href="studio.html" class="btn btn-outline">Кабинет</a>
-      <button type="button" class="btn btn-primary" id="publish-btn">Опубликовать</button>
+      <a href="studio.html?id=letters" class="btn btn-outline">Кабинет</a>
     </div>
   </header>
 
   <div class="editor-layout" id="editor-root" data-side-layout>
     <aside class="editor-left" id="side-panel" data-side-panel>
-      <div class="panel-header">
-        <button type="button" class="panel-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false">Главы</button>
-        <button type="button" class="icon-btn-sm" id="add-chapter" aria-label="Добавить главу">+</button>
+      <div class="linear-toc">
+        <div class="panel-header">
+          <button type="button" class="panel-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false">Оглавление</button>
+        </div>
+        <div class="structure-search linear-toc-search">
+          <img src="assets/svg/search.svg" alt="">
+          <input type="search" id="chapter-search" placeholder="Поиск по главам">
+        </div>
+        <div class="structure-tree" id="chapter-list"></div>
+        <button type="button" class="btn-new-scene" id="add-chapter">+ Добавить главу</button>
       </div>
-      <div class="structure-search">
-        <img src="assets/svg/search.svg" alt="">
-        <input type="search" id="chapter-search" placeholder="Поиск по главам">
+
+      <div class="linear-lib">
+        <div class="linear-lib-tabs" role="tablist">
+          <button type="button" class="linear-lib-tab active" role="tab" aria-selected="true" data-lib="chars">Персонажи</button>
+          <button type="button" class="linear-lib-tab" role="tab" aria-selected="false" data-lib="notes">Заметки</button>
+        </div>
+        <div class="linear-lib-lists">
+          <div class="linear-lib-list" id="character-list" data-lib-panel="chars"></div>
+          <div class="linear-lib-list" id="note-list" data-lib-panel="notes" hidden></div>
+        </div>
+        <button type="button" class="linear-lib-add" id="lib-add-char" data-lib-panel="chars">+ Добавить персонажа</button>
+        <button type="button" class="linear-lib-add" id="lib-add-note" data-lib-panel="notes" hidden>+ Новая заметка</button>
       </div>
-      <div class="structure-tree" id="chapter-list"></div>
     </aside>
 
     <div class="editor-center linear-center">
+      <hr class="work-divider linear-rule" id="linear-toolbar-rule">
       <div class="linear-toolbar" id="linear-toolbar">
         <div class="linear-toolbar-group">
+          <button type="button" class="linear-tool-btn" id="undo-btn" title="Отменить" aria-label="Отменить">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" id="redo-btn" title="Вернуть" aria-label="Вернуть">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+          </button>
+          <div class="toolbar-divider"></div>
           <button type="button" class="linear-tool-btn" data-cmd="bold" title="Жирный"><strong>Ж</strong></button>
           <button type="button" class="linear-tool-btn" data-cmd="italic" title="Курсив"><em>К</em></button>
           <button type="button" class="linear-tool-btn" data-cmd="underline" title="Подчёркнутый"><span class="linear-underline">Ч</span></button>
+          <button type="button" class="linear-tool-btn linear-tool-strike" data-cmd="strikeThrough" title="Зачёркнутый">З</button>
           <div class="toolbar-divider"></div>
-          <button type="button" class="linear-tool-btn" id="insert-image">
-            <img src="assets/deco/image.svg" alt="">
-            Картинка
+          <button type="button" class="linear-tool-btn" data-cmd="justifyLeft" title="По левому краю" aria-label="По левому краю">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" data-cmd="justifyCenter" title="По центру" aria-label="По центру">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M7 12h10M4 18h16"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" data-cmd="justifyRight" title="По правому краю" aria-label="По правому краю">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M10 12h10M4 18h16"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" data-cmd="justifyFull" title="По ширине" aria-label="По ширине">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="linear-tool-btn" id="insert-break" title="Разделитель" aria-label="Разделитель">
+            <img src="assets/deco/разделитель.svg?v=2" alt="">
+          </button>
+          <button type="button" class="linear-tool-btn" id="insert-image" title="Картинка" aria-label="Картинка">
+            <img src="assets/deco/картинка.svg" alt="">
+          </button>
+          <button type="button" class="linear-tool-btn" id="insert-note" title="Сноска" aria-label="Сноска">
+            <img src="assets/deco/сноска.svg" alt="">
           </button>
           <input type="file" id="image-file" accept="image/*" hidden>
         </div>
         <span class="linear-wordcount" id="word-count">0 слов</span>
       </div>
+      <hr class="work-divider linear-rule" id="linear-sheet-rule">
 
       <div class="linear-editor-wrap" id="edit-surface">
-        <div
-          class="linear-editor"
-          id="chapter-editor"
-          contenteditable="true"
-          spellcheck="true"
-          data-placeholder="Начните писать главу. Картинку можно вставить в любое место — курсор остаётся там, где вы печатаете."
-        ></div>
+        <div class="linear-sheet">
+          <h2 class="linear-sheet-title" id="sheet-title" contenteditable="true" spellcheck="true" data-placeholder="Название главы"></h2>
+          <div class="linear-read-ornament" aria-hidden="true">
+            <img src="assets/deco/перо1.svg" alt="">
+          </div>
+          <div
+            class="linear-editor"
+            id="chapter-editor"
+            contenteditable="true"
+            spellcheck="true"
+            data-placeholder="Начните писать главу. Картинку можно вставить в любое место — курсор остаётся там, где вы печатаете."
+          ></div>
+        </div>
+      </div>
+      <hr class="work-divider linear-rule" id="linear-bar-rule">
+
+      <div class="linear-chapter-bar" id="linear-chapter-bar">
+        <div class="linear-cover-row">
+          <div class="chapter-cover-thumb" id="cover-preview" hidden>
+            <img alt="">
+          </div>
+          <button type="button" class="btn btn-outline" id="cover-upload-btn">Добавить обложку</button>
+          <p class="linear-cover-hint">Широкая, 16:5 · от 1600×500 px · JPG, PNG или WebP</p>
+          <button type="button" class="btn btn-ghost" id="cover-remove-btn" hidden>Убрать</button>
+          <input type="file" id="cover-file" accept="image/jpeg,image/png,image/webp" hidden>
+        </div>
+        <div class="linear-chapter-actions">
+          <label class="linear-ending">
+            <input type="checkbox" id="chapter-ending">
+            Конец
+          </label>
+          <button type="button" class="linear-pub-btn linear-pub-btn--publish" id="chapter-status-btn">Опубликовать</button>
+        </div>
       </div>
 
       <article class="linear-preview" id="preview" hidden>
-        <p class="reader-kicker" id="preview-kicker">Просмотр · глава 1</p>
-        <h1 id="preview-title">Глава</h1>
-        <div class="linear-preview-body" id="preview-body"></div>
-        <div class="reader-nav">
-          <button type="button" class="btn btn-outline" id="preview-prev">Предыдущая</button>
-          <button type="button" class="btn btn-primary" id="preview-next">Следующая</button>
-          <button type="button" class="btn btn-ghost" data-mode="edit">К редактору</button>
+        <div class="linear-read-hero linear-preview-hero" id="preview-hero"></div>
+        <div class="linear-read-body linear-preview-inner">
+          <h1 class="linear-read-title" id="preview-title"></h1>
+          <div class="linear-read-ornament" aria-hidden="true">
+            <img src="assets/deco/перо1.svg" alt="">
+          </div>
+          <div class="linear-read-text linear-preview-body" id="preview-body"></div>
+          <nav class="linear-chap-nav">
+            <button type="button" class="linear-chap-btn" id="preview-prev">
+              <img src="assets/svg/left.svg" alt="">
+              <span>
+                <b>Предыдущая</b>
+                <small id="preview-prev-name"></small>
+              </span>
+            </button>
+            <button type="button" class="linear-chap-btn linear-chap-btn--next" id="preview-next">
+              <span>
+                <b>Следующая</b>
+                <small id="preview-next-name"></small>
+              </span>
+              <img src="assets/svg/right.svg" alt="">
+            </button>
+          </nav>
         </div>
       </article>
     </div>
-
-    <aside class="editor-right" id="props-panel" data-props-panel>
-      <div class="right-tabs">
-        <button type="button" class="right-tab active" data-right="settings">Глава</button>
-        <button type="button" class="right-tab" data-right="notes">Заметки</button>
-      </div>
-
-      <div class="right-content" id="right-settings" data-right-panel="settings">
-        <div class="right-scene-label" id="right-label">Выберите главу</div>
-        <div class="form-group">
-          <label for="chapter-title">Название главы</label>
-          <input type="text" id="chapter-title" placeholder="Название главы">
-        </div>
-        <div class="form-group">
-          <label for="chapter-summary">Краткое содержание</label>
-          <textarea id="chapter-summary" placeholder="Для себя — не уходит в публикацию"></textarea>
-        </div>
-        <p class="linear-hint">Текст главы — в центре. Переносы строк и картинки сохраняются как вы их расставите.</p>
-        <button type="button" class="btn-delete-scene" id="delete-chapter"><img src="assets/svg/delete.svg" alt=""> Удалить главу</button>
-      </div>
-
-      <div class="right-content" id="right-notes" data-right-panel="notes" hidden>
-        <div class="form-group">
-          <label for="chapter-notes">Заметки к главе</label>
-          <textarea id="chapter-notes" placeholder="Только для автора"></textarea>
-        </div>
-      </div>
-    </aside>
   </div>
 
-  <script src="editor-linear.js?v=3"></script>
+  <div class="linear-peek" id="linear-peek" hidden>
+    <div class="linear-peek-card">
+      <button type="button" class="linear-peek-close" id="peek-close" aria-label="Закрыть">×</button>
+      <div id="peek-body"></div>
+    </div>
+  </div>
+
+  <div class="linear-lib-modal" id="lib-modal" hidden>
+    <div class="linear-lib-modal-backdrop" id="lib-modal-dismiss"></div>
+    <form class="linear-lib-modal-card" id="lib-modal-form">
+      <h3 id="lib-modal-heading">Новый персонаж</h3>
+      <div id="lib-fields-char">
+        <label>Имя
+          <input type="text" id="lib-char-name" autocomplete="off">
+        </label>
+        <label>Возраст
+          <textarea id="lib-char-age" rows="1"></textarea>
+        </label>
+        <label>Кратко о персонаже
+          <textarea id="lib-char-bio" rows="4"></textarea>
+        </label>
+        <label>Черты
+          <textarea id="lib-char-traits" rows="3"></textarea>
+        </label>
+      </div>
+      <div id="lib-fields-note" hidden>
+        <label>Название
+          <input type="text" id="lib-note-title" autocomplete="off">
+        </label>
+        <label>Текст заметки
+          <textarea id="lib-note-text" rows="8"></textarea>
+        </label>
+      </div>
+      <div class="linear-lib-modal-foot">
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="linear-fn-pop" id="fn-pop" hidden>
+    <textarea id="fn-text" rows="3" placeholder="Текст сноски"></textarea>
+    <button type="button" class="btn btn-primary" id="fn-done">Готово</button>
+  </div>
+
+  <script src="editor-linear.js?v=19"></script>
 </body>
 </html>

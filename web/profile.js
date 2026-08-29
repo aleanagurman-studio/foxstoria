@@ -1,6 +1,8 @@
 (function profilePage() {
   const STORE = "foxtoria-profile";
   const DEFAULTS = {
+    name: "Лунный странник",
+    handle: "moonwander",
     bio: "Пишу ветвящиеся новеллы о памяти и выборе. Ниже — тестовые работы с разными направленностями и фандомами для проверки макетов.",
     links: [
       { title: "Telegram", url: "https://t.me/foxcavemeit" },
@@ -11,8 +13,11 @@
   function load() {
     try {
       const raw = JSON.parse(localStorage.getItem(STORE) || "");
-      if (!raw || typeof raw !== "object") return { ...DEFAULTS };
+      if (!raw || typeof raw !== "object") return { ...DEFAULTS, links: DEFAULTS.links.map((item) => ({ ...item })) };
       return {
+        name: String(raw.name || DEFAULTS.name).trim() || DEFAULTS.name,
+        handle: String(raw.handle || DEFAULTS.handle).replace(/^@/, "").trim() || DEFAULTS.handle,
+        avatar: String(raw.avatar || "").trim(),
         bio: String(raw.bio || DEFAULTS.bio),
         links: Array.isArray(raw.links) && raw.links.length ? raw.links : DEFAULTS.links.map((item) => ({ ...item })),
       };
@@ -110,8 +115,14 @@
 
   function applyProfile(data) {
     if (isPublicView()) return;
+    const nameEl = document.querySelector(".profile-name");
+    const handleEl = document.querySelector(".profile-handle");
     const bio = document.querySelector(".profile-bio");
+    if (nameEl) nameEl.textContent = data.name;
+    if (handleEl) handleEl.textContent = `@${data.handle}`;
     if (bio) bio.textContent = data.bio;
+    if (data.name) document.title = `${data.name} — профиль — FoxStoria`;
+    if (typeof applyOwnerAvatar === "function") applyOwnerAvatar();
     renderLinks(data.links);
   }
 
@@ -155,7 +166,9 @@
     });
 
     document.getElementById("profile-save")?.addEventListener("click", () => {
+      const current = load();
       const next = {
+        ...current,
         bio: bioInput?.value.trim() || DEFAULTS.bio,
         links: collectLinkRows(),
       };

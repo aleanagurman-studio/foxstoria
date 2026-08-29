@@ -91,7 +91,9 @@
       "avatar": "assets/test/avatar-1.png",
       "bio": "Пишу ветвящиеся новеллы о памяти и выборе.",
       "works": 5,
-      "story_count": 5
+      "story_count": 5,
+      "followers": 3642,
+      "updatedAt": "2026-08-28T14:20:00"
     },
     {
       "name": "Звёздная пыль",
@@ -100,7 +102,9 @@
       "avatar": "assets/test/avatar-2.png",
       "bio": "Линейные истории, соавторство и правки.",
       "works": 1,
-      "story_count": 1
+      "story_count": 1,
+      "followers": 418,
+      "updatedAt": "2026-08-20T11:00:00"
     },
     {
       "name": "Лиса с фонарём",
@@ -109,7 +113,9 @@
       "avatar": "assets/test/avatar-3.png",
       "bio": "Читает интерактивные новеллы и оставляет развёрнутые отзывы.",
       "works": 0,
-      "story_count": 0
+      "story_count": 0,
+      "followers": 96,
+      "updatedAt": "2026-08-10T09:30:00"
     }
   ]
 }

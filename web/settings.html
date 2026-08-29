@@ -8,15 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <script src="site.js?v=44"></script>
-  </head>
-<body>
+  <link rel="stylesheet" href="styles.css?v=180">
+  <script src="site.js?v=62"></script>
+</head>
+<body class="cabinet-page settings-page">
   <header class="header"></header>
-
   <div class="layout page">
     <aside class="sidebar-left">
-            <nav class="sidebar-nav">
+      <nav class="sidebar-nav">
         <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
         <a href="catalog.html"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
         <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
@@ -30,45 +29,192 @@
     </aside>
 
     <main class="main page-main">
-        <nav class="account-subnav">
-          <a href="profile.html">Профиль</a>
-          <a href="messages.html">Сообщения</a>
-          <a href="author-home.html">Кабинет автора</a>
-          <a href="library.html">Кабинет читателя</a>
-          <a href="settings.html" class="active">Настройки</a>
-        </nav>
-
       <header class="page-header">
-        <h1>Настройки</h1>
+        <h1>Настройки <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
       </header>
-      <section class="settings-block">
+
+      <div class="account-tabs cabinet-tabs" data-account-tabs>
+        <button type="button" class="active" data-tab="general"><img src="assets/svg/profile.svg" alt=""> Общие настройки</button>
+        <button type="button" data-tab="alerts"><img src="assets/svg/notif.svg" alt=""> Уведомления</button>
+        <button type="button" data-tab="privacy"><img src="assets/svg/eye.svg" alt=""> Приватность</button>
+        <button type="button" data-tab="block"><img src="assets/svg/флаг.svg" alt=""> Чёрный список</button>
+        <button type="button" data-tab="editor"><img src="assets/svg/ветки.svg" alt=""> Редактор</button>
+      </div>
+
+      <section class="settings-block settings-general" id="tab-general">
+        <div class="settings-general-main">
+        <h2>Профиль</h2>
+        <div class="settings-avatar">
+          <img data-settings-avatar data-owner-avatar src="assets/test/avatar-1.png" alt="">
+          <div class="settings-avatar-actions">
+            <input type="file" accept="image/jpeg,image/png,image/webp" hidden data-avatar-file>
+            <button type="button" class="btn btn-outline" data-avatar-pick>Изменить аватар</button>
+            <button type="button" class="btn btn-ghost" data-avatar-reset>Сбросить</button>
+            <p class="profile-meta">Квадратное фото, JPG, PNG или WebP.</p>
+          </div>
+        </div>
+        <label class="settings-field">
+          <span>Имя автора</span>
+          <input type="text" data-profile-name maxlength="48" autocomplete="nickname" placeholder="Как вас видят читатели">
+        </label>
+        <label class="settings-field">
+          <span>Юзернейм</span>
+          <div class="settings-handle">
+            <span>@</span>
+            <input type="text" data-profile-handle maxlength="24" autocomplete="username" spellcheck="false" placeholder="moonwander">
+          </div>
+        </label>
         <h2>Пароль и вход</h2>
-        <input type="email" value="you@foxstoria.example" readonly>
-        <input type="password" placeholder="Новый пароль" autocomplete="new-password">
-        <input type="password" placeholder="Ещё раз" autocomplete="new-password">
-        <p class="profile-meta">Позже: почта, Google, Apple.</p>
+        <label class="settings-field">
+          <span>Почта</span>
+          <input type="email" value="you@foxstoria.example" readonly>
+        </label>
+        <label class="settings-field">
+          <span>Новый пароль</span>
+          <input type="password" placeholder="Не менее 8 символов" autocomplete="new-password">
+        </label>
+        <label class="settings-field">
+          <span>Ещё раз</span>
+          <input type="password" placeholder="Повторите пароль" autocomplete="new-password">
+        </label>
+        <button type="button" class="btn btn-primary" data-settings-save>Сохранить пароль</button>
+        <p class="profile-meta">Вход через Google и Apple появится позже.</p>
+        </div>
+        <div class="settings-sessions">
+        <h2>Активные сессии</h2>
+        <p class="profile-meta">Остальные входы можно завершить, текущий останется.</p>
+        <div class="settings-session-list" data-session-list></div>
+        <button type="button" class="btn btn-outline" data-sessions-revoke>Выйти со всех устройств</button>
+        <p class="profile-meta" data-sessions-empty hidden>Других сессий нет — вы вошли только здесь.</p>
+        </div>
+        <div class="settings-danger">
+          <h2>Удаление аккаунта</h2>
+          <p class="profile-meta">Профиль, настройки и вход на этом устройстве будут сброшены. Это нельзя отменить.</p>
+          <button type="button" class="btn btn-danger" data-account-delete>Удалить аккаунт</button>
+        </div>
       </section>
-      <section class="settings-block">
+
+      <section class="settings-block" id="tab-alerts" hidden>
         <h2>Оповещения</h2>
-        <label>Комментарии к работам <input type="checkbox" checked></label>
-        <label>Новые подписчики <input type="checkbox" checked></label>
-        <label>Личные сообщения <input type="checkbox" checked></label>
-        <label>Обновления подписок <input type="checkbox" checked></label>
+        <label>Упоминания <input type="checkbox" data-pref="notifMentions"></label>
+        <label>Комментарии к историям <input type="checkbox" data-pref="notifComments"></label>
+        <label>Ответы в обсуждениях <input type="checkbox" data-pref="notifReplies"></label>
+        <label>Новые отзывы к историям <input type="checkbox" data-pref="notifReviews"></label>
+        <label>Новые подписчики <input type="checkbox" data-pref="notifFollowers"></label>
+        <label>Обновления авторов <input type="checkbox" data-pref="notifAuthors"></label>
+        <label>Обновления историй <input type="checkbox" data-pref="notifWorks"></label>
+        <label>Новые записи в блогах <input type="checkbox" data-pref="notifBlog"></label>
+        <label>Сборники, на которые вы подписаны <input type="checkbox" data-pref="notifCollections"></label>
       </section>
-      <section class="settings-block">
+
+      <section class="settings-block" id="tab-privacy" hidden>
+        <h2>Приватность</h2>
+        <label class="settings-field">
+          <span>Кто может писать в личные</span>
+          <select data-pref="privacyMessages" aria-label="Кто может писать в личные">
+            <option value="all">Все</option>
+            <option value="followers">Только подписчики</option>
+            <option value="none">Никто</option>
+          </select>
+        </label>
+        <label class="settings-field">
+          <span>Профиль в каталоге авторов</span>
+          <select data-pref="privacyProfile" aria-label="Видимость профиля">
+            <option value="all">Виден всем</option>
+            <option value="followers">Только подписчикам</option>
+            <option value="hidden">Скрыт</option>
+          </select>
+        </label>
+        <label class="settings-field">
+          <span>Новые сборники по умолчанию</span>
+          <select data-pref="privacyPacks" aria-label="Приватность новых сборников">
+            <option value="public">Открытые для всех</option>
+            <option value="private">Приватные</option>
+          </select>
+        </label>
+        <label>Показывать, что вы в сети <input type="checkbox" data-pref="privacyOnline"></label>
+        <label>Скрывать работы 18+ в каталоге <input type="checkbox" data-pref="adultBlur"></label>
+        <h2>Скрывать в лентах</h2>
+        <p class="profile-meta">Истории с выбранными пунктами не попадут в каталог, подборки и вашу ленту.</p>
+        <div class="settings-hide">
+          <div class="settings-field">
+            <span>Жанры</span>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="hideGenres" data-placeholder="Найти жанр…"></div>
+          </div>
+          <div class="settings-field">
+            <span>Метки</span>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="hideFormats" data-placeholder="Найти метку…"></div>
+          </div>
+          <div class="settings-field">
+            <span>Предупреждения</span>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="hideWarnings" data-placeholder="Найти предупреждение…"></div>
+          </div>
+          <div class="settings-field">
+            <span>Кинки</span>
+            <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="hideKinks" data-placeholder="Найти кинк…"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-block" id="tab-block" hidden>
         <h2>Чёрный список</h2>
-        <article class="account-card">
-          <strong>Пока пусто</strong>
-          <p class="profile-meta">Скрытые аккаунты появятся здесь</p>
-        </article>
+        <p class="profile-meta">Скрытые аккаунты не видны в ленте, обсуждениях и личных сообщениях.</p>
+        <form class="settings-block-add" data-block-form>
+          <div class="settings-user-pick">
+            <label class="settings-field">
+              <span class="visually-hidden">Имя или юзернейм</span>
+              <input type="text" name="name" placeholder="Имя или юзернейм" autocomplete="off" data-block-query>
+            </label>
+            <div class="settings-user-dd" data-block-suggest hidden></div>
+          </div>
+          <button type="submit" class="btn btn-outline">Добавить</button>
+        </form>
+        <div class="settings-block-list" data-block-list></div>
       </section>
-      <section class="settings-block">
+
+      <section class="settings-block" id="tab-editor" hidden>
         <h2>Редактор</h2>
-        <label>Автосохранение <input type="checkbox" checked></label>
-        <label>Мини-карта графа <input type="checkbox" checked></label>
+        <label>Автосохранение черновика <input type="checkbox" data-pref="autosave"></label>
+        <p class="profile-meta">Включено по умолчанию.</p>
       </section>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <div class="work-dialog" id="sessions-revoke-dialog" hidden>
+    <div class="work-dialog-card">
+      <h2>Выйти со всех устройств?</h2>
+      <p class="profile-meta">На остальных устройствах сессии закроются. Здесь вы останетесь в аккаунте.</p>
+      <div class="work-dialog-actions">
+        <button type="button" class="btn btn-ghost" data-sessions-revoke-cancel>Отмена</button>
+        <button type="button" class="btn btn-danger" data-sessions-revoke-confirm>Выйти</button>
+      </div>
+    </div>
+  </div>
+  <div class="work-dialog" id="account-delete-dialog" hidden>
+    <div class="work-dialog-card">
+      <h2>Удалить аккаунт?</h2>
+      <p class="profile-meta">Локальные данные профиля и настройки на этом устройстве будут стёрты, вы выйдете из аккаунта.</p>
+      <div class="work-dialog-actions">
+        <button type="button" class="btn btn-ghost" data-account-delete-cancel>Отмена</button>
+        <button type="button" class="btn btn-danger" data-account-delete-confirm>Удалить</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function presetHideTags() {
+      try {
+        const prefs = JSON.parse(localStorage.getItem("foxtoria-prefs") || "{}") || {};
+        document.querySelectorAll("#tab-privacy .tax-picker[data-name]").forEach((root) => {
+          const key = root.getAttribute("data-name");
+          const list = Array.isArray(prefs[key]) ? prefs[key] : [];
+          if (list.length) root.setAttribute("data-selected", list.join(","));
+        });
+      } catch {
+        /* ignore */
+      }
+    })();
+  </script>
+  <script src="taxonomy.js?v=21"></script>
+  <script src="settings.js?v=8" defer></script>
 </body>
 </html>

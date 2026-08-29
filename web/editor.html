@@ -8,11 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
-  <link rel="stylesheet" href="editor.css?v=22">
-  <script src="site.js?v=44"></script>
+  <link rel="stylesheet" href="styles.css?v=197">
+  <link rel="stylesheet" href="editor.css?v=43">
+  <link rel="stylesheet" href="editor-linear.css?v=47">
+  <script src="site.js?v=73"></script>
 </head>
-<body class="editor-page">
+<body class="editor-page editor-linear-page editor-map-page">
   <svg class="editor-filters" aria-hidden="true">
     <filter id="ink-knockout" color-interpolation-filters="sRGB">
       <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  4 4 4 0 0"/>
@@ -20,9 +21,11 @@
   </svg>
 
   <header class="editor-header">
-    <button type="button" class="side-toggle" data-props-toggle aria-controls="props-panel" aria-expanded="false" aria-label="Параметры сцены">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-    </button>
+    <div class="editor-nav-toggles">
+      <button type="button" class="side-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Структура">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
     <a href="index.html" class="logo">
       <img src="assets/brand/logo.png" alt="">
       <span>FoxStoria</span>
@@ -38,42 +41,38 @@
     </div>
 
     <div class="editor-toolbar">
-      <button type="button" class="icon-btn" id="undo-btn" aria-label="Отменить">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      <button type="button" class="theme-btn" id="theme-toggle" aria-label="Переключить тему">
+        <img class="theme-moon" src="assets/deco/moon.svg" alt="">
+        <img class="theme-day" src="assets/deco/день.svg" alt="">
       </button>
-      <button type="button" class="icon-btn" id="redo-btn" aria-label="Повторить">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
-      </button>
-      <div class="toolbar-divider"></div>
-      <button type="button" class="icon-btn" id="zoom-out" aria-label="Уменьшить">−</button>
-      <span class="zoom-label" id="zoom-label">100%</span>
-      <button type="button" class="icon-btn" id="zoom-in" aria-label="Увеличить">+</button>
-      <div class="toolbar-divider"></div>
       <a href="studio.html" class="btn btn-outline">Кабинет</a>
-      <button type="button" class="btn btn-primary" id="publish-btn">Опубликовать</button>
+      <button type="button" class="linear-pub-btn linear-pub-btn--publish" id="publish-btn">Опубликовать</button>
     </div>
   </header>
 
   <div class="editor-layout" id="editor-root" data-side-layout>
     <aside class="editor-left" id="side-panel" data-side-panel>
-      <div class="panel-header">
-        <button type="button" class="panel-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false">Структура</button>
-        <button type="button" class="icon-btn-sm" id="add-chapter" aria-label="Добавить главу">+</button>
-      </div>
-      <div class="structure-search">
-        <img src="assets/svg/search.svg" alt="">
-        <input type="search" id="scene-search" placeholder="Поиск по сценам">
-      </div>
-      <div class="structure-tree" id="structure-tree"></div>
-      <div class="editor-left-footer">
-        <button type="button" class="btn-new-scene" id="add-scene">
-          <img src="assets/deco/plus.svg" alt="">
-          Новая сцена
-        </button>
-        <div class="minimap">
-          <div class="minimap-label">Мини-карта</div>
-          <div class="minimap-canvas" id="minimap"></div>
+      <div class="linear-toc">
+        <div class="panel-header">
+          <button type="button" class="panel-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false">Сцены</button>
         </div>
+        <div class="structure-search linear-toc-search">
+          <img src="assets/svg/search.svg" alt="">
+          <input type="search" id="scene-search" placeholder="Поиск по сценам">
+        </div>
+        <div class="structure-tree" id="structure-tree"></div>
+      </div>
+      <div class="linear-lib">
+        <div class="linear-lib-tabs" role="tablist">
+          <button type="button" class="linear-lib-tab active" role="tab" aria-selected="true" data-lib="chars">Персонажи</button>
+          <button type="button" class="linear-lib-tab" role="tab" aria-selected="false" data-lib="notes">Заметки</button>
+        </div>
+        <div class="linear-lib-lists">
+          <div class="linear-lib-list" id="character-list" data-lib-panel="chars"></div>
+          <div class="linear-lib-list" id="note-list" data-lib-panel="notes" hidden></div>
+        </div>
+        <button type="button" class="linear-lib-add" id="lib-add-char" data-lib-panel="chars">+ Добавить персонажа</button>
+        <button type="button" class="linear-lib-add" id="lib-add-note" data-lib-panel="notes" hidden>+ Новая заметка</button>
       </div>
     </aside>
 
@@ -81,112 +80,190 @@
       <div class="canvas-wrap" id="canvas-wrap">
         <div class="canvas-toolbar">
           <div class="canvas-toolbar-left">
-            <button type="button" class="canvas-tool-btn" id="tool-link" data-tool="link">
-              Связать сцены
+            <button type="button" class="linear-tool-btn" id="tool-new-scene">+ Новая сцена</button>
+            <button type="button" class="linear-tool-btn" id="tool-choice">Выбор</button>
+            <button type="button" class="linear-tool-btn" id="tool-link" data-tool="link">Связать сцены</button>
+            <button type="button" class="linear-tool-btn active" data-tool="pan" aria-label="Рука">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
             </button>
             <div class="toolbar-divider"></div>
-            <button type="button" class="canvas-tool-icon active" data-tool="select" aria-label="Выделение">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+            <button type="button" class="linear-tool-btn" id="undo-btn" title="Отменить" aria-label="Отменить">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
             </button>
-            <button type="button" class="canvas-tool-icon" data-tool="pan" aria-label="Рука">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+            <button type="button" class="linear-tool-btn" id="redo-btn" title="Вернуть" aria-label="Вернуть">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
             </button>
-            <button type="button" class="canvas-tool-icon" id="tool-center" aria-label="По центру">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-            </button>
-            <button type="button" class="canvas-tool-icon" id="tool-delete" aria-label="Удалить">
-              <img src="assets/svg/delete.svg" alt="">
-            </button>
+            <div class="toolbar-divider"></div>
+            <button type="button" class="linear-tool-btn" id="zoom-out" aria-label="Уменьшить">−</button>
+            <span class="zoom-label" id="zoom-label">100%</span>
+            <button type="button" class="linear-tool-btn" id="zoom-in" aria-label="Увеличить">+</button>
           </div>
         </div>
 
         <div class="canvas-area" id="canvas-area">
           <div class="canvas-graph" id="canvas-graph"></div>
         </div>
-        <div class="editor-preview" id="preview" hidden>
-          <p class="reader-kicker" id="preview-kicker">Просмотр</p>
-          <h1 id="preview-title">Сцена</h1>
-          <p class="reader-text" id="preview-text">Текст сцены пока пуст. Вернитесь в редактор и заполните поля.</p>
-          <div class="choices" id="preview-choices"></div>
-          <div class="reader-nav">
-            <button type="button" class="btn btn-outline" id="preview-restart">Начать сначала</button>
-            <button type="button" class="btn btn-ghost" data-mode="edit">К редактору</button>
+      </div>
+      <article class="linear-preview" id="preview" hidden>
+        <div class="linear-read-hero linear-preview-hero" id="preview-hero"></div>
+        <div class="linear-read-body linear-preview-inner">
+          <h1 class="linear-read-title" id="preview-title"></h1>
+          <div class="linear-read-ornament" aria-hidden="true">
+            <img src="assets/deco/перо1.svg" alt="">
           </div>
+          <div class="linear-read-text linear-preview-body" id="preview-body"></div>
+          <section class="scene-choice-block" id="preview-choice-block">
+            <div class="scene-choice-head" id="preview-choice-head">
+              <img src="assets/svg/sparkle.svg" alt="">
+              <h2>Ваш выбор?</h2>
+            </div>
+            <div id="preview-choices"></div>
+            <button type="button" class="scene-choice scene-choice--back" id="preview-prev" hidden>
+              <img src="assets/svg/left.svg" alt="">
+              <span class="scene-choice-text">
+                <b>Предыдущая</b>
+                <small id="preview-prev-name"></small>
+              </span>
+            </button>
+            <button type="button" class="scene-choice-random" id="preview-random" hidden>
+              <img src="assets/svg/кубик.svg" alt="">
+              Случайный выбор
+            </button>
+          </section>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div class="scene-workspace" id="scene-workspace" hidden>
+    <div class="linear-center">
+      <hr class="work-divider linear-rule">
+      <div class="linear-toolbar" id="scene-toolbar">
+        <div class="linear-toolbar-group">
+          <button type="button" class="linear-tool-btn" id="scene-ws-undo" title="Отменить" aria-label="Отменить">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" id="scene-ws-redo" title="Вернуть" aria-label="Вернуть">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="linear-tool-btn" data-scene-cmd="bold" title="Жирный"><strong>Ж</strong></button>
+          <button type="button" class="linear-tool-btn" data-scene-cmd="italic" title="Курсив"><em>К</em></button>
+          <button type="button" class="linear-tool-btn" data-scene-cmd="underline" title="Подчёркнутый"><span class="linear-underline">Ч</span></button>
+          <button type="button" class="linear-tool-btn linear-tool-strike" data-scene-cmd="strikeThrough" title="Зачёркнутый">З</button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="linear-tool-btn" data-scene-cmd="justifyLeft" title="По левому краю" aria-label="По левому краю">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" data-scene-cmd="justifyCenter" title="По центру" aria-label="По центру">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M7 12h10M4 18h16"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" data-scene-cmd="justifyRight" title="По правому краю" aria-label="По правому краю">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M10 12h10M4 18h16"/></svg>
+          </button>
+          <button type="button" class="linear-tool-btn" data-scene-cmd="justifyFull" title="По ширине" aria-label="По ширине">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="toolbar-divider"></div>
+          <button type="button" class="linear-tool-btn" id="scene-insert-break" title="Разделитель" aria-label="Разделитель">
+            <img src="assets/deco/разделитель.svg?v=2" alt="">
+          </button>
+          <button type="button" class="linear-tool-btn" id="scene-insert-image" title="Картинка" aria-label="Картинка">
+            <img src="assets/deco/картинка.svg" alt="">
+          </button>
+          <button type="button" class="linear-tool-btn" id="scene-insert-note" title="Сноска" aria-label="Сноска">
+            <img src="assets/deco/сноска.svg" alt="">
+          </button>
+          <input type="file" id="scene-image-file" accept="image/*" hidden>
+        </div>
+        <div class="scene-toolbar-end">
+          <button type="button" class="btn btn-ghost" id="scene-workspace-close">К карте</button>
+          <span class="linear-wordcount" id="scene-word-count">0 слов</span>
         </div>
       </div>
-
-      <div class="editor-bottom" id="bottom-panel">
-        <div class="bottom-tabs">
-          <button type="button" class="bottom-tab active" data-bottom="content">Содержимое сцены</button>
-          <button type="button" class="bottom-tab" data-bottom="notes">Заметки</button>
+      <hr class="work-divider linear-rule">
+      <div class="linear-editor-wrap" id="scene-edit-surface">
+        <div class="scene-cover-hero linear-read-hero" id="scene-cover-hero" hidden></div>
+        <div class="linear-sheet">
+          <h2 class="linear-sheet-title" id="scene-sheet-title" contenteditable="true" spellcheck="true" data-placeholder="Название сцены"></h2>
+          <div class="linear-read-ornament" aria-hidden="true">
+            <img src="assets/deco/перо1.svg" alt="">
+          </div>
+          <div
+            class="linear-editor"
+            id="scene-editor"
+            contenteditable="true"
+            spellcheck="true"
+            data-placeholder="Начните писать сцену. Картинку можно вставить в любое место — курсор остаётся там, где вы печатаете."
+          ></div>
         </div>
-        <div class="blocks-strip" id="blocks-strip" data-panel="content"></div>
-        <div class="notes-panel" id="notes-panel" data-panel="notes" hidden>
-          <textarea id="scene-notes" placeholder="Заметки к этой сцене — только для вас"></textarea>
+      </div>
+      <hr class="work-divider linear-rule">
+      <div class="linear-chapter-bar">
+        <div class="linear-cover-row">
+          <div class="chapter-cover-thumb" id="scene-cover-preview" hidden>
+            <img alt="">
+          </div>
+          <button type="button" class="btn btn-outline" id="scene-cover-btn">Добавить обложку</button>
+          <p class="linear-cover-hint">Широкая, 16:5 · от 1600×500 px · JPG, PNG или WebP</p>
+          <button type="button" class="btn btn-ghost" id="scene-cover-remove" hidden>Убрать</button>
+          <input type="file" id="scene-cover-file" accept="image/jpeg,image/png,image/webp" hidden>
+        </div>
+        <div class="linear-chapter-actions">
+          <button type="button" class="scene-end-switch" id="scene-end-switch">
+            <span>Финальная сцена</span>
+            <span class="toggle" id="scene-end-toggle"></span>
+          </button>
         </div>
       </div>
     </div>
-
-    <aside class="editor-right" id="props-panel" data-props-panel>
-      <div class="right-content" id="right-settings" data-right-panel="settings">
-        <div class="right-scene-label" id="right-label">Выберите сцену</div>
-        <div class="form-group">
-          <label for="scene-name">Название сцены</label>
-          <input type="text" id="scene-name" placeholder="Название сцены">
-        </div>
-        <div class="form-group">
-          <label for="scene-desc">Описание</label>
-          <textarea id="scene-desc" placeholder="Кратко, о чём эта сцена"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Фон сцены</label>
-          <div class="scene-bg-preview" id="scene-bg"></div>
-          <div class="scene-bg-actions">
-            <label class="btn-sm">
-              Загрузить
-              <input type="file" id="scene-bg-file" accept="image/*" hidden>
-            </label>
-            <button type="button" class="btn-sm danger" id="scene-bg-clear"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
-          </div>
-        </div>
-        <button type="button" class="toggle-row" id="toggle-start">
-          <span>Установить как стартовую</span>
-          <span class="toggle" id="start-toggle"></span>
-        </button>
-        <button type="button" class="toggle-row" id="toggle-end">
-          <span>Финальная сцена</span>
-          <span class="toggle" id="end-toggle"></span>
-        </button>
-        <div class="transitions-section">
-          <h3>Переходы</h3>
-          <div id="transitions-list"></div>
-          <button type="button" class="btn-add-transition" id="add-transition">+ Добавить переход</button>
-        </div>
-        <button type="button" class="btn-delete-scene" id="delete-scene"><img src="assets/svg/delete.svg" alt=""> Удалить сцену</button>
-      </div>
-
-      <div class="blocks-palette">
-        <div class="blocks-palette-label">Добавить блок</div>
-        <div class="palette-buttons">
-          <button type="button" class="palette-btn" data-block="text">
-            <span class="palette-btn-icon">T</span>
-            Текст
-          </button>
-          <button type="button" class="palette-btn" data-block="image">
-            <span class="palette-btn-icon">
-              <img src="assets/deco/image.svg" alt="">
-            </span>
-            Изображение
-          </button>
-          <button type="button" class="palette-btn" data-block="choice">
-            <span class="palette-btn-icon">◇</span>
-            Выбор
-          </button>
-        </div>
-      </div>
-    </aside>
   </div>
 
-  <script src="editor.js?v=10"></script>
+  <div class="linear-fn-pop" id="fn-pop" hidden>
+    <textarea id="fn-text" rows="3" placeholder="Текст сноски"></textarea>
+    <button type="button" class="btn btn-primary" id="fn-done">Готово</button>
+  </div>
+
+  <div class="linear-peek" id="linear-peek" hidden>
+    <div class="linear-peek-card">
+      <button type="button" class="linear-peek-close" id="peek-close" aria-label="Закрыть">×</button>
+      <div id="peek-body"></div>
+    </div>
+  </div>
+
+  <div class="linear-lib-modal" id="lib-modal" hidden>
+    <div class="linear-lib-modal-backdrop" id="lib-modal-dismiss"></div>
+    <form class="linear-lib-modal-card" id="lib-modal-form">
+      <h3 id="lib-modal-heading">Новый персонаж</h3>
+      <div id="lib-fields-char">
+        <label>Имя
+          <input type="text" id="lib-char-name" autocomplete="off">
+        </label>
+        <label>Возраст
+          <textarea id="lib-char-age" rows="1"></textarea>
+        </label>
+        <label>Кратко о персонаже
+          <textarea id="lib-char-bio" rows="4"></textarea>
+        </label>
+        <label>Черты
+          <textarea id="lib-char-traits" rows="3"></textarea>
+        </label>
+      </div>
+      <div id="lib-fields-note" hidden>
+        <label>Название
+          <input type="text" id="lib-note-title" autocomplete="off">
+        </label>
+        <label>Текст заметки
+          <textarea id="lib-note-text" rows="8"></textarea>
+        </label>
+      </div>
+      <div class="linear-lib-modal-foot">
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="story-map.js?v=8"></script>
+  <script src="editor.js?v=35"></script>
 </body>
 </html>

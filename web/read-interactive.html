@@ -8,106 +8,520 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=133">
+  <link rel="stylesheet" href="styles.css?v=197">
 </head>
-<body>
+<body class="linear-read-page">
   <header class="header"></header>
 
-  <div class="reader">
-    <article class="reader-stage">
-      <div class="reader-image" id="scene-art">
-        <div class="reader-music">Фоновая музыка · Туманное утро</div>
-        <div class="hero-sparkles" aria-hidden="true"></div>
-      </div>
-      <div class="reader-body">
-        <div class="reader-kicker">Интерактивная · Ориджинал · Джен · 16+</div>
-        <h1 id="scene-title">Перекрёсток</h1>
-        <p class="reader-text" id="scene-text"></p>
-        <div class="choices" id="choices"></div>
-        <div class="reader-nav">
-          <button class="btn btn-outline" id="restart">Начать сначала</button>
+  <div class="linear-read" data-side-layout>
+    <aside class="linear-read-side" id="side-panel" data-side-panel>
+      <a class="linear-work-card" href="story-interactive.html">
+        <span class="linear-work-cover">
+          <img src="assets/test/cover-1.png" alt="">
+        </span>
+        <span class="linear-work-card-body">
+          <span class="linear-work-card-title">Тени прошлого</span>
+          <span class="linear-work-card-author">Лунный странник</span>
+          <span class="linear-work-card-meta">Ориджинал · Джен · 16+ · в процессе</span>
+        </span>
+      </a>
+      <div class="linear-side-split" aria-hidden="true"></div>
+      <div class="linear-side-stats" aria-label="Статистика истории">
+        <div class="linear-side-stat">
+          <img src="assets/svg/выборы.svg" alt="">
+          <span id="stat-choices">38</span> <span>выборов</span>
+        </div>
+        <div class="linear-side-stat">
+          <img src="assets/svg/ветки.svg" alt="">
+          <span id="stat-branches">12</span> <span>веток</span>
+        </div>
+        <div class="linear-side-stat">
+          <img src="assets/svg/концовки.svg" alt="">
+          <span id="stat-endings">3</span> <span>концовки</span>
         </div>
       </div>
-    </article>
-
-    <aside class="reader-side card-ornament">
-      <h2>Тени прошлого</h2>
-      <p>Автор: Лунный странник</p>
-      <p>Фандом: Ориджинал · Джен · 16+ · в процессе</p>
-      <div class="progress-line"><span id="progress" style="width:25%"></span></div>
-      <p>Ваш путь</p>
-      <ul id="path-list"></ul>
-      <div class="divider"></div>
-      <p>3 концовки · 12 сцен · тестовая работа</p>
+      <h2 class="linear-toc-title">Оглавление</h2>
+      <ol class="linear-toc story-nav" id="toc"></ol>
+      <section class="path-map" aria-label="Ваш путь">
+        <h2 class="path-map-title">Ваш путь</h2>
+        <div class="path-map-canvas" id="path-map"></div>
+      </section>
     </aside>
+
+    <article class="linear-read-main">
+      <div class="linear-read-hero" id="chapter-hero" style="--chapter-cover: url('assets/brand/banner-hero.jpg')">
+        <button type="button" class="side-toggle linear-toc-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Оглавление">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <nav class="crumbs linear-read-crumbs">
+          <a href="index.html">Главная</a>
+          <span>›</span>
+          <a href="catalog.html">Каталог</a>
+          <span>›</span>
+          <a href="story-interactive.html">Тени прошлого</a>
+          <span>›</span>
+          <span id="crumb-chapter"></span>
+        </nav>
+        <a class="linear-edit-btn" id="edit-chapter" href="editor.html" aria-label="Редактировать главу">
+          <img src="assets/svg/редактировать.svg" alt="">
+        </a>
+      </div>
+
+      <div class="linear-read-body">
+        <h1 class="linear-read-title" id="chapter-title"></h1>
+        <div class="linear-read-ornament" aria-hidden="true">
+          <img src="assets/deco/перо1.svg" alt="">
+        </div>
+        <div class="linear-read-text" id="chapter-text"></div>
+
+        <section class="scene-choice-block" id="choice-block">
+          <div class="scene-choice-head" id="choice-head">
+            <img src="assets/svg/sparkle.svg" alt="">
+            <h2>Ваш выбор?</h2>
+          </div>
+          <div id="choices"></div>
+          <button type="button" class="scene-choice scene-choice--back" id="prev">
+            <img src="assets/svg/left.svg" alt="">
+            <span class="scene-choice-text">
+              <b>Предыдущая</b>
+              <small id="prev-name"></small>
+            </span>
+          </button>
+          <button type="button" class="scene-choice-random" id="choice-random">
+            <img src="assets/svg/кубик.svg" alt="">
+            Случайный выбор
+          </button>
+        </section>
+
+        <div class="linear-read-stats">
+          <div class="linear-read-stats-acts">
+            <button type="button" class="linear-action-btn work-like-btn" data-work-like aria-pressed="false" aria-label="Нравится">
+              <img class="work-like-icon" src="assets/svg/heart.svg" alt=""> Нравится
+            </button>
+            <button type="button" class="linear-action-btn" id="read-btn" aria-pressed="false">
+              <img src="assets/svg/okay.svg" alt=""> Прочитано
+            </button>
+            <button type="button" class="linear-action-btn" id="follow-btn" data-work-id="shadows" aria-pressed="false">
+              <img src="assets/svg/bookmark2.svg" alt=""> <span id="follow-label">Подписаться</span>
+            </button>
+          </div>
+          <div class="linear-read-stats-tools">
+            <button type="button" class="linear-read-icon-btn" aria-label="Поделиться">
+              <img src="assets/svg/share.svg" alt="">
+            </button>
+            <button type="button" class="linear-read-icon-btn linear-read-report" aria-label="Пожаловаться">
+              <img src="assets/svg/флаг.svg" alt="">
+            </button>
+          </div>
+        </div>
+
+        <section class="linear-comments" aria-labelledby="comments-heading">
+          <div class="linear-comments-head">
+            <h2 id="comments-heading">Комментарии <span>156</span></h2>
+            <label class="linear-comments-sort">
+              <span class="visually-hidden">Сортировка</span>
+              <select>
+                <option>Сначала новые</option>
+                <option>Сначала старые</option>
+              </select>
+            </label>
+          </div>
+          <form class="linear-comment-form">
+            <img class="linear-comment-ava" src="assets/test/avatar-7.png" alt="">
+            <label class="linear-comment-field">
+              <span class="visually-hidden">Комментарий</span>
+              <textarea rows="2" placeholder="Напишите комментарий..."></textarea>
+              <button type="submit" class="linear-comment-send" aria-label="Отправить">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </label>
+          </form>
+          <article class="linear-comment">
+            <img class="linear-comment-ava" src="assets/test/avatar-1.png" alt="">
+            <div class="linear-comment-main">
+              <header>
+                <a href="profile.html" class="user-link" data-user-name="Лунный странник">Лунный странник</a>
+                <time>только что</time>
+                <div class="linear-comment-menu">
+                  <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false" aria-haspopup="menu">
+                    <img src="assets/ornaments/03_more.svg?v=3" alt="">
+                  </button>
+                  <div class="review-menu-dd" hidden>
+                    <button type="button"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                    <button type="button" class="is-danger" data-comment-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
+                  </div>
+                </div>
+              </header>
+              <p>Ветка кафе легла иначе, чем парк — как будто каждый выбор и правда меняет свет на улице.</p>
+              <footer>
+                <button type="button">Ответить</button>
+                <button type="button" class="linear-comment-like"><img src="assets/svg/heart.svg" alt=""> 12</button>
+              </footer>
+            </div>
+          </article>
+        </section>
+      </div>
+    </article>
   </div>
 
-  <script src="site.js?v=44"></script>
+  <script src="site.js?v=68"></script>
+  <script src="story-map.js?v=5"></script>
   <script>
-    const scenes = {
-      start: {
-        title: "Перекрёсток",
-        text: "Дождь стих, но мостовая ещё блестит. Слева — тёплый свет кафе. Справа — тёмный силуэт парка. Позади — шаги, которые вы уже слышали однажды.",
-        progress: 25,
-        choices: [
-          { label: "Пойти в кафе", next: "cafe" },
-          { label: "Пойти в парк", next: "park" }
-        ]
-      },
-      cafe: {
-        title: "Разговор в кафе",
-        text: "За стойкой кипит кофе. Человек из прошлого поднимает взгляд — и улыбается так, будто вы не пропадали все эти годы. «Ты всё-таки пришла», — говорит он.",
-        progress: 60,
-        choices: [
-          { label: "Спросить, что случилось тогда", next: "truth" },
-          { label: "Сказать, что вам пора уходить", next: "leave" }
-        ]
-      },
-      park: {
-        title: "Прогулка в парке",
-        text: "Фонари качаются на ветру. На лавке лежит раскрытая книга — та самая, которую вы потеряли зимой. На полях чужой почерк: «Не ищи правду в кафе».",
-        progress: 60,
-        choices: [
-          { label: "Всё равно пойти в кафе", next: "cafe" },
-          { label: "Уйти, не оборачиваясь", next: "leave" }
-        ]
-      },
-      truth: {
-        title: "Концовка: правда",
-        text: "Он рассказывает всё. Не красиво — честно. Город становится тише. Вы не прощаете сразу, но в первый раз за долгое время дышите свободно. Это одна из трёх концовок.",
-        progress: 100,
-        choices: []
-      },
-      leave: {
-        title: "Концовка: уход",
-        text: "Вы выходите на улицу. Дождь начинается снова. История не заканчивается — просто вы выбираете не знать её до конца. Это тоже концовка.",
-        progress: 100,
-        choices: []
-      }
+    const WORK_ID = "shadows";
+    const CHAPTER_READ_KEY = "foxtoria-chapter-read:" + WORK_ID;
+    const COVERS = ["assets/brand/banner-hero.jpg", "assets/brand/banner-footer.jpg"];
+    const DEMO_HTML = {
+      start: `<p>Дождь стих, но мостовая ещё блестит. Слева — тёплый свет кафе. Справа — тёмный силуэт парка. Позади — шаги, которые вы уже слышали однажды.</p>
+<p>Город после дождя пахнет мокрым камнем и кофе. Вы стоите на перекрёстке и понимаете: отсюда история раздваивается.</p>`,
+      cafe: `<p>За стойкой кипит кофе. Человек из прошлого поднимает взгляд — и улыбается так, будто вы не пропадали все эти годы. «Ты всё-таки пришла», — говорит он.</p>
+<p>На столе между вами пар от чашек. Можно спросить правду, уйти или просто взять его за руку.</p>`,
+      park: `<p>Фонари качаются на ветру. На лавке лежит раскрытая книга — та самая, которую вы потеряли зимой. На полях чужой почерк: «Не ищи правду в кафе».</p>
+<p>Можно всё равно свернуть к свету — или уйти, не оборачиваясь.</p>`,
+      truth: `<p>Он рассказывает всё. Не красиво — честно. Город становится тише. Вы не прощаете сразу, но в первый раз за долгое время дышите свободно.</p>
+<p>Это одна из трёх концовок.</p>`,
+      leave: `<p>Вы выходите на улицу. Дождь начинается снова. История не заканчивается — просто вы выбираете не знать её до конца.</p>
+<p>Это тоже концовка.</p>`,
+      hold: `<p>Пальцы смыкаются раньше, чем находятся слова. За окном всё ещё мокро, но между ладонями тепло. Правда подождёт.</p>
+<p>Третья концовка — тихая.</p>`,
     };
+    const DEMO_HINTS = {
+      "start:cafe": "Тёплый свет и чужой взгляд.",
+      "start:park": "Книга на лавке и чужой почерк.",
+      "cafe:truth": "Вы хотите узнать правду.",
+      "cafe:leave": "Лучше не лезть в его тайны.",
+      "cafe:hold": "Иногда слова не нужны.",
+      "park:cafe": "Предупреждение не останавливает.",
+      "park:leave": "Иногда дорога кончается здесь.",
+    };
+    const DEMO_MUTE = new Set(["start:park", "cafe:leave", "park:leave"]);
 
-    const path = [];
-    function render(id) {
-      const scene = scenes[id];
-      path.push(scene.title);
-      document.getElementById("scene-title").textContent = scene.title;
-      document.getElementById("scene-text").textContent = scene.text;
-      document.getElementById("progress").style.width = scene.progress + "%";
-      document.getElementById("path-list").innerHTML = path.map((p) => `<li>${p}</li>`).join("");
-      const box = document.getElementById("choices");
-      box.innerHTML = "";
-      scene.choices.forEach((c) => {
-        const b = document.createElement("button");
-        b.className = "choice-btn";
-        b.textContent = c.label;
-        b.onclick = () => render(c.next);
-        box.appendChild(b);
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function sceneById(id) {
+      return story.scenes.find((scene) => scene.id === id);
+    }
+
+    function startScene() {
+      return story.scenes.find((scene) => scene.isStart) || story.scenes[0];
+    }
+
+    function sceneHtml(scene) {
+      const saved = String(scene.html || "").trim();
+      if (saved) return saved;
+      if (DEMO_HTML[scene.id]) return DEMO_HTML[scene.id];
+      const blocks = (scene.blocks || [])
+        .map((block) => {
+          if (block.type === "image" && block.image) {
+            return `<p><img src="${escapeHtml(block.image)}" alt=""></p>`;
+          }
+          if (block.text && block.text.trim()) {
+            return `<p>${escapeHtml(block.text.trim()).replace(/\n/g, "<br>")}</p>`;
+          }
+          return "";
+        })
+        .join("");
+      if (blocks) return blocks;
+      const text = (scene.description || "").trim();
+      if (!text) return "<p>Текст сцены пока пуст.</p>";
+      return text.split(/\n+/).map((part) => `<p>${escapeHtml(part)}</p>`).join("");
+    }
+
+    function readerChoices(scene) {
+      return (scene.choices || []).map((choice) => {
+        const key = `${scene.id}:${choice.targetId}`;
+        return {
+          label: choice.label || "Дальше",
+          next: choice.targetId,
+          hint: DEMO_HINTS[key] || "",
+          mute: DEMO_MUTE.has(key),
+        };
       });
     }
-    document.getElementById("restart").onclick = () => { path.length = 0; render("start"); };
-    const chapterScenes = { 1: "start", 2: "cafe", 3: "park", 4: "truth", 5: "truth" };
-    const chapter = Number(new URLSearchParams(location.search).get("chapter"));
-    render(chapterScenes[chapter] || "start");
+
+    function paintStats() {
+      const scenes = story.scenes || [];
+      const choices = scenes.reduce((sum, scene) => sum + (scene.choices || []).length, 0);
+      const branches = scenes.filter((scene) => (scene.choices || []).length > 1).length;
+      const endings = scenes.filter((scene) => scene.isEnding || !(scene.choices || []).length).length;
+      document.getElementById("stat-choices").textContent = String(choices);
+      document.getElementById("stat-branches").textContent = String(branches);
+      document.getElementById("stat-endings").textContent = String(endings);
+    }
+
+    let story = FoxStoryMap.getStory();
+    let current = startScene().id;
+    let path = [current];
+    const TOC_FOLD_KEY = "foxtoria-nav-fold:" + WORK_ID;
+    function loadFold() {
+      try {
+        const raw = JSON.parse(sessionStorage.getItem(TOC_FOLD_KEY) || "[]");
+        return new Set(Array.isArray(raw) ? raw.map(String) : []);
+      } catch {
+        return new Set();
+      }
+    }
+    function saveFold() {
+      sessionStorage.setItem(TOC_FOLD_KEY, JSON.stringify([...collapsed]));
+    }
+    const collapsed = loadFold();
+    const params = new URLSearchParams(location.search);
+    const requestedScene = params.get("scene");
+    const requestedChapter = Number(params.get("chapter"));
+    if (requestedScene && sceneById(requestedScene)) {
+      current = requestedScene;
+      path = FoxStoryMap.pathTo(story, current);
+    } else if (requestedChapter) {
+      const node = FoxStoryMap.flattenTree(FoxStoryMap.walkTree(story))[requestedChapter - 1];
+      if (node) {
+        current = node.id;
+        path = FoxStoryMap.pathTo(story, current);
+      }
+    }
+
+    function loadReadSet() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(CHAPTER_READ_KEY) || "[]");
+        return new Set(Array.isArray(raw) ? raw.map(String) : []);
+      } catch {
+        return new Set();
+      }
+    }
+    function saveReadSet(set) {
+      localStorage.setItem(CHAPTER_READ_KEY, JSON.stringify([...set]));
+    }
+
+    const toc = document.getElementById("toc");
+    const followBtn = document.getElementById("follow-btn");
+    const readBtn = document.getElementById("read-btn");
+
+    function paintFollow() {
+      const followed = loadReaderLibrary().follows.includes(WORK_ID);
+      followBtn.setAttribute("aria-pressed", followed ? "true" : "false");
+      followBtn.classList.toggle("is-on", followed);
+      document.getElementById("follow-label").textContent = followed ? "Вы подписаны" : "Подписаться";
+      const icon = followBtn.querySelector("img, .ui-icon");
+      if (icon) setUiIcon(icon, followed ? "assets/svg/bookmark.svg" : "assets/svg/bookmark2.svg");
+    }
+
+    function paintRead() {
+      const on = loadReadSet().has(current);
+      readBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      readBtn.classList.toggle("is-on", on);
+      toc.querySelectorAll("a").forEach((link) => {
+        link.classList.toggle("is-read", loadReadSet().has(link.getAttribute("data-scene")));
+      });
+    }
+
+    function renderMap() {
+      FoxStoryMap.renderSidebar(document.getElementById("path-map"), story, {
+        currentId: current,
+        visited: path,
+      });
+    }
+
+    function renderToc() {
+      FoxStoryMap.renderNav(toc, FoxStoryMap.publishedStory(story), {
+        currentId: current,
+        visited: path,
+        collapsed,
+        readSet: loadReadSet(),
+        hrefOf: (node) => `read-interactive.html?scene=${encodeURIComponent(node.id)}`,
+      });
+    }
+
+    function go(id, push) {
+      if (!sceneById(id)) return;
+      current = id;
+      if (push) {
+        if (path[path.length - 1] !== id) path.push(id);
+      }
+      render();
+    }
+
+    function isWaitChoice(choice) {
+      const target = sceneById(choice.next);
+      return !target || !FoxStoryMap.isPublished(target);
+    }
+
+    function waitingNext(next) {
+      return loadBranchWaits(WORK_ID).some((wait) => wait.next === next);
+    }
+
+    function toggleWait(choice) {
+      const waits = loadBranchWaits(WORK_ID);
+      const has = waits.some((wait) => wait.next === choice.next);
+      saveBranchWaits(
+        WORK_ID,
+        has
+          ? waits.filter((wait) => wait.next !== choice.next)
+          : waits.concat({ next: choice.next, label: choice.label, from: current })
+      );
+      if (typeof fillNotifFeed === "function") fillNotifFeed();
+    }
+
+    function pickChoice(choice) {
+      if (!choice) return;
+      if (isWaitChoice(choice)) {
+        toggleWait(choice);
+        renderChoices();
+        return;
+      }
+      go(choice.next, true);
+    }
+
+    function renderChoices() {
+      const scene = sceneById(current);
+      const choices = readerChoices(scene);
+      const block = document.getElementById("choice-block");
+      const box = document.getElementById("choices");
+      const head = document.getElementById("choice-head");
+      const random = document.getElementById("choice-random");
+      const prevId = path.length > 1 ? path[path.length - 2] : null;
+      const prevBtn = document.getElementById("prev");
+      prevBtn.hidden = !prevId;
+      prevBtn.disabled = !prevId;
+      document.getElementById("prev-name").textContent = prevId ? (sceneById(prevId)?.title || "") : "";
+      const hasChoices = choices.length > 0;
+      head.hidden = !hasChoices;
+      random.hidden = !hasChoices;
+      block.hidden = !hasChoices && !prevId;
+      box.innerHTML = choices.map((c) => {
+        const waiting = isWaitChoice(c) && waitingNext(c.next);
+        const hint = waiting
+          ? "Ждёте продолжение этой ветки. Придёт уведомление, когда выйдет глава."
+          : (c.hint || "");
+        return `
+        <button type="button" class="scene-choice${c.mute ? " is-mute" : ""}${waiting ? " is-waiting" : ""}" data-next="${c.next}"${waiting ? " aria-pressed=\"true\"" : ""}>
+          <span class="scene-choice-text"><b>${c.label}</b><small>${hint}</small></span>
+          ${waiting ? `<img src="assets/svg/ждуля2.svg" alt="">` : ""}
+        </button>`;
+      }).join("");
+    }
+
+    function render() {
+      const scene = sceneById(current);
+      if (!scene) return;
+      const index = Math.max(0, story.scenes.findIndex((item) => item.id === current));
+      const title = scene.title.trim() || "Без названия";
+      document.title = `${title} — ${story.title || "Тени прошлого"} — FoxStoria`;
+      document.getElementById("chapter-title").textContent = title;
+      document.getElementById("crumb-chapter").textContent = title;
+      document.getElementById("chapter-text").innerHTML = sceneHtml(scene);
+      document.getElementById("chapter-hero").style.setProperty("--chapter-cover", `url("${COVERS[index % COVERS.length]}")`);
+      renderChoices();
+      renderMap();
+      renderToc();
+      paintRead();
+      paintStats();
+      history.replaceState(null, "", `read-interactive.html?scene=${encodeURIComponent(current)}`);
+    }
+
+    renderToc();
+    toc.addEventListener("click", (event) => {
+      const fold = event.target.closest("[data-fold]");
+      if (fold) {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = fold.getAttribute("data-fold");
+        if (collapsed.has(id)) collapsed.delete(id);
+        else collapsed.add(id);
+        saveFold();
+        const node = fold.closest(".story-nav-node");
+        const open = !collapsed.has(id);
+        node?.classList.toggle("is-collapsed", !open);
+        fold.setAttribute("aria-expanded", open ? "true" : "false");
+        fold.setAttribute("aria-label", open ? "Свернуть уровень" : "Развернуть уровень");
+        return;
+      }
+      const link = event.target.closest("[data-scene]");
+      if (!link) return;
+      event.preventDefault();
+      const id = link.getAttribute("data-scene");
+      path = FoxStoryMap.pathTo(story, id);
+      go(id, false);
+    });
+    document.getElementById("path-map").addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-map]");
+      if (!btn || btn.disabled) return;
+      const id = btn.getAttribute("data-map");
+      const idx = path.indexOf(id);
+      if (idx >= 0) path = path.slice(0, idx + 1);
+      go(id, false);
+    });
+    document.getElementById("prev").onclick = () => {
+      if (path.length < 2) return;
+      path.pop();
+      go(path[path.length - 1], false);
+    };
+    document.getElementById("choices").addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-next]");
+      if (!btn) return;
+      const choice = readerChoices(sceneById(current)).find((item) => item.next === btn.getAttribute("data-next"));
+      pickChoice(choice);
+    });
+    document.getElementById("choice-random").addEventListener("click", () => {
+      const list = readerChoices(sceneById(current));
+      if (!list.length) return;
+      pickChoice(list[Math.floor(Math.random() * list.length)]);
+    });
+    followBtn.addEventListener("click", () => {
+      const lib = loadReaderLibrary();
+      const on = !lib.follows.includes(WORK_ID);
+      lib.follows = toggleReaderList(lib.follows, WORK_ID, on);
+      saveReaderLibrary(lib);
+      paintFollow();
+    });
+    readBtn.addEventListener("click", () => {
+      const set = loadReadSet();
+      if (set.has(current)) set.delete(current);
+      else set.add(current);
+      saveReadSet(set);
+      paintRead();
+    });
+    document.querySelector(".linear-comment-form").addEventListener("submit", (event) => event.preventDefault());
+    document.addEventListener("click", (event) => {
+      const del = event.target.closest("[data-comment-act=\"delete\"]");
+      if (del) {
+        event.preventDefault();
+        del.closest(".linear-comment")?.remove();
+        return;
+      }
+      const btn = event.target.closest(".linear-comment-menu .review-menu-btn");
+      document.querySelectorAll(".linear-comment-menu").forEach((menu) => {
+        const dd = menu.querySelector(".review-menu-dd");
+        const more = menu.querySelector(".review-menu-btn");
+        if (btn && menu.contains(btn)) {
+          const open = dd.hidden;
+          dd.hidden = !open;
+          more.setAttribute("aria-expanded", open ? "true" : "false");
+        } else if (!event.target.closest(".review-menu-dd")) {
+          dd.hidden = true;
+          more.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+    paintFollow();
+    render();
+    const pathMap = document.getElementById("path-map");
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => renderMap()).observe(pathMap);
+    }
+    window.addEventListener("storage", (event) => {
+      if (event.key !== FoxStoryMap.STORE) return;
+      story = FoxStoryMap.getStory();
+      if (!sceneById(current)) {
+        current = startScene().id;
+        path = [current];
+      }
+      renderToc();
+      render();
+    });
   </script>
 </body>
 </html>

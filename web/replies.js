@@ -125,12 +125,22 @@
   });
 
   const fromUrl = new URLSearchParams(location.search).get("tab");
-  const tabAlias = { works: "work", blogs: "blog" };
+  const tabAlias = { works: "work", blogs: "blog", mentions: "mention" };
   const startTab = tabAlias[fromUrl] || fromUrl;
   if (startTab && tabs.querySelector(`[data-reply-tab="${startTab}"]`)) {
     tabs.querySelectorAll("[data-reply-tab]").forEach((tab) => {
       tab.classList.toggle("active", tab.getAttribute("data-reply-tab") === startTab);
     });
+  }
+  const mentionDemo = feed.querySelector("[data-mention-text]");
+  if (mentionDemo && typeof ownerHandle === "function") {
+    mentionDemo.setAttribute(
+      "data-mention-text",
+      `Эй, @${ownerHandle()}, ветки наконец не путаются — спасибо за правки в редакторе.`
+    );
+    mentionDemo.innerHTML = typeof mentionHtml === "function"
+      ? mentionHtml(mentionDemo.getAttribute("data-mention-text"))
+      : mentionDemo.getAttribute("data-mention-text");
   }
   apply();
 })();

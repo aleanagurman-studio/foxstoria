@@ -91,11 +91,11 @@
           <time datetime="${escapeHtml(item.time)}">${escapeHtml(item.when)}</time>
         </div>
         <div class="review-menu">
-          <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+          <button type="button" class="review-menu-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
           <div class="review-menu-dd" hidden>
             <button type="button" data-review-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
             <button type="button" data-review-act="reward"><img src="assets/deco/present.svg" alt=""> Наградить</button>
-            <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+            <button type="button" class="is-danger" data-review-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
           </div>
         </div>
         <p class="review-text">${escapeHtml(item.text)}</p>

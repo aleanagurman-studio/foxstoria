@@ -118,25 +118,36 @@ function cabinetWorkState(pubStatus, isCompleted) {
 
 function cabinetMeta(work) {
   const extra = {
-    shadows: { status: "draft", updated: "сегодня, 14:32", updatedAt: "2026-08-28T14:32:00", views: 210, likes: 48, comments: 6 },
-    letters: { status: "published", updated: "вчера, 19:10", updatedAt: "2026-08-27T19:10:00", views: 1240, likes: 340, comments: 28 },
-    "mic-mono": { status: "moderation", updated: "3 дня назад", updatedAt: "2026-08-25T12:00:00", views: 680, likes: 1200, comments: 54 },
-    "tea-scars": { status: "completed", updated: "неделю назад", updatedAt: "2026-08-21T10:00:00", views: 890, likes: 428, comments: 41 },
-    crossroads: { status: "draft", updated: "сегодня, 09:18", updatedAt: "2026-08-28T09:18:00", views: 96, likes: 22, comments: 3 },
+    shadows: { status: "draft", updated: "сегодня, 14:32", updatedAt: "2026-08-28T14:32:00", views: 210, likes: 48, comments: 6, waiting: 42 },
+    letters: { status: "published", updated: "вчера, 19:10", updatedAt: "2026-08-27T19:10:00", views: 1240, likes: 340, comments: 28, waiting: 18 },
+    "mic-mono": { status: "moderation", updated: "3 дня назад", updatedAt: "2026-08-25T12:00:00", views: 680, likes: 1200, comments: 54, waiting: 91 },
+    "tea-scars": { status: "completed", updated: "неделю назад", updatedAt: "2026-08-21T10:00:00", views: 890, likes: 428, comments: 41, waiting: 0 },
+    crossroads: { status: "draft", updated: "сегодня, 09:18", updatedAt: "2026-08-28T09:18:00", views: 96, likes: 22, comments: 3, waiting: 11 },
   };
   const row = extra[work.id] || {};
+  let status = row.status || (work.is_completed ? "completed" : "draft");
+  try {
+    const map = JSON.parse(localStorage.getItem("foxtoria-work-status") || "{}");
+    const overlay = map && typeof map === "object" ? map[work.id] : "";
+    if (overlay === "completed") status = "completed";
+    else if (overlay === "draft") status = "draft";
+  } catch {
+    /* keep demo status */
+  }
   return {
-    status: row.status || (work.is_completed ? "completed" : "draft"),
+    status,
     updated: row.updated || "недавно",
     updatedAt: row.updatedAt || "2026-08-20T00:00:00",
     views: row.views ?? work.plays ?? 0,
     likes: row.likes ?? workLikes(work),
     comments: row.comments ?? 0,
+    waiting: row.waiting ?? 0,
   };
 }
 
 function cabinetStatsHTML(work, meta) {
   return `<div class="cabinet-card-stats">
+      <span title="Ждут продолжения"><img src="assets/svg/ждуля2.svg" alt=""> ${formatCount(meta.waiting)}</span>
       <span><img src="assets/svg/eye.svg" alt=""> ${formatCount(meta.views)}</span>
       <span><img src="assets/svg/heart.svg" alt=""> ${formatCount(meta.likes)}</span>
       <span><img src="assets/svg/коммент.svg" alt=""> ${formatCount(meta.comments)}</span>
@@ -167,10 +178,10 @@ function cabinetCardHTML(work, role) {
       <div class="cabinet-cover">
         <div class="cabinet-cover-frame">${cover}</div>
         <div class="cabinet-more-wrap">
-          <button type="button" class="cabinet-more" aria-label="Ещё" aria-haspopup="menu" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=2" alt=""></button>
+          <button type="button" class="cabinet-more" aria-label="Ещё" aria-haspopup="menu" aria-expanded="false"><img src="assets/ornaments/03_more_card.svg?v=1" alt=""></button>
           <div class="cabinet-menu" hidden role="menu">
             ${cabinetVisibilityButton(meta.status)}
-            <button type="button" role="menuitem" data-cabinet-action="delete"><img src="assets/svg/delete.svg" alt=""> Удалить</button>
+            <button type="button" role="menuitem" data-cabinet-action="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
           </div>
         </div>
       </div>
@@ -327,6 +338,23 @@ function renderAuthorHome(works) {
   paint(authorRoot, groups.author, "Здесь будут истории, где вы указаны автором.");
   paint(document.querySelector('[data-feed="author-home-coauthor"]'), groups.coauthor, "Здесь будут истории, где вы соавтор.");
   paint(document.querySelector('[data-feed="author-home-editor"]'), groups.editor, "Здесь будут истории, которые вы редактируете.");
+  const waitingRoot = document.querySelector("[data-cabinet-waiting]");
+  if (waitingRoot) {
+    const waiting = all
+      .map((work) => ({ work, count: cabinetMeta(work).waiting || 0 }))
+      .filter((item) => item.count > 0)
+      .sort((a, b) => b.count - a.count);
+    waitingRoot.innerHTML = waiting.length
+      ? waiting
+          .map(
+            (item) => `<a class="cabinet-waiting-row" href="${escapeHtml(studioHref(item.work))}">
+          <strong>${escapeHtml(item.work.title)}</strong>
+          <span>${formatCount(item.count)}</span>
+        </a>`
+          )
+          .join("")
+      : `<p class="profile-meta">Пока никто не ждёт продолжения.</p>`;
+  }
   const counts = { all: all.length, author: groups.author.length, coauthor: groups.coauthor.length, editor: groups.editor.length };
   Object.entries(counts).forEach(([key, value]) => {
     document.querySelectorAll(`[data-cabinet-count="${key}"]`).forEach((el) => {
@@ -404,7 +432,7 @@ async function loadCatalog() {
     const response = await fetch("works.json", { cache: "no-store" });
     if (!response.ok) throw new Error("catalog");
     const data = await response.json();
-    const works = Array.isArray(data.works) ? data.works : [];
+    const works = withoutHiddenTags(Array.isArray(data.works) ? data.works : []);
     const popular = [...works].sort(
       (a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0)
     );
@@ -425,8 +453,8 @@ async function loadCatalog() {
     renderAuthors(data.authors || []);
     renderCatalogGrid(works);
     renderAuthorsGrid(data.authors || []);
-    renderProfileWorks(works);
-    renderAuthorHome(works);
+    renderAuthorHome(Array.isArray(data.works) ? data.works : []);
+    renderProfileWorks(Array.isArray(data.works) ? data.works : []);
     renderReaderFeeds(works, data.authors || []);
     window.__foxWorks = works;
     window.__foxAuthors = data.authors || [];
@@ -444,11 +472,11 @@ async function loadCatalog() {
 }
 
 const LIBRARY_DEMO_AUTHORS = [
-  { display_name: "Северный ветер", slug: "north-wind", avatar: "assets/test/avatar-4.png", story_count: 12, updatedAt: "2026-08-28T14:00:00" },
-  { display_name: "Чайная роза", slug: "tea-rose", avatar: "assets/test/avatar-5.png", story_count: 7, updatedAt: "2026-08-27T09:00:00" },
-  { display_name: "Архив снов", slug: "dream-archive", avatar: "assets/test/avatar-6.png", story_count: 3, updatedAt: "2026-08-26T18:00:00" },
-  { display_name: "Ржавый якорь", slug: "rusty-anchor", avatar: "assets/test/avatar-7.png", story_count: 9, updatedAt: "2026-08-24T12:00:00" },
-  { display_name: "Мята и чернила", slug: "mint-ink", avatar: "assets/test/avatar-8.png", story_count: 4, updatedAt: "2026-08-22T16:00:00" },
+  { display_name: "Северный ветер", slug: "north-wind", avatar: "assets/test/avatar-4.png", story_count: 12, followers: 1840, updatedAt: "2026-08-28T14:00:00" },
+  { display_name: "Чайная роза", slug: "tea-rose", avatar: "assets/test/avatar-5.png", story_count: 7, followers: 920, updatedAt: "2026-08-27T09:00:00" },
+  { display_name: "Архив снов", slug: "dream-archive", avatar: "assets/test/avatar-6.png", story_count: 3, followers: 410, updatedAt: "2026-08-26T18:00:00" },
+  { display_name: "Ржавый якорь", slug: "rusty-anchor", avatar: "assets/test/avatar-7.png", story_count: 9, followers: 1260, updatedAt: "2026-08-24T12:00:00" },
+  { display_name: "Мята и чернила", slug: "mint-ink", avatar: "assets/test/avatar-8.png", story_count: 4, followers: 540, updatedAt: "2026-08-22T16:00:00" },
 ];
 
 function renderReaderFeeds(works, authors) {
@@ -480,13 +508,26 @@ function renderReaderFeeds(works, authors) {
   bindLibraryToolbar();
 }
 
+function authorWorks(author) {
+  return Number(author.story_count ?? author.works ?? 0) || 0;
+}
+
+function authorFollowers(author) {
+  return Number(author.followers ?? author.subscribers ?? 0) || 0;
+}
+
 function authorCardHTML(author) {
+  const works = authorWorks(author);
+  const followers = authorFollowers(author);
   return `
-      <a class="author-card" href="${escapeHtml(author.href || profileHref(author.display_name || author.name))}" data-title="${escapeHtml(author.display_name || author.name)}" data-updated="${escapeHtml(author.updatedAt || "")}">
+      <a class="author-card" href="${escapeHtml(author.href || profileHref(author.display_name || author.name))}" data-title="${escapeHtml(author.display_name || author.name)}" data-updated="${escapeHtml(author.updatedAt || "")}" data-popular="${followers}" data-works="${works}">
         <span class="author-avatar">${author.avatar ? `<img src="${escapeHtml(author.avatar)}" alt="">` : ""}</span>
         <span>
           <span class="author-name">${escapeHtml(author.display_name || author.name)}</span>
-          <p class="author-stats">${author.story_count ?? author.works ?? 0} работ</p>
+          <p class="author-stats">
+            <span class="author-stat" title="Работы"><img src="assets/svg/читать.svg" alt=""> ${formatCount(works)} <span class="author-stat-label">работ</span></span>
+            <span class="author-stat" title="Подписчики"><img src="assets/svg/пейринг.svg" alt=""> ${formatCount(followers)} <span class="author-stat-label">подписчиков</span></span>
+          </p>
         </span>
       </a>`;
 }
@@ -503,11 +544,11 @@ function renderLibraryAuthors(authors) {
     return;
   }
   root.innerHTML = list.map((author) => authorCardHTML(author)).join("");
+  if (typeof hydrateUiIcons === "function") hydrateUiIcons(root);
 }
 
 function sortWorks(works, sort) {
   const copy = [...works];
-  if (sort === "likes") return copy.sort((a, b) => workLikes(b) - workLikes(a));
   if (sort === "latest") return copy.sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
   if (sort === "name") return copy.sort((a, b) => String(a.title || "").localeCompare(b.title || "", "ru"));
   return copy.sort((a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0));
@@ -569,6 +610,62 @@ function matchesAllSlugs(work, keys, selected) {
   if (!selected.length) return true;
   const set = new Set(workSlugs(work, keys));
   return selected.every((slug) => set.has(slug));
+}
+
+function hiddenFeedSlugs(key) {
+  if (typeof loadFoxPrefs !== "function") return [];
+  const list = loadFoxPrefs()[key];
+  return Array.isArray(list) ? list.map(String).filter(Boolean) : [];
+}
+
+function blockedByHidePrefs(work) {
+  return [
+    ["hideGenres", ["genres", "genre_slugs", "genre"]],
+    ["hideFormats", ["formats", "format_slugs", "format"]],
+    ["hideWarnings", ["warnings", "warning_slugs", "warning"]],
+    ["hideKinks", ["kinks", "kink_slugs", "kink"]],
+  ].some(([pref, keys]) => {
+    const blocked = hiddenFeedSlugs(pref);
+    if (!blocked.length) return false;
+    const have = new Set(workSlugs(work, keys));
+    return blocked.some((slug) => have.has(slug));
+  });
+}
+
+function withoutHiddenTags(works) {
+  return (works || []).filter((work) => !blockedByHidePrefs(work));
+}
+
+function paramFlag(params, name) {
+  const value = params.get(name);
+  return value === "1" || value === "on" || value === "true";
+}
+
+function readerIdSet(key) {
+  const lib = typeof loadReaderLibrary === "function" ? loadReaderLibrary() : {};
+  return new Set((Array.isArray(lib[key]) ? lib[key] : []).map(String));
+}
+
+function likedWorkIds(works) {
+  const ids = readerIdSet("likes");
+  try {
+    const paths = new Set();
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith("foxtoria-work-like:")) continue;
+      if (localStorage.getItem(key) !== "1") continue;
+      paths.add(key.slice("foxtoria-work-like:".length).replace(/^\//, "").split(/[?#]/)[0]);
+    }
+    (works || []).forEach((work) => {
+      const href = String(work.href || workHref(work) || "")
+        .replace(/^\.\//, "")
+        .split(/[?#]/)[0];
+      if (paths.has(href) || paths.has(`/${href}`)) ids.add(String(work.id));
+    });
+  } catch {
+    /* ignore */
+  }
+  return ids;
 }
 
 function workFandomSlugs(work) {
@@ -689,6 +786,14 @@ function renderCatalogGrid(allWorks) {
       return pairingSlugs.every((slug) => have.has(slug));
     });
   }
+  if (paramFlag(params, "hide_read")) {
+    const read = readerIdSet("read");
+    works = works.filter((work) => !read.has(String(work.id)));
+  }
+  if (paramFlag(params, "hide_liked")) {
+    const liked = likedWorkIds(allWorks);
+    works = works.filter((work) => !liked.has(String(work.id)));
+  }
   const empty =
     type === "linear" || typeFilter === "linear"
       ? "Линейные истории появятся здесь после публикации."
@@ -730,6 +835,38 @@ function bindLibraryToolbar() {
   applySort();
 }
 
+function applyAuthorsSort() {
+  const dir = document.querySelector("[data-authors-sort]")?.value || "popular";
+  document.querySelectorAll(".authors-page .authors-grid").forEach((grid) => {
+    const cards = [...grid.querySelectorAll(".author-card")];
+    cards.sort((a, b) => {
+      if (dir === "latest") {
+        return (b.dataset.updated || "").localeCompare(a.dataset.updated || "");
+      }
+      const popular = (Number(b.dataset.popular) || 0) - (Number(a.dataset.popular) || 0);
+      if (popular) return popular;
+      return (Number(b.dataset.works) || 0) - (Number(a.dataset.works) || 0);
+    });
+    cards.forEach((card) => grid.appendChild(card));
+  });
+}
+
+function bindAuthorsToolbar() {
+  const page = document.querySelector(".authors-page");
+  if (!page || page.dataset.authorsBound === "1") return;
+  page.dataset.authorsBound = "1";
+  document.querySelector("[data-authors-sort]")?.addEventListener("change", applyAuthorsSort);
+  document.querySelectorAll("[data-authors-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.getAttribute("data-authors-view");
+      page.classList.toggle("is-list", view === "list");
+      document.querySelectorAll("[data-authors-view]").forEach((other) => {
+        other.classList.toggle("is-active", other === btn);
+      });
+    });
+  });
+}
+
 function renderAuthorsGrid(authors) {
   const root = document.querySelector("[data-feed='authors-grid']");
   if (!root) return;
@@ -738,6 +875,9 @@ function renderAuthorsGrid(authors) {
     return;
   }
   root.innerHTML = authors.map((author) => authorCardHTML(author)).join("");
+  if (typeof hydrateUiIcons === "function") hydrateUiIcons(root);
+  bindAuthorsToolbar();
+  applyAuthorsSort();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -747,6 +887,16 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
       document.querySelectorAll(".sort-bar .sort-btn").forEach((other) => other.classList.toggle("active", other === btn));
       renderCatalogGrid(window.__foxWorks || []);
+    });
+  });
+  const catalogPage = document.querySelector(".catalog-page");
+  document.querySelectorAll("[data-catalog-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const view = btn.getAttribute("data-catalog-view");
+      catalogPage?.classList.toggle("is-list", view === "list");
+      document.querySelectorAll("[data-catalog-view]").forEach((other) => {
+        other.classList.toggle("is-active", other === btn);
+      });
     });
   });
   document.querySelectorAll("[data-scroll]").forEach((btn) => {
