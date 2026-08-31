@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.account import router as account_router
 from app.api.admin import router as admin_router
@@ -12,7 +14,8 @@ from app.api.messages import router as messages_router
 from app.api.routes import router
 from app.api.works import router as works_router
 from app.config import settings
-from app.database import Base, engine
+from app.database import Base, SessionLocal, engine
+from app.demo import ensure_demo_accounts
 from app import models  # noqa: F401 — register all tables
 
 WEB_DIR = Path(__file__).resolve().parents[2] / "web"
@@ -113,6 +116,8 @@ async def lifespan(_: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(_sqlite_migrate)
+    async with SessionLocal() as db:
+        await ensure_demo_accounts(db)
     yield
     await engine.dispose()
 
@@ -134,5 +139,15 @@ app.include_router(messages_router, prefix="/api")
 app.include_router(account_router, prefix="/api")
 app.include_router(admin_router, prefix="/api")
 
+class WebStatic(StaticFiles):
+    async def get_response(self, path, scope):
+        try:
+            return await super().get_response(path, scope)
+        except (StarletteHTTPException, HTTPException) as exc:
+            if getattr(exc, "status_code", None) == 404 and (WEB_DIR / "404.html").is_file():
+                return FileResponse(WEB_DIR / "404.html", status_code=404)
+            raise
+
+
 if WEB_DIR.is_dir():
-    app.mount("/", StaticFiles(directory=str(WEB_DIR), html=True), name="web")
+    app.mount("/", WebStatic(directory=str(WEB_DIR), html=True), name="web")

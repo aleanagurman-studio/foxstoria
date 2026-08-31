@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from urllib.parse import unquote
@@ -30,6 +30,7 @@ from app.models import (
     Story,
     StoryCredit,
     StoryCreditRole,
+    StoryLike,
     StoryStatus,
     StoryType,
     WorkFormat,
@@ -124,8 +125,9 @@ def story_to_card(story: Story) -> dict:
     fandoms = extra.get("fandoms")
     if not fandoms:
         fandoms = [story.fandom.slug] if story.fandom else ["original"]
+    created = extra.get("createdAt") or (story.created_at.isoformat() if story.created_at else "")
     published = extra.get("publishedAt") or (
-        story.published_at.isoformat() if story.published_at else ""
+        story.published_at.isoformat() if story.published_at else created
     )
     updated = extra.get("updatedAt") or (
         (story.published_at or story.created_at).isoformat() if story.created_at else ""
@@ -154,13 +156,68 @@ def story_to_card(story: Story) -> dict:
         "author_slug": extra.get("author_slug") or story.author.username,
         "href": f"story.html?id={work_id}",
         "likes": int(extra.get("likes") or 0),
+        "likesWeek": int(extra.get("likesWeek") or extra.get("likes_week") or 0),
         "plays": int(story.play_count or extra.get("plays") or 0),
         "role": extra.get("role") or "author",
+        "createdAt": created,
         "publishedAt": published,
         "updatedAt": updated,
         "work_size": extra.get("work_size") or (story.work_size.value if story.work_size else None),
         "planned_size": extra.get("planned_size") or extra.get("work_size") or "mini",
     }
+
+
+async def like_stats_by_id(db: AsyncSession, ids: list[int]) -> dict[int, tuple[int, int]]:
+    if not ids:
+        return {}
+    since = datetime.now(timezone.utc) - timedelta(days=7)
+    totals = {
+        int(row[0]): int(row[1])
+        for row in (
+            await db.execute(
+                select(StoryLike.story_id, func.count())
+                .where(StoryLike.story_id.in_(ids))
+                .group_by(StoryLike.story_id)
+            )
+        ).all()
+    }
+    weeks = {
+        int(row[0]): int(row[1])
+        for row in (
+            await db.execute(
+                select(StoryLike.story_id, func.count())
+                .where(StoryLike.story_id.in_(ids), StoryLike.created_at >= since)
+                .group_by(StoryLike.story_id)
+            )
+        ).all()
+    }
+    return {story_id: (totals.get(story_id, 0), weeks.get(story_id, 0)) for story_id in ids}
+
+
+async def with_like_stats(db: AsyncSession, works: list[dict]) -> list[dict]:
+    ids: list[int] = []
+    for work in works:
+        try:
+            ids.append(int(work["id"]))
+        except (TypeError, ValueError, KeyError):
+            work.setdefault("likesWeek", int(work.get("likes_week") or 0))
+    stats = await like_stats_by_id(db, ids)
+    for work in works:
+        try:
+            story_id = int(work["id"])
+        except (TypeError, ValueError, KeyError):
+            continue
+        total, week = stats.get(story_id, (0, 0))
+        if total:
+            work["likes"] = total
+        work["likesWeek"] = week
+        work["likes_week"] = week
+    return works
+
+
+async def card_with_likes(db: AsyncSession, story: Story) -> dict:
+    cards = await with_like_stats(db, [story_to_card(story)])
+    return cards[0]
 
 
 def authors_from_works(works: list[dict]) -> list[dict]:
@@ -407,7 +464,7 @@ async def catalog(db: AsyncSession = Depends(get_db)):
         .options(*_story_load())
         .order_by(Story.published_at.desc().nullslast())
     )
-    works = [story_to_card(story) for story in result.scalars().unique().all()]
+    works = await with_like_stats(db, [story_to_card(story) for story in result.scalars().unique().all()])
     return {"works": works, "authors": authors_from_works(works)}
 
 
@@ -424,12 +481,16 @@ async def list_mine(
         .options(*_story_load())
         .order_by(Story.id.desc())
     )
-    return {"works": [story_to_card(story) for story in result.scalars().unique().all()]}
+    return {
+        "works": await with_like_stats(
+            db, [story_to_card(story) for story in result.scalars().unique().all()]
+        )
+    }
 
 
 @router.get("/works/{work_id}")
 async def get_work(work_id: int, db: AsyncSession = Depends(get_db)):
-    return story_to_card(await load_story(db, work_id))
+    return await card_with_likes(db, await load_story(db, work_id))
 
 
 @router.post("/works", status_code=201)
@@ -461,7 +522,7 @@ async def create_work(
     if story.status == StoryStatus.PUBLISHED:
         author.story_count = int(author.story_count or 0) + 1
     await db.commit()
-    return story_to_card(await load_story(db, story.id))
+    return await card_with_likes(db, await load_story(db, story.id))
 
 
 @router.put("/works/{work_id}")
@@ -483,7 +544,7 @@ async def update_work(
     elif was_listed and not now_listed:
         author.story_count = max(0, int(author.story_count or 0) - 1)
     await db.commit()
-    return story_to_card(await load_story(db, work_id))
+    return await card_with_likes(db, await load_story(db, work_id))
 
 
 @router.delete("/works/{work_id}", status_code=204)

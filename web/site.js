@@ -9,15 +9,215 @@ function isSignedIn() {
   return localStorage.getItem("foxtoria-signed-in") === "1";
 }
 
-function isSiteAdmin() {
-  if (!isSignedIn()) return false;
+const FOX_DEMO_USERS = [
+  {
+    name: "Фокс",
+    handle: "fox",
+    password: "1111",
+    role: "admin",
+    is_staff: true,
+    bio: "Администратор FoxStoria. Полный доступ к кабинету, модерации и настройкам сайта.",
+    avatar: "assets/brand/лисичка.png",
+  },
+  {
+    name: "Лис",
+    handle: "lis",
+    password: "2222",
+    role: "author",
+    is_staff: false,
+    bio: "Пишу новеллы и проверяю кабинет автора. Тестовые работы живут здесь.",
+    avatar: "assets/test/avatar-2.png",
+  },
+  {
+    name: "Хвостик",
+    handle: "hvostik",
+    password: "3333",
+    role: "reader",
+    is_staff: false,
+    bio: "Читаю истории, собираю закладки и оставляю отзывы.",
+    avatar: "assets/test/avatar-3.png",
+  },
+];
+
+const FOX_AUTHOR_PAGES = new Set([
+  "author-home.html",
+  "work-new.html",
+  "studio.html",
+  "editor.html",
+  "editor-linear.html",
+  "editor-messenger.html",
+  "reviews.html",
+  "changes.html",
+  "limits.html",
+]);
+
+const FOX_ADMIN_PAGES = new Set([
+  "admin.html",
+  "admin-reports.html",
+  "admin-messages.html",
+  "admin-content.html",
+  "admin-fandoms.html",
+  "admin-fandom.html",
+]);
+
+function loadProfileStore() {
   try {
     const raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
-    if (raw.is_staff) return true;
+    return raw && typeof raw === "object" ? raw : {};
   } catch {
-    /* ignore */
+    return {};
   }
-  return ["moonwander", "foxstoria", "foxstoria-support"].includes(ownerHandle());
+}
+
+function currentUserRole() {
+  if (!isSignedIn()) return "";
+  return String(loadProfileStore().role || "reader");
+}
+
+function canUseAuthorTools() {
+  const role = currentUserRole();
+  return role === "author" || role === "admin";
+}
+
+function isSiteAdmin() {
+  if (!isSignedIn()) return false;
+  const raw = loadProfileStore();
+  if (raw.is_staff || raw.role === "admin") return true;
+  return ["fox", "foxstoria", "foxstoria-support"].includes(ownerHandle());
+}
+
+function isSiteOwner() {
+  return isSiteAdmin();
+}
+
+function findDemoUser(login, password) {
+  const key = String(login || "")
+    .trim()
+    .replace(/^@/, "")
+    .toLowerCase();
+  const pass = String(password || "");
+  return FOX_DEMO_USERS.find(
+    (user) => pass === user.password && (user.handle === key || user.name.toLowerCase() === key)
+  );
+}
+
+function applyDemoSession(user) {
+  localStorage.setItem("foxtoria-signed-in", "1");
+  const prev = loadProfileStore();
+  localStorage.setItem(
+    "foxtoria-profile",
+    JSON.stringify({
+      ...prev,
+      name: user.name,
+      handle: user.handle,
+      bio: user.bio,
+      avatar: user.avatar,
+      role: user.role,
+      is_staff: Boolean(user.is_staff),
+      links: Array.isArray(prev.links) ? prev.links : [],
+    })
+  );
+}
+
+function clearDemoSession() {
+  localStorage.removeItem("foxtoria-signed-in");
+  const prev = loadProfileStore();
+  delete prev.role;
+  delete prev.is_staff;
+  localStorage.setItem("foxtoria-profile", JSON.stringify(prev));
+}
+
+function afterLoginPath(user) {
+  const next = String(sessionStorage.getItem("foxtoria-after-login") || "").trim();
+  sessionStorage.removeItem("foxtoria-after-login");
+  if (next && user.role === "reader" && FOX_AUTHOR_PAGES.has(next.split("?")[0])) return "404.html";
+  if (next && user.role !== "admin" && FOX_ADMIN_PAGES.has(next.split("?")[0])) return "404.html";
+  if (next) return next;
+  if (user.role === "admin") return "admin.html";
+  if (user.role === "author") return "author-home.html";
+  return "library.html";
+}
+
+function ensureLoginDialog() {
+  let box = document.getElementById("login-dialog");
+  if (box) return box;
+  box = document.createElement("dialog");
+  box.id = "login-dialog";
+  box.className = "login-dialog";
+  box.innerHTML = `
+    <form class="login-form" data-login-form>
+      <h2>Вход</h2>
+      <p class="login-hint">Пробные аккаунты: Фокс / 1111 · Лис / 2222 · Хвостик / 3333</p>
+      <label>Имя пользователя
+        <input type="text" name="login" autocomplete="username" required>
+      </label>
+      <label>Пароль
+        <input type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <p class="login-error" data-login-error hidden></p>
+      <div class="login-acts">
+        <button type="submit" class="btn btn-primary">Войти</button>
+        <button type="button" class="btn btn-outline" data-login-cancel>Отмена</button>
+      </div>
+    </form>`;
+  document.body.appendChild(box);
+  box.querySelector("[data-login-cancel]")?.addEventListener("click", () => box.close());
+  box.addEventListener("close", () => {
+    const page = currentPage();
+    if (!isSignedIn() && (FOX_AUTHOR_PAGES.has(page) || FOX_ADMIN_PAGES.has(page))) {
+      location.href = "index.html";
+    }
+  });
+  box.querySelector("[data-login-form]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const err = box.querySelector("[data-login-error]");
+    const user = findDemoUser(form.login.value, form.password.value);
+    if (!user) {
+      if (err) {
+        err.hidden = false;
+        err.textContent = "Неверное имя или пароль.";
+      }
+      return;
+    }
+    applyDemoSession(user);
+    const dest = afterLoginPath(user);
+    box.close();
+    location.href = dest;
+  });
+  return box;
+}
+
+function openLoginDialog() {
+  const box = ensureLoginDialog();
+  const form = box.querySelector("[data-login-form]");
+  const err = box.querySelector("[data-login-error]");
+  if (form) form.reset();
+  if (err) err.hidden = true;
+  if (typeof box.showModal === "function") box.showModal();
+}
+
+function enforcePageAccess() {
+  const page = currentPage();
+  const signed = isSignedIn();
+  const role = currentUserRole();
+  if (FOX_ADMIN_PAGES.has(page) && !isSiteAdmin()) {
+    if (!signed) {
+      sessionStorage.setItem("foxtoria-after-login", page);
+      openLoginDialog();
+      return;
+    }
+    location.replace("404.html");
+    return;
+  }
+  if (FOX_AUTHOR_PAGES.has(page) && (!signed || role === "reader")) {
+    if (!signed) {
+      sessionStorage.setItem("foxtoria-after-login", page);
+      openLoginDialog();
+      return;
+    }
+    location.replace("404.html");
+  }
 }
 
 function canDeletePostedItem(item) {
@@ -81,31 +281,21 @@ function foxPref(key) {
 const OWNER_AVATAR_DEFAULT = "assets/test/avatar-1.png";
 
 function ownerHandle() {
-  try {
-    const raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
-    return String(raw.handle || "moonwander").replace(/^@/, "").trim() || "moonwander";
-  } catch {
-    return "moonwander";
-  }
+  if (!isSignedIn()) return "guest";
+  const raw = loadProfileStore();
+  return String(raw.handle || "").replace(/^@/, "").trim() || "guest";
 }
 
 function ownerDisplayName() {
-  try {
-    const raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
-    return String(raw.name || "").trim() || "Вы";
-  } catch {
-    return "Вы";
-  }
+  if (!isSignedIn()) return "Гость";
+  const raw = loadProfileStore();
+  return String(raw.name || "").trim() || "Вы";
 }
 
 function ownerAvatarSrc() {
-  try {
-    const raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
-    const src = String(raw.avatar || "").trim();
-    return src || OWNER_AVATAR_DEFAULT;
-  } catch {
-    return OWNER_AVATAR_DEFAULT;
-  }
+  const raw = loadProfileStore();
+  const src = String(raw.avatar || "").trim();
+  return src || OWNER_AVATAR_DEFAULT;
 }
 
 function foxEscape(value) {
@@ -1683,11 +1873,11 @@ function headerMarkup() {
             <a href="profile.html"${ddOn("profile.html")}><img src="assets/svg/profile.svg" alt=""> Мой профиль</a>
             <a href="replies.html"${ddOn("replies.html")}><img src="assets/deco/heartcomm.svg" alt=""> Обсуждения</a>
             <span class="dd-sep"></span>
-            <a href="work-new.html"${ddOn("work-new.html")}><img src="assets/deco/plus.svg" alt=""> Новая история</a>
-            <a href="author-home.html"${ddOn("author-home.html")}><img src="assets/svg/читать.svg" alt=""> Мои истории</a>
-            <a href="reviews.html"${ddOn("reviews.html")}><img src="assets/svg/коммент.svg" alt=""> Отзывы</a>
-            <a href="changes.html"${ddOn("changes.html")}><img src="assets/deco/календарь.svg" alt=""> Изменения</a>
-            <a href="limits.html"${ddOn("limits.html")}><img src="assets/svg/память.svg" alt=""> Мои лимиты</a>
+            <a href="work-new.html"${ddOn("work-new.html")} data-author-nav><img src="assets/deco/plus.svg" alt=""> Новая история</a>
+            <a href="author-home.html"${ddOn("author-home.html")} data-author-nav><img src="assets/svg/читать.svg" alt=""> Мои истории</a>
+            <a href="reviews.html"${ddOn("reviews.html")} data-author-nav><img src="assets/svg/коммент.svg" alt=""> Отзывы</a>
+            <a href="changes.html"${ddOn("changes.html")} data-author-nav><img src="assets/deco/календарь.svg" alt=""> Изменения</a>
+            <a href="limits.html"${ddOn("limits.html")} data-author-nav><img src="assets/svg/память.svg" alt=""> Мои лимиты</a>
             <span class="dd-sep"></span>
             <a href="library.html?tab=likes"${ddOnLibrary(["likes", "read", "follows"])}><img src="assets/svg/bookmark2.svg" alt=""> Закладки</a>
             <a href="collections.html"${ddOn("collections.html")}><img src="assets/deco/сборник.svg" alt=""> Сборники</a>
@@ -1788,6 +1978,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   fillNotifFeed();
   syncAuthChrome();
   applyOwnerAvatar(header);
+  enforcePageAccess();
   document.querySelectorAll(".page-corner").forEach((el) => el.remove());
 
   const footer = document.querySelector(".page-footer");
@@ -2027,6 +2218,21 @@ function syncAuthChrome() {
   document.querySelectorAll("[data-admin-link]").forEach((el) => {
     el.hidden = !isSiteAdmin();
   });
+  document.querySelectorAll("[data-author-nav]").forEach((el) => {
+    el.hidden = !canUseAuthorTools();
+  });
+  document.querySelectorAll("[data-become-author]").forEach((el) => {
+    if (!signed) {
+      el.setAttribute("href", "profile.html");
+      el.setAttribute("data-signin", "");
+    } else if (canUseAuthorTools()) {
+      el.setAttribute("href", "author-home.html");
+      el.removeAttribute("data-signin");
+    } else {
+      el.setAttribute("href", "404.html");
+      el.removeAttribute("data-signin");
+    }
+  });
   applyOwnerAvatar();
   syncInboxDots();
 }
@@ -2034,14 +2240,46 @@ function syncAuthChrome() {
 document.addEventListener("click", (event) => {
   const signin = event.target.closest("[data-signin]");
   if (signin) {
-    localStorage.setItem("foxtoria-signed-in", "1");
-    syncAuthChrome();
+    event.preventDefault();
+    if (signin.hasAttribute("data-become-author")) {
+      sessionStorage.setItem("foxtoria-after-login", "author-home.html");
+    } else {
+      sessionStorage.setItem("foxtoria-after-login", currentPage() || "index.html");
+    }
+    openLoginDialog();
+    return;
   }
   const signout = event.target.closest("[data-signout]");
   if (signout) {
     event.preventDefault();
-    localStorage.removeItem("foxtoria-signed-in");
-    syncAuthChrome();
+    clearDemoSession();
+    if (currentPage() === "index.html" || location.pathname === "/") location.reload();
+    else location.href = "index.html";
+    return;
+  }
+  const link = event.target.closest("a[href]");
+  if (link && !link.hasAttribute("data-signin")) {
+    const page = String(link.getAttribute("href") || "")
+      .split("?")[0]
+      .split("#")[0]
+      .split("/")
+      .pop();
+    if (FOX_ADMIN_PAGES.has(page) && !isSiteAdmin()) {
+      event.preventDefault();
+      if (!isSignedIn()) {
+        sessionStorage.setItem("foxtoria-after-login", page);
+        openLoginDialog();
+      } else location.href = "404.html";
+      return;
+    }
+    if (FOX_AUTHOR_PAGES.has(page) && (!isSignedIn() || currentUserRole() === "reader")) {
+      event.preventDefault();
+      if (!isSignedIn()) {
+        sessionStorage.setItem("foxtoria-after-login", page);
+        openLoginDialog();
+      } else location.href = "404.html";
+      return;
+    }
   }
   const toggle = event.target.closest("#theme-toggle");
   if (!toggle) return;
@@ -3380,6 +3618,8 @@ window.FoxReport = {
     if (btn.matches("[data-review-act], [data-pack-act], [data-reply-report], [data-comment-act], [data-act], [data-msg-bubble-act]")) {
       btn.innerHTML = `<img src="assets/svg/флаг.svg" alt=""> Жалоба отправлена`;
       if (typeof hydrateUiIcons === "function") hydrateUiIcons(btn);
+    } else if (btn.getAttribute("aria-label") === "Пожаловаться") {
+      btn.setAttribute("aria-label", "Жалоба отправлена");
     }
   },
   open(payload) {
@@ -4119,8 +4359,10 @@ window.FoxWorks = {
       paid_min_level: Math.max(1, Math.round(Number(form.elements.paid_min_level?.value) || prev.paid_min_level || 1)),
       href: id ? `story.html?id=${encodeURIComponent(id)}` : "story.html",
       likes: Number(prev.likes) || 0,
+      likesWeek: Number(prev.likesWeek ?? prev.likes_week) || 0,
       plays: Number(prev.plays) || 0,
       role: prev.role || "author",
+      createdAt: prev.createdAt || new Date().toISOString(),
       publishedAt: listed ? prev.publishedAt || new Date().toISOString() : prev.publishedAt || "",
       updatedAt: new Date().toISOString(),
     };

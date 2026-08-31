@@ -56,9 +56,9 @@
   function cardHTML(pack, own) {
     return `
       <article class="pack-card" data-id="${escapeHtml(pack.id)}" data-own="${own ? "1" : "0"}" data-pinned="${pack.pinned ? "1" : "0"}" data-private="${pack.private ? "1" : "0"}" data-following="${pack.following ? "1" : "0"}" data-updated="${escapeHtml(pack.updatedAt)}" data-title="${escapeHtml(pack.title)}" data-cover="${escapeHtml(pack.cover || "")}">
-        <a class="pack-cover" href="search.html"><span class="tile-image collection-cover">${pack.cover ? `<img src="${escapeHtml(pack.cover)}" alt="">` : ""}</span></a>
+        <a class="pack-cover" href="404.html"><span class="tile-image collection-cover">${pack.cover ? `<img src="${escapeHtml(pack.cover)}" alt="">` : ""}</span></a>
         <div class="pack-info">
-          <h3><a href="search.html">${lockIcon(pack.private)} <span class="pack-title">${escapeHtml(pack.title)}</span></a></h3>
+          <h3><a href="404.html">${lockIcon(pack.private)} <span class="pack-title">${escapeHtml(pack.title)}</span></a></h3>
           <p>${pack.works} работ · обновлён ${escapeHtml(pack.updated)}</p>
         </div>
         <div class="cabinet-more-wrap">${menuHTML(pack, own)}</div>

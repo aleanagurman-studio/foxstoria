@@ -16,7 +16,25 @@ function ageLabel(age) {
 }
 
 function workLikes(work) {
-  return Number(work.likes ?? work.plays ?? 0) || 0;
+  return Number(work.likes) || 0;
+}
+
+function workLikesWeek(work) {
+  return Number(work.likesWeek ?? work.likes_week) || 0;
+}
+
+function workAddedAt(work) {
+  const raw = work.createdAt || work.publishedAt || work.updatedAt || 0;
+  const time = new Date(raw).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function byLikes(a, b) {
+  return workLikes(b) - workLikes(a) || workAddedAt(b) - workAddedAt(a);
+}
+
+function byAdded(a, b) {
+  return workAddedAt(b) - workAddedAt(a);
 }
 
 function formatCount(value) {
@@ -525,7 +543,7 @@ function bindAuthorTiers() {
 function renderProfileWorks(works) {
   const root = document.querySelector('[data-feed="profile-works"]');
   if (!root) return;
-  const slug = (root.getAttribute("data-author") || "moonwander").toLowerCase();
+  const slug = (root.getAttribute("data-author") || (typeof ownerHandle === "function" ? ownerHandle() : "lis")).toLowerCase();
   const items = works.filter((work) => {
     if (String(work.author_slug || "").toLowerCase() === slug) return true;
     return String(work.coauthor || "")
@@ -543,9 +561,9 @@ function renderProfileWorks(works) {
 function renderFeatured(works) {
   const root = document.querySelector("[data-feed='featured']");
   if (!root) return;
-  const work = [...works].sort((a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0))[0];
-  if (!work) {
-    root.innerHTML = emptyHTML("Выбор читателей появится, когда у работ появятся лайки.");
+  const work = [...works].sort((a, b) => workLikesWeek(b) - workLikesWeek(a) || byLikes(a, b))[0];
+  if (!work || !workLikesWeek(work)) {
+    root.innerHTML = emptyHTML("Выбор читателей появится у работы с наибольшим числом лайков за неделю.");
     return;
   }
   const typeLabel = workTypeLabel(work);
@@ -559,8 +577,7 @@ function renderFeatured(works) {
         <p>${escapeHtml(work.description || meta)}</p>
         <div class="featured-stats">
           <span>${escapeHtml(meta)}</span>
-          <span><strong>${work.plays || 0}</strong> прохождений</span>
-          <span class="story-likes"><img src="assets/svg/heart.svg" alt=""> ${formatCount(workLikes(work))}</span>
+          <span class="story-likes"><img src="assets/svg/heart.svg" alt=""> ${formatCount(workLikesWeek(work))} за неделю</span>
           <span class="age-badge">${escapeHtml(ageLabel(work.age))}</span>
         </div>
       </div>
@@ -617,6 +634,25 @@ function authorsFromWorks(works, seeded) {
   return [...map.values()].filter((author) => (author.story_count || author.works) > 0);
 }
 
+function cabinetWorksForMe(userWorks, catalogWorks) {
+  if (!canUseAuthorTools()) return [];
+  const handle = String(typeof ownerHandle === "function" ? ownerHandle() : "")
+    .toLowerCase()
+    .replace(/^@/, "");
+  const byId = new Map();
+  (catalogWorks || []).forEach((work) => {
+    const slug = String(work.author_slug || "").toLowerCase();
+    if (slug && slug === handle) byId.set(String(work.id), { ...work, role: work.role || "author" });
+  });
+  (userWorks || []).forEach((work) => {
+    const slug = String(work.author_slug || "").toLowerCase();
+    if (!slug || slug === handle || (handle === "lis" && slug === "moonwander")) {
+      byId.set(String(work.id), work);
+    }
+  });
+  return [...byId.values()];
+}
+
 async function loadCatalog() {
   await loadFandomIndex();
   if (window.FoxWorks) await FoxWorks.hydrate();
@@ -634,12 +670,8 @@ async function loadCatalog() {
     const merged = [...byId.values()];
     const works = withoutHiddenTags(merged.filter((work) => (window.FoxWorks ? FoxWorks.isListed(work) : true)));
     const authors = authorsFromWorks(works, Array.isArray(data.authors) ? data.authors : []);
-    const popular = [...works].sort(
-      (a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0)
-    );
-    const latest = [...works].sort(
-      (a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0)
-    );
+    const popular = [...works].sort(byLikes);
+    const latest = [...works].sort(byAdded);
     renderFeed(
       "popular",
       popular.slice(0, 6),
@@ -654,7 +686,7 @@ async function loadCatalog() {
     renderAuthors(authors);
     renderCatalogGrid(works);
     renderAuthorsGrid(authors);
-    renderAuthorHome(userWorks);
+    renderAuthorHome(cabinetWorksForMe(userWorks, works));
     renderProfileWorks(works);
     renderReaderFeeds(works, authors);
     window.__foxWorks = works;
@@ -739,9 +771,9 @@ function renderLibraryAuthors(authors) {
 
 function sortWorks(works, sort) {
   const copy = [...works];
-  if (sort === "latest") return copy.sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
+  if (sort === "latest") return copy.sort(byAdded);
   if (sort === "name") return copy.sort((a, b) => String(a.title || "").localeCompare(b.title || "", "ru"));
-  return copy.sort((a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0));
+  return copy.sort(byLikes);
 }
 
 function slugsFromParams(params, plural, singular) {
@@ -1072,13 +1104,34 @@ function renderAuthorsGrid(authors) {
   applyAuthorsSort();
 }
 
+function catalogSortFromUrl() {
+  const sort = new URLSearchParams(location.search).get("sort");
+  return sort === "latest" || sort === "new" || sort === "name" ? (sort === "new" ? "latest" : sort) : "";
+}
+
+function setCatalogSort(sort, { updateUrl = false } = {}) {
+  const buttons = document.querySelectorAll(".sort-bar .sort-btn");
+  if (!buttons.length) return;
+  const match = [...buttons].find((btn) => btn.getAttribute("data-sort") === sort) || buttons[0];
+  buttons.forEach((btn) => btn.classList.toggle("active", btn === match));
+  if (updateUrl) {
+    const url = new URL(location.href);
+    const value = match.getAttribute("data-sort") || "popular";
+    if (value === "popular") url.searchParams.delete("sort");
+    else url.searchParams.set("sort", value);
+    history.replaceState({}, "", url);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   bindAuthorTiers();
+  const fromUrl = catalogSortFromUrl();
+  if (fromUrl) setCatalogSort(fromUrl);
   loadCatalog();
   document.querySelectorAll(".sort-bar .sort-btn").forEach((btn) => {
     btn.addEventListener("click", (event) => {
       event.preventDefault();
-      document.querySelectorAll(".sort-bar .sort-btn").forEach((other) => other.classList.toggle("active", other === btn));
+      setCatalogSort(btn.getAttribute("data-sort") || "popular", { updateUrl: true });
       renderCatalogGrid(window.__foxWorks || []);
     });
   });

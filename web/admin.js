@@ -46,7 +46,7 @@
     } catch {
       const main = document.querySelector("[data-admin-root]");
       if (main) {
-        main.innerHTML = `<p class="profile-meta">Кабинет администратора доступен только персоналу. Войдите как moonwander.</p>`;
+        main.innerHTML = `<p class="profile-meta">Кабинет администратора доступен только персоналу. Войдите как Фокс.</p>`;
       }
       return false;
     }

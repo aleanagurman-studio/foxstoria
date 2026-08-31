@@ -1,9 +1,9 @@
 (function profilePage() {
   const STORE = "foxtoria-profile";
   const DEFAULTS = {
-    name: "Лунный странник",
-    handle: "moonwander",
-    bio: "Пишу ветвящиеся новеллы о памяти и выборе. Ниже — тестовые работы с разными направленностями и фандомами для проверки макетов.",
+    name: "Лис",
+    handle: "lis",
+    bio: "Пишу новеллы и проверяю кабинет автора. Тестовые работы живут здесь.",
     links: [
       { title: "Telegram", url: "https://t.me/foxcavemeit" },
       { title: "VK", url: "https://vk.com" },
@@ -19,6 +19,8 @@
         handle: String(raw.handle || DEFAULTS.handle).replace(/^@/, "").trim() || DEFAULTS.handle,
         avatar: String(raw.avatar || "").trim(),
         bio: String(raw.bio || DEFAULTS.bio),
+        role: String(raw.role || ""),
+        is_staff: Boolean(raw.is_staff),
         links: Array.isArray(raw.links) && raw.links.length ? raw.links : DEFAULTS.links.map((item) => ({ ...item })),
       };
     } catch {

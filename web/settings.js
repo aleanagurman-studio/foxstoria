@@ -111,7 +111,7 @@
   });
 
   const PROFILE_STORE = "foxtoria-profile";
-  const IDENTITY = { name: "Лунный странник", handle: "moonwander" };
+  const IDENTITY = { name: "Хвостик", handle: "hvostik" };
 
   function loadIdentity() {
     try {

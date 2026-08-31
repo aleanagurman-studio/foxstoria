@@ -279,12 +279,12 @@
   function commentTools(item) {
     const buttons = [];
     if (signed()) buttons.push(`<button type="button" data-comment-reply>Ответить</button>`);
-    buttons.push(`<button type="button" data-report="comment"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>`);
+    buttons.push(`<button type="button" class="news-tool-icon" data-report="comment" aria-label="Пожаловаться"><img src="assets/svg/флаг.svg" alt=""></button>`);
     if (isOwnComment(item)) {
       buttons.push(`<button type="button" data-comment-edit>Изменить</button>`);
     }
     if (isOwnComment(item) || (typeof isSiteAdmin === "function" && isSiteAdmin())) {
-      buttons.push(`<button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button>`);
+      buttons.push(`<button type="button" class="news-tool-icon is-danger" data-comment-delete aria-label="Удалить"><img src="assets/svg/удалить.svg" alt=""></button>`);
     }
     return buttons.length ? `<span class="news-comment-tools">${buttons.join("")}</span>` : "";
   }
@@ -433,7 +433,7 @@
             <div class="news-foot-actions">
               ${collapsible ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
               <button type="button" class="news-more" data-open-comments>Комментировать</button>
-              <button type="button" class="news-more" data-report="news"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+              <button type="button" class="news-icon-btn news-foot-report" data-report="news" aria-label="Пожаловаться"><img src="assets/svg/флаг.svg" alt=""></button>
             </div>
           </div>
           ${

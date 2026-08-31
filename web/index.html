@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=218">
-  <script src="site.js?v=100"></script>
-  <script src="catalog.js?v=43" defer></script>
-  <script src="news.js?v=11"></script>
+  <link rel="stylesheet" href="styles.css?v=220">
+  <script src="site.js?v=110"></script>
+  <script src="catalog.js?v=47" defer></script>
+  <script src="news.js?v=12"></script>
 </head>
 <body>
 
@@ -30,7 +30,7 @@
               <img src="assets/deco/lupa1.svg" alt="">
               Найти историю
             </a>
-            <a href="author-home.html" class="btn btn-ghost">
+            <a href="author-home.html" class="btn btn-ghost" data-become-author>
               <img src="assets/deco/перо1.svg" alt="">
               Стать автором
             </a>
@@ -50,7 +50,7 @@
         <section class="section">
           <div class="section-header">
             <h2>Новинки <img class="title-leaf" src="assets/deco/дуфа2.svg" alt=""></h2>
-            <a href="search.html" class="section-link">Все</a>
+            <a href="catalog.html?sort=latest" class="section-link">Все</a>
           </div>
           <div class="stories-row" data-feed="latest"></div>
         </section>
@@ -69,32 +69,32 @@
           <a href="collections.html" class="section-link">Все подборки</a>
         </div>
         <div class="tile-grid collections-row">
-          <a href="search.html" class="tile-card">
+          <a href="catalog.html?q=любовь" class="tile-card">
             <div class="tile-image collection-cover"><img src="assets/brand/collection-heart.png" alt=""></div>
             <div>
               <h3>Истории о любви</h3>
-              <p>Появится вместе с каталогом</p>
+              <p>Романтика в каталоге</p>
             </div>
           </a>
-          <a href="search.html" class="tile-card">
+          <a href="catalog.html?q=фэнтези" class="tile-card">
             <div class="tile-image collection-cover"><img src="assets/brand/collection-helm.png" alt=""></div>
             <div>
               <h3>Тёмное фэнтези</h3>
-              <p>Появится вместе с каталогом</p>
+              <p>Мрачные миры и выбор</p>
             </div>
           </a>
-          <a href="search.html" class="tile-card">
+          <a href="catalog.html?q=магия" class="tile-card">
             <div class="tile-image collection-cover"><img src="assets/brand/collection-castle.png" alt=""></div>
             <div>
               <h3>Академия и магия</h3>
-              <p>Появится вместе с каталогом</p>
+              <p>Школы, заклинания, интриги</p>
             </div>
           </a>
-          <a href="search.html" class="tile-card">
+          <a href="catalog.html?q=ориджинал" class="tile-card">
             <div class="tile-image collection-cover"><img src="assets/brand/collection-chair.png" alt=""></div>
             <div>
               <h3>У камина</h3>
-              <p>Появится вместе с каталогом</p>
+              <p>Тихие оригинальные истории</p>
             </div>
           </a>
         </div>

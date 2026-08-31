@@ -268,9 +268,9 @@
   function renderCommentItem(item) {
     const own = Boolean(item.own) || item.author === "Вы";
     const tools = [];
-    tools.push(`<button type="button" data-report="comment"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>`);
+    tools.push(`<button type="button" class="news-tool-icon" data-report="comment" aria-label="Пожаловаться"><img src="assets/svg/флаг.svg" alt=""></button>`);
     if (signed() && (own || (typeof isSiteAdmin === "function" && isSiteAdmin()))) {
-      tools.push(`<button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button>`);
+      tools.push(`<button type="button" class="news-tool-icon is-danger" data-comment-delete aria-label="Удалить"><img src="assets/svg/удалить.svg" alt=""></button>`);
     }
     const toolsHtml = tools.length ? `<span class="news-comment-tools">${tools.join("")}</span>` : "";
     return `
@@ -348,7 +348,7 @@
           <div class="blog-post-actions">
             ${long ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
             <button type="button" class="news-more" data-open-comments>Комментировать</button>
-            <button type="button" class="news-more" data-report="blog"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+            <button type="button" class="news-icon-btn news-foot-report" data-report="blog" aria-label="Пожаловаться"><img src="assets/svg/флаг.svg" alt=""></button>
           </div>
         </div>
         <div class="news-comments" hidden>
