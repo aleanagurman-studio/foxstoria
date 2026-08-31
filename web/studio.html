@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=220">
-  <link rel="stylesheet" href="studio.css?v=103">
-  <script src="site.js?v=112"></script>
+  <link rel="stylesheet" href="styles.css?v=223">
+  <link rel="stylesheet" href="studio.css?v=104">
+  <script src="site.js?v=116"></script>
 </head>
 <body class="studio-page">
   <header class="header"></header>
@@ -25,7 +25,7 @@
         <button class="studio-item" data-view="reviews"><img src="assets/svg/коммент.svg" alt=""> Отзывы</button>
         <button class="studio-item" data-view="stats"><img src="assets/svg/стата.svg" alt=""> Статистика</button>
         <button class="studio-item" data-view="settings"><img src="assets/svg/размер.svg" alt=""> Описание</button>
-        <a class="studio-item studio-public" id="studio-public-page" href="story-interactive.html" target="_blank" rel="noopener"><img src="assets/svg/читать.svg" alt=""> Страница работы</a>
+        <a class="studio-item studio-public" id="studio-public-page" href="story.html" target="_blank" rel="noopener"><img src="assets/svg/читать.svg" alt=""> Страница работы</a>
       </div>
       <div class="studio-nav-art" aria-hidden="true">
         <img src="assets/brand/castle.png" alt="">
@@ -938,10 +938,13 @@
           </div>
           <p class="studio-card-lock" id="studio-card-lock" hidden>Редактор правит только главы. Карточку могут менять автор и соавтор; правки соавтора появятся в «Изменениях».</p>
           <div class="studio-form-row" data-paid-fields>
-            <div>
-              <label class="studio-label" for="work-paid"><input type="checkbox" name="paid" id="work-paid"> Платная работа</label>
-              <p class="studio-hint">Карточка и первая глава всегда бесплатны. Остальное — от выбранного уровня подписки и выше. Подписка на редактора доступ не даёт.</p>
-            </div>
+            <label class="studio-paid-toggle" for="work-paid">
+              <input type="checkbox" name="paid" id="work-paid">
+              <span class="studio-paid-copy">
+                <span class="studio-paid-title">Платная работа</span>
+                <span class="studio-hint">Карточка и первая глава всегда бесплатны. Остальное — от выбранного уровня подписки и выше. Подписка на редактора доступ не даёт.</span>
+              </span>
+            </label>
             <div>
               <label class="studio-label" for="work-paid-level">Минимальный уровень</label>
               <select id="work-paid-level" class="studio-control" name="paid_min_level"></select>
@@ -975,6 +978,6 @@
     </div>
   </div>
   <script src="taxonomy.js?v=30"></script>
-  <script src="studio.js?v=62"></script>
+  <script src="studio.js?v=63"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 (async function publicWorkPage() {
-  const id = new URLSearchParams(location.search).get("id") || "";
+  const id = window.FoxWorks ? FoxWorks.idFromUrl() : new URLSearchParams(location.search).get("id") || "";
   document.getElementById("work-page")?.setAttribute("data-work-id", id);
   document.getElementById("work-like")?.setAttribute("data-work-id", id);
   document.getElementById("work-follow-wrap")?.setAttribute("data-work-id", id);
@@ -124,7 +124,7 @@
   badges.push(`<span class="work-badge work-badge--likes"><img src="assets/svg/heart.svg" class="work-icon" alt=""> ${formatCount(likes)}</span>`);
   if (work.paid) {
     badges.push(
-      `<span class="work-badge work-badge--paid"><img src="assets/svg/деньга.svg" class="work-badge-icon" alt=""> Платная</span>`
+      `<span class="work-paid-icon" title="Платный доступ"><img src="assets/svg/fillsparkle.svg" alt=""></span>`
     );
   }
   document.getElementById("work-badges").innerHTML = badges.join("");

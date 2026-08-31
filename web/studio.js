@@ -76,7 +76,7 @@
     document.querySelectorAll(".review-chapter").forEach((link) => {
       const ch = link.getAttribute("data-chapter") || "";
       const readHref = urls ? urls.read : type === "linear" ? "read-linear.html" : type === "messenger" ? "read-messenger.html" : "read-interactive.html";
-      link.href = ch ? `${readHref}${readHref.includes("?") ? "&" : "?"}chapter=${encodeURIComponent(ch)}` : readHref;
+      link.href = ch && window.FoxWorks ? FoxWorks.withParams(readHref, { chapter: ch }) : ch ? `${readHref}${readHref.includes("?") ? "&" : "?"}chapter=${encodeURIComponent(ch)}` : readHref;
     });
     if (resumePlace) {
       resumePlace.textContent =
@@ -200,6 +200,9 @@
     applyStoryType(work.story_type);
     if (publicPage) publicPage.href = window.FoxWorks ? FoxWorks.urls(work).public : work.href || publicPage.href;
     document.title = `${work.title || "История"} — кабинет — FoxStoria`;
+    const paintChapters = () => fillStudioChapters(work);
+    if (window.FoxWorks?.seed) Promise.resolve(FoxWorks.seed(work)).then(paintChapters, paintChapters);
+    else paintChapters();
     const romance = document.getElementById("work-romance");
     if (romance && work.romance) romance.value = work.romance;
     if (work.age) {
@@ -253,7 +256,7 @@
 
   function initUserPickers(data) {
     const extraUsers = [];
-    const selfKeys = new Set(["лунный странник", "moonwander"]);
+    const selfKeys = new Set(["лунный странник", "moonwander", "лис", "lis"]);
     const seen = new Set();
     const users = [...(data?.authors || []), ...extraUsers].filter((user) => {
       const slug = String(user.slug || "").toLowerCase();
@@ -486,6 +489,35 @@
     const type = storyTypeValue();
     const editorPage = type === "linear" ? "editor-linear.html" : type === "messenger" ? "editor-messenger.html" : "editor.html";
     return workId ? `${editorPage}?id=${encodeURIComponent(workId)}` : editorPage;
+  }
+
+  function fillStudioChapters(work) {
+    const list = document.getElementById("work-chapters");
+    if (!list || !work?.id || !window.FoxWorks) return;
+    const href = editorHref();
+    let chapters = [];
+    try {
+      const data = JSON.parse(localStorage.getItem(FoxWorks.contentStore(work)) || "null");
+      if (Array.isArray(data?.chapters) && data.chapters.length) chapters = data.chapters;
+    } catch {
+      chapters = [];
+    }
+    if (!chapters.length) return;
+    list.innerHTML = chapters
+      .map((chapter, index) => {
+        const n = index + 1;
+        const chapterHref = FoxWorks.withParams(href, { chapter: n });
+        const raw = String(chapter.title || `Глава ${n}`).replace(/^Глава\s+\d+\s*[·.]\s*/i, "");
+        return `<li class="work-chapter">
+          ${CHAPTER_GRIP}
+          <div>
+            <a href="${chapterHref}" class="work-chapter-title"><strong>Глава ${n} · ${escapeHtml(raw)}</strong></a>
+          </div>
+          ${chapterActionsHTML(chapterHref)}
+        </li>`;
+      })
+      .join("");
+    bindChapterSort(list);
   }
 
   function chapterActionsHTML(href) {

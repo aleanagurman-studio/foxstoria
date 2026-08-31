@@ -2664,7 +2664,7 @@ body.studio-page {
   gap: 14px;
 }
 .studio-form .studio-label { margin-top: 0; }
-.studio-form input,
+.studio-form input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
 .studio-form select,
 .studio-form textarea {
   width: 100%;
@@ -2676,7 +2676,7 @@ body.studio-page {
   color: var(--chestnut-dark);
   box-sizing: border-box;
 }
-.studio-form input:not([type="file"]),
+.studio-form input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
 .studio-form select,
 .studio-form .tax-search {
   min-height: 42px;

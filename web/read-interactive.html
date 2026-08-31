@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=220">
+  <link rel="stylesheet" href="styles.css?v=223">
 </head>
 <body class="linear-read-page">
   <header class="header"></header>
 
   <div class="linear-read" data-side-layout>
     <aside class="linear-read-side" id="side-panel" data-side-panel>
-      <a class="linear-work-card" href="story-interactive.html">
+      <a class="linear-work-card" href="story-shadows.html">
         <span class="linear-work-cover">
           <img src="assets/test/cover-1.png" alt="">
         </span>
@@ -73,7 +73,7 @@
           <span>›</span>
           <a href="catalog.html">Каталог</a>
           <span>›</span>
-          <a href="story-interactive.html">Тени прошлого</a>
+          <a href="story-shadows.html">Тени прошлого</a>
           <span>›</span>
           <span id="crumb-chapter"></span>
         </nav>
@@ -179,10 +179,10 @@
     </article>
   </div>
 
-  <script src="site.js?v=112"></script>
-  <script src="story-map.js?v=10"></script>
+  <script src="site.js?v=116"></script>
+  <script src="story-map.js?v=11"></script>
   <script>
-    const WORK_ID = "shadows";
+    const WORK_ID = new URLSearchParams(location.search).get("id") || "shadows";
     const CHAPTER_READ_KEY = "foxtoria-chapter-read:" + WORK_ID;
     const COVERS = ["assets/brand/banner-hero.jpg", "assets/brand/banner-footer.jpg"];
     const DEMO_HTML = {
@@ -270,7 +270,7 @@
     }
 
     let payWork = null;
-    let story = FoxStoryMap.getStory();
+    let story = { scenes: [{ id: "start", title: "", isStart: true, choices: [] }], chapters: [] };
     if (window.FoxChapterPlayer) FoxChapterPlayer.bind(document.getElementById("chapter-player"));
     let current = startScene().id;
     let path = [current];
@@ -348,7 +348,7 @@
         visited: path,
         collapsed,
         readSet: loadReadSet(),
-        hrefOf: (node) => `read-interactive.html?scene=${encodeURIComponent(node.id)}`,
+        hrefOf: (node) => `read-interactive.html?id=${encodeURIComponent(WORK_ID)}&scene=${encodeURIComponent(node.id)}`,
       });
     }
 
@@ -443,7 +443,7 @@
       paintRead();
       paintStats();
       if (window.FoxChapterPlayer) FoxChapterPlayer.load(scene.audioKey, scene.audioName, scene.audioEmbed);
-      history.replaceState(null, "", `read-interactive.html?scene=${encodeURIComponent(current)}`);
+      history.replaceState(null, "", `read-interactive.html?id=${encodeURIComponent(WORK_ID)}&scene=${encodeURIComponent(current)}`);
     }
 
     renderToc();
@@ -543,6 +543,45 @@
         const id = FoxWorks.idFromUrl() || WORK_ID;
         if (id && !FoxWorks.get(id)) await FoxWorks.fetchOne(id);
         payWork = FoxWorks.get(id) || null;
+        if (payWork && FoxWorks.normalizeStoryType(payWork.story_type) !== "interactive") {
+          location.replace(FoxWorks.urls(payWork).read);
+          return;
+        }
+        if (payWork) await FoxWorks.seed(payWork);
+      }
+      story = FoxStoryMap.getStory();
+      if (!sceneById(current) || current === "start") {
+        current = startScene().id;
+        path = [current];
+        const requestedScene = params.get("scene");
+        const requestedChapter = Number(params.get("chapter"));
+        if (requestedScene && sceneById(requestedScene)) {
+          current = requestedScene;
+          path = FoxStoryMap.pathTo(story, current);
+        } else if (requestedChapter) {
+          const node = FoxStoryMap.flattenTree(FoxStoryMap.walkTree(story))[requestedChapter - 1];
+          if (node) {
+            current = node.id;
+            path = FoxStoryMap.pathTo(story, current);
+          }
+        }
+      }
+      if (payWork) {
+        const cardTitle = document.querySelector(".linear-work-card-title");
+        const cardAuthor = document.querySelector(".linear-work-card-author");
+        const cardLink = document.querySelector(".linear-work-card");
+        const crumb = document.querySelector(".linear-read-crumbs a[href*='story']");
+        if (cardTitle) cardTitle.textContent = payWork.title || "Работа";
+        if (cardAuthor) cardAuthor.textContent = payWork.author || "";
+        if (cardLink) cardLink.href = FoxWorks.urls(payWork).public;
+        if (crumb) {
+          crumb.href = FoxWorks.urls(payWork).public;
+          crumb.textContent = payWork.title || "Работа";
+        }
+        const edit = document.getElementById("edit-chapter");
+        if (edit) edit.href = FoxWorks.urls(payWork).editor;
+        const follow = document.getElementById("follow-btn");
+        if (follow) follow.setAttribute("data-work-id", WORK_ID);
       }
       render();
     })();

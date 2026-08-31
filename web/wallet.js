@@ -60,6 +60,14 @@
   }
 
   function load() {
+    if (window.FoxPay?.loadWallet) {
+      const raw = FoxPay.loadWallet();
+      return {
+        balance: Number(raw.balance) || 0,
+        ops: Array.isArray(raw.ops) ? raw.ops : [],
+        methods: Array.isArray(raw.methods) && raw.methods.length ? raw.methods.map(normalizeMethod) : SEED_METHODS.map((item) => ({ ...item })),
+      };
+    }
     try {
       const raw = JSON.parse(localStorage.getItem(STORE) || "null");
       if (raw && typeof raw === "object") {
@@ -82,6 +90,10 @@
   }
 
   function save(data) {
+    if (window.FoxPay?.saveWallet) {
+      FoxPay.saveWallet(data);
+      return;
+    }
     localStorage.setItem(STORE, JSON.stringify(data));
   }
 
@@ -92,30 +104,34 @@
   }
 
   const EXTRA_PAYOUTS = SEED_OPS.filter((item) => item.id.startsWith("op-p"));
-  (function fillPayoutHistory() {
-    const ids = new Set((state.ops || []).map((item) => item.id));
-    const add = EXTRA_PAYOUTS.filter((item) => !ids.has(item.id));
-    if (!add.length) return;
-    const extra = add.reduce((sum, item) => sum + Math.abs(Number(item.amount) || 0), 0);
-    state.ops = state.ops.concat(add);
-    if (!ids.has("op-seed-topup")) {
-      state.ops.push({
-        id: "op-seed-topup",
-        kind: "topup",
-        title: "Карта · •• 4242",
-        when: "1 июля, 10:00",
-        at: "2026-07-01T10:00:00",
-        amount: extra,
-      });
-    }
-    save(state);
-  })();
+  if (!window.FoxPay?.loadWallet) {
+    (function fillPayoutHistory() {
+      const ids = new Set((state.ops || []).map((item) => item.id));
+      const add = EXTRA_PAYOUTS.filter((item) => !ids.has(item.id));
+      if (!add.length) return;
+      const extra = add.reduce((sum, item) => sum + Math.abs(Number(item.amount) || 0), 0);
+      state.ops = state.ops.concat(add);
+      if (!ids.has("op-seed-topup")) {
+        state.ops.push({
+          id: "op-seed-topup",
+          kind: "topup",
+          title: "Карта · •• 4242",
+          when: "1 июля, 10:00",
+          at: "2026-07-01T10:00:00",
+          amount: extra,
+        });
+      }
+      save(state);
+    })();
+  }
 
   const KIND = {
     topup: "Пополнение",
     buy: "Покупка",
     refund: "Возврат",
     payout: "Вывод",
+    sub: "Подписка",
+    gift: "Подарок",
   };
 
   const MONTHS = {

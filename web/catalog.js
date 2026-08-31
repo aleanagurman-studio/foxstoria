@@ -48,11 +48,12 @@ function formatCount(value) {
 }
 
 function workHref(work) {
-  if (window.FoxWorks && work?.id) return FoxWorks.urls(work).public;
-  if (work.href) return work.href;
-  if (work.story_type === "linear") return "story-linear.html";
-  if (work.story_type === "messenger") return "story.html";
-  return "story-interactive.html";
+  if (work?.id) {
+    if (window.FoxWorks) return FoxWorks.urls(work).public;
+    if (/^[A-Za-z][A-Za-z0-9-]*$/.test(String(work.id))) return `story-${work.id}.html`;
+    return `story.html?id=${encodeURIComponent(work.id)}`;
+  }
+  return "catalog.html";
 }
 
 function escapeHtml(value) {

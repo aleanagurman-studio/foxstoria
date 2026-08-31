@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html as html_lib
 import re
+import time
 import urllib.error
 import urllib.request
 from urllib.parse import urljoin, urlparse
@@ -66,6 +67,24 @@ def normalize_url(raw: str) -> str:
     return f"https://ficbook.net/readfic/{match.group(1)}"
 
 
+def _open_reason(err: BaseException) -> str:
+    text = str(getattr(err, "reason", None) or err)
+    low = text.lower()
+    if "timed out" in low or "timeout" in low:
+        return "ФБ слишком долго не отвечает. Подождите и попробуйте ещё раз."
+    if "403" in text and "tunnel" in low:
+        return "Сеть или прокси закрыли выход на ФБ с сервера FoxStoria."
+    if "nodename nor servname" in low or "name or service not known" in low or "getaddrinfo" in low:
+        return "Не удалось найти ficbook.net (DNS). Проверьте интернет на компьютере, где запущен сервер."
+    if "connection reset" in low or "broken pipe" in low or "eof occurred" in low:
+        return "ФБ оборвал соединение. Часто так делает защита Cloudflare — повторите через минуту."
+    if "certificate" in low or "ssl" in low:
+        return "Не получилось установить защищённое соединение с ФБ."
+    if "403" in text or "forbidden" in low:
+        return "ФБ отказал в доступе (403). Страница в браузере может открываться, а серверу — нет."
+    return "Не удалось открыть ФБ. Ссылка верная, но сервер FoxStoria не достучался до ficbook.net."
+
+
 def _fetch(url: str) -> str:
     req = urllib.request.Request(
         url,
@@ -73,20 +92,37 @@ def _fetch(url: str) -> str:
             "User-Agent": USER_AGENT,
             "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "ru,en;q=0.8",
+            "Referer": "https://ficbook.net/",
             "Cookie": ADULT_COOKIE,
         },
     )
-    try:
-        with urllib.request.urlopen(req, timeout=25) as resp:
-            raw = resp.read()
-            charset = resp.headers.get_content_charset() or "utf-8"
-            return raw.decode(charset, errors="replace")
-    except urllib.error.HTTPError as err:
-        if err.code == 404:
-            raise FicbookError("Работа на ФБ не найдена", 404) from err
-        raise FicbookError(f"ФБ ответил {err.code}. Попробуйте позже.", 502) from err
-    except urllib.error.URLError as err:
-        raise FicbookError("Не удалось открыть ФБ. Проверьте ссылку и сеть.", 502) from err
+    last: BaseException | None = None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                raw = resp.read()
+                charset = resp.headers.get_content_charset() or "utf-8"
+                return raw.decode(charset, errors="replace")
+        except urllib.error.HTTPError as err:
+            if err.code == 404:
+                raise FicbookError("Работа на ФБ не найдена", 404) from err
+            if err.code in {403, 429, 503} and attempt < 2:
+                last = err
+                time.sleep(1.2 * (attempt + 1))
+                continue
+            if err.code == 403:
+                raise FicbookError(
+                    "ФБ закрыл загрузку (403). Откройте ту же ссылку в браузере и повторите через минуту.",
+                    502,
+                ) from err
+            raise FicbookError(f"ФБ ответил {err.code}. Попробуйте позже.", 502) from err
+        except urllib.error.URLError as err:
+            last = err
+            if attempt < 2:
+                time.sleep(0.8 * (attempt + 1))
+                continue
+            raise FicbookError(_open_reason(err), 502) from err
+    raise FicbookError(_open_reason(last or RuntimeError("fetch failed")), 502)
 
 
 def _strip_tags(chunk: str) -> str:

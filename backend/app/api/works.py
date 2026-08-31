@@ -154,7 +154,11 @@ def story_to_card(story: Story) -> dict:
         "cover": cover,
         "author": extra.get("author") or story.author.display_name,
         "author_slug": extra.get("author_slug") or story.author.username,
-        "href": f"story.html?id={work_id}",
+        "href": (
+            f"story-{work_id}.html"
+            if str(work_id).isascii() and str(work_id)[:1].isalpha()
+            else f"story.html?id={work_id}"
+        ),
         "likes": int(extra.get("likes") or 0),
         "likesWeek": int(extra.get("likesWeek") or extra.get("likes_week") or 0),
         "plays": int(story.play_count or extra.get("plays") or 0),

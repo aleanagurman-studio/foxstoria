@@ -121,7 +121,7 @@
     { name: "Лиса в книгах", avatar: "assets/test/avatar-2.png", text: "Очень жду продолжения!", when: "2 ч назад", post: "thoughts-chapter" },
     { name: "Никита", avatar: "assets/test/avatar-3.png", text: "За честный финал, даже если грустный.", when: "5 ч назад", post: "ending-poll" },
     { name: "Чайная соня", avatar: "assets/test/avatar-4.png", text: "Плейлист в точку. Спасибо, что поделились.", when: "вчера", post: "autumn-prep" },
-    { name: "Лис с фонарём", avatar: "assets/test/avatar-5.png", text: "Этот отрывок лучше, чем целая глава.", when: "2 дня назад", post: "tea-scars" },
+    { name: "Хвостик", avatar: "assets/test/avatar-3.png", text: "На Хвосте отрывок открылся — спасибо, что не прячете всё за Костром.", when: "сегодня", post: "tea-scars" },
     { name: "Серая тетрадь", avatar: "assets/test/avatar-2.png", text: "Запрет открывать редактор до полудня — беру себе.", when: "3 дня назад", post: "desk-notes" },
     { name: "Марафонец", avatar: "assets/test/avatar-3.png", text: "Держу кулачки за осенний список глав.", when: "неделю назад", post: "autumn-prep" },
   ];
@@ -186,7 +186,7 @@
   function streamAuthor() {
     return (
       document.querySelector("[data-feed='profile-works']")?.getAttribute("data-author") ||
-      (typeof ownerHandle === "function" ? ownerHandle() : "moonwander")
+      (typeof ownerHandle === "function" ? ownerHandle() : "lis")
     );
   }
 

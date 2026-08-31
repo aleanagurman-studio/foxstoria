@@ -176,8 +176,11 @@ async def _notify_owner(db: AsyncSession, story: Story, what: str, reason: str) 
 def _report_href(target_type: str, target_key: str) -> str:
     kind = (target_type or "").lower()
     key = target_key or ""
-    if kind in ("work", "story", "page") and key and key[0].isdigit():
-        return f"story.html?id={key}"
+    if kind in ("work", "story", "page") and key:
+        if key[0].isdigit():
+            return f"story.html?id={key}"
+        if key[0].isalpha():
+            return f"story-{key}.html"
     if kind == "profile":
         return f"profile.html?u={key}"
     if kind == "collection":

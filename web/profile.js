@@ -159,9 +159,9 @@
 
   function demoGifts(handle) {
     const nick = String(handle || "").replace(/^@/, "").trim().toLowerCase();
-    if (nick !== "moonwander") return [];
+    if (nick !== "lis" && nick !== "moonwander") return [];
     return [
-      { id: "demo-1", title: "Лисичка", from: "Звёздная пыль", from_slug: "stardust", at: "2026-08-20T11:00:00" },
+      { id: "demo-1", title: "Лисичка", from: "Хвостик", from_slug: "hvostik", at: "2026-08-31T18:40:00" },
       { id: "demo-2", title: "Искорка", from: "Лиса с фонарём", from_slug: "lantern-fox", at: "2026-08-28T14:20:00" },
     ];
   }

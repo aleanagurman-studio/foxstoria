@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=220">
-  <link rel="stylesheet" href="studio.css?v=103">
-  <script src="site.js?v=112"></script>
+  <link rel="stylesheet" href="styles.css?v=223">
+  <link rel="stylesheet" href="studio.css?v=104">
+  <script src="site.js?v=116"></script>
 </head>
 <body class="cabinet-page work-new-page">
   <header class="header"></header>
@@ -170,10 +170,13 @@
             <p class="studio-flag" data-translation-hint hidden role="status">Для перевода вставьте сюда ссылку на оригинальную работу.</p>
           </div>
           <div class="studio-form-row" data-paid-fields>
-            <div>
-              <label class="studio-label" for="work-paid"><input type="checkbox" name="paid" id="work-paid"> Платная работа</label>
-              <p class="studio-hint">Карточка и первая глава всегда бесплатны. Остальное открывается с выбранного уровня подписки и выше. Подписка на редактора доступ не даёт.</p>
-            </div>
+            <label class="studio-paid-toggle" for="work-paid">
+              <input type="checkbox" name="paid" id="work-paid">
+              <span class="studio-paid-copy">
+                <span class="studio-paid-title">Платная работа</span>
+                <span class="studio-hint">Карточка и первая глава всегда бесплатны. Остальное открывается с выбранного уровня подписки и выше. Подписка на редактора доступ не даёт.</span>
+              </span>
+            </label>
             <div>
               <label class="studio-label" for="work-paid-level">Минимальный уровень</label>
               <select id="work-paid-level" class="studio-control" name="paid_min_level"></select>

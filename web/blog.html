@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=220">
-  <script src="site.js?v=112"></script>
-  <script src="blog.js?v=16"></script>
+  <link rel="stylesheet" href="styles.css?v=223">
+  <script src="site.js?v=116"></script>
+  <script src="blog.js?v=17"></script>
 </head>
 <body class="blog-page">
   <header class="header"></header>
@@ -90,9 +90,13 @@
                 <input id="blog-cover" name="cover" type="text" placeholder="assets/test/cover-1.png">
               </div>
               <div class="studio-form-row" data-paid-fields>
-                <div>
-                  <label class="studio-label" for="blog-paid"><input type="checkbox" name="paid" id="blog-paid"> Платная запись</label>
-                </div>
+                <label class="studio-paid-toggle" for="blog-paid">
+                  <input type="checkbox" name="paid" id="blog-paid">
+                  <span class="studio-paid-copy">
+                    <span class="studio-paid-title">Платная запись</span>
+                    <span class="studio-hint">Текст откроется с выбранного уровня подписки на автора и выше.</span>
+                  </span>
+                </label>
                 <div>
                   <label class="studio-label" for="blog-paid-level">Минимальный уровень</label>
                   <select id="blog-paid-level" name="paid_min_level"></select>

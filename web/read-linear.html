@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=220">
+  <link rel="stylesheet" href="styles.css?v=223">
 </head>
 <body class="linear-read-page">
   <header class="header"></header>
 
   <div class="linear-read" data-side-layout>
     <aside class="linear-read-side" id="side-panel" data-side-panel>
-      <a class="linear-work-card" href="story-linear.html">
+      <a class="linear-work-card" href="story-letters.html">
         <span class="linear-work-cover">
           <img src="assets/test/cover-2.png" alt="">
         </span>
@@ -55,7 +55,7 @@
           <span>›</span>
           <a href="catalog.html">Каталог</a>
           <span>›</span>
-          <a href="story-linear.html">Письма из прошлого</a>
+          <a href="story-letters.html">Письма из прошлого</a>
           <span>›</span>
           <span id="crumb-chapter"></span>
         </nav>
@@ -165,7 +165,7 @@
     </article>
   </div>
 
-  <script src="site.js?v=112"></script>
+  <script src="site.js?v=116"></script>
   <script>
     (async function linearReader() {
     if (window.FoxWorks) await FoxWorks.hydrate();
@@ -173,6 +173,16 @@
     const workIdFromUrl = window.FoxWorks ? FoxWorks.idFromUrl() : params.get("id") || "";
     if (window.FoxWorks && workIdFromUrl && !FoxWorks.get(workIdFromUrl)) await FoxWorks.fetchOne(workIdFromUrl);
     const work = window.FoxWorks && workIdFromUrl ? FoxWorks.get(workIdFromUrl) : null;
+    if (workIdFromUrl && !work) {
+      document.getElementById("chapter-title").textContent = "Работа не найдена";
+      document.getElementById("chapter-text").innerHTML = "<p>Этой работы нет в каталоге, или ссылка без номера.</p>";
+      document.getElementById("toc").innerHTML = "";
+      return;
+    }
+    if (work && window.FoxWorks && FoxWorks.normalizeStoryType(work.story_type) !== "linear") {
+      location.replace(FoxWorks.urls(work).read);
+      return;
+    }
     const DEMO_CHAPTERS = [
       {
         title: "Конверт",
@@ -197,26 +207,46 @@
 <p>Вы гасите лампу. Письма остаются. Ветер за стеклом шевелит листву так тихо, что это почти можно принять за чужой голос.</p>`
       }
     ];
-    let WORK_ID = work?.id || "letters";
-    let chapters = DEMO_CHAPTERS;
-    if (work && window.FoxWorks && FoxWorks.normalizeStoryType(work.story_type) === "linear") {
-      FoxWorks.seed(work);
+    const isLettersDemo = !workIdFromUrl || String(workIdFromUrl) === "letters";
+    let WORK_ID = work?.id || (isLettersDemo ? "letters" : workIdFromUrl);
+    let chapters = isLettersDemo && !work ? DEMO_CHAPTERS : [];
+    if (work && window.FoxWorks) {
+      await FoxWorks.seed(work);
       try {
         const story = JSON.parse(localStorage.getItem(FoxWorks.linearStore(work.id)) || "null");
         if (story?.chapters?.length) {
-          chapters = window.FoxChapterStatus
+          const live = window.FoxChapterStatus
             ? story.chapters.filter((chapter) => FoxChapterStatus.isLive(chapter, WORK_ID))
             : story.chapters;
+          chapters = live.length ? live : story.chapters;
         }
       } catch {
-        /* demo */
+        chapters = [];
       }
+      if (!chapters.length && isLettersDemo) chapters = DEMO_CHAPTERS;
       const cardTitle = document.querySelector(".linear-work-card-title");
       const cardAuthor = document.querySelector(".linear-work-card-author");
       const cardLink = document.querySelector(".linear-work-card");
+      const crumbWork = document.querySelector(".linear-read-crumbs a[href*='story']");
       if (cardTitle) cardTitle.textContent = work.title || "Работа";
       if (cardAuthor) cardAuthor.textContent = work.author || "";
       if (cardLink) cardLink.href = FoxWorks.urls(work).public;
+      if (crumbWork) {
+        crumbWork.href = FoxWorks.urls(work).public;
+        crumbWork.textContent = work.title || "Работа";
+      }
+      const follow = document.getElementById("follow-btn");
+      if (follow) follow.setAttribute("data-work-id", WORK_ID);
+      if (work.cover) {
+        const coverImg = document.querySelector(".linear-work-cover img");
+        if (coverImg) coverImg.src = work.cover;
+      }
+    }
+    function chapterHref(index) {
+      const q = new URLSearchParams();
+      if (WORK_ID) q.set("id", WORK_ID);
+      q.set("chapter", String(index + 1));
+      return `read-linear.html?${q}`;
     }
     const CHAPTER_READ_KEY = "foxtoria-chapter-read:" + WORK_ID;
     const WAIT_KEY = "foxtoria-wait-work:" + WORK_ID;
@@ -280,7 +310,7 @@
       toc.innerHTML = chapters.map((chapter, index) =>
         `<li class="story-nav-node">
           <button type="button" class="story-nav-fold is-empty" aria-hidden="true">${chevron}</button>
-          <a class="story-nav-link${index === i ? " is-current" : ""}${chapterRead(index) ? " is-read" : ""}${work && window.FoxPay && !FoxPay.chapterUnlocked(work, index) ? " is-paid-lock" : ""}" href="read-linear.html?chapter=${index + 1}" data-chapter="${index}"${index === i ? " aria-current=\"page\"" : ""}>
+          <a class="story-nav-link${index === i ? " is-current" : ""}${chapterRead(index) ? " is-read" : ""}${work && window.FoxPay && !FoxPay.chapterUnlocked(work, index) ? " is-paid-lock" : ""}" href="${chapterHref(index)}" data-chapter="${index}"${index === i ? " aria-current=\"page\"" : ""}>
             <span class="story-nav-title">${chapter.title}</span>
             <img class="linear-toc-check" src="assets/svg/okay.svg" alt="">
           </a>
@@ -295,7 +325,7 @@
         document.getElementById("chapter-text").innerHTML = "<p>Опубликованных глав пока нет.</p>";
         return;
       }
-      document.title = `${c.title} — Письма из прошлого — FoxStoria`;
+      document.title = `${c.title} — ${work?.title || "Чтение"} — FoxStoria`;
       document.getElementById("chapter-title").textContent = c.title;
       document.getElementById("crumb-chapter").textContent = c.title;
       const locked = work && window.FoxPay && !FoxPay.chapterUnlocked(work, i);
@@ -321,8 +351,8 @@
       paintRead();
       if (window.FoxChapterPlayer) FoxChapterPlayer.load(c.audioKey, c.audioName, c.audioEmbed);
       const edit = document.getElementById("edit-chapter");
-      if (edit) edit.href = `editor-linear.html?chapter=${i + 1}`;
-      history.replaceState(null, "", `read-linear.html?chapter=${i + 1}`);
+      if (edit) edit.href = work && window.FoxWorks ? FoxWorks.withParams(FoxWorks.urls(work).editor, { chapter: i + 1 }) : `editor-linear.html?chapter=${i + 1}`;
+      history.replaceState(null, "", chapterHref(i));
     }
 
     renderToc();

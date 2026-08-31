@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=220">
-  <script src="site.js?v=112"></script>
+  <link rel="stylesheet" href="styles.css?v=223">
+  <script src="site.js?v=116"></script>
   <script src="replies.js?v=7" defer></script>
 </head>
 <body class="replies-page">
@@ -73,12 +73,38 @@
       </div>
 
       <section class="reply-feed" id="reply-feed" aria-live="polite">
+        <article class="reply-card" data-kind="work" data-status="new" data-time="2026-08-31T18:22:00">
+          <header class="reply-card-top">
+            <img class="reply-card-ava" src="assets/test/avatar-3.png" alt="">
+            <div class="reply-card-who">
+              <strong data-user-name="Хвостик"></strong>
+              <p class="reply-card-place">к работе · <a href="story-mic-mono.html">Микрофон и монохром</a> · Глава 3. Зал</p>
+            </div>
+            <div class="reply-card-meta">
+              <time datetime="2026-08-31T18:22">сегодня, 18:22</time>
+              <span class="reply-status is-new">Не прочитано</span>
+            </div>
+          </header>
+          <blockquote class="reply-quote"><strong>Вы</strong> Гримёрка после сорванного концерта должна звучать тише зала.</blockquote>
+          <p class="reply-text">На «Хвосте» глава открылась. Тишина в зале читается — спасибо, что не спрятали её за Костром.</p>
+          <div class="reply-card-actions">
+            <a class="reply-thread" href="story-mic-mono.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <div class="reply-more">
+              <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
+              <div class="reply-more-dd" hidden>
+                <button type="button" data-reply-report><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+                <button type="button" data-reply-read><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Пометить как прочитанное</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
         <article class="reply-card" data-kind="work" data-status="new" data-time="2026-08-27T21:34:00">
           <header class="reply-card-top">
             <img class="reply-card-ava" src="assets/test/avatar-3.png" alt="">
             <div class="reply-card-who">
               <strong data-user-name="Лиса с фонарём"></strong>
-              <p class="reply-card-place">к работе · <a href="story-interactive.html">Тени прошлого</a> · Глава 2. Перекрёсток</p>
+              <p class="reply-card-place">к работе · <a href="story-shadows.html">Тени прошлого</a> · Глава 2. Перекрёсток</p>
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-27T21:34">вчера, 21:34</time>
@@ -88,7 +114,7 @@
           <blockquote class="reply-quote"><strong>Вы</strong> Кафе читается теплее парка, но парк честнее.</blockquote>
           <p class="reply-text">Согласна про парк. Третья концовка после него вообще другая — как будто дождь не тот.</p>
           <div class="reply-card-actions">
-            <a class="reply-thread" href="story-interactive.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <a class="reply-thread" href="story-shadows.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
               <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>
@@ -111,7 +137,7 @@
               <span class="reply-status is-new">Не прочитано</span>
             </div>
           </header>
-          <p class="reply-text" data-mention-text="Эй, @moonwander, ветки наконец не путаются — спасибо за правки в редакторе."></p>
+          <p class="reply-text" data-mention-text="Эй, @lis, ветки наконец не путаются — спасибо за правки в редакторе."></p>
           <div class="reply-card-actions">
             <a class="reply-thread" href="news.html#editor-update">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
@@ -129,7 +155,7 @@
             <img class="reply-card-ava" src="assets/test/avatar-2.png" alt="">
             <div class="reply-card-who">
               <strong data-user-name="Звёздная пыль"></strong>
-              <p class="reply-card-place">к работе · <a href="story-bts-slash.html">Микрофон и монохром</a> · Глава 1. Гримёрка</p>
+              <p class="reply-card-place">к работе · <a href="story-mic-mono.html">Микрофон и монохром</a> · Глава 1. Гримёрка</p>
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-26T18:12">2 дня назад, 18:12</time>
@@ -138,7 +164,7 @@
           <blockquote class="reply-quote"><strong>Вы</strong> Гримёрка после концерта — лучшая сцена.</blockquote>
           <p class="reply-text">Там тишина громче зала. Если пойдёте веткой с Namjoon, не пропускайте реплику у зеркала.</p>
           <div class="reply-card-actions">
-            <a class="reply-thread" href="story-bts-slash.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <a class="reply-thread" href="story-mic-mono.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
               <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>
@@ -154,7 +180,7 @@
             <img class="reply-card-ava" src="assets/test/avatar-7.png" alt="">
             <div class="reply-card-who">
               <strong data-user-name="Никита"></strong>
-              <p class="reply-card-place">к работе · <a href="story-linear.html">Письма из прошлого</a> · Глава 2. Адрес</p>
+              <p class="reply-card-place">к работе · <a href="story-letters.html">Письма из прошлого</a> · Глава 2. Адрес</p>
             </div>
             <div class="reply-card-meta">
               <time datetime="2026-08-25T12:40">3 дня назад, 12:40</time>
@@ -163,7 +189,7 @@
           <blockquote class="reply-quote"><strong>Вы</strong> Конверт без марки — это же Никита?</blockquote>
           <p class="reply-text">Не спойлерю. Но вторая глава читается иначе, если перечитать адрес.</p>
           <div class="reply-card-actions">
-            <a class="reply-thread" href="story-linear.html">Перейти к ветке <span aria-hidden="true">→</span></a>
+            <a class="reply-thread" href="story-letters.html">Перейти к ветке <span aria-hidden="true">→</span></a>
             <div class="reply-more">
               <button type="button" class="reply-more-btn" aria-label="Ещё" aria-expanded="false"><img src="assets/ornaments/03_more.svg?v=3" alt=""></button>
               <div class="reply-more-dd" hidden>

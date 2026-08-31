@@ -129,6 +129,7 @@ function applyDemoSession(user) {
       links: Array.isArray(prev.links) ? prev.links : [],
     })
   );
+  if (window.FoxPay?.seedDemoEconomy) FoxPay.seedDemoEconomy();
 }
 
 function clearDemoSession() {
@@ -1167,7 +1168,7 @@ window.FoxPay = (function foxPay() {
   }
 
   function demoTiers(handle) {
-    if (nick(handle) !== "moonwander") return [];
+    if (nick(handle) !== "lis" && nick(handle) !== "moonwander") return [];
     return [
       { id: "t1", name: "Лиса", price: 50 },
       { id: "t2", name: "Хвост", price: 150 },
@@ -1225,8 +1226,78 @@ window.FoxPay = (function foxPay() {
     return { gross, fee, net: gross - fee };
   }
 
+  const SEED_METHODS = [
+    { id: "pay-1", kind: "card", title: "Карта", hint: "•• 4242" },
+    { id: "pay-2", kind: "sbp", title: "СБП", hint: "+7 •• 15-32" },
+  ];
+
+  function walletStoreKey(handle) {
+    return `${WALLET_KEY}:${nick(handle) || "guest"}`;
+  }
+
+  function demoWalletOps(handle) {
+    const h = nick(handle);
+    if (h === "lis") {
+      return [
+        { id: "op-l-hvostik", kind: "topup", title: "Подписка · Хвост · Хвостик", when: "31 августа, 18:10", at: "2026-08-31T18:10:00", amount: 135 },
+        { id: "op-l-maple", kind: "topup", title: "Подписка · Лиса · Кленовый мотив", when: "31 августа, 16:45", at: "2026-08-31T16:45:00", amount: 45 },
+        { id: "op-l-gift", kind: "topup", title: "Подарок · Лисья свеча", when: "31 августа, 13:10", at: "2026-08-31T13:10:00", amount: 159 },
+        { id: "op-l-wild", kind: "topup", title: "Подписка · Костёр · Дикий очаг", when: "31 августа, 11:20", at: "2026-08-31T11:20:00", amount: 360 },
+        { id: "op-p8", kind: "payout", title: "СБП · +7 •• 15-32", when: "18 августа, 19:12", at: "2026-08-18T19:12:00", amount: -70 },
+        { id: "op-p7", kind: "payout", title: "Карта · •• 4242", when: "10 августа, 09:40", at: "2026-08-10T09:40:00", amount: -140 },
+        { id: "op-p6", kind: "payout", title: "Карта · •• 4242", when: "3 августа, 16:05", at: "2026-08-03T16:05:00", amount: -90 },
+        { id: "op-p5", kind: "payout", title: "СБП · +7 •• 15-32", when: "12 июля, 11:20", at: "2026-07-12T11:20:00", amount: -180 },
+        { id: "op-l-top", kind: "topup", title: "Карта · •• 4242", when: "1 июля, 10:00", at: "2026-07-01T10:00:00", amount: 480 },
+      ];
+    }
+    if (h === "hvostik") {
+      return [
+        { id: "op-h-sub", kind: "buy", title: "Подписка · Хвост · Лис", when: "31 августа, 18:10", at: "2026-08-31T18:10:00", amount: -150 },
+        { id: "op-h-top", kind: "topup", title: "Карта · •• 4242", when: "28 августа, 12:40", at: "2026-08-28T12:40:00", amount: 1000 },
+      ];
+    }
+    if (h === "fox") {
+      return [
+        { id: "op-f-top", kind: "topup", title: "Карта · •• 4242", when: "1 августа, 10:00", at: "2026-08-01T10:00:00", amount: 5000 },
+      ];
+    }
+    return [];
+  }
+
+  function loadWallet(handle) {
+    const who = nick(handle) || nick(typeof ownerHandle === "function" ? ownerHandle() : "") || "guest";
+    const key = walletStoreKey(who);
+    const raw = loadJson(key, null);
+    if (raw && typeof raw === "object" && Number(raw._ver) >= WALLET_DEMO_VER) {
+      return {
+        balance: Number(raw.balance) || 0,
+        ops: Array.isArray(raw.ops) ? raw.ops : [],
+        methods: Array.isArray(raw.methods) && raw.methods.length ? raw.methods : SEED_METHODS.map((item) => ({ ...item })),
+      };
+    }
+    const ops = demoWalletOps(who);
+    const pack = {
+      _ver: WALLET_DEMO_VER,
+      balance: ops.reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
+      ops,
+      methods: SEED_METHODS.map((item) => ({ ...item })),
+    };
+    saveJson(key, pack);
+    return { balance: pack.balance, ops: pack.ops, methods: pack.methods };
+  }
+
+  function saveWallet(data, handle) {
+    const who = nick(handle) || nick(typeof ownerHandle === "function" ? ownerHandle() : "") || "guest";
+    saveJson(walletStoreKey(who), {
+      _ver: WALLET_DEMO_VER,
+      balance: Number(data?.balance) || 0,
+      ops: Array.isArray(data?.ops) ? data.ops : [],
+      methods: Array.isArray(data?.methods) ? data.methods : SEED_METHODS.map((item) => ({ ...item })),
+    });
+  }
+
   function chargeWallet(amount, title, kind) {
-    const data = loadJson(WALLET_KEY, null) || { balance: 0, ops: [], methods: [] };
+    const data = loadWallet();
     const n = Math.round(Number(amount) || 0);
     data.balance = (Number(data.balance) || 0) + n;
     data.ops = [
@@ -1240,8 +1311,36 @@ window.FoxPay = (function foxPay() {
       },
       ...(Array.isArray(data.ops) ? data.ops : []),
     ];
-    saveJson(WALLET_KEY, data);
+    saveWallet(data);
     return data.balance;
+  }
+
+  function seedDemoEconomy() {
+    loadMoney("lis");
+    if (typeof isSignedIn === "function" && !isSignedIn()) return;
+    const me = nick(typeof ownerHandle === "function" ? ownerHandle() : "");
+    if (!me || me === "guest") return;
+    const flags = loadJson("foxtoria-demo-seed", {});
+    if (me === "hvostik" && !flags.hvostik) {
+      const map = mySubs();
+      map.lis = { level: 2, name: "Хвост", price: 150 };
+      saveJson(SUBS_KEY, map);
+      if (typeof loadReaderLibrary === "function" && typeof saveReaderLibrary === "function") {
+        const lib = loadReaderLibrary();
+        lib.likes = [...new Set([...(lib.likes || []), "mic-mono", "tea-scars", "letters"])];
+        lib.follows = [...new Set([...(lib.follows || []), "mic-mono", "tea-scars"])];
+        lib.read = [...new Set([...(lib.read || []), "letters", "tea-scars"])];
+        lib.packs = (lib.packs || []).map((pack) => {
+          if (pack.id === "fav") return { ...pack, works: [...new Set([...(pack.works || []), "tea-scars", "mic-mono"])] };
+          if (pack.id === "later") return { ...pack, works: [...new Set([...(pack.works || []), "shadows"])] };
+          return pack;
+        });
+        saveReaderLibrary(lib);
+      }
+      flags.hvostik = 1;
+      saveJson("foxtoria-demo-seed", flags);
+    }
+    loadWallet(me);
   }
 
   function actor() {
@@ -1272,10 +1371,12 @@ window.FoxPay = (function foxPay() {
       softloom: { slug: "softloom", display: "Мягкий стан", level: 2, name: "Хвост", price: 150, since: "2026-08-29T18:40:00" },
       lanternjay: { slug: "lanternjay", display: "Фонарный сой", level: 1, name: "Лиса", price: 50, since: "2026-08-30T07:28:00" },
       copperash: { slug: "copperash", display: "Медная зола", level: 2, name: "Хвост", price: 150, since: "2026-08-30T15:03:00" },
+      hvostik: { slug: "hvostik", display: "Хвостик", level: 2, name: "Хвост", price: 150, since: "2026-08-31T18:10:00" },
       wildhearth: { slug: "wildhearth", display: "Дикий очаг", level: 3, name: "Костёр", price: 400, since: "2026-08-31T11:20:00" },
       maplesong: { slug: "maplesong", display: "Кленовый мотив", level: 1, name: "Лиса", price: 50, since: "2026-08-31T16:45:00" },
     };
     const events = [
+      { id: "ev-19", kind: "subscribe", slug: "hvostik", display: "Хвостик", price: 150, net: 135, name: "Хвост", at: "2026-08-31T18:10:00" },
       { id: "ev-18", kind: "subscribe", slug: "maplesong", display: "Кленовый мотив", price: 50, net: 45, name: "Лиса", at: "2026-08-31T16:45:00" },
       { id: "ev-17", kind: "gift", slug: "emberkin", display: "Уголёк", price: 199, net: 159, title: "Лисья свеча", at: "2026-08-31T13:10:00" },
       { id: "ev-16", kind: "subscribe", slug: "wildhearth", display: "Дикий очаг", price: 400, net: 360, name: "Костёр", at: "2026-08-31T11:20:00" },
@@ -1298,25 +1399,29 @@ window.FoxPay = (function foxPay() {
     return { fans, events };
   }
 
+  const MONEY_DEMO_VER = 3;
+  const WALLET_DEMO_VER = 1;
+
   function loadMoney(handle) {
     const all = loadJson(MONEY_KEY, {});
     const key = nick(handle);
     if (!key) return emptyMoney();
-    if (all[key] && typeof all[key] === "object") {
+    const existing = all[key] && typeof all[key] === "object" ? all[key] : null;
+    if (existing && Number(existing._ver) >= MONEY_DEMO_VER) {
       return {
-        fans: all[key].fans && typeof all[key].fans === "object" ? all[key].fans : {},
-        events: Array.isArray(all[key].events) ? all[key].events : [],
+        fans: existing.fans && typeof existing.fans === "object" ? existing.fans : {},
+        events: Array.isArray(existing.events) ? existing.events : [],
       };
     }
-    const pack = key === "moonwander" ? demoMoney() : emptyMoney();
-    all[key] = pack;
+    const pack = key === "lis" || key === "moonwander" ? demoMoney() : emptyMoney();
+    all[key] = { ...pack, _ver: MONEY_DEMO_VER };
     saveJson(MONEY_KEY, all);
     return pack;
   }
 
   function saveMoney(handle, pack) {
     const all = loadJson(MONEY_KEY, {});
-    all[nick(handle)] = pack;
+    all[nick(handle)] = { ...pack, _ver: MONEY_DEMO_VER };
     saveJson(MONEY_KEY, all);
   }
 
@@ -1492,7 +1597,7 @@ window.FoxPay = (function foxPay() {
 
   function markHTML(item) {
     if (!item?.paid && !item?.is_paid) return "";
-    return `<span class="paid-mark" title="Платный доступ"><img src="assets/svg/деньга.svg" alt=""></span>`;
+    return `<span class="paid-mark" title="Платный доступ"><img src="assets/svg/fillsparkle.svg" alt=""></span>`;
   }
 
   function logCardChange(work, text) {
@@ -1638,6 +1743,9 @@ window.FoxPay = (function foxPay() {
     bindPaidFields,
     gateHTML,
     postGateHTML,
+    loadWallet,
+    saveWallet,
+    seedDemoEconomy,
   };
 })();
 
@@ -1928,7 +2036,6 @@ function loadBranchNews(workId) {
 
 function branchWaitNotifs() {
   if (!foxPref("notifWorks")) return "";
-  const hrefByWork = { shadows: "read-interactive.html", letters: "read-linear.html" };
   const parts = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -1937,7 +2044,7 @@ function branchWaitNotifs() {
     const news = loadBranchNews(workId);
     loadBranchWaits(workId).forEach((wait) => {
       if (!news.includes(wait.next)) return;
-      const href = hrefByWork[workId] || "feed.html";
+      const href = window.FoxWorks ? FoxWorks.urls(workId).read : "feed.html";
       parts.push(`<a href="${href}">
               <strong>Новая глава</strong>
               <span>В выбранной ветке: ${foxEscape(wait.label || "продолжение")}</span>
@@ -1985,6 +2092,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   header.innerHTML = headerMarkup();
   hydrateUiIcons(header);
   fillNotifFeed();
+  if (window.FoxPay?.seedDemoEconomy) FoxPay.seedDemoEconomy();
   syncAuthChrome();
   applyOwnerAvatar(header);
   enforcePageAccess();
@@ -3087,14 +3195,13 @@ window.FoxStore = {
         });
       }
       if (state.wallet) {
-        localStorage.setItem(
-          "foxtoria-wallet",
-          JSON.stringify({
-            balance: state.wallet.balance,
-            methods: state.wallet.methods,
-            ops: state.wallet.ops,
-          })
-        );
+        const pack = {
+          balance: state.wallet.balance,
+          methods: state.wallet.methods,
+          ops: state.wallet.ops,
+        };
+        if (window.FoxPay?.saveWallet) FoxPay.saveWallet(pack);
+        else localStorage.setItem("foxtoria-wallet", JSON.stringify(pack));
       }
       return state;
     } catch {
@@ -4066,7 +4173,7 @@ window.FoxWorks = {
     if (!work.id) {
       work.id = this.newId();
       work.created_local = true;
-      work.href = `story.html?id=${encodeURIComponent(work.id)}`;
+      work.href = this.publicHref(work.id);
       this.upsertLocal(work);
       this.seed(work);
     }
@@ -4127,7 +4234,22 @@ window.FoxWorks = {
   EDITOR_MAP: "foxtoria-editor",
   MESSENGER_MAX_IMAGES: 20,
   idFromUrl() {
-    return String(new URLSearchParams(location.search).get("id") || "").trim();
+    const q = String(new URLSearchParams(location.search).get("id") || "").trim();
+    if (q) return q;
+    const data =
+      document.body?.getAttribute("data-work-id") ||
+      document.getElementById("work-page")?.getAttribute("data-work-id") ||
+      "";
+    if (String(data).trim()) return String(data).trim();
+    const file = decodeURIComponent((location.pathname.split("/").pop() || "").replace(/\.html$/i, ""));
+    const match = file.match(/^story-(.+)$/i);
+    return match ? match[1] : "";
+  },
+  publicHref(id) {
+    const safe = String(id || "").trim();
+    if (!safe) return "catalog.html";
+    if (/^[A-Za-z][A-Za-z0-9-]*$/.test(safe)) return `story-${safe}.html`;
+    return `story.html?id=${encodeURIComponent(safe)}`;
   },
   remember(id) {
     try {
@@ -4176,9 +4298,19 @@ window.FoxWorks = {
       id,
       studio: id ? `studio.html${q}` : "work-new.html",
       editor: `${editorPage}${q}`,
-      public: id ? `story.html${q}` : "catalog.html",
+      public: this.publicHref(id),
       read: `${readPage}${q}`,
     };
+  },
+  withParams(href, extra) {
+    const [path, rest] = String(href || "").split("?");
+    const query = new URLSearchParams(rest || "");
+    Object.entries(extra || {}).forEach(([key, value]) => {
+      if (value == null || value === "") query.delete(key);
+      else query.set(key, String(value));
+    });
+    const qs = query.toString();
+    return qs ? `${path}?${qs}` : path;
   },
   emptyLinear(work) {
     const ch = `ch-${Date.now().toString(36)}`;
@@ -4372,7 +4504,7 @@ window.FoxWorks = {
       editor: String(form.elements.editor?.value || prev.editor || "").trim(),
       paid: Boolean(form.elements.paid?.checked),
       paid_min_level: Math.max(1, Math.round(Number(form.elements.paid_min_level?.value) || prev.paid_min_level || 1)),
-      href: id ? `story.html?id=${encodeURIComponent(id)}` : "story.html",
+      href: this.publicHref(id),
       likes: Number(prev.likes) || 0,
       likesWeek: Number(prev.likesWeek ?? prev.likes_week) || 0,
       plays: Number(prev.plays) || 0,

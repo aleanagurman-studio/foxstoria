@@ -403,7 +403,13 @@ window.FoxStoryMap = (function foxStoryMap() {
     const visited = new Set(state.visited || []);
     const collapsed = state.collapsed || new Set();
     const unlockAll = Boolean(state.unlockAll);
-    const hrefOf = state.hrefOf || ((node) => `read-interactive.html?scene=${encodeURIComponent(node.id)}`);
+    const hrefOf = state.hrefOf || ((node) => {
+      const id = new URLSearchParams(location.search).get("id") || "";
+      const query = new URLSearchParams();
+      if (id) query.set("id", id);
+      query.set("scene", node.id);
+      return `read-interactive.html?${query}`;
+    });
     const readSet = state.readSet || new Set();
     const start = story.scenes.find((scene) => scene.isStart) || story.scenes[0];
 

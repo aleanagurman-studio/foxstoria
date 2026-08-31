@@ -1306,14 +1306,15 @@ a.genre-pill:hover,
   top: 8px;
   left: 8px;
   z-index: 2;
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--paper) 88%, white);
+  display: block;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   color: var(--fox);
-  box-shadow: 0 4px 10px rgba(62, 39, 35, 0.16);
 }
 
 .story-rank + .paid-mark {
@@ -1322,14 +1323,22 @@ a.genre-pill:hover,
 
 .paid-mark img,
 .paid-mark .ui-icon {
-  width: 16px;
-  height: 16px;
+  display: block;
+  width: 22px;
+  height: 22px;
   color: inherit;
 }
 
-.work-badge--paid {
-  gap: 6px;
+.work-paid-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
   color: var(--fox);
+}
+
+.work-paid-icon img {
+  width: 22px;
+  height: 22px;
 }
 
 .paid-gate {
@@ -1345,7 +1354,14 @@ a.genre-pill:hover,
   position: relative;
   top: auto;
   left: auto;
+  width: 36px;
+  height: 36px;
   margin: 0 auto 12px;
+}
+
+.paid-gate .paid-mark img {
+  width: 36px;
+  height: 36px;
 }
 
 .paid-gate h2 {
@@ -1607,6 +1623,79 @@ a.genre-pill:hover,
   pointer-events: none;
 }
 
+.studio-form-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px 16px;
+  align-items: start;
+}
+
+.studio-paid-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--sand, #c4b4a0) 42%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--sand, #c4b4a0) 8%, var(--cream, #f7f0e6));
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.studio-paid-toggle:has(input:checked) {
+  border-color: color-mix(in srgb, var(--fox, #c45c26) 42%, transparent);
+  background: color-mix(in srgb, var(--fox, #c45c26) 10%, var(--cream, #f7f0e6));
+}
+
+.studio-paid-toggle input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  margin-top: 2px;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.studio-paid-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.studio-paid-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--chestnut-dark, #3e2723);
+}
+
+.studio-paid-toggle .studio-hint {
+  margin: 0;
+}
+
+.studio-paid-toggle + div .studio-label,
+.studio-form-row .studio-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin: 0 0 6px;
+  color: var(--chestnut, #6d4c41);
+}
+
+.studio-hint {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--warm-brown, #7a6456);
+}
+
+@media (max-width: 640px) {
+  .studio-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .studio-card-lock {
   margin: 0 0 14px;
   padding: 10px 12px;
@@ -1622,8 +1711,8 @@ a.genre-pill:hover,
   margin-left: 6px;
   vertical-align: -2px;
   background: currentColor;
-  -webkit-mask: url("assets/svg/деньга.svg") center / contain no-repeat;
-  mask: url("assets/svg/деньга.svg") center / contain no-repeat;
+  -webkit-mask: url("assets/svg/fillsparkle.svg") center / contain no-repeat;
+  mask: url("assets/svg/fillsparkle.svg") center / contain no-repeat;
 }
 
 @media (max-width: 720px) {
@@ -6435,7 +6524,11 @@ textarea {
 }
 
 .help-docs-block,
-.help-faq-block { max-width: 880px; }
+.help-faq-block,
+.help-page .settings-block {
+  max-width: none;
+  width: 100%;
+}
 
 .help-guide-block {
   max-width: none;
