@@ -6,7 +6,7 @@
 })();
 
 function isSignedIn() {
-  return localStorage.getItem("foxtoria-signed-in") === "1";
+  return Boolean(activeDemoUser());
 }
 
 const FOX_DEMO_USERS = [
@@ -69,9 +69,21 @@ function loadProfileStore() {
   }
 }
 
+function activeDemoUser() {
+  if (localStorage.getItem("foxtoria-signed-in") !== "1") return null;
+  const raw = loadProfileStore();
+  const handle = String(raw.handle || "")
+    .replace(/^@/, "")
+    .trim()
+    .toLowerCase();
+  const role = String(raw.role || "");
+  return (
+    FOX_DEMO_USERS.find((user) => user.handle === handle && user.role === role) || null
+  );
+}
+
 function currentUserRole() {
-  if (!isSignedIn()) return "";
-  return String(loadProfileStore().role || "reader");
+  return activeDemoUser()?.role || "";
 }
 
 function canUseAuthorTools() {
@@ -121,10 +133,7 @@ function applyDemoSession(user) {
 
 function clearDemoSession() {
   localStorage.removeItem("foxtoria-signed-in");
-  const prev = loadProfileStore();
-  delete prev.role;
-  delete prev.is_staff;
-  localStorage.setItem("foxtoria-profile", JSON.stringify(prev));
+  localStorage.removeItem("foxtoria-profile");
 }
 
 function afterLoginPath(user) {
@@ -1859,8 +1868,8 @@ function headerMarkup() {
         </a>
       </div>
       <div class="header-auth" id="header-guest">
-        <a href="profile.html" class="btn btn-ghost" data-signin>Войти</a>
-        <a href="profile.html" class="btn btn-primary" data-signin>Регистрация</a>
+        <a href="#login" class="btn btn-ghost" data-signin>Войти</a>
+        <a href="#login" class="btn btn-primary" data-signin>Регистрация</a>
       </div>
       <div class="account-menu" id="account-menu" hidden>
         <button type="button" class="account-menu-btn" aria-expanded="false" aria-label="Мой профиль">
@@ -1979,6 +1988,7 @@ document.addEventListener("DOMContentLoaded", function mountHeader() {
   syncAuthChrome();
   applyOwnerAvatar(header);
   enforcePageAccess();
+  if (location.hash === "#login" && !isSignedIn()) openLoginDialog();
   document.querySelectorAll(".page-corner").forEach((el) => el.remove());
 
   const footer = document.querySelector(".page-footer");
@@ -2223,7 +2233,7 @@ function syncAuthChrome() {
   });
   document.querySelectorAll("[data-become-author]").forEach((el) => {
     if (!signed) {
-      el.setAttribute("href", "profile.html");
+      el.setAttribute("href", "#login");
       el.setAttribute("data-signin", "");
     } else if (canUseAuthorTools()) {
       el.setAttribute("href", "author-home.html");
@@ -2237,57 +2247,62 @@ function syncAuthChrome() {
   syncInboxDots();
 }
 
-document.addEventListener("click", (event) => {
-  const signin = event.target.closest("[data-signin]");
-  if (signin) {
-    event.preventDefault();
-    if (signin.hasAttribute("data-become-author")) {
-      sessionStorage.setItem("foxtoria-after-login", "author-home.html");
-    } else {
-      sessionStorage.setItem("foxtoria-after-login", currentPage() || "index.html");
-    }
-    openLoginDialog();
-    return;
-  }
-  const signout = event.target.closest("[data-signout]");
-  if (signout) {
-    event.preventDefault();
-    clearDemoSession();
-    if (currentPage() === "index.html" || location.pathname === "/") location.reload();
-    else location.href = "index.html";
-    return;
-  }
-  const link = event.target.closest("a[href]");
-  if (link && !link.hasAttribute("data-signin")) {
-    const page = String(link.getAttribute("href") || "")
-      .split("?")[0]
-      .split("#")[0]
-      .split("/")
-      .pop();
-    if (FOX_ADMIN_PAGES.has(page) && !isSiteAdmin()) {
+document.addEventListener(
+  "click",
+  (event) => {
+    const signin = event.target.closest("[data-signin]");
+    if (signin) {
       event.preventDefault();
-      if (!isSignedIn()) {
-        sessionStorage.setItem("foxtoria-after-login", page);
-        openLoginDialog();
-      } else location.href = "404.html";
+      event.stopPropagation();
+      if (signin.hasAttribute("data-become-author")) {
+        sessionStorage.setItem("foxtoria-after-login", "author-home.html");
+      } else {
+        sessionStorage.setItem("foxtoria-after-login", currentPage() || "index.html");
+      }
+      openLoginDialog();
       return;
     }
-    if (FOX_AUTHOR_PAGES.has(page) && (!isSignedIn() || currentUserRole() === "reader")) {
+    const signout = event.target.closest("[data-signout]");
+    if (signout) {
       event.preventDefault();
-      if (!isSignedIn()) {
-        sessionStorage.setItem("foxtoria-after-login", page);
-        openLoginDialog();
-      } else location.href = "404.html";
+      clearDemoSession();
+      if (currentPage() === "index.html" || location.pathname === "/") location.reload();
+      else location.href = "index.html";
       return;
     }
-  }
-  const toggle = event.target.closest("#theme-toggle");
-  if (!toggle) return;
+    const link = event.target.closest("a[href]");
+    if (link && !link.hasAttribute("data-signin")) {
+      const page = String(link.getAttribute("href") || "")
+        .split("?")[0]
+        .split("#")[0]
+        .split("/")
+        .pop();
+      if (FOX_ADMIN_PAGES.has(page) && !isSiteAdmin()) {
+        event.preventDefault();
+        if (!isSignedIn()) {
+          sessionStorage.setItem("foxtoria-after-login", page);
+          openLoginDialog();
+        } else location.href = "404.html";
+        return;
+      }
+      if (FOX_AUTHOR_PAGES.has(page) && (!isSignedIn() || currentUserRole() === "reader")) {
+        event.preventDefault();
+        if (!isSignedIn()) {
+          sessionStorage.setItem("foxtoria-after-login", page);
+          openLoginDialog();
+        } else location.href = "404.html";
+        return;
+      }
+    }
+    const toggle = event.target.closest("#theme-toggle");
+    if (!toggle) return;
   const html = document.documentElement;
   const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
   html.setAttribute("data-theme", next);
   localStorage.setItem("foxtoria-theme", next);
-});
+},
+  true
+);
 
 document.addEventListener("DOMContentLoaded", function workTabs() {
   const tabs = document.querySelectorAll(".chapter-tabs a[data-panel]");
