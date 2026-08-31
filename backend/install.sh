@@ -3,9 +3,14 @@
 set -e
 cd "$(dirname "$0")"
 
-echo "→ Python: $(python3 --version)"
+PY="${PYTHON:-python3.12}"
+if ! command -v "$PY" >/dev/null 2>&1; then
+  PY=python3
+fi
+
+echo "→ Python: $($PY --version)"
 echo "→ Создаю/обновляю .venv …"
-python3 -m venv .venv
+"$PY" -m venv --clear .venv
 
 echo "→ Устанавливаю пакеты …"
 .venv/bin/pip install --upgrade pip setuptools wheel
@@ -18,5 +23,4 @@ echo "→ Проверка …"
 echo ""
 echo "Готово! Запуск сервера:"
 echo "  ./run.sh"
-echo "или:"
-echo "  source .venv/bin/activate && python start.py"
+echo "Сайт и API: http://127.0.0.1:8000/"

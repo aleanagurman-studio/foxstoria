@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -218,15 +219,20 @@ async def list_stories(
 
 @router.post("/stories", response_model=StoryListItem, status_code=201)
 async def create_story(payload: StoryCreate, db: AsyncSession = Depends(get_db)):
-    author = await db.get(Author, payload.author_id)
+    author = await db.get(Author, payload.author_id) if payload.author_id else None
+    if not author:
+        author = (await db.execute(select(Author).order_by(Author.id))).scalars().first()
     if not author:
         raise HTTPException(status_code=404, detail="Author not found")
 
+    fandom_slug = payload.fandom_slug or "original"
     fandom = (
-        await db.execute(select(Fandom).where(Fandom.slug == payload.fandom_slug))
+        await db.execute(select(Fandom).where(Fandom.slug == fandom_slug))
     ).scalar_one_or_none()
     if not fandom:
-        raise HTTPException(status_code=400, detail="Fandom is required")
+        fandom = Fandom(name="Ориджинал", slug="original")
+        db.add(fandom)
+        await db.flush()
 
     base_slug = slugify(payload.title)
     slug = base_slug
@@ -236,6 +242,8 @@ async def create_story(payload: StoryCreate, db: AsyncSession = Depends(get_db))
         suffix += 1
 
     work_size = work_size_for_chapters(payload.chapter_count) if payload.is_completed else None
+    status = payload.status or StoryStatus.DRAFT
+    published_at = datetime.now(timezone.utc) if status == StoryStatus.PUBLISHED else None
 
     story = Story(
         title=payload.title,
@@ -247,7 +255,7 @@ async def create_story(payload: StoryCreate, db: AsyncSession = Depends(get_db))
         romance=payload.romance,
         fandom_id=fandom.id,
         work_size=work_size,
-        author_id=payload.author_id,
+        author_id=author.id,
         cover_url=payload.cover_url,
         is_paid=payload.is_paid,
         price=payload.price,
@@ -255,7 +263,8 @@ async def create_story(payload: StoryCreate, db: AsyncSession = Depends(get_db))
         endings_count=payload.endings_count,
         chapter_count=payload.chapter_count,
         is_completed=payload.is_completed,
-        status=StoryStatus.PUBLISHED,
+        status=status,
+        published_at=published_at,
     )
 
     if payload.kink_slugs and payload.age_rating != AgeRating.EIGHTEEN:
@@ -278,7 +287,7 @@ async def create_story(payload: StoryCreate, db: AsyncSession = Depends(get_db))
     await db.flush()
 
     db.add(
-        StoryCredit(author_id=payload.author_id, story_id=story.id, role=StoryCreditRole.OWNER)
+        StoryCredit(author_id=author.id, story_id=story.id, role=StoryCreditRole.OWNER)
     )
     if payload.editor_id:
         editor = await db.get(Author, payload.editor_id)
@@ -295,7 +304,8 @@ async def create_story(payload: StoryCreate, db: AsyncSession = Depends(get_db))
             StoryCredit(author_id=coauthor_id, story_id=story.id, role=StoryCreditRole.COAUTHOR)
         )
 
-    author.story_count += 1
+    if status == StoryStatus.PUBLISHED:
+        author.story_count += 1
     await db.commit()
 
     loaded = await db.execute(select(Story).where(Story.id == story.id).options(*_story_load()))

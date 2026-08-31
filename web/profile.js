@@ -28,6 +28,18 @@
 
   function save(value) {
     localStorage.setItem(STORE, JSON.stringify(value));
+    if (window.FoxApi) {
+      FoxApi.request("/api/me/profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: value.name,
+          display_name: value.name,
+          bio: value.bio,
+          avatar: value.avatar,
+          links: value.links,
+        }),
+      }).catch(() => {});
+    }
   }
 
   function isPublicView() {
@@ -59,17 +71,32 @@
     }
   }
 
-  function renderLinks(links) {
+  function profileHandle() {
+    const params = new URLSearchParams(location.search);
+    const slug = (params.get("u") || "").trim().replace(/^@/, "");
+    if (slug) return slug;
+    return load().handle;
+  }
+
+  function renderLinks(links, handle) {
     const box = document.getElementById("profile-links");
     if (!box) return;
+    const nick = String(handle || profileHandle() || "").replace(/^@/, "").trim();
+    const mine = typeof ownerHandle === "function" && nick.toLowerCase() === ownerHandle().toLowerCase();
+    const mailHref = mine ? "messages.html" : `messages.html?to=${encodeURIComponent(nick)}`;
+    const mail = nick
+      ? `<a class="profile-mail" href="${mailHref}"><img src="assets/svg/mail.svg" alt=""> Написать</a>`
+      : "";
     const items = (links || []).filter((item) => item.title && safeUrl(item.url));
-    box.innerHTML = items
+    const social = items
       .map(
         (item) =>
           `<a href="${escapeHtml(safeUrl(item.url))}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>`
       )
       .join("");
-    box.hidden = !items.length;
+    box.innerHTML = mail + social;
+    box.hidden = !mail && !items.length;
+    if (typeof hydrateUiIcons === "function") hydrateUiIcons(box);
   }
 
   function renderLinkRows(links) {
@@ -129,6 +156,10 @@
   document.addEventListener("DOMContentLoaded", () => {
     if (currentPage() !== "profile.html") return;
     syncChrome();
+    if (isPublicView()) {
+      renderLinks([], profileHandle());
+      return;
+    }
     applyProfile(load());
 
     const edit = document.getElementById("profile-edit");

@@ -2986,7 +2986,22 @@ body.studio-page {
   line-height: 1;
   border-radius: 50%;
 }
-.user-pick-remove:hover { color: var(--fox); }
+
+.work-new-page .page-main {
+  min-width: 0;
+}
+
+.work-new-page .studio-form {
+  margin-top: 8px;
+}
+
+.work-new-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
 @media (max-width: 640px) {
   .studio-form-row,
   .studio-card-meta,

@@ -7,6 +7,7 @@ from app.models import (
     AgeRating,
     RomanceOrientation,
     StoryCreditRole,
+    StoryStatus,
     StoryType,
     WorkSize,
 )
@@ -128,8 +129,9 @@ class StoryCreate(BaseModel):
     story_type: StoryType
     age_rating: AgeRating = AgeRating.NONE
     romance: RomanceOrientation = RomanceOrientation.GEN
-    fandom_slug: str
-    author_id: int
+    fandom_slug: str = "original"
+    author_id: int | None = None
+    status: StoryStatus | None = None
     editor_id: int | None = None
     coauthor_ids: list[int] = Field(default_factory=list)
     genre_slugs: list[str] = Field(default_factory=list)

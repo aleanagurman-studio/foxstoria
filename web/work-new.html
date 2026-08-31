@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Новая история — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=198">
+  <link rel="stylesheet" href="studio.css?v=101">
+  <script src="site.js?v=85"></script>
+</head>
+<body class="cabinet-page work-new-page">
+  <header class="header"></header>
+  <div class="layout page">
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
+        <a href="catalog.html"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
+        <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
+        <a href="profile.html"><img src="assets/deco/fox.svg" alt=""> Мой профиль</a>
+        <a href="author-home.html"><img src="assets/deco/upload.svg" alt=""> Кабинет автора</a>
+        <a href="library.html"><img src="assets/deco/bookmark.svg" alt=""> Кабинет читателя</a>
+      </nav>
+      <div class="sidebar-ornament" aria-hidden="true">
+        <img src="assets/deco/уголок.svg" alt="">
+      </div>
+    </aside>
+    <main class="main page-main">
+      <header class="page-header">
+        <h1>Новая история <img class="title-leaf" src="assets/deco/3.svg" alt=""></h1>
+        <p>Карточка пустая, пока вы её не заполните. Черновик остаётся в кабинете, публикация сразу попадает в каталог.</p>
+      </header>
+      <form class="studio-form" id="work-card-form" novalidate autocomplete="off">
+          <div class="studio-card-top">
+            <div class="studio-cover-edit">
+              <img id="work-cover-preview" class="studio-cover-preview" data-work-cover src="assets/deco/paw.svg" alt="">
+              <label class="btn btn-outline studio-cover-upload">
+                Загрузить обложку
+                <input type="file" id="work-cover-input" accept="image/*" hidden>
+              </label>
+            </div>
+            <div class="studio-card-meta">
+              <div class="studio-field">
+                <label class="studio-label" for="work-title">Название</label>
+                <input id="work-title" class="studio-control" name="title" value="" placeholder="Название работы" required>
+              </div>
+              <div class="studio-field">
+                <label class="studio-label" for="work-type">Тип работы</label>
+                <select id="work-type" class="studio-control" name="story_type" data-story-type required>
+                  <option value="" selected disabled>Выберите</option>
+                  <option value="interactive">Интерактивная</option>
+                  <option value="linear">Линейная</option>
+                  <option value="messenger">Мессенджеры</option>
+                </select>
+                <p class="studio-hint" id="work-type-hint"></p>
+              </div>
+              <div class="studio-field user-picker" data-user-picker="coauthor">
+                <label class="studio-label" for="work-coauthor-search">Соавтор</label>
+                <div class="user-pick-field">
+                  <input id="work-coauthor-search" class="user-pick-search studio-control" type="search" autocomplete="off" placeholder="ник или имя…">
+                  <div class="user-pick-menu" hidden></div>
+                </div>
+                <div class="user-pick-chips"></div>
+                <input type="hidden" name="coauthor" id="work-coauthor" value="">
+              </div>
+              <div class="studio-field user-picker" data-user-picker="editor">
+                <label class="studio-label" for="work-editor-search">Редактор</label>
+                <div class="user-pick-field">
+                  <input id="work-editor-search" class="user-pick-search studio-control" type="search" autocomplete="off" placeholder="ник или имя…">
+                  <div class="user-pick-menu" hidden></div>
+                </div>
+                <div class="user-pick-chips"></div>
+                <input type="hidden" name="editor" id="work-editor" value="">
+              </div>
+              <div class="studio-field">
+                <label class="studio-label" for="work-romance">Направленность</label>
+                <select id="work-romance" class="studio-control" name="romance" required>
+                  <option value="" selected disabled>Выберите</option>
+                  <option value="gen">Джен</option>
+                  <option value="het">Гет</option>
+                  <option value="slash">Слэш</option>
+                  <option value="femslash">Фемслэш</option>
+                  <option value="mixed">Смешанный</option>
+                </select>
+                <p class="studio-hint" id="work-romance-hint"></p>
+              </div>
+              <div class="studio-field studio-field-age">
+                <span class="studio-label">Возрастной рейтинг</span>
+                <div class="studio-radios">
+                  <label><input type="radio" name="age" value="0+" required> 0+</label>
+                  <label><input type="radio" name="age" value="16+"> 16+</label>
+                  <label><input type="radio" name="age" value="18+"> 18+</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="studio-form-row">
+            <div>
+              <label class="studio-label">Жанры</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="genres" data-name="genres" data-placeholder="Найти жанр…"  data-tax-quotes></div>
+            </div>
+            <div>
+              <label class="studio-label">Формат работы</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…" data-tax-quotes></div>
+              <p class="studio-hint">Необязательно. Стихи, письма, чаты и другие формы текста.</p>
+            </div>
+          </div>
+          <div class="studio-form-row studio-form-row-kinks">
+            <div>
+              <label class="studio-label">Предупреждения</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="warnings" data-name="warnings" data-placeholder="Найти предупреждение…" data-tax-quotes></div>
+            </div>
+            <div id="kink-fields" hidden>
+              <label class="studio-label">Кинки</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="kinks" data-name="kinks" data-placeholder="Найти кинк…" data-tax-quotes></div>
+              <p class="studio-hint">Только для работ 18+.</p>
+            </div>
+          </div>
+          <div class="studio-form-row">
+            <div>
+              <label class="studio-label">Фандомы</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="fandoms" data-name="fandoms" data-fandom-step ></div>
+              <p class="studio-hint">Можно несколько — для кроссоверов. Для своих миров добавьте «Ориджинал».</p>
+            </div>
+            <div>
+              <label class="studio-label">Персонажи в работе</label>
+              <div class="tax-picker tax-picker-compact" data-tax-picker="characters" data-name="characters" data-placeholder="Найти или ввести имя…"  data-named-roles></div>
+            </div>
+          </div>
+          <div>
+            <label class="studio-label">Пейринги</label>
+            <div class="pairing-builder" id="work-pairings-builder" >
+              <div class="pairing-draft">
+                <select class="pairing-char pairing-char-left" aria-label="Первый персонаж">
+                  <option value="">Первый</option>
+                </select>
+                <select class="pairing-sep" aria-label="Тип связи">
+                  <option value="">—</option>
+                  <option value="/">/</option>
+                  <option value="|">|</option>
+                </select>
+                <select class="pairing-char pairing-char-right" aria-label="Второй персонаж">
+                  <option value="">Второй</option>
+                </select>
+                <button type="button" class="pairing-add" disabled aria-label="Подтвердить пейринг">✓</button>
+              </div>
+              <div class="pairing-foot">
+                <div class="pairing-list" aria-live="polite"></div>
+                <div class="pairing-help">
+                  <p>Введите имена персонажей через соответствующий разделитель:</p>
+                  <p>Доминант / Пассив</p>
+                  <p>Универсал | Универсал</p>
+                  <p>Сначала выберите персонажей выше. Затем — первый, разделитель и второй; ✓ добавит пейринг. Можно несколько.</p>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" name="pairings" id="work-pairings-value" value="">
+          </div>
+          <div>
+            <label class="studio-label" for="work-desc">Описание работы</label>
+            <textarea id="work-desc" name="description" placeholder="Кратко, о чём эта история"></textarea>
+          </div>
+          <div>
+            <label class="studio-label" for="work-notes">Примечание автора</label>
+            <textarea id="work-notes" name="author_notes" placeholder="Необязательно"></textarea>
+          </div>
+          <div class="studio-form-row">
+            <div>
+              <label class="studio-label" for="work-status">Статус</label>
+              <select id="work-status" name="status">
+                <option value="draft" selected>Черновик</option>
+                <option value="in_progress">В процессе</option>
+                <option value="completed">Завершена</option>
+              </select>
+            </div>
+            <div>
+              <label class="studio-label" for="work-size">Размер планируется</label>
+              <select id="work-size" name="planned_size">
+                <option value="mini">Мини — до 20 глав</option>
+                <option value="midi">Миди — до 50</option>
+                <option value="maxi">Макси — более</option>
+              </select>
+            </div>
+          </div>
+          <div class="work-new-actions">
+            <a class="btn btn-outline" href="author-home.html">Отмена</a>
+            <button type="submit" class="btn btn-outline" name="intent" value="draft">Сохранить черновик</button>
+            <button type="submit" class="btn btn-primary" name="intent" value="publish">Опубликовать в каталог</button>
+          </div>
+        </form>
+    </main>
+  </div>
+  <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <script src="taxonomy.js?v=29"></script>
+  <script src="work-new.js?v=3"></script>
+</body>
+</html>

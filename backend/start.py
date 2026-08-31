@@ -7,7 +7,8 @@ import sys
 
 def main() -> None:
     subprocess.run([sys.executable, "seed.py"], check=True)
-    print("\n→ API:  http://127.0.0.1:8000")
+    print("\n→ Сайт: http://127.0.0.1:8000/")
+    print("→ API:  http://127.0.0.1:8000/api/health")
     print("→ Docs: http://127.0.0.1:8000/docs\n")
     subprocess.run(
         [

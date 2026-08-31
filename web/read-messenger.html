@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Чтение — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=199">
+  <script src="site.js?v=84"></script>
+</head>
+<body class="linear-read-page messenger-read-page">
+  <header class="header"></header>
+
+  <div class="linear-read" data-side-layout>
+    <aside class="linear-read-side" id="side-panel" data-side-panel>
+      <a class="linear-work-card" id="work-card" href="catalog.html">
+        <span class="linear-work-cover">
+          <img id="work-card-cover" src="assets/deco/paw.svg" alt="">
+        </span>
+        <span class="linear-work-card-body">
+          <span class="linear-work-card-title" id="work-card-title">Работа</span>
+          <span class="linear-work-card-author" id="work-card-author"></span>
+          <span class="linear-work-card-meta">Мессенджеры</span>
+        </span>
+      </a>
+      <div class="linear-side-split" aria-hidden="true"></div>
+      <h2 class="linear-toc-title">Оглавление</h2>
+      <ol class="linear-toc story-nav" id="toc"></ol>
+    </aside>
+
+    <article class="linear-read-main">
+      <div class="linear-read-hero" id="chapter-hero">
+        <button type="button" class="side-toggle linear-toc-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Оглавление">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <nav class="crumbs linear-read-crumbs">
+          <a href="index.html">Главная</a>
+          <span>›</span>
+          <a href="catalog.html">Каталог</a>
+          <span>›</span>
+          <a id="crumb-work" href="catalog.html">Работа</a>
+          <span>›</span>
+          <span id="crumb-chapter"></span>
+        </nav>
+        <a class="linear-edit-btn" id="edit-chapter" href="editor-messenger.html" aria-label="Редактировать главу">
+          <img src="assets/svg/редактировать.svg" alt="">
+        </a>
+      </div>
+
+      <div class="linear-read-body">
+        <h1 class="linear-read-title" id="chapter-title"></h1>
+        <div class="messenger-gallery" id="gallery">
+          <div class="messenger-gallery-frame" id="gallery-frame">
+            <img id="gallery-image" alt="">
+            <button type="button" class="messenger-hit messenger-hit--left" id="img-prev" aria-label="Предыдущая картинка"></button>
+            <button type="button" class="messenger-hit messenger-hit--right" id="img-next" aria-label="Следующая картинка"></button>
+          </div>
+          <p class="messenger-gallery-empty" id="gallery-empty" hidden>В этой главе нет картинок.</p>
+        </div>
+
+        <nav class="linear-chap-nav messenger-chap-nav" aria-label="Главы">
+          <button type="button" class="linear-chap-btn" id="prev">
+            <img src="assets/svg/left.svg" alt="">
+            <span>
+              <b>Предыдущая</b>
+              <small id="prev-name"></small>
+            </span>
+          </button>
+          <span class="messenger-slide-count" id="slide-count">1/1</span>
+          <button type="button" class="linear-chap-btn linear-chap-btn--next" id="next">
+            <span>
+              <b>Следующая</b>
+              <small id="next-name"></small>
+            </span>
+            <img src="assets/svg/right.svg" alt="">
+          </button>
+          <button type="button" class="linear-chap-btn linear-chap-btn--next linear-wait-btn" id="wait" hidden aria-pressed="false">
+            <span>
+              <b>Жду продолжения</b>
+            </span>
+            <img src="assets/svg/ждуля2.svg" alt="">
+          </button>
+        </nav>
+
+        <div class="linear-read-stats">
+          <div class="linear-read-stats-acts">
+            <button type="button" class="linear-action-btn work-like-btn" data-work-like aria-pressed="false" aria-label="Нравится">
+              <img class="work-like-icon" src="assets/svg/heart.svg" alt=""> Нравится
+            </button>
+            <button type="button" class="linear-action-btn" id="read-btn" aria-pressed="false">
+              <img src="assets/svg/okay.svg" alt=""> Прочитано
+            </button>
+            <button type="button" class="linear-action-btn" id="follow-btn" aria-pressed="false">
+              <img src="assets/svg/bookmark2.svg" alt=""> <span id="follow-label">Подписаться</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <script src="read-messenger.js?v=1"></script>
+</body>
+</html>

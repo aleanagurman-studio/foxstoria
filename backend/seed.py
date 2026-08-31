@@ -1,28 +1,14 @@
-"""Seed local database with the spreadsheet taxonomy and sample stories."""
+"""Seed local database with taxonomy. Catalog stays empty until works are created on the site."""
 
 import asyncio
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 
-from slugify import slugify
-from sqlalchemy import select
+from sqlalchemy import delete, select
 
 from app.database import Base, SessionLocal, engine
-from app.models import (
-    AgeRating,
-    Author,
-    ContentWarning,
-    Fandom,
-    Genre,
-    Kink,
-    RomanceOrientation,
-    Story,
-    StoryStatus,
-    StoryType,
-    WorkFormat,
-    work_size_for_chapters,
-)
+from app.main import _sqlite_migrate
+from app.models import Author, ContentWarning, DirectMessage, Fandom, Genre, Kink, MessageParticipant, MessageThread, ThreadKind, WorkFormat
 
 TAXONOMY_PATH = Path(__file__).resolve().parents[1] / "web" / "taxonomy.json"
 
@@ -31,125 +17,169 @@ def load_taxonomy() -> dict:
     return json.loads(TAXONOMY_PATH.read_text(encoding="utf-8"))
 
 
+async def ensure_core() -> None:
+    async with SessionLocal() as db:
+        original = (await db.execute(select(Fandom).where(Fandom.slug == "original"))).scalar_one_or_none()
+        if not original:
+            db.add(Fandom(name="Ориджинал", slug="original"))
+        for username, display_name, avatar in (
+            ("moonwander", "Вы", None),
+            ("foxstoria", "FoxStoria", "assets/brand/лисичка.png"),
+            ("foxstoria-support", "Поддержка", "assets/brand/помощник.png"),
+        ):
+            row = (await db.execute(select(Author).where(Author.username == username))).scalar_one_or_none()
+            if not row:
+                db.add(
+                    Author(
+                        username=username,
+                        display_name=display_name,
+                        avatar_url=avatar,
+                        story_count=0,
+                        follower_count=0,
+                    )
+                )
+            elif avatar and not row.avatar_url:
+                row.avatar_url = avatar
+        await db.commit()
+
+        sys = (await db.execute(select(Author).where(Author.username == "foxstoria"))).scalar_one_or_none()
+        already = (await db.execute(select(DirectMessage.id).limit(1))).scalar_one_or_none()
+        if sys and not already:
+            people = (
+                await db.execute(select(Author).where(Author.username.notin_(["foxstoria", "foxstoria-support"])))
+            ).scalars().all()
+            text = (
+                "Добро пожаловать в FoxStoria. Здесь появляются системные письма: "
+                "объявления, напоминания и ответы поддержки — в соседнем чате «Поддержка»."
+            )
+            for person in people:
+                thread = MessageThread(kind=ThreadKind.SYSTEM)
+                db.add(thread)
+                await db.flush()
+                db.add(MessageParticipant(thread_id=thread.id, author_id=person.id))
+                db.add(MessageParticipant(thread_id=thread.id, author_id=sys.id))
+                db.add(DirectMessage(thread_id=thread.id, sender_id=sys.id, body=text))
+            await db.commit()
+            print("Seeded system welcome mail.")
+
+
+def _label_buckets():
+    from app.models.entities import StoryFormat, StoryGenre, StoryKink, StoryWarning
+
+    return {
+        "genres": (Genre, StoryGenre, StoryGenre.genre_id),
+        "formats": (WorkFormat, StoryFormat, StoryFormat.format_id),
+        "warnings": (ContentWarning, StoryWarning, StoryWarning.warning_id),
+        "kinks": (Kink, StoryKink, StoryKink.kink_id),
+    }
+
+
+async def _upsert_labels(db, model, items: list[dict], link_model, fk) -> None:
+    existing = {row.slug: row for row in (await db.execute(select(model))).scalars().all()}
+    wanted = {item["slug"] for item in items}
+    for item in items:
+        row = existing.get(item["slug"])
+        if row:
+            row.name = item["name"]
+            row.description = item.get("description")
+        else:
+            db.add(model(name=item["name"], slug=item["slug"], description=item.get("description")))
+            await db.flush()
+    stale = [row for slug, row in existing.items() if slug not in wanted]
+    for row in stale:
+        await db.execute(delete(link_model).where(fk == row.id))
+        await db.delete(row)
+
+
+async def _relocate_label(db, row, source_key: str, dest_key: str, buckets: dict) -> None:
+    src_model, src_link, src_fk = buckets[source_key]
+    dest_model, dest_link, dest_fk = buckets[dest_key]
+    dest = (await db.execute(select(dest_model).where(dest_model.slug == row.slug))).scalar_one_or_none()
+    if not dest:
+        dest = dest_model(name=row.name, slug=row.slug, description=row.description)
+        db.add(dest)
+        await db.flush()
+    links = (await db.execute(select(src_link).where(src_fk == row.id))).scalars().all()
+    story_attr = "story_id"
+    for link in links:
+        story_id = getattr(link, story_attr)
+        exists = (
+            await db.execute(select(dest_link).where(dest_link.story_id == story_id, dest_fk == dest.id))
+        ).scalar_one_or_none()
+        if not exists:
+            db.add(dest_link(story_id=story_id, **{dest_fk.key: dest.id}))
+    await db.execute(delete(src_link).where(src_fk == row.id))
+    await db.delete(row)
+
+
+async def sync_taxonomy(db) -> dict:
+    taxonomy = load_taxonomy()
+    buckets = _label_buckets()
+    slug_dest = {}
+    for key in buckets:
+        for item in taxonomy[key]:
+            slug_dest[item["slug"]] = key
+
+    for source_key, (model, _link, _fk) in buckets.items():
+        rows = (await db.execute(select(model))).scalars().all()
+        for row in rows:
+            dest = slug_dest.get(row.slug)
+            if dest and dest != source_key:
+                await _relocate_label(db, row, source_key, dest, buckets)
+
+    for key, (model, link_model, fk) in buckets.items():
+        await _upsert_labels(db, model, taxonomy[key], link_model, fk)
+    return taxonomy
+
+
 async def seed() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(_sqlite_migrate)
 
     async with SessionLocal() as db:
         existing = (await db.execute(select(Genre.id).limit(1))).scalar_one_or_none()
-        if existing:
-            print("Database already seeded, skipping.")
-            return
-
-        taxonomy = load_taxonomy()
-        genres: dict[str, Genre] = {}
-        for item in taxonomy["genres"]:
-            genre = Genre(name=item["name"], slug=item["slug"], description=item.get("description"))
-            db.add(genre)
-            genres[item["name"]] = genre
-        formats: dict[str, WorkFormat] = {}
-        for item in taxonomy["formats"]:
-            work_format = WorkFormat(name=item["name"], slug=item["slug"], description=item.get("description"))
-            db.add(work_format)
-            formats[item["name"]] = work_format
-        for item in taxonomy["warnings"]:
-            db.add(ContentWarning(name=item["name"], slug=item["slug"], description=item.get("description")))
-        for item in taxonomy["kinks"]:
-            db.add(Kink(name=item["name"], slug=item["slug"], description=item.get("description")))
-
-        original = Fandom(name="Ориджинал", slug="original")
-        db.add(original)
-        await db.flush()
-
-        authors_data = [
-            ("lunny-strannik", "Лунный странник", 4.9, 340),
-            ("temniy-les", "Тёмный лес", 4.8, 210),
-            ("zvezdnaya-pyl", "Звёздная пыль", 4.7, 520),
-        ]
-        authors = []
-        for username, display_name, rating, followers in authors_data:
-            author = Author(
-                username=username,
-                display_name=display_name,
-                rating_avg=rating,
-                story_count=0,
-                follower_count=followers,
+        taxonomy = await sync_taxonomy(db)
+        if not existing:
+            original = (await db.execute(select(Fandom).where(Fandom.slug == "original"))).scalar_one_or_none()
+            if not original:
+                db.add(Fandom(name="Ориджинал", slug="original"))
+            for username, display_name, rating, followers in (
+                ("moonwander", "Вы", 0.0, 0),
+                ("lunny-strannik", "Лунный странник", 4.9, 340),
+                ("temniy-les", "Тёмный лес", 4.8, 210),
+                ("zvezdnaya-pyl", "Звёздная пыль", 4.7, 520),
+            ):
+                row = (await db.execute(select(Author).where(Author.username == username))).scalar_one_or_none()
+                if not row:
+                    db.add(
+                        Author(
+                            username=username,
+                            display_name=display_name,
+                            rating_avg=rating,
+                            story_count=0,
+                            follower_count=followers,
+                        )
+                    )
+            print(
+                "Seed complete:",
+                f"{len(taxonomy['genres'])} genres,",
+                f"{len(taxonomy['formats'])} formats,",
+                f"{len(taxonomy['warnings'])} warnings,",
+                f"{len(taxonomy['kinks'])} kinks.",
+                "Catalog is empty until works are created on the site.",
             )
-            db.add(author)
-            authors.append(author)
-        await db.flush()
-
-        now = datetime.now(timezone.utc)
-        interactive = [
-            ("Тени прошлого", ["Драма", "Мистика"], AgeRating.EIGHTEEN, 4.9, 32100, 42, 7),
-            ("Лесная тропа", ["Фэнтези", "Приключения"], AgeRating.NONE, 4.8, 18400, 38, 5),
-            ("Академия магии", ["Фэнтези", "Романтика"], AgeRating.SIXTEEN, 4.9, 25600, 55, 8),
-            ("Тайна особняка", ["Ужасы", "Мистика"], AgeRating.EIGHTEEN, 4.8, 15200, 30, 6),
-        ]
-        linear = [
-            ("Письма из прошлого", ["Драма", "Романтика"], AgeRating.SIXTEEN, 4.7, 9800, 24),
-            ("Город без сна", ["Мистика", "Драма"], AgeRating.SIXTEEN, 4.6, 11200, 18),
-            ("Последний вагон", ["Драма", "Повседневность"], AgeRating.NONE, 4.5, 7600, 15),
-        ]
-
-        for i, (title, genre_names, age, rating, plays, scenes, endings) in enumerate(interactive):
-            story = Story(
-                title=title,
-                slug=slugify(title),
-                description=f"Интерактивная новелла «{title}». Ваш выбор определяет сюжет.",
-                story_type=StoryType.INTERACTIVE,
-                status=StoryStatus.PUBLISHED,
-                age_rating=age,
-                romance=RomanceOrientation.GEN,
-                fandom_id=original.id,
-                rating_avg=rating,
-                rating_count=1200 + i * 300,
-                play_count=plays,
-                scene_count=scenes,
-                endings_count=endings,
-                is_completed=True,
-                work_size=work_size_for_chapters(scenes),
-                author_id=authors[i % len(authors)].id,
-                published_at=now,
+        else:
+            print(
+                "Taxonomy synced:",
+                f"{len(taxonomy['genres'])} genres,",
+                f"{len(taxonomy['formats'])} formats,",
+                f"{len(taxonomy['warnings'])} warnings,",
+                f"{len(taxonomy['kinks'])} kinks.",
             )
-            story.genres = [genres[name] for name in genre_names]
-            db.add(story)
-            authors[i % len(authors)].story_count += 1
-
-        for i, (title, genre_names, age, rating, reads, chapters) in enumerate(linear):
-            story = Story(
-                title=title,
-                slug=slugify(title),
-                description=f"Линейная история «{title}» для чтения без ветвлений.",
-                story_type=StoryType.LINEAR,
-                status=StoryStatus.PUBLISHED,
-                age_rating=age,
-                romance=RomanceOrientation.HET if title == "Письма из прошлого" else RomanceOrientation.GEN,
-                fandom_id=original.id,
-                rating_avg=rating,
-                rating_count=800 + i * 200,
-                play_count=reads,
-                chapter_count=chapters,
-                word_count=chapters * 3500,
-                is_completed=True,
-                work_size=work_size_for_chapters(chapters),
-                author_id=authors[(i + 1) % len(authors)].id,
-                published_at=now,
-            )
-            story.genres = [genres[name] for name in genre_names]
-            if title == "Письма из прошлого":
-                story.formats = [formats["Письма (стилизация)"]]
-            db.add(story)
-            authors[(i + 1) % len(authors)].story_count += 1
-
         await db.commit()
-        print(
-            "Seed complete:",
-            f"{len(taxonomy['genres'])} genres,",
-            f"{len(taxonomy['formats'])} formats,",
-            f"{len(taxonomy['warnings'])} warnings,",
-            f"{len(taxonomy['kinks'])} kinks.",
-        )
+
+    await ensure_core()
 
 
 if __name__ == "__main__":

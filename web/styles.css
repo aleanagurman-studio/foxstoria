@@ -1629,7 +1629,7 @@ a.genre-pill:hover,
   position: relative;
   z-index: 1;
   grid-column: 2;
-  grid-row: 1 / 3;
+  grid-row: 1;
   align-self: center;
   justify-self: end;
   margin: 0 4px 0 0;
@@ -1951,6 +1951,12 @@ a.genre-pill:hover,
   height: 12px;
   object-fit: contain;
   display: block;
+}
+
+.cabinet-card .cabinet-more {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .cabinet-card .cabinet-more img,
@@ -4604,6 +4610,7 @@ textarea {
 .profile-links {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
   gap: 8px;
   margin-top: 14px;
@@ -4624,6 +4631,18 @@ textarea {
 .profile-links a:hover {
   border-color: var(--fox);
   color: var(--fox);
+}
+
+.profile-links .profile-mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-links .profile-mail img,
+.profile-links .profile-mail .ui-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .profile-actions {
@@ -6198,15 +6217,34 @@ textarea {
   background: color-mix(in srgb, var(--white) 82%, var(--cream));
 }
 
+.msg-side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid color-mix(in srgb, var(--sand) 22%, transparent);
+  background: var(--side-bg);
+}
+
+.msg-empty {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  padding: 24px;
+  color: var(--chestnut);
+  text-align: center;
+}
+
 .msg-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1;
   padding: 10px 8px;
   overflow: auto;
-  border-right: 1px solid color-mix(in srgb, var(--sand) 22%, transparent);
-  background: var(--side-bg);
+  border-right: 0;
+  background: transparent;
 }
 
 .msg-item {
@@ -8173,6 +8211,17 @@ body.lost-page {
   }
 
   .msg-list {
+    flex: 1;
+    position: static;
+    max-width: none;
+    padding: 10px 8px;
+    overflow: auto;
+    pointer-events: auto;
+    box-shadow: none;
+    border-right: 0;
+  }
+
+  .msg-side {
     position: absolute;
     z-index: 25;
     top: 0;
@@ -8180,21 +8229,22 @@ body.lost-page {
     left: 0;
     width: min(300px, 86vw);
     max-width: 0;
-    padding: 0;
     overflow: hidden;
-    max-height: none;
-    border-right: 0;
-    border-bottom: 0;
     pointer-events: none;
     box-shadow: none;
+    border-right: 0;
   }
 
-  .msg-layout.is-side-open .msg-list {
+  .msg-layout.is-side-open .msg-side {
     max-width: min(300px, 86vw);
-    padding: 10px 8px;
     pointer-events: auto;
     border-right: 1px solid color-mix(in srgb, var(--sand) 22%, transparent);
     box-shadow: var(--shadow);
+  }
+
+  .msg-layout.is-side-open .msg-list {
+    max-width: none;
+    padding: 10px 8px;
   }
 
   .msg-layout > .side-backdrop {
@@ -10409,4 +10459,94 @@ a.story-nav-link:hover {
   height: 18px;
   object-fit: contain;
   color: currentColor;
+}
+
+.messenger-gallery {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: min(68vh, 720px);
+  margin: 8px 0 0;
+  user-select: none;
+}
+
+.messenger-gallery-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.messenger-gallery-frame img {
+  display: block;
+  max-width: min(100%, 560px);
+  max-height: min(75vh, 820px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(62, 39, 35, 0.18);
+}
+
+.messenger-gallery-empty {
+  padding: 48px 16px;
+  color: var(--warm-brown);
+  text-align: center;
+}
+
+.messenger-hit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22%;
+  min-width: 48px;
+  z-index: 2;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.messenger-hit:disabled {
+  cursor: default;
+}
+
+.messenger-hit--left {
+  left: 0;
+}
+
+.messenger-hit--right {
+  right: 0;
+}
+
+.messenger-chap-nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.messenger-chap-nav .linear-chap-btn {
+  max-width: none;
+}
+
+.messenger-chap-nav .linear-chap-btn--next {
+  margin-left: 0;
+  justify-self: end;
+}
+
+.messenger-slide-count {
+  grid-column: 2;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--chestnut-dark);
+  letter-spacing: 0.02em;
+}
+
+.messenger-chap-nav .linear-wait-btn {
+  grid-column: 3;
+  justify-self: end;
 }

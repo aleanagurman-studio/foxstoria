@@ -10,7 +10,8 @@ fi
 source .venv/bin/activate
 python seed.py
 echo ""
-echo "API:  http://127.0.0.1:8000"
+echo "Сайт: http://127.0.0.1:8000/"
+echo "API:  http://127.0.0.1:8000/api/health"
 echo "Docs: http://127.0.0.1:8000/docs"
 echo ""
 exec python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000

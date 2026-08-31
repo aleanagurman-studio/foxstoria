@@ -106,9 +106,15 @@ window.FoxStoryMap = (function foxStoryMap() {
     };
   }
 
+  function storeKey() {
+    const id = new URLSearchParams(location.search).get("id") || "";
+    if (window.FoxWorks) return FoxWorks.mapStore(id);
+    return id ? `${STORE}:${id}` : STORE;
+  }
+
   function load() {
     try {
-      const raw = localStorage.getItem(STORE);
+      const raw = localStorage.getItem(storeKey());
       if (!raw) return null;
       const data = JSON.parse(raw);
       if (!data.scenes || !data.scenes.length) return null;
@@ -119,7 +125,12 @@ window.FoxStoryMap = (function foxStoryMap() {
   }
 
   function getStory() {
-    return load() || demoShadows();
+    const loaded = load();
+    if (loaded) return loaded;
+    const id = new URLSearchParams(location.search).get("id") || "";
+    const work = id && window.FoxWorks ? FoxWorks.get(id) : null;
+    if (work) return FoxWorks.emptyInteractive(work);
+    return demoShadows();
   }
 
   function sceneById(story, id) {

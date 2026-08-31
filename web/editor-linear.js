@@ -1,5 +1,21 @@
-(function linearEditorApp() {
-  const STORE = "foxtoria-editor-linear";
+(async function linearEditorApp() {
+  if (window.FoxWorks) await FoxWorks.hydrate();
+  const workId = window.FoxWorks ? FoxWorks.idFromUrl() : new URLSearchParams(location.search).get("id") || "";
+  if (window.FoxWorks && workId && !FoxWorks.get(workId)) await FoxWorks.fetchOne(workId);
+  const work = window.FoxWorks && workId ? FoxWorks.get(workId) : null;
+  if (window.FoxWorks) {
+    if (!work) {
+      location.replace("author-home.html");
+      return;
+    }
+    FoxWorks.remember(work.id);
+    if (work.story_type !== "linear") {
+      location.replace(FoxWorks.urls(work).editor);
+      return;
+    }
+    FoxWorks.seed(work);
+  }
+  const STORE = window.FoxWorks ? FoxWorks.linearStore(workId) : "foxtoria-editor-linear";
   const $ = (id) => document.getElementById(id);
 
   function uid(prefix) {
@@ -30,35 +46,21 @@
   }
 
   function emptyStory() {
+    if (work && window.FoxWorks) return FoxWorks.emptyLinear(work);
     const ch1 = uid("ch");
-    const ch2 = uid("ch");
-    const lib = demoLibrary();
     return {
-      title: "Письма из прошлого",
+      title: "Без названия",
       selectedId: ch1,
-      characters: lib.characters,
-      notes: lib.notes,
+      characters: [],
+      notes: [],
       chapters: [
         {
           id: ch1,
-          title: "Конверт",
-          summary: "Письмо без марки — только имя выцветшими чернилами.",
+          title: "Глава 1",
+          summary: "",
           notes: "",
           status: "draft",
-          html: `<p>Письмо пришло без марки — только имя, выведенное чернилами, которые уже выцвели. Вы открываете его на кухне, где ещё пахнет утром.</p>
-<img src="assets/brand/banner-hero.jpg" alt="">
-<p>«Если ты это читаешь, значит, я всё-таки решилась написать». Дальше — три страницы чужого почерка и один адрес.</p>`,
-          cover: "",
-          isEnding: false,
-        },
-        {
-          id: ch2,
-          title: "Адрес, которого нет",
-          summary: "Дом на карте есть. На улице — пустырь.",
-          notes: "",
-          status: "draft",
-          html: `<p>Дом на карте есть. На улице — пустырь и старая липа. Соседка говорит, что здесь когда-то жила женщина с рыжими волосами.</p>
-<p>Вы находите в корнях липы второй конверт. Он адресован вам.</p>`,
+          html: "",
           cover: "",
           isEnding: false,
         },
@@ -101,22 +103,13 @@
       FoxLibrary.save({ characters: story.characters || [], notes: story.notes || [] });
     }
   }
-  const workId = new URLSearchParams(location.search).get("id") || "";
-  fetch("works.json")
-    .then((res) => res.json())
-    .then((data) => {
-      const works = data.works || [];
-      const requested = workId ? works.find((work) => work.id === workId) : null;
-      const linear = requested?.story_type === "linear"
-        ? requested
-        : works.find((work) => work.id === "letters") || works.find((work) => work.story_type === "linear");
-      if (linear?.title) {
-        story.title = linear.title;
-        $("story-title").textContent = linear.title;
-        persist();
-      }
-    })
-    .catch(() => {});
+  if (work?.title) {
+    story.title = work.title;
+    const titleEl = $("story-title");
+    if (titleEl) titleEl.textContent = work.title;
+  }
+  const studioLink = document.getElementById("studio-link");
+  if (studioLink && window.FoxWorks && work) studioLink.href = FoxWorks.urls(work).studio;
   const requestedChapter = Number(new URLSearchParams(location.search).get("chapter"));
   if (Number.isFinite(requestedChapter) && requestedChapter >= 1) {
     const chapter = story.chapters[Math.min(story.chapters.length, Math.floor(requestedChapter)) - 1];
@@ -134,6 +127,7 @@
     if (!force && foxPref("autosave") === false) return;
     syncWorkStatus();
     localStorage.setItem(STORE, JSON.stringify(story));
+    if (window.FoxWorks) FoxWorks.pushContent(workId, story);
     if (window.FoxLibrary) {
       FoxLibrary.save({ characters: story.characters || [], notes: story.notes || [] });
     }
@@ -597,7 +591,7 @@
         ? "in_progress"
         : "draft";
     story.workStatus = status;
-    if (window.FoxWorkStatus) FoxWorkStatus.set(workId || "letters", status);
+    if (window.FoxWorkStatus && workId) FoxWorkStatus.set(workId, status);
   }
 
   function removeBreak(el) {

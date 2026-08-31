@@ -30,8 +30,10 @@ function formatCount(value) {
 }
 
 function workHref(work) {
+  if (window.FoxWorks && work?.id) return FoxWorks.urls(work).public;
   if (work.href) return work.href;
   if (work.story_type === "linear") return "story-linear.html";
+  if (work.story_type === "messenger") return "story.html";
   return "story-interactive.html";
 }
 
@@ -46,9 +48,11 @@ function escapeHtml(value) {
 const TYPE = {
   interactive: "Интерактивная",
   linear: "Линейная",
+  messenger: "Мессенджеры",
 };
 
 function workTypeLabel(work) {
+  if (window.FoxWorks?.storyTypeLabel) return FoxWorks.storyTypeLabel(work);
   return TYPE[work.story_type] || work.story_type || "";
 }
 
@@ -100,7 +104,8 @@ function renderFeed(id, items, emptyText) {
 }
 
 function studioHref(work) {
-  return work.id ? `studio.html?id=${encodeURIComponent(work.id)}` : "studio.html";
+  if (window.FoxWorks && work?.id) return FoxWorks.urls(work).studio;
+  return work.id ? `studio.html?id=${encodeURIComponent(work.id)}` : "work-new.html";
 }
 
 const CABINET_STATUS = {
@@ -117,32 +122,38 @@ function cabinetWorkState(pubStatus, isCompleted) {
 }
 
 function cabinetMeta(work) {
-  const extra = {
-    shadows: { status: "draft", updated: "сегодня, 14:32", updatedAt: "2026-08-28T14:32:00", views: 210, likes: 48, comments: 6, waiting: 42 },
-    letters: { status: "published", updated: "вчера, 19:10", updatedAt: "2026-08-27T19:10:00", views: 1240, likes: 340, comments: 28, waiting: 18 },
-    "mic-mono": { status: "moderation", updated: "3 дня назад", updatedAt: "2026-08-25T12:00:00", views: 680, likes: 1200, comments: 54, waiting: 91 },
-    "tea-scars": { status: "completed", updated: "неделю назад", updatedAt: "2026-08-21T10:00:00", views: 890, likes: 428, comments: 41, waiting: 0 },
-    crossroads: { status: "draft", updated: "сегодня, 09:18", updatedAt: "2026-08-28T09:18:00", views: 96, likes: 22, comments: 3, waiting: 11 },
-  };
-  const row = extra[work.id] || {};
-  let status = row.status || (work.is_completed ? "completed" : "draft");
+  let status = work.status || (work.is_completed ? "completed" : work.listed === false ? "draft" : "published");
+  if (status === "in_progress") status = "published";
   try {
     const map = JSON.parse(localStorage.getItem("foxtoria-work-status") || "{}");
     const overlay = map && typeof map === "object" ? map[work.id] : "";
     if (overlay === "completed") status = "completed";
     else if (overlay === "draft") status = "draft";
+    else if (overlay === "in_progress") status = "published";
   } catch {
-    /* keep demo status */
+    /* keep stored status */
   }
+  const updatedAt = work.updatedAt || work.publishedAt || "";
   return {
     status,
-    updated: row.updated || "недавно",
-    updatedAt: row.updatedAt || "2026-08-20T00:00:00",
-    views: row.views ?? work.plays ?? 0,
-    likes: row.likes ?? workLikes(work),
-    comments: row.comments ?? 0,
-    waiting: row.waiting ?? 0,
+    updated: formatCabinetUpdated(updatedAt),
+    updatedAt: updatedAt || "1970-01-01T00:00:00",
+    views: work.plays ?? 0,
+    likes: workLikes(work),
+    comments: work.comments ?? 0,
+    waiting: work.waiting ?? 0,
   };
+}
+
+function formatCabinetUpdated(iso) {
+  if (!iso) return "ещё не сохранялась";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "недавно";
+  const diff = Date.now() - date.getTime();
+  if (diff < 60_000) return "только что";
+  if (diff < 3600_000) return `${Math.max(1, Math.floor(diff / 60_000))} мин. назад`;
+  if (diff < 86400_000) return `${Math.max(1, Math.floor(diff / 3600_000))} ч. назад`;
+  return date.toLocaleDateString("ru-RU");
 }
 
 function cabinetStatsHTML(work, meta) {
@@ -169,7 +180,13 @@ function cabinetCardHTML(work, role) {
   const meta = cabinetMeta(work);
   const completed = Boolean(work.is_completed || meta.status === "completed");
   const workState = cabinetWorkState(meta.status, completed);
-  const typeLabel = work.story_type === "linear" ? "Линейная история" : "Интерактивная история";
+  const typeLabel = window.FoxWorks?.storyTypeLabel
+    ? FoxWorks.storyTypeLabel(work, true)
+    : work.story_type === "linear"
+      ? "Линейная история"
+      : work.story_type === "messenger"
+        ? "Мессенджеры"
+        : "Интерактивная история";
   const cover = work.cover
     ? `<img src="${escapeHtml(work.cover)}" alt="">`
     : `<span class="cover-fallback"><img src="assets/deco/paw.svg" alt=""></span>`;
@@ -185,7 +202,7 @@ function cabinetCardHTML(work, role) {
           </div>
         </div>
       </div>
-      <h3 class="cabinet-card-title"><a href="${escapeHtml(workHref(work))}">${escapeHtml(work.title)}</a></h3>
+      <h3 class="cabinet-card-title"><a href="${escapeHtml(studioHref(work))}">${escapeHtml(work.title)}</a></h3>
       <p class="cabinet-card-meta">
         <span>${typeLabel}</span>
         <span class="cabinet-status is-${meta.status}">${CABINET_STATUS[meta.status] || meta.status}</span>
@@ -295,11 +312,22 @@ function bindCabinetChrome() {
       const id = card?.dataset.workId;
       if (!card || !id) return;
       if (action.getAttribute("data-cabinet-action") === "delete") {
+        if (window.FoxWorks) FoxWorks.remove(id);
         document.querySelectorAll(`.cabinet-card[data-work-id="${id}"]`).forEach((el) => el.remove());
         refreshCounts();
         applyFilterSort();
       } else if (action.getAttribute("data-cabinet-action") === "visibility") {
         const next = card.dataset.status === "draft" ? "published" : "draft";
+        if (window.FoxWorks) {
+          const work = FoxWorks.get(id);
+          if (work) {
+            work.status = next === "draft" ? "draft" : work.is_completed ? "completed" : "in_progress";
+            work.listed = next !== "draft";
+            if (work.listed && !work.publishedAt) work.publishedAt = new Date().toISOString();
+            work.updatedAt = new Date().toISOString();
+            FoxWorks.upsert(work);
+          }
+        }
         document.querySelectorAll(`.cabinet-card[data-work-id="${id}"]`).forEach((el) => setCardStatus(el, next));
         applyFilterSort();
       }
@@ -317,11 +345,10 @@ function bindCabinetChrome() {
 function renderAuthorHome(works) {
   const authorRoot = document.querySelector('[data-feed="author-home-author"]');
   if (!authorRoot) return;
-  const byId = Object.fromEntries(works.map((work) => [work.id, work]));
   const groups = {
-    author: ["shadows", "mic-mono", "crossroads"].map((id) => byId[id]).filter(Boolean),
-    coauthor: ["letters"].map((id) => byId[id]).filter(Boolean),
-    editor: ["tea-scars"].map((id) => byId[id]).filter(Boolean),
+    author: works.filter((work) => (work.role || "author") === "author"),
+    coauthor: works.filter((work) => work.role === "coauthor"),
+    editor: works.filter((work) => work.role === "editor"),
   };
   const all = [...groups.author, ...groups.coauthor, ...groups.editor];
   const roleOf = (id) =>
@@ -361,6 +388,8 @@ function renderAuthorHome(works) {
       el.textContent = String(value);
     });
   });
+  const pager = document.querySelector(".cabinet-pager");
+  if (pager) pager.hidden = !all.length;
   bindCabinetChrome();
 }
 
@@ -426,13 +455,50 @@ function renderAuthors(authors) {
     .join("");
 }
 
+function authorsFromWorks(works, seeded) {
+  const map = new Map();
+  (seeded || []).forEach((author) => {
+    const slug = author.slug || author.name;
+    if (slug) map.set(slug, { ...author, story_count: 0, works: 0 });
+  });
+  (works || []).forEach((work) => {
+    const slug = work.author_slug || work.author;
+    if (!slug) return;
+    const cur = map.get(slug) || {
+      name: work.author || slug,
+      display_name: work.author || slug,
+      slug,
+      story_count: 0,
+      works: 0,
+      followers: 0,
+      avatar: "",
+      updatedAt: work.updatedAt || work.publishedAt,
+    };
+    cur.story_count = (cur.story_count || 0) + 1;
+    cur.works = cur.story_count;
+    cur.updatedAt = work.updatedAt || work.publishedAt || cur.updatedAt;
+    map.set(slug, cur);
+  });
+  return [...map.values()].filter((author) => (author.story_count || author.works) > 0);
+}
+
 async function loadCatalog() {
   await loadFandomIndex();
+  if (window.FoxWorks) await FoxWorks.hydrate();
   try {
     const response = await fetch("works.json", { cache: "no-store" });
     if (!response.ok) throw new Error("catalog");
     const data = await response.json();
-    const works = withoutHiddenTags(Array.isArray(data.works) ? data.works : []);
+    const fileWorks = Array.isArray(data.works) ? data.works : [];
+    const apiWorks = window.FoxWorks ? FoxWorks.publicWorks || [] : [];
+    const userWorks = window.FoxWorks ? FoxWorks.load() : [];
+    const byId = new Map();
+    fileWorks.forEach((work) => byId.set(String(work.id), work));
+    apiWorks.forEach((work) => byId.set(String(work.id), work));
+    userWorks.forEach((work) => byId.set(String(work.id), work));
+    const merged = [...byId.values()];
+    const works = withoutHiddenTags(merged.filter((work) => (window.FoxWorks ? FoxWorks.isListed(work) : true)));
+    const authors = authorsFromWorks(works, Array.isArray(data.authors) ? data.authors : []);
     const popular = [...works].sort(
       (a, b) => workLikes(b) - workLikes(a) || (b.plays || 0) - (a.plays || 0)
     );
@@ -450,14 +516,14 @@ async function loadCatalog() {
       "Новые работы появятся здесь сразу после публикации."
     );
     renderFeatured(works);
-    renderAuthors(data.authors || []);
+    renderAuthors(authors);
     renderCatalogGrid(works);
-    renderAuthorsGrid(data.authors || []);
-    renderAuthorHome(Array.isArray(data.works) ? data.works : []);
-    renderProfileWorks(Array.isArray(data.works) ? data.works : []);
-    renderReaderFeeds(works, data.authors || []);
+    renderAuthorsGrid(authors);
+    renderAuthorHome(userWorks);
+    renderProfileWorks(works);
+    renderReaderFeeds(works, authors);
     window.__foxWorks = works;
-    window.__foxAuthors = data.authors || [];
+    window.__foxAuthors = authors;
   } catch (error) {
     renderFeed("popular", [], "Каталог пока не загрузился.");
     renderFeed("latest", [], "Каталог пока не загрузился.");
@@ -471,22 +537,14 @@ async function loadCatalog() {
   }
 }
 
-const LIBRARY_DEMO_AUTHORS = [
-  { display_name: "Северный ветер", slug: "north-wind", avatar: "assets/test/avatar-4.png", story_count: 12, followers: 1840, updatedAt: "2026-08-28T14:00:00" },
-  { display_name: "Чайная роза", slug: "tea-rose", avatar: "assets/test/avatar-5.png", story_count: 7, followers: 920, updatedAt: "2026-08-27T09:00:00" },
-  { display_name: "Архив снов", slug: "dream-archive", avatar: "assets/test/avatar-6.png", story_count: 3, followers: 410, updatedAt: "2026-08-26T18:00:00" },
-  { display_name: "Ржавый якорь", slug: "rusty-anchor", avatar: "assets/test/avatar-7.png", story_count: 9, followers: 1260, updatedAt: "2026-08-24T12:00:00" },
-  { display_name: "Мята и чернила", slug: "mint-ink", avatar: "assets/test/avatar-8.png", story_count: 4, followers: 540, updatedAt: "2026-08-22T16:00:00" },
-];
-
 function renderReaderFeeds(works, authors) {
   const lib = typeof loadReaderLibrary === "function" ? loadReaderLibrary() : { follows: [], read: [] };
   const byIds = (ids) => works.filter((work) => (ids || []).includes(work.id));
-  const followIds = lib.follows.length ? lib.follows : works.map((work) => work.id);
+  const followIds = lib.follows || [];
   if (document.querySelector('[data-feed="library-likes"]')) {
     renderFeed(
       "library-likes",
-      works.slice().sort((a, b) => workLikes(b) - workLikes(a)),
+      works.filter((work) => likedWorkIds(works).has(String(work.id))),
       "Понравившиеся истории появятся здесь."
     );
   }
@@ -535,10 +593,7 @@ function authorCardHTML(author) {
 function renderLibraryAuthors(authors) {
   const root = document.querySelector("[data-feed='library-authors']");
   if (!root) return;
-  const list = [...authors, ...LIBRARY_DEMO_AUTHORS].map((author, index) => ({
-    ...author,
-    updatedAt: author.updatedAt || `2026-08-${String(28 - (index % 8)).padStart(2, "0")}T12:00:00`,
-  }));
+  const list = [...authors];
   if (!list.length) {
     root.innerHTML = emptyHTML("Авторы, на которых вы подпишетесь, появятся здесь.");
     return;
@@ -799,7 +854,9 @@ function renderCatalogGrid(allWorks) {
       ? "Линейные истории появятся здесь после публикации."
       : type === "interactive" || typeFilter === "interactive"
         ? "Интерактивные работы появятся здесь после публикации."
-        : "Работы появятся здесь, как только авторы начнут публиковать.";
+        : type === "messenger" || typeFilter === "messenger"
+          ? "Истории в формате мессенджеров появятся здесь после публикации."
+          : "Работы появятся здесь, как только авторы начнут публиковать.";
   renderFeed("catalog", sortWorks(works, sort), empty);
 }
 

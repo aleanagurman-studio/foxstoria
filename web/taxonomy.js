@@ -363,6 +363,14 @@
     });
 
     renderChips();
+    root.taxSet = (slugs) => {
+      selected.clear();
+      (slugs || []).forEach((slug) => {
+        const item = items.find((it) => it.slug === slug);
+        if (item) selected.set(item.slug, item);
+      });
+      renderChips();
+    };
   }
 
   function mountPicker(root, items, options = {}) {
@@ -590,6 +598,19 @@
 
     renderChips();
     root.taxRefresh = () => renderMenu(search.value);
+    root.taxSet = (slugs, labels) => {
+      selected.clear();
+      (slugs || []).forEach((slug, index) => {
+        if (!slug) return;
+        const label = Array.isArray(labels) ? labels[index] : "";
+        let item = sourceItems().find((it) => it.slug === slug);
+        if (!item && options.resolvePreset) item = options.resolvePreset(slug, label);
+        if (!item) item = { slug, name: label || slug };
+        selected.set(item.slug, item);
+      });
+      renderChips();
+      renderMenu(search.value);
+    };
   }
 
   function mountChecklist(root, items) {
@@ -791,8 +812,138 @@
     });
     syncKinkFields();
     initSearchPairingBuilders();
+    initWorkPairingBuilder();
+    window.FoxTaxonomyReady = true;
     document.dispatchEvent(new CustomEvent("taxonomy:ready"));
   });
+
+  function chipNames(picker) {
+    if (!picker) return [];
+    return [...picker.querySelectorAll(".tax-chip")]
+      .map((chip) => chip.textContent.replace(/\s*×\s*$/, "").trim())
+      .filter(Boolean);
+  }
+
+  function initWorkPairingBuilder() {
+    const container = document.getElementById("work-pairings-builder");
+    const hidden = document.getElementById("work-pairings-value");
+    if (!container || !hidden || container.dataset.pairingBound === "1") return;
+    const listEl = container.querySelector(".pairing-list");
+    const leftSel = container.querySelector(".pairing-char-left");
+    const sepSel = container.querySelector(".pairing-sep");
+    const rightSel = container.querySelector(".pairing-char-right");
+    const addBtn = container.querySelector(".pairing-add");
+    if (!listEl || !leftSel || !sepSel || !rightSel || !addBtn) return;
+    container.dataset.pairingBound = "1";
+
+    const parseLine = typeof parsePairingLine === "function" ? parsePairingLine : () => null;
+
+    function loadPairings() {
+      return String(container.getAttribute("data-initial") || hidden.value || "")
+        .split(/\n|,/)
+        .map((line) => parseLine(line))
+        .filter(Boolean);
+    }
+
+    let pairings = loadPairings();
+
+    function workCharacters() {
+      return chipNames(document.querySelector('[data-tax-picker="characters"]'));
+    }
+
+    function formatPairing(pairing) {
+      if (pairing.mode === "equal") return `${pairing.left} | ${pairing.right}`;
+      return `${pairing.left}/${pairing.right}`;
+    }
+
+    function titleOf(pairing) {
+      if (typeof pairingTitle === "function") return pairingTitle(pairing);
+      return formatPairing(pairing);
+    }
+
+    function syncHidden() {
+      hidden.value = pairings.map(formatPairing).join("\n");
+    }
+
+    function updateAddButton() {
+      addBtn.disabled = !(leftSel.value && sepSel.value && rightSel.value);
+    }
+
+    function fillSelect(select, placeholder) {
+      const chars = workCharacters();
+      const prev = select.value;
+      select.innerHTML =
+        `<option value="">${escapeHtml(placeholder)}</option>` +
+        chars.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
+      select.value = chars.includes(prev) ? prev : "";
+    }
+
+    function refreshOptions() {
+      fillSelect(leftSel, "Первый");
+      fillSelect(rightSel, "Второй");
+      const chars = new Set(workCharacters());
+      if (chars.size) {
+        const next = pairings.filter((pairing) => chars.has(pairing.left) && chars.has(pairing.right));
+        if (next.length !== pairings.length) {
+          pairings = next;
+          renderList();
+          return;
+        }
+      }
+      updateAddButton();
+    }
+
+    function renderList() {
+      listEl.innerHTML = pairings
+        .map(
+          (pairing, index) =>
+            `<span class="pairing-chip" title="${escapeHtml(titleOf(pairing))}">${escapeHtml(formatPairing(pairing))}<button type="button" class="pairing-chip-remove" data-index="${index}" aria-label="Удалить пейринг">×</button></span>`
+        )
+        .join("");
+      syncHidden();
+      updateAddButton();
+    }
+
+    leftSel.addEventListener("change", updateAddButton);
+    sepSel.addEventListener("change", updateAddButton);
+    rightSel.addEventListener("change", updateAddButton);
+    addBtn.addEventListener("click", () => {
+      if (addBtn.disabled) return;
+      pairings.push({
+        left: leftSel.value,
+        right: rightSel.value,
+        mode: sepSel.value === "|" ? "equal" : "domsub",
+      });
+      leftSel.value = "";
+      sepSel.value = "";
+      rightSel.value = "";
+      renderList();
+    });
+    listEl.addEventListener("click", (event) => {
+      const btn = event.target.closest(".pairing-chip-remove");
+      if (!btn) return;
+      pairings.splice(Number(btn.getAttribute("data-index")), 1);
+      renderList();
+    });
+
+    const charPicker = document.querySelector('[data-tax-picker="characters"]');
+    charPicker?.querySelector('input[type="hidden"]')?.addEventListener("change", refreshOptions);
+    if (charPicker) {
+      const chips = charPicker.querySelector(".tax-chips");
+      if (chips && typeof MutationObserver === "function") {
+        new MutationObserver(refreshOptions).observe(chips, { childList: true, subtree: true });
+      }
+    }
+
+    container.reloadPairings = () => {
+      pairings = loadPairings();
+      renderList();
+      refreshOptions();
+    };
+
+    renderList();
+    refreshOptions();
+  }
 
   function initSearchPairingBuilders() {
     document.querySelectorAll("[data-search-pairings]").forEach((container) => {

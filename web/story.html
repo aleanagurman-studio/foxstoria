@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Работа — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=199">
+  <script src="site.js?v=85"></script>
+</head>
+<body>
+  <header class="header"></header>
+  <div class="work-page" id="work-page">
+    <nav class="crumbs">
+      <a href="index.html">Главная</a>
+      <span>›</span>
+      <a href="catalog.html">Каталог</a>
+      <span>›</span>
+      <span id="crumb-title">Работа</span>
+    </nav>
+    <section class="work-hero">
+      <div class="work-hero-side">
+        <div class="work-cover" id="work-cover">
+          <span class="cover-fallback"><img src="assets/deco/paw.svg" alt=""></span>
+        </div>
+        <div class="work-chapters-block">
+          <h2 class="work-chapters-title">Главы</h2>
+          <ol class="work-chapters-list story-nav" id="work-nav"></ol>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-main">
+          <div class="work-top">
+            <div class="work-top-main">
+              <div class="work-type-row">
+                <a href="catalog.html" class="work-tag-tile work-type-tile" id="work-type"></a>
+                <div class="work-actions-more">
+                  <button type="button" class="work-icon-btn" aria-label="Поделиться">
+                    <img src="assets/svg/share.svg" class="work-icon" alt="">
+                  </button>
+                  <button type="button" class="work-icon-btn" aria-label="Пожаловаться">
+                    <img src="assets/svg/флаг.svg" class="work-icon" alt="">
+                  </button>
+                </div>
+              </div>
+              <header class="work-head">
+                <div class="work-badges" id="work-badges"></div>
+                <h1 id="work-title">Без названия</h1>
+              </header>
+            </div>
+            <div class="work-actions">
+              <button type="button" class="work-icon-btn work-like-btn" id="work-like" aria-label="Нравится" aria-pressed="false" data-work-like>
+                <img src="assets/svg/heart.svg" class="work-icon work-like-icon" alt="">
+              </button>
+              <a href="catalog.html" class="work-btn work-btn-read" id="work-read"><img src="assets/svg/читать.svg" class="work-btn-icon" alt=""> Читать</a>
+              <div class="work-split-btn" id="work-follow-wrap" hidden>
+                <button type="button" class="work-split-btn-main"><img src="assets/svg/bookmark2.svg" class="work-btn-icon" alt=""> Подписаться</button>
+                <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Ещё действия">
+                  <svg class="work-icon" aria-hidden="true"><use href="icons.svg#i-chevron-down"></use></svg>
+                </button>
+                <div class="work-split-menu" hidden>
+                  <button type="button" data-work-pack>Добавить в сборник</button>
+                  <button type="button" data-work-read>Прочитано</button>
+                </div>
+              </div>
+              <a href="author-home.html" class="work-btn" id="work-studio" hidden>В кабинет</a>
+            </div>
+          </div>
+
+          <div class="work-people" id="work-people"></div>
+          <div class="work-tag-cloud" id="work-tags"></div>
+
+          <hr class="work-divider">
+
+          <div class="work-meta-row">
+            <div class="work-meta">
+              <div class="work-meta-item" id="work-fandoms-block">
+                <span class="work-meta-label">
+                  <img src="assets/svg/фандом.svg" class="work-meta-icon" alt="">
+                  Фэндом
+                </span>
+                <div class="work-meta-value work-meta-comma" id="work-fandoms"></div>
+              </div>
+              <div class="work-meta-item" id="work-cast-block">
+                <span class="work-meta-label">
+                  <img src="assets/svg/profile.svg" class="work-meta-icon" alt="">
+                  Пейринги и персонажи
+                </span>
+                <div class="work-meta-value work-meta-comma" id="work-cast"></div>
+              </div>
+              <div class="work-meta-item">
+                <span class="work-meta-label">
+                  <img src="assets/svg/размер.svg" class="work-meta-icon" alt="">
+                  Размер
+                </span>
+                <div class="work-meta-value work-meta-comma" id="work-size"></div>
+              </div>
+            </div>
+            <div class="work-structure-stats" aria-label="Статистика">
+              <h2 class="work-stats-title">Статистика</h2>
+              <div class="work-stat-cell">
+                <img src="assets/svg/eye.svg" class="work-stat-icon" alt="">
+                <span class="work-stat-value" id="stat-plays">0</span>
+                <span class="work-stat-label">просмотров</span>
+              </div>
+              <div class="work-stat-cell">
+                <img src="assets/svg/heart.svg" class="work-stat-icon" alt="">
+                <span class="work-stat-value" id="stat-likes">0</span>
+                <span class="work-stat-label">лайков</span>
+              </div>
+              <div class="work-stat-cell">
+                <img src="assets/svg/коммент.svg" class="work-stat-icon" alt="">
+                <span class="work-stat-value" id="stat-comments">0</span>
+                <span class="work-stat-label">комментариев</span>
+              </div>
+              <div class="work-stat-cell">
+                <img src="assets/deco/сборник.svg" class="work-stat-icon" alt="">
+                <span class="work-stat-value" id="stat-chapters">0</span>
+                <span class="work-stat-label">главы</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="work-text-blocks">
+            <section class="work-desc-block">
+              <h2>Описание <img src="assets/svg/leaf.svg" class="work-section-icon" alt=""></h2>
+              <p id="work-desc">Описание появится, когда автор его напишет.</p>
+            </section>
+            <section class="work-notes-block" id="work-notes-block" hidden>
+              <h2>Примечания автора <img src="assets/svg/3.svg" class="work-section-icon" alt=""></h2>
+              <p id="work-notes"></p>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="story.js?v=5"></script>
+</body>
+</html>

@@ -14,8 +14,20 @@ from app.models.account import (
     StoryCredit,
     StoryCreditRole,
     StoryLike,
+    ThreadKind,
     UserSettings,
     ViewHistory,
+)
+from app.models.activity import (
+    Bookmark,
+    BookmarkTarget,
+    CollectionFollow,
+    DailyCounter,
+    DeviceSession,
+    Notification,
+    NotificationKind,
+    ReadingProgress,
+    UserCounters,
 )
 from app.models.entities import (
     AgeRating,
@@ -31,10 +43,10 @@ from app.models.entities import (
     StoryStatus,
     StoryType,
     WorkFormat,
-    ContentWarning,
     WorkSize,
     work_size_for_chapters,
 )
+from app.models.social import Comment, CommentTarget, Review
 from app.models.studio import (
     AiJob,
     AiJobKind,
@@ -49,6 +61,7 @@ from app.models.studio import (
     TimelineEdge,
     TimelineEvent,
 )
+from app.models.wallet import LedgerEntry, LedgerKind, PaymentKind, PaymentMethod, Wallet
 
 __all__ = [
     "Block",
@@ -67,6 +80,7 @@ __all__ = [
     "StoryCredit",
     "StoryCreditRole",
     "StoryLike",
+    "ThreadKind",
     "UserSettings",
     "ViewHistory",
     "AgeRating",
@@ -96,4 +110,21 @@ __all__ = [
     "ContentWarning",
     "WorkSize",
     "work_size_for_chapters",
+    "Bookmark",
+    "BookmarkTarget",
+    "CollectionFollow",
+    "Comment",
+    "CommentTarget",
+    "DailyCounter",
+    "DeviceSession",
+    "LedgerEntry",
+    "LedgerKind",
+    "Notification",
+    "NotificationKind",
+    "PaymentKind",
+    "PaymentMethod",
+    "ReadingProgress",
+    "Review",
+    "UserCounters",
+    "Wallet",
 ]

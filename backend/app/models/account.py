@@ -117,7 +117,9 @@ class Collection(Base):
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"), index=True)
     title: Mapped[str] = mapped_column(String(256))
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    cover_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     is_public: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_pinned: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     items: Mapped[list["CollectionItem"]] = relationship(
@@ -170,11 +172,30 @@ class PollOption(Base):
     post: Mapped["ProfilePost"] = relationship(back_populates="options")
 
 
+class ThreadKind(str, enum.Enum):
+    DIRECT = "direct"
+    SYSTEM = "system"
+    SUPPORT = "support"
+
+
 class MessageThread(Base):
     __tablename__ = "message_threads"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[ThreadKind] = mapped_column(
+        Enum(ThreadKind, native_enum=False, values_callable=lambda items: [item.value for item in items]),
+        default=ThreadKind.DIRECT,
+        index=True,
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    participants: Mapped[list["MessageParticipant"]] = relationship(
+        back_populates="thread", cascade="all, delete-orphan"
+    )
+    messages: Mapped[list["DirectMessage"]] = relationship(
+        back_populates="thread", cascade="all, delete-orphan"
+    )
 
 
 class MessageParticipant(Base):
@@ -187,6 +208,10 @@ class MessageParticipant(Base):
     author_id: Mapped[int] = mapped_column(
         ForeignKey("authors.id", ondelete="CASCADE"), primary_key=True
     )
+    last_read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    thread: Mapped["MessageThread"] = relationship(back_populates="participants")
+    author: Mapped["Author"] = relationship(foreign_keys=[author_id])
 
 
 class DirectMessage(Base):
@@ -199,6 +224,9 @@ class DirectMessage(Base):
     sender_id: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"))
     body: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    thread: Mapped["MessageThread"] = relationship(back_populates="messages")
+    sender: Mapped["Author"] = relationship(foreign_keys=[sender_id])
 
 
 class Block(Base):
@@ -227,3 +255,11 @@ class UserSettings(Base):
     notify_story_updates: Mapped[bool] = mapped_column(Boolean, default=True)
     editor_autosave: Mapped[bool] = mapped_column(Boolean, default=True)
     editor_show_minimap: Mapped[bool] = mapped_column(Boolean, default=True)
+    privacy_messages: Mapped[str] = mapped_column(String(32), default="followers")
+    privacy_profile: Mapped[str] = mapped_column(String(32), default="all")
+    privacy_packs: Mapped[str] = mapped_column(String(32), default="public")
+    adult_blur: Mapped[bool] = mapped_column(Boolean, default=False)
+    download_auto_chapters: Mapped[bool] = mapped_column(Boolean, default=True)
+    download_wifi_only: Mapped[bool] = mapped_column(Boolean, default=True)
+    download_max_mb: Mapped[int] = mapped_column(Integer, default=2048)
+    prefs_json: Mapped[str | None] = mapped_column(Text, nullable=True)

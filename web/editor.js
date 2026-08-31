@@ -1,5 +1,21 @@
-(function editorApp() {
-  const STORE = "foxtoria-editor";
+(async function editorApp() {
+  if (window.FoxWorks) await FoxWorks.hydrate();
+  const workId = window.FoxWorks ? FoxWorks.idFromUrl() : new URLSearchParams(location.search).get("id") || "";
+  if (window.FoxWorks && workId && !FoxWorks.get(workId)) await FoxWorks.fetchOne(workId);
+  const work = window.FoxWorks && workId ? FoxWorks.get(workId) : null;
+  if (window.FoxWorks) {
+    if (!work) {
+      location.replace("author-home.html");
+      return;
+    }
+    FoxWorks.remember(work.id);
+    if (work.story_type === "linear" || work.story_type === "messenger") {
+      location.replace(FoxWorks.urls(work).editor);
+      return;
+    }
+    FoxWorks.seed(work);
+  }
+  const STORE = window.FoxWorks ? FoxWorks.mapStore(workId) : "foxtoria-editor";
   const CARD_W = FoxStoryMap.CARD_W;
   const CARD_H = FoxStoryMap.CARD_H;
   const HGAP = FoxStoryMap.HGAP;
@@ -79,24 +95,31 @@
   function loadStory() {
     try {
       const raw = localStorage.getItem(STORE);
-      if (!raw) return emptyStory();
-      const data = JSON.parse(raw);
-      if (!data.scenes || !data.scenes.length) return emptyStory();
-      if (window.FoxLibrary) {
-        const lib = FoxLibrary.load();
-        data.characters = lib.characters;
-        data.notes = lib.notes;
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.scenes && data.scenes.length) {
+          if (window.FoxLibrary) {
+            const lib = FoxLibrary.load();
+            data.characters = lib.characters;
+            data.notes = lib.notes;
+          }
+          data.characters = data.characters || [];
+          data.notes = data.notes || [];
+          if (work?.title) data.title = work.title;
+          return data;
+        }
       }
-      data.characters = data.characters || [];
-      data.notes = data.notes || [];
-      return data;
     } catch {
-      return emptyStory();
+      /* use empty draft */
     }
+    if (work && window.FoxWorks) return FoxWorks.emptyInteractive(work);
+    return emptyStory();
   }
 
   let story = loadStory();
   persist(true);
+  const studioLink = document.getElementById("studio-link");
+  if (studioLink && window.FoxWorks && work) studioLink.href = FoxWorks.urls(work).studio;
   let tool = "pan";
   let zoom = 1;
   let lastLayout = null;
@@ -275,6 +298,7 @@
     if (!force && foxPref("autosave") === false) return;
     try {
       localStorage.setItem(STORE, JSON.stringify(story));
+      if (window.FoxWorks) FoxWorks.pushContent(workId, story);
     } catch {
       /* quota */
     }
@@ -680,7 +704,7 @@
   }
 
   function render() {
-    $("story-title").textContent = (story.title || "").trim() || "Тени прошлого";
+    $("story-title").textContent = (story.title || "").trim() || "Без названия";
     const zoomLabel = $("zoom-label");
     if (zoomLabel) zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
     renderMap();

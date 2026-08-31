@@ -20,6 +20,7 @@ from app.database import Base
 class StoryType(str, enum.Enum):
     LINEAR = "linear"
     INTERACTIVE = "interactive"
+    MESSENGER = "messenger"
 
 
 class StoryStatus(str, enum.Enum):
@@ -42,6 +43,7 @@ class RomanceOrientation(str, enum.Enum):
     FEMSLASH = "femslash"  # F/F
     HET = "het"  # M/F
     GEN = "gen"  # no romance
+    MIXED = "mixed"
 
 
 class WorkSize(str, enum.Enum):
@@ -198,7 +200,9 @@ class Story(Base):
     slug: Mapped[str] = mapped_column(String(256), unique=True, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     author_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    cover_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    cover_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    card_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    content_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     story_type: Mapped[StoryType] = mapped_column(
         Enum(StoryType, native_enum=False), index=True
     )

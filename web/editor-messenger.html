@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Линейный редактор — FoxStoria</title>
+  <title>Редактор мессенджеров — FoxStoria</title>
   <link rel="icon" href="favicon.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=198">
+  <link rel="stylesheet" href="styles.css?v=199">
   <link rel="stylesheet" href="editor.css?v=44">
   <link rel="stylesheet" href="editor-linear.css?v=48">
+  <link rel="stylesheet" href="editor-messenger.css?v=1">
   <script src="site.js?v=84"></script>
 </head>
-<body class="editor-page editor-linear-page">
+<body class="editor-page editor-linear-page editor-messenger-page">
   <header class="editor-header">
     <button type="button" class="side-toggle" data-side-toggle aria-controls="side-panel" aria-expanded="false" aria-label="Оглавление">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -70,76 +71,20 @@
     </aside>
 
     <div class="editor-center linear-center">
-      <hr class="work-divider linear-rule" id="linear-toolbar-rule">
-      <div class="linear-toolbar" id="linear-toolbar">
-        <div class="linear-toolbar-group">
-          <button type="button" class="linear-tool-btn" id="undo-btn" title="Отменить" aria-label="Отменить">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-          </button>
-          <button type="button" class="linear-tool-btn" id="redo-btn" title="Вернуть" aria-label="Вернуть">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
-          </button>
-          <div class="toolbar-divider"></div>
-          <button type="button" class="linear-tool-btn" data-cmd="bold" title="Жирный"><strong>Ж</strong></button>
-          <button type="button" class="linear-tool-btn" data-cmd="italic" title="Курсив"><em>К</em></button>
-          <button type="button" class="linear-tool-btn" data-cmd="underline" title="Подчёркнутый"><span class="linear-underline">Ч</span></button>
-          <button type="button" class="linear-tool-btn linear-tool-strike" data-cmd="strikeThrough" title="Зачёркнутый">З</button>
-          <div class="toolbar-divider"></div>
-          <button type="button" class="linear-tool-btn" data-cmd="justifyLeft" title="По левому краю" aria-label="По левому краю">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
-          </button>
-          <button type="button" class="linear-tool-btn" data-cmd="justifyCenter" title="По центру" aria-label="По центру">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M7 12h10M4 18h16"/></svg>
-          </button>
-          <button type="button" class="linear-tool-btn" data-cmd="justifyRight" title="По правому краю" aria-label="По правому краю">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M10 12h10M4 18h16"/></svg>
-          </button>
-          <button type="button" class="linear-tool-btn" data-cmd="justifyFull" title="По ширине" aria-label="По ширине">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
-          <div class="toolbar-divider"></div>
-          <button type="button" class="linear-tool-btn" id="insert-break" title="Разделитель" aria-label="Разделитель">
-            <img src="assets/deco/разделитель.svg?v=2" alt="">
-          </button>
-          <button type="button" class="linear-tool-btn" id="insert-image" title="Картинка" aria-label="Картинка">
-            <img src="assets/deco/картинка.svg" alt="">
-          </button>
-          <button type="button" class="linear-tool-btn" id="insert-note" title="Сноска" aria-label="Сноска">
-            <img src="assets/deco/сноска.svg" alt="">
-          </button>
-          <input type="file" id="image-file" accept="image/*" hidden>
-        </div>
-        <span class="linear-wordcount" id="word-count">0 слов</span>
-      </div>
-      <hr class="work-divider linear-rule" id="linear-sheet-rule">
-
-      <div class="linear-editor-wrap" id="edit-surface">
-        <div class="linear-sheet">
-          <h2 class="linear-sheet-title" id="sheet-title" contenteditable="true" spellcheck="true" data-placeholder="Название главы"></h2>
-          <div class="linear-read-ornament" aria-hidden="true">
-            <img src="assets/deco/перо1.svg" alt="">
+      <div class="messenger-editor-wrap" id="edit-surface">
+        <div class="messenger-sheet">
+          <h2 class="messenger-sheet-title" id="sheet-title" contenteditable="true" spellcheck="true" data-placeholder="Название главы"></h2>
+          <p class="messenger-hint">В главу можно добавить от 1 до 15 скриншотов. Читатель листает их касанием краёв картинки.</p>
+          <div class="messenger-slots" id="image-slots"></div>
+          <div class="messenger-add-row">
+            <button type="button" class="btn btn-outline" id="add-images-btn">Добавить картинки</button>
+            <span class="messenger-count" id="image-count">0 / 15</span>
+            <input type="file" id="image-file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
           </div>
-          <div
-            class="linear-editor"
-            id="chapter-editor"
-            contenteditable="true"
-            spellcheck="true"
-            data-placeholder="Начните писать главу. Картинку можно вставить в любое место — курсор остаётся там, где вы печатаете."
-          ></div>
         </div>
       </div>
-      <hr class="work-divider linear-rule" id="linear-bar-rule">
 
       <div class="linear-chapter-bar" id="linear-chapter-bar">
-        <div class="linear-cover-row">
-          <div class="chapter-cover-thumb" id="cover-preview" hidden>
-            <img alt="">
-          </div>
-          <button type="button" class="btn btn-outline" id="cover-upload-btn">Добавить обложку</button>
-          <p class="linear-cover-hint">Широкая, 16:5 · от 1600×500 px · JPG, PNG или WebP</p>
-          <button type="button" class="btn btn-ghost" id="cover-remove-btn" hidden>Убрать</button>
-          <input type="file" id="cover-file" accept="image/jpeg,image/png,image/webp" hidden>
-        </div>
         <div class="linear-chapter-actions">
           <label class="linear-ending">
             <input type="checkbox" id="chapter-ending">
@@ -149,15 +94,18 @@
         </div>
       </div>
 
-      <article class="linear-preview" id="preview" hidden>
-        <div class="linear-read-hero linear-preview-hero" id="preview-hero"></div>
+      <article class="linear-preview messenger-preview" id="preview" hidden>
         <div class="linear-read-body linear-preview-inner">
           <h1 class="linear-read-title" id="preview-title"></h1>
-          <div class="linear-read-ornament" aria-hidden="true">
-            <img src="assets/deco/перо1.svg" alt="">
+          <div class="messenger-gallery" id="preview-gallery">
+            <div class="messenger-gallery-frame" id="preview-frame">
+              <img id="preview-image" alt="">
+              <button type="button" class="messenger-hit messenger-hit--left" id="preview-img-prev" aria-label="Предыдущая картинка"></button>
+              <button type="button" class="messenger-hit messenger-hit--right" id="preview-img-next" aria-label="Следующая картинка"></button>
+            </div>
+            <p class="messenger-gallery-empty" id="preview-empty" hidden>В этой главе пока нет картинок.</p>
           </div>
-          <div class="linear-read-text linear-preview-body" id="preview-body"></div>
-          <nav class="linear-chap-nav">
+          <nav class="linear-chap-nav messenger-chap-nav">
             <button type="button" class="linear-chap-btn" id="preview-prev">
               <img src="assets/svg/left.svg" alt="">
               <span>
@@ -165,6 +113,7 @@
                 <small id="preview-prev-name"></small>
               </span>
             </button>
+            <span class="messenger-slide-count" id="preview-count">1/1</span>
             <button type="button" class="linear-chap-btn linear-chap-btn--next" id="preview-next">
               <span>
                 <b>Следующая</b>
@@ -218,11 +167,6 @@
     </form>
   </div>
 
-  <div class="linear-fn-pop" id="fn-pop" hidden>
-    <textarea id="fn-text" rows="3" placeholder="Текст сноски"></textarea>
-    <button type="button" class="btn btn-primary" id="fn-done">Готово</button>
-  </div>
-
-  <script src="editor-linear.js?v=22"></script>
+  <script src="editor-messenger.js?v=1"></script>
 </body>
 </html>

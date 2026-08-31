@@ -65,10 +65,32 @@
       </article>`;
   }
 
-  function render() {
+  async function render() {
     const mineRoot = document.querySelector('[data-pack-feed="mine"]');
     const subRoot = document.querySelector('[data-pack-feed="subs"]');
-    if (mineRoot) mineRoot.innerHTML = MINE.map((pack) => cardHTML(pack, true)).join("");
+    let mine = MINE;
+    try {
+      if (window.FoxStore) await FoxStore.hydrate();
+      if (window.FoxApi) {
+        const data = await FoxApi.request("/api/collections");
+        if (Array.isArray(data.collections) && data.collections.length) {
+          mine = data.collections.map((pack) => ({
+            id: pack.id,
+            title: pack.title,
+            cover: pack.cover || "",
+            private: pack.private,
+            pinned: pack.pinned,
+            works: pack.works || 0,
+            updated: "",
+            updatedAt: "",
+            following: false,
+          }));
+        }
+      }
+    } catch {
+      /* local mock */
+    }
+    if (mineRoot) mineRoot.innerHTML = mine.map((pack) => cardHTML(pack, true)).join("");
     if (subRoot) subRoot.innerHTML = SUBS.map((pack) => cardHTML(pack, false)).join("");
     if (typeof hydrateUiIcons === "function") {
       hydrateUiIcons(document.querySelector(".collections-page"));

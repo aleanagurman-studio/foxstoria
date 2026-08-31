@@ -1,4 +1,4 @@
-(function studioCabinet() {
+(async function studioCabinet() {
   const views = document.querySelectorAll(".studio-view");
   const navButtons = document.querySelectorAll(".studio-nav [data-view]");
   const typeSelects = () => [...document.querySelectorAll("[data-story-type]")];
@@ -13,6 +13,18 @@
   const chronoHelpInteractive = document.getElementById("chrono-help-interactive");
 
   const workId = new URLSearchParams(location.search).get("id") || "";
+  if (!workId) {
+    location.replace("work-new.html");
+    return;
+  }
+  if (window.FoxWorks) {
+    await FoxWorks.hydrate();
+    if (!FoxWorks.get(workId)) await FoxWorks.fetchOne(workId);
+    if (!FoxWorks.get(workId)) {
+      location.replace("author-home.html");
+      return;
+    }
+  }
 
   const WORK_STATUS_LABELS = {
     draft: "Черновик",
@@ -28,14 +40,15 @@
     if (badge) badge.textContent = WORK_STATUS_LABELS[status];
   }
 
+  if (workId && window.FoxWorks) FoxWorks.remember(workId);
   if (workId && window.FoxWorkStatus) {
     applyWorkStatus(FoxWorkStatus.get(workId));
   }
 
   document.getElementById("work-status")?.addEventListener("change", (event) => {
     const status = event.target.value;
-    const key = workId || (storyTypeValue() === "linear" ? "letters" : "shadows");
-    if (window.FoxWorkStatus) FoxWorkStatus.set(key, status);
+    const key = workId;
+    if (window.FoxWorkStatus && key) FoxWorkStatus.set(key, status);
     applyWorkStatus(status);
   });
 
@@ -51,49 +64,51 @@
     charModalApi.close();
   }
 
-  function applyStoryType(isLinear) {
-    const page = isLinear ? "editor-linear.html" : "editor.html";
-    const editorHref = workId ? `${page}?id=${encodeURIComponent(workId)}` : page;
+  function applyStoryType(typeValue) {
+    const type = window.FoxWorks ? FoxWorks.normalizeStoryType(typeValue) : typeValue === "linear" || typeValue === "messenger" ? typeValue : "interactive";
+    const chapterBased = type === "linear" || type === "messenger";
+    const urls = window.FoxWorks ? FoxWorks.urls({ id: workId, story_type: type }) : null;
+    const editorHref = urls ? urls.editor : type === "linear" ? "editor-linear.html" : type === "messenger" ? "editor-messenger.html" : "editor.html";
     if (continueBtn) continueBtn.href = editorHref;
     document.querySelectorAll(".work-chapter-title, .work-chapter-edit").forEach((link) => {
       link.href = editorHref;
     });
     document.querySelectorAll(".review-chapter").forEach((link) => {
       const ch = link.getAttribute("data-chapter") || "";
-      const readPage = isLinear ? "read-linear.html" : "read-interactive.html";
-      const readHref = workId ? `${readPage}?id=${encodeURIComponent(workId)}` : readPage;
+      const readHref = urls ? urls.read : type === "linear" ? "read-linear.html" : type === "messenger" ? "read-messenger.html" : "read-interactive.html";
       link.href = ch ? `${readHref}${readHref.includes("?") ? "&" : "?"}chapter=${encodeURIComponent(ch)}` : readHref;
     });
     if (resumePlace) {
-      resumePlace.textContent = isLinear ? "Глава 2 · Ветки" : "Глава 2 · Сцена 4 · Перекрёсток";
+      resumePlace.textContent =
+        type === "linear" ? "Глава 2 · Ветки" : type === "messenger" ? "Глава 1 · скрин 1" : "Глава 2 · Сцена 4 · Перекрёсток";
     }
     const scenes = document.querySelector("[data-studio-scenes]");
-    if (scenes) scenes.hidden = isLinear;
+    if (scenes) scenes.hidden = chapterBased;
     document.querySelectorAll(".work-chapter-scenes").forEach((el) => {
-      el.hidden = isLinear;
+      el.hidden = chapterBased;
     });
-    if (interactive) interactive.hidden = isLinear;
-    if (linear) linear.hidden = !isLinear;
+    if (interactive) interactive.hidden = chapterBased;
+    if (linear) linear.hidden = !chapterBased;
     addChronoBars.forEach((bar) => {
       const caret = bar.querySelector(".chrono-add-caret");
       const menu = bar.querySelector(".chrono-add-menu");
       if (caret) {
-        caret.hidden = isLinear;
+        caret.hidden = chapterBased;
         caret.setAttribute("aria-expanded", "false");
       }
       if (menu) menu.hidden = true;
       bar.classList.remove("is-open");
     });
-    if (chronoHelp) chronoHelp.hidden = !isLinear;
-    if (chronoHelpInteractive) chronoHelpInteractive.hidden = isLinear;
+    if (chronoHelp) chronoHelp.hidden = !chapterBased;
+    if (chronoHelpInteractive) chronoHelpInteractive.hidden = chapterBased;
     if (timelineLead) {
-      timelineLead.hidden = isLinear;
-      if (!isLinear) {
+      timelineLead.hidden = chapterBased;
+      if (type === "interactive") {
         timelineLead.textContent = "Интерактивная история — это история с выбором. Выстраивайте события и развилки, чтобы видеть все возможные пути.";
       }
     }
     if (publicPage) {
-      publicPage.href = isLinear ? "story-linear.html" : "story-interactive.html";
+      publicPage.href = urls ? urls.public : "story.html";
     }
   }
 
@@ -110,53 +125,91 @@
   }
 
   function setStoryType(value) {
-    const next = value === "linear" ? "linear" : "interactive";
+    const next = window.FoxWorks ? FoxWorks.normalizeStoryType(value) : value === "linear" || value === "messenger" ? value : "interactive";
     typeSelects().forEach((el) => {
       el.value = next;
     });
-    applyStoryType(next === "linear");
+    applyStoryType(next);
   }
 
   document.addEventListener("change", (event) => {
     if (event.target.matches?.("[data-story-type]")) setStoryType(event.target.value);
   });
 
-  applyStoryType(storyTypeValue() === "linear");
+  applyStoryType(storyTypeValue());
   showView("work");
 
   fetch("works.json", { cache: "no-store" })
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
       initUserPickers(data);
-      if (!workId || !data) return;
-      const work = (data.works || []).find((item) => item.id === workId);
+      const work = (window.FoxWorks && FoxWorks.get(workId)) || (data?.works || []).find((item) => item.id === workId);
       if (!work) return;
-      const titleEl = document.querySelector(".work-dash-title h2");
-      if (titleEl) titleEl.textContent = work.title;
-      document.querySelectorAll("[data-work-cover]").forEach((img) => {
-        if (work.cover) img.src = work.cover;
-      });
-      const titleInput = document.getElementById("work-title");
-      if (titleInput) titleInput.value = work.title;
-      const desc = document.getElementById("work-desc");
-      if (desc && work.description) desc.value = work.description;
-      setStoryType(work.story_type === "linear" ? "linear" : "interactive");
-      const storedStatus = window.FoxWorkStatus ? FoxWorkStatus.get(work.id) : "";
-      applyWorkStatus(storedStatus || (work.is_completed ? "completed" : ""));
-      const idLine = document.querySelector(".work-dash-id");
-      if (idLine) idLine.textContent = `ID: #${work.id}`;
-      applyStoryType(work.story_type === "linear");
-      if (publicPage && work.href) publicPage.href = work.href;
-      document.title = `${work.title} — кабинет — FoxStoria`;
+      fillStudioWork(work);
     })
     .catch(() => {
       initUserPickers(null);
+      const work = window.FoxWorks && FoxWorks.get(workId);
+      if (work) fillStudioWork(work);
     });
+
+  function fillStudioWork(work) {
+    const titleEl = document.querySelector(".work-dash-title h2");
+    if (titleEl) titleEl.textContent = work.title || "Без названия";
+    document.querySelectorAll("[data-work-cover]").forEach((img) => {
+      if (work.cover) img.src = work.cover;
+    });
+    const titleInput = document.getElementById("work-title");
+    if (titleInput) titleInput.value = work.title || "";
+    const desc = document.getElementById("work-desc");
+    if (desc) desc.value = work.description || "";
+    const notes = document.getElementById("work-notes");
+    if (notes) notes.value = work.author_notes || "";
+    setStoryType(work.story_type);
+    const storedStatus = window.FoxWorkStatus ? FoxWorkStatus.get(work.id) : "";
+    applyWorkStatus(storedStatus || work.status || (work.is_completed ? "completed" : "draft"));
+    const idLine = document.querySelector(".work-dash-id");
+    if (idLine) idLine.textContent = `ID: #${work.id}`;
+    applyStoryType(work.story_type);
+    if (publicPage) publicPage.href = window.FoxWorks ? FoxWorks.urls(work).public : work.href || publicPage.href;
+    document.title = `${work.title || "История"} — кабинет — FoxStoria`;
+    const romance = document.getElementById("work-romance");
+    if (romance && work.romance) romance.value = work.romance;
+    if (work.age) {
+      const age = document.querySelector(`[name="age"][value="${work.age}"]`);
+      if (age) age.checked = true;
+    }
+    const updated = document.querySelector(".work-dash-updated");
+    if (updated && work.updatedAt) {
+      const date = new Date(work.updatedAt);
+      if (!Number.isNaN(date.getTime())) updated.textContent = date.toLocaleString("ru-RU");
+    }
+    const pairHidden = document.getElementById("work-pairings-value");
+    if (pairHidden) pairHidden.value = work.pairings || "";
+    const applyPickers = () => {
+      document.querySelector('[data-tax-picker="genres"]')?.taxSet?.(work.genres);
+      document.querySelector('[data-tax-picker="formats"]')?.taxSet?.(work.formats);
+      document.querySelector('[data-tax-picker="warnings"]')?.taxSet?.(work.warnings);
+      document.querySelector('[data-tax-picker="kinks"]')?.taxSet?.(work.kinks);
+      document.querySelector('[data-tax-picker="fandoms"]')?.taxSet?.(work.fandoms);
+      document.querySelector('[data-tax-picker="characters"]')?.taxSet?.(work.characters, work.character_names);
+      document.getElementById("work-pairings-builder")?.reloadPairings?.();
+    };
+    applyPickers();
+    document.addEventListener("taxonomy:ready", applyPickers, { once: true });
+  }
 
   const form = document.getElementById("work-card-form");
 
-  form?.addEventListener("submit", (event) => {
+  form?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!window.FoxWorks) return;
+    const existing = FoxWorks.get(workId) || { id: workId };
+    const preview = document.getElementById("work-cover-preview");
+    if (preview?.src && preview.src.startsWith("data:")) existing.cover = preview.src;
+    const work = FoxWorks.fromForm(form, existing);
+    const saved = await FoxWorks.upsert(work);
+    fillStudioWork(saved);
   });
 
   function escapeHtml(value) {
@@ -168,13 +221,7 @@
   }
 
   function initUserPickers(data) {
-    const extraUsers = [
-      { name: "Алиса", display_name: "Алиса", slug: "alisa", avatar: "assets/test/avatar-4.png" },
-      { name: "Никита", display_name: "Никита", slug: "nikita-reads", avatar: "assets/test/avatar-5.png" },
-      { name: "Мара", display_name: "Мара", slug: "mara", avatar: "assets/test/avatar-6.png" },
-      { name: "Север", display_name: "Север", slug: "sever", avatar: "assets/test/avatar-7.png" },
-      { name: "Ирис", display_name: "Ирис", slug: "iris", avatar: "assets/test/avatar-8.png" },
-    ];
+    const extraUsers = [];
     const selfKeys = new Set(["лунный странник", "moonwander"]);
     const seen = new Set();
     const users = [...(data?.authors || []), ...extraUsers].filter((user) => {
@@ -401,21 +448,12 @@
     return { refreshOptions };
   }
 
-  const pairingBuilder = document.getElementById("work-pairings-builder");
-  if (pairingBuilder) {
-    document.addEventListener(
-      "taxonomy:ready",
-      () => {
-        initPairingBuilder(pairingBuilder);
-      },
-      { once: true }
-    );
-  }
-
   const CHAPTER_GRIP = `<button type="button" class="work-chapter-grip" aria-label="Перетащить главу"><svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><circle cx="2" cy="2" r="1.4"/><circle cx="8" cy="2" r="1.4"/><circle cx="2" cy="8" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="2" cy="14" r="1.4"/><circle cx="8" cy="14" r="1.4"/></svg></button>`;
 
   function editorHref() {
-    const editorPage = storyTypeValue() === "linear" ? "editor-linear.html" : "editor.html";
+    if (window.FoxWorks) return FoxWorks.urls({ id: workId, story_type: storyTypeValue() }).editor;
+    const type = storyTypeValue();
+    const editorPage = type === "linear" ? "editor-linear.html" : type === "messenger" ? "editor-messenger.html" : "editor.html";
     return workId ? `${editorPage}?id=${encodeURIComponent(workId)}` : editorPage;
   }
 
@@ -1339,19 +1377,17 @@
   });
   applyReviewSort();
 
-  const COVER_KEY = "foxtoria-work-cover";
-  const DEFAULT_COVER = "assets/test/cover-1.png";
+  const COVER_PLACEHOLDER = "assets/deco/paw.svg";
 
   function applyCover(src) {
     document.querySelectorAll("[data-work-cover]").forEach((img) => {
-      img.src = src;
+      img.src = src || COVER_PLACEHOLDER;
     });
-  }
-
-  try {
-    applyCover(localStorage.getItem(COVER_KEY) || DEFAULT_COVER);
-  } catch {
-    applyCover(DEFAULT_COVER);
+    const existing = window.FoxWorks && workId ? FoxWorks.get(workId) : null;
+    if (existing && src && src !== COVER_PLACEHOLDER) {
+      existing.cover = src;
+      FoxWorks.upsert(existing);
+    }
   }
 
   document.getElementById("work-cover-input")?.addEventListener("change", (event) => {
@@ -1360,11 +1396,6 @@
     const reader = new FileReader();
     reader.onload = () => {
       const data = String(reader.result || "");
-      try {
-        localStorage.setItem(COVER_KEY, data);
-      } catch {
-        /* ignore quota */
-      }
       applyCover(data);
     };
     reader.readAsDataURL(file);

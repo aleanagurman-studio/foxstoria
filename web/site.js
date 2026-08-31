@@ -66,6 +66,15 @@ function ownerHandle() {
   }
 }
 
+function ownerDisplayName() {
+  try {
+    const raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
+    return String(raw.name || "").trim() || "Вы";
+  } catch {
+    return "Вы";
+  }
+}
+
 function ownerAvatarSrc() {
   try {
     const raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
@@ -405,7 +414,7 @@ function headerMarkup() {
             <a href="profile.html"${ddOn("profile.html")}><img src="assets/svg/profile.svg" alt=""> Мой профиль</a>
             <a href="replies.html"${ddOn("replies.html")}><img src="assets/deco/heartcomm.svg" alt=""> Обсуждения</a>
             <span class="dd-sep"></span>
-            <a href="studio.html"${ddOn("studio.html")}><img src="assets/deco/plus.svg" alt=""> Новая история</a>
+            <a href="work-new.html"${ddOn("work-new.html")}><img src="assets/deco/plus.svg" alt=""> Новая история</a>
             <a href="author-home.html"${ddOn("author-home.html")}><img src="assets/svg/читать.svg" alt=""> Мои истории</a>
             <a href="reviews.html"${ddOn("reviews.html")}><img src="assets/svg/коммент.svg" alt=""> Отзывы</a>
             <a href="changes.html"${ddOn("changes.html")}><img src="assets/deco/календарь.svg" alt=""> Изменения</a>
@@ -798,11 +807,6 @@ document.addEventListener("DOMContentLoaded", function publicProfile() {
   if (handleEl) handleEl.textContent = `@${handle}`;
   const bio = document.querySelector(".profile-bio");
   if (bio) bio.textContent = "Публичный профиль появится вместе с аккаунтами.";
-  const links = document.getElementById("profile-links");
-  if (links) {
-    links.innerHTML = "";
-    links.hidden = true;
-  }
   document.title = `${display} — профиль — FoxStoria`;
   const subnav = document.querySelector(".account-subnav");
   if (subnav) subnav.hidden = true;
@@ -811,6 +815,10 @@ document.addEventListener("DOMContentLoaded", function publicProfile() {
 
 document.addEventListener("DOMContentLoaded", function messagesPage() {
   if (currentPage() !== "messages.html") return;
+  const boot = window.FoxMessagesReady || Promise.resolve();
+  boot.then(initMessagesPage).catch(() => initMessagesPage());
+
+  function initMessagesPage() {
   const list = document.querySelector(".msg-list");
   if (!list) return;
 
@@ -1242,6 +1250,20 @@ document.addEventListener("DOMContentLoaded", function messagesPage() {
       const text = (field?.value || "").trim();
       if (!text && !pending.length) return;
       const thread = form.closest(".msg-thread");
+      const threadId = thread?.getAttribute("data-thread");
+      const kind = thread?.getAttribute("data-kind") || "";
+      if (kind === "system" && text && threadId && window.FoxApi) {
+        if (field) field.value = "";
+        FoxApi.request(`/api/messages/threads/${encodeURIComponent(threadId)}`, {
+          method: "POST",
+          body: JSON.stringify({ body: text }),
+        })
+          .then(() => {
+            location.search = `?thread=${encodeURIComponent(threadId)}`;
+          })
+          .catch((err) => alert(err.message || "Рассылка не прошла"));
+        return;
+      }
       const log = thread?.querySelector(".msg-thread-log");
       const now = new Date();
       const stamp = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
@@ -1281,8 +1303,15 @@ document.addEventListener("DOMContentLoaded", function messagesPage() {
       const timeEl = list.querySelector(`.msg-item[data-thread="${thread?.getAttribute("data-thread")}"] time`);
       if (preview) preview.textContent = msgPreviewLabel(text, sent);
       if (timeEl) timeEl.textContent = stamp;
+      if (text && threadId && /^\d+$/.test(threadId) && window.FoxApi) {
+        FoxApi.request(`/api/messages/threads/${encodeURIComponent(threadId)}`, {
+          method: "POST",
+          body: JSON.stringify({ body: text }),
+        }).catch(() => {});
+      }
     });
   });
+  }
 });
 
 document.addEventListener("DOMContentLoaded", function accountTabs() {
@@ -1427,6 +1456,90 @@ function loadReaderLibrary() {
 function saveReaderLibrary(data) {
   localStorage.setItem(READER_KEY, JSON.stringify(data));
 }
+
+window.FoxStore = {
+  _p: null,
+  hydrate() {
+    if (this._p) return this._p;
+    this._p = this._run();
+    return this._p;
+  },
+  async _run() {
+    if (!window.FoxApi) return null;
+    try {
+      const state = await FoxApi.request("/api/me/state");
+      if (state.profile) {
+        let prev = {};
+        try {
+          prev = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
+        } catch {
+          prev = {};
+        }
+        localStorage.setItem(
+          "foxtoria-profile",
+          JSON.stringify({
+            ...prev,
+            name: state.profile.display_name || prev.name,
+            handle: state.profile.username || prev.handle,
+            avatar: state.profile.avatar || prev.avatar || "",
+            bio: state.profile.bio || prev.bio || "",
+            links: state.profile.links || prev.links || [],
+          })
+        );
+      }
+      if (state.library) {
+        const followIds = (state.library.follows || [])
+          .map((item) => (item && item.story_id != null ? String(item.story_id) : ""))
+          .filter(Boolean);
+        saveReaderLibrary({
+          follows: followIds,
+          read: (state.library.read || []).map((item) => String(item.story_id || item)),
+          likes: state.library.likes || [],
+          packs: (state.collections || []).map((pack) => ({
+            id: pack.id,
+            title: pack.title,
+            works: pack.works || [],
+          })),
+        });
+      }
+      if (state.wallet) {
+        localStorage.setItem(
+          "foxtoria-wallet",
+          JSON.stringify({
+            balance: state.wallet.balance,
+            methods: state.wallet.methods,
+            ops: state.wallet.ops,
+          })
+        );
+      }
+      return state;
+    } catch {
+      return null;
+    }
+  },
+  like(storyId, on) {
+    if (!window.FoxApi) return;
+    FoxApi.request("/api/me/library/like", {
+      method: "POST",
+      body: JSON.stringify({ story_id: storyId, on }),
+    }).catch(() => {});
+  },
+  follow(storyId, on) {
+    if (!window.FoxApi) return;
+    FoxApi.request("/api/me/library/follow", {
+      method: "POST",
+      body: JSON.stringify({ type: "story", story_id: storyId, on }),
+    }).catch(() => {});
+  },
+  progress(payload) {
+    if (!window.FoxApi) return;
+    FoxApi.request("/api/me/library/progress", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  },
+};
+FoxStore.hydrate();
 
 function toggleReaderList(list, id, on) {
   const next = list.filter((item) => item !== id);
@@ -1583,6 +1696,7 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       const on = !lib.follows.includes(workId);
       lib.follows = toggleReaderList(lib.follows, workId, on);
       saveReaderLibrary(lib);
+      if (window.FoxStore) FoxStore.follow(workId, on);
       paint();
     });
 
@@ -1597,6 +1711,7 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       const on = !lib.read.includes(workId);
       lib.read = toggleReaderList(lib.read, workId, on);
       saveReaderLibrary(lib);
+      if (window.FoxStore) FoxStore.progress({ story_id: workId, completed: on });
       paint();
       close();
     });
@@ -1626,6 +1741,7 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
         const lib = loadReaderLibrary();
         lib.likes = toggleReaderList(lib.likes, workId, liked);
         saveReaderLibrary(lib);
+        if (window.FoxStore) FoxStore.like(workId, liked);
       }
     }
 
@@ -1730,6 +1846,487 @@ window.FoxLibrary = {
 };
 
 const FOX_WORK_STATUS_KEY = "foxtoria-work-status";
+
+const FOX_WORKS_KEY = "foxtoria-user-works";
+
+window.FoxApi = {
+  base() {
+    const custom = String(window.FOXSTORIA_API || localStorage.getItem("foxtoria-api") || "").replace(/\/$/, "");
+    if (custom) return custom;
+    if (location.protocol === "http:" && location.port === "8000") return location.origin;
+    return "http://127.0.0.1:8000";
+  },
+  headers() {
+    return {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-Fox-Author": encodeURIComponent(ownerHandle()),
+      "X-Fox-Name": encodeURIComponent(ownerDisplayName()),
+    };
+  },
+  async request(path, options) {
+    const response = await fetch(`${this.base()}${path}`, {
+      ...options,
+      headers: { ...this.headers(), ...(options?.headers || {}) },
+    });
+    if (response.status === 204) return null;
+    const text = await response.text();
+    let data = null;
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { detail: text.slice(0, 200) };
+      }
+    }
+    if (!response.ok) {
+      const detail = data?.detail || response.statusText;
+      throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+    }
+    return data;
+  },
+};
+
+window.FoxWorks = {
+  KEY: FOX_WORKS_KEY,
+  publicWorks: [],
+  _hydrate: null,
+  load() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(FOX_WORKS_KEY) || "[]");
+      if (!Array.isArray(parsed)) return [];
+      const dest = {
+        formats: new Set([
+          "povestvovanie-ot-pervogo-litsa",
+          "propuschennaya-stsena",
+          "zanavesochnaya-istoriya",
+          "nelinejnoe-povestvovanie",
+          "sbornik-drabblov",
+          "atmosfernaya-zarisovka",
+          "lapslok",
+          "povestvovanie-ot-neskolkih-lits",
+          "character-study",
+          "povestvovanie-v-nastoyaschem-vremeni",
+          "nenadezhnyj-rasskazchik",
+          "netoroplivoe-povestvovanie",
+          "povestvovanie-vo-vtorom-litse",
+          "povestvovanie-ot-tretego-litsa",
+          "mikrofikshen",
+          "novellizatsiya",
+          "tajmskip",
+          "pwp",
+          "seks-v-poslednej-glave",
+          "drabbl",
+          "eksperiment",
+          "sbornik-mini",
+          "novella",
+        ]),
+        warnings: new Set([
+          "otkrytyj-final",
+          "neschastlivyj-final",
+          "nameki-na-seks",
+          "poshlyj-yumor",
+          "upominaniya-seksa",
+          "prostitutsiya",
+          "seks-so-smertelnym-ishodom",
+          "seks-industriya",
+          "seks-s-ispolzovaniem-odurmanivayuschih-veschestv",
+        ]),
+        genres: new Set([
+          "omegavers",
+          "ust",
+          "muzhskaya-beremennost",
+          "rst",
+          "druzya-s-privilegiyami",
+          "seks-bez-obyazatelstv",
+          "ot-seksualnyh-partnerov-k-vozlyublennym",
+          "gnezdovanie",
+          "vragi-s-privilegiyami",
+          "ot-vragov-k-seksualnym-partn-ram",
+        ]),
+      };
+      const targetOf = (slug) => {
+        if (dest.formats.has(slug)) return "formats";
+        if (dest.warnings.has(slug)) return "warnings";
+        if (dest.genres.has(slug)) return "genres";
+        return "";
+      };
+      return parsed.map((work) => {
+        const bags = {
+          genres: [...(Array.isArray(work.genres) ? work.genres : [])],
+          formats: [...(Array.isArray(work.formats) ? work.formats : [])],
+          warnings: [...(Array.isArray(work.warnings) ? work.warnings : [])],
+          kinks: [...(Array.isArray(work.kinks) ? work.kinks : [])],
+        };
+        let changed = false;
+        for (const from of Object.keys(bags)) {
+          const keep = [];
+          for (const slug of bags[from]) {
+            const to = targetOf(slug);
+            if (!to || to === from) {
+              keep.push(slug);
+              continue;
+            }
+            changed = true;
+            if (!bags[to].includes(slug)) bags[to].push(slug);
+          }
+          bags[from] = keep;
+        }
+        return changed ? { ...work, ...bags } : work;
+      });
+    } catch {
+      return [];
+    }
+  },
+  save(list) {
+    localStorage.setItem(FOX_WORKS_KEY, JSON.stringify(Array.isArray(list) ? list : []));
+  },
+  sameId(a, b) {
+    return String(a || "") === String(b || "");
+  },
+  get(id) {
+    if (!id) return null;
+    return (
+      this.load().find((work) => this.sameId(work.id, id)) ||
+      this.publicWorks.find((work) => this.sameId(work.id, id)) ||
+      null
+    );
+  },
+  upsertLocal(work) {
+    if (!work || !work.id) return work;
+    const list = this.load().filter((item) => !this.sameId(item.id, work.id));
+    list.unshift(work);
+    this.save(list);
+    if (this.isListed(work)) {
+      this.publicWorks = [work, ...this.publicWorks.filter((item) => !this.sameId(item.id, work.id))];
+    } else {
+      this.publicWorks = this.publicWorks.filter((item) => !this.sameId(item.id, work.id));
+    }
+    return work;
+  },
+  migrateId(fromId, toId) {
+    if (!fromId || !toId || this.sameId(fromId, toId)) return;
+    try {
+      const linear = localStorage.getItem(this.linearStore(fromId));
+      if (linear && !localStorage.getItem(this.linearStore(toId))) {
+        localStorage.setItem(this.linearStore(toId), linear);
+      }
+      const map = localStorage.getItem(this.mapStore(fromId));
+      if (map && !localStorage.getItem(this.mapStore(toId))) {
+        localStorage.setItem(this.mapStore(toId), map);
+      }
+    } catch {
+      /* ignore */
+    }
+    this.save(this.load().filter((item) => !this.sameId(item.id, fromId)));
+  },
+  isServerId(id) {
+    return /^\d+$/.test(String(id || ""));
+  },
+  async hydrate() {
+    if (this._hydrate) return this._hydrate;
+    this._hydrate = (async () => {
+      try {
+        const mine = await FoxApi.request("/api/works");
+        if (Array.isArray(mine?.works)) this.save(mine.works);
+      } catch {
+        /* offline: keep localStorage */
+      }
+      try {
+        const catalog = await FoxApi.request("/api/catalog");
+        this.publicWorks = Array.isArray(catalog?.works) ? catalog.works : [];
+      } catch {
+        this.publicWorks = [];
+      }
+      return true;
+    })();
+    return this._hydrate;
+  },
+  async fetchOne(id) {
+    if (!this.isServerId(id)) return this.get(id);
+    try {
+      const work = await FoxApi.request(`/api/works/${encodeURIComponent(id)}`);
+      if (work?.id) this.upsertLocal(work);
+      return work;
+    } catch {
+      return this.get(id);
+    }
+  },
+  async upsert(work) {
+    if (!work) return work;
+    if (work.id) this.upsertLocal(work);
+    this.seed(work);
+    try {
+      const saved = this.isServerId(work.id)
+        ? await FoxApi.request(`/api/works/${encodeURIComponent(work.id)}`, {
+            method: "PUT",
+            body: JSON.stringify(work),
+          })
+        : await FoxApi.request("/api/works", { method: "POST", body: JSON.stringify({ ...work, id: undefined }) });
+      if (saved?.id) {
+        if (work.id && !this.sameId(work.id, saved.id)) this.migrateId(work.id, saved.id);
+        this.upsertLocal(saved);
+        this.seed(saved);
+        return saved;
+      }
+    } catch {
+      /* keep local copy */
+    }
+    return work;
+  },
+  async remove(id) {
+    this.save(this.load().filter((work) => !this.sameId(work.id, id)));
+    if (!this.isServerId(id)) return;
+    try {
+      await FoxApi.request(`/api/works/${encodeURIComponent(id)}`, { method: "DELETE" });
+    } catch {
+      /* ignore */
+    }
+  },
+  async pullContent(work) {
+    const id = work?.id;
+    if (!this.isServerId(id)) return;
+    const key = this.contentStore(work);
+    try {
+      if (localStorage.getItem(key)) return;
+      const remote = await FoxApi.request(`/api/works/${encodeURIComponent(id)}/content`);
+      if (remote && typeof remote === "object" && Object.keys(remote).length) {
+        localStorage.setItem(key, JSON.stringify(remote));
+      }
+    } catch {
+      /* ignore */
+    }
+  },
+  pushContent(id, data) {
+    if (!this.isServerId(id) || !data) return;
+    FoxApi.request(`/api/works/${encodeURIComponent(id)}/content`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }).catch(() => {});
+  },
+  newId() {
+    return `w-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  },
+  isListed(work) {
+    if (!work) return false;
+    if (work.listed === true) return work.status !== "draft";
+    if (work.listed === false || work.status === "draft") return false;
+    return true;
+  },
+  CURRENT_KEY: "foxtoria-current-work",
+  EDITOR_LINEAR: "foxtoria-editor-linear",
+  EDITOR_MESSENGER: "foxtoria-editor-messenger",
+  EDITOR_MAP: "foxtoria-editor",
+  MESSENGER_MAX_IMAGES: 15,
+  idFromUrl() {
+    return String(new URLSearchParams(location.search).get("id") || "").trim();
+  },
+  remember(id) {
+    try {
+      if (id) sessionStorage.setItem(this.CURRENT_KEY, id);
+    } catch {
+      /* ignore */
+    }
+  },
+  linearStore(id) {
+    return id ? `${this.EDITOR_LINEAR}:${id}` : this.EDITOR_LINEAR;
+  },
+  messengerStore(id) {
+    return id ? `${this.EDITOR_MESSENGER}:${id}` : this.EDITOR_MESSENGER;
+  },
+  mapStore(id) {
+    return id ? `${this.EDITOR_MAP}:${id}` : this.EDITOR_MAP;
+  },
+  normalizeStoryType(value) {
+    const type = String(value || "").trim();
+    if (type === "linear" || type === "messenger") return type;
+    return "interactive";
+  },
+  storyTypeLabel(workOrType, long) {
+    const type = typeof workOrType === "object" ? this.normalizeStoryType(workOrType?.story_type) : this.normalizeStoryType(workOrType);
+    if (long) {
+      return { interactive: "Интерактивная история", linear: "Линейная история", messenger: "Мессенджеры" }[type] || type;
+    }
+    return { interactive: "Интерактивная", linear: "Линейная", messenger: "Мессенджеры" }[type] || type;
+  },
+  contentStore(workOrId) {
+    const work = workOrId && typeof workOrId === "object" ? workOrId : this.get(workOrId);
+    const id = work?.id || (typeof workOrId === "string" ? workOrId : "");
+    const type = this.normalizeStoryType(work?.story_type);
+    if (type === "linear") return this.linearStore(id);
+    if (type === "messenger") return this.messengerStore(id);
+    return this.mapStore(id);
+  },
+  urls(workOrId) {
+    const work = workOrId && typeof workOrId === "object" ? workOrId : this.get(workOrId);
+    const id = work?.id || (typeof workOrId === "string" ? workOrId : "");
+    const q = id ? `?id=${encodeURIComponent(id)}` : "";
+    const type = this.normalizeStoryType(work?.story_type);
+    const editorPage = type === "linear" ? "editor-linear.html" : type === "messenger" ? "editor-messenger.html" : "editor.html";
+    const readPage = type === "linear" ? "read-linear.html" : type === "messenger" ? "read-messenger.html" : "read-interactive.html";
+    return {
+      id,
+      studio: id ? `studio.html${q}` : "work-new.html",
+      editor: `${editorPage}${q}`,
+      public: id ? `story.html${q}` : "catalog.html",
+      read: `${readPage}${q}`,
+    };
+  },
+  emptyLinear(work) {
+    const ch = `ch-${Date.now().toString(36)}`;
+    return {
+      workId: work?.id || "",
+      title: work?.title || "Без названия",
+      selectedId: ch,
+      characters: [],
+      notes: [],
+      chapters: [
+        {
+          id: ch,
+          title: "Глава 1",
+          summary: "",
+          notes: "",
+          status: "draft",
+          html: "",
+          cover: "",
+          isEnding: false,
+        },
+      ],
+    };
+  },
+  emptyMessenger(work) {
+    const ch = `ch-${Date.now().toString(36)}`;
+    return {
+      workId: work?.id || "",
+      title: work?.title || "Без названия",
+      selectedId: ch,
+      characters: [],
+      notes: [],
+      chapters: [
+        {
+          id: ch,
+          title: "Глава 1",
+          summary: "",
+          notes: "",
+          status: "draft",
+          images: [],
+          cover: "",
+          isEnding: false,
+        },
+      ],
+    };
+  },
+  emptyInteractive(work) {
+    const chapterId = `ch-${Date.now().toString(36)}`;
+    const sceneId = `sc-${Date.now().toString(36)}`;
+    return {
+      workId: work?.id || "",
+      title: work?.title || "Без названия",
+      chapters: [{ id: chapterId, title: "Глава 1" }],
+      scenes: [
+        {
+          id: sceneId,
+          chapterId,
+          title: "Начало",
+          description: "",
+          notes: "",
+          background: "",
+          isStart: true,
+          isEnding: false,
+          published: false,
+          blocks: [],
+          choices: [],
+        },
+      ],
+      selectedId: sceneId,
+      characters: [],
+      notes: [],
+    };
+  },
+  seed(work) {
+    if (!work?.id) return;
+    const writeEmpty = () => {
+      try {
+        const type = this.normalizeStoryType(work.story_type);
+        if (type === "linear") {
+          const key = this.linearStore(work.id);
+          if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(this.emptyLinear(work)));
+        } else if (type === "messenger") {
+          const key = this.messengerStore(work.id);
+          if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(this.emptyMessenger(work)));
+        } else {
+          const key = this.mapStore(work.id);
+          if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(this.emptyInteractive(work)));
+        }
+      } catch {
+        /* quota */
+      }
+    };
+    return Promise.resolve(this.pullContent(work)).then(writeEmpty, writeEmpty);
+  },
+  csv(form, name) {
+    const raw = form?.elements?.[name]?.value;
+    return String(raw || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  },
+  pickerNames(form, picker) {
+    const root = form?.querySelector?.(`[data-tax-picker="${picker}"]`);
+    if (!root) return [];
+    return [...root.querySelectorAll(".tax-chip")]
+      .map((chip) => chip.textContent.replace(/\s*×\s*$/, "").trim())
+      .filter(Boolean);
+  },
+  fromForm(form, existing, intent) {
+    const prev = existing && typeof existing === "object" ? existing : {};
+    const title = String(form.elements.title?.value || "").trim();
+    const storyType = this.normalizeStoryType(form.elements.story_type?.value);
+    const publish = intent === "publish";
+    let status = String(form.elements.status?.value || prev.status || "draft");
+    if (publish && status === "draft") status = "in_progress";
+    if (intent === "draft") status = "draft";
+    const listed = publish || (status !== "draft" && intent !== "draft");
+    const fandoms = this.csv(form, "fandoms");
+    const fandomNames = this.pickerNames(form, "fandoms");
+    const id = prev.id || this.newId();
+    const fandomLabel = fandomNames[0] || (fandoms.includes("original") || fandoms[0] === "original" ? "Ориджинал" : prev.fandom || "");
+    return {
+      ...prev,
+      id,
+      title: title || "Без названия",
+      story_type: storyType,
+      romance: String(form.elements.romance?.value || "").trim(),
+      age: String(form.querySelector('[name="age"]:checked')?.value || form.elements.age?.value || "").trim(),
+      description: String(form.elements.description?.value || "").trim(),
+      author_notes: String(form.elements.author_notes?.value || "").trim(),
+      status,
+      listed,
+      is_completed: status === "completed",
+      planned_size: String(form.elements.planned_size?.value || prev.planned_size || "mini"),
+      work_size: status === "completed" ? String(form.elements.planned_size?.value || prev.work_size || "mini") : prev.work_size,
+      fandoms,
+      fandom_names: fandomNames.length ? fandomNames : prev.fandom_names,
+      fandom: fandomLabel,
+      genres: this.csv(form, "genres"),
+      formats: this.csv(form, "formats"),
+      warnings: this.csv(form, "warnings"),
+      kinks: this.csv(form, "kinks"),
+      characters: this.csv(form, "characters"),
+      character_names: this.pickerNames(form, "characters"),
+      pairings: String(form.elements.pairings?.value || "").trim(),
+      cover: prev.cover || "",
+      author: prev.author || ownerDisplayName(),
+      author_slug: prev.author_slug || ownerHandle(),
+      href: `story.html?id=${encodeURIComponent(id)}`,
+      likes: Number(prev.likes) || 0,
+      plays: Number(prev.plays) || 0,
+      role: prev.role || "author",
+      publishedAt: listed ? prev.publishedAt || new Date().toISOString() : prev.publishedAt || "",
+      updatedAt: new Date().toISOString(),
+    };
+  },
+};
 
 window.FoxWorkStatus = {
   KEY: FOX_WORK_STATUS_KEY,
