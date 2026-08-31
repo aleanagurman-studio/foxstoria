@@ -261,9 +261,26 @@
       ...loadGifts(handle),
     ];
     localStorage.setItem(giftsKey(handle), JSON.stringify(next));
-    if (window.FoxPay) FoxPay.payGift(option.price, `Подарок · ${option.title}`);
+    if (window.FoxPay) FoxPay.payGift(option.price, `Подарок · ${option.title}`, handle);
     renderGifts(handle);
+    renderPaidSubs(handle);
     closeGiftDialog();
+  }
+
+  function formatCount(value) {
+    const n = Number(value) || 0;
+    if (n >= 1000) {
+      const k = n / 1000;
+      const text = k >= 10 ? k.toFixed(0) : k.toFixed(1).replace(/\.0$/, "");
+      return `${text}K`;
+    }
+    return String(n);
+  }
+
+  function renderPaidSubs(handle) {
+    const el = document.querySelector("[data-profile-paid-subs]");
+    if (!el || !window.FoxPay) return;
+    el.textContent = formatCount(FoxPay.paidSubscriberCount(handle || profileHandle()));
   }
 
   function renderSubs(handle) {
@@ -316,6 +333,7 @@
     renderLinks(data.links);
     renderGifts(data.handle);
     renderSubs(data.handle);
+    renderPaidSubs(data.handle);
   }
 
   const worksFeedNow = document.querySelector('[data-feed="profile-works"]');
@@ -326,6 +344,7 @@
     syncChrome();
     renderGifts(profileHandle());
     renderSubs(profileHandle());
+    renderPaidSubs(profileHandle());
     const worksFeed = document.querySelector('[data-feed="profile-works"]');
     if (worksFeed) worksFeed.setAttribute("data-author", profileHandle());
 
@@ -335,6 +354,7 @@
       if (event.target.closest("[data-sub-cancel]")) {
         FoxPay.unsubscribe(handle);
         renderSubs(handle);
+        renderPaidSubs(handle);
         return;
       }
       const pick = event.target.closest("[data-sub-tier]");
@@ -342,6 +362,7 @@
       const tier = FoxPay.loadTiers(handle).find((item) => item.id === pick.getAttribute("data-sub-tier"));
       if (tier) FoxPay.subscribe(handle, tier);
       renderSubs(handle);
+      renderPaidSubs(handle);
     });
 
     document.getElementById("profile-links")?.addEventListener("click", (event) => {
@@ -362,6 +383,7 @@
     if (isPublicView()) {
       renderLinks([], profileHandle());
       renderSubs(profileHandle());
+      renderPaidSubs(profileHandle());
       return;
     }
     applyProfile(load());

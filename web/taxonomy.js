@@ -741,6 +741,22 @@
     if (block) block.hidden = age !== "18+";
   }
 
+  const TRANSLATION_FORMAT_SLUG = "perevod-raboty-s-inostrannogo-yazyka";
+
+  function syncTranslationHint() {
+    const hints = document.querySelectorAll("[data-translation-hint]");
+    if (!hints.length) return;
+    const hidden = document.querySelector('[data-tax-picker="formats"][data-name="formats"] input[type="hidden"]');
+    const slugs = String(hidden?.value || "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    const on = slugs.includes(TRANSLATION_FORMAT_SLUG);
+    hints.forEach((el) => {
+      el.hidden = !on;
+    });
+  }
+
   function restoreSimpleFields() {
     const params = new URLSearchParams(location.search);
     document.querySelectorAll(".filter-panel [name]").forEach((field) => {
@@ -811,6 +827,11 @@
       input.addEventListener("change", syncKinkFields);
     });
     syncKinkFields();
+    document
+      .querySelector('[data-tax-picker="formats"][data-name="formats"]')
+      ?.querySelector('input[type="hidden"]')
+      ?.addEventListener("change", syncTranslationHint);
+    syncTranslationHint();
     initSearchPairingBuilders();
     initWorkPairingBuilder();
     window.FoxTaxonomyReady = true;

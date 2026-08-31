@@ -932,6 +932,7 @@ window.FoxChapterPlayer = (function foxChapterPlayer() {
 window.FoxPay = (function foxPay() {
   const TIERS_KEY = "foxtoria-sub-tiers";
   const SUBS_KEY = "foxtoria-my-subs";
+  const MONEY_KEY = "foxtoria-author-money";
   const CHANGES_KEY = "foxtoria-card-changes";
   const WALLET_KEY = "foxtoria-wallet";
   const MAX_TIERS = 5;
@@ -1044,26 +1045,205 @@ window.FoxPay = (function foxPay() {
     return data.balance;
   }
 
+  function actor() {
+    const slug = nick(typeof ownerHandle === "function" ? ownerHandle() : "") || "reader";
+    const display = String(typeof ownerDisplayName === "function" ? ownerDisplayName() : "").trim() || "Читатель";
+    return { slug, display };
+  }
+
+  function emptyMoney() {
+    return { fans: {}, events: [] };
+  }
+
+  function demoMoney() {
+    const fans = {
+      ivyreads: { slug: "ivyreads", display: "Плющ", level: 1, name: "Лиса", price: 50, since: "2026-06-02T12:00:00" },
+      nightowl: { slug: "nightowl", display: "Ночная сова", level: 2, name: "Хвост", price: 150, since: "2026-06-18T19:10:00" },
+      tealeaf: { slug: "tealeaf", display: "Чайный лист", level: 3, name: "Костёр", price: 400, since: "2026-07-04T09:40:00" },
+      frostbite: { slug: "frostbite", display: "Иней", level: 1, name: "Лиса", price: 50, since: "2026-07-11T16:22:00" },
+      paperfox: { slug: "paperfox", display: "Бумажная лиса", level: 2, name: "Хвост", price: 150, since: "2026-07-21T11:05:00" },
+      emberkin: { slug: "emberkin", display: "Уголёк", level: 3, name: "Костёр", price: 400, since: "2026-08-01T08:30:00" },
+      quietbay: { slug: "quietbay", display: "Тихая бухта", level: 1, name: "Лиса", price: 50, since: "2026-08-08T14:18:00" },
+      goldthread: { slug: "goldthread", display: "Золотая нить", level: 2, name: "Хвост", price: 150, since: "2026-08-14T20:02:00" },
+      mossroom: { slug: "mossroom", display: "Мох", level: 1, name: "Лиса", price: 50, since: "2026-08-19T10:44:00" },
+      starwell: { slug: "starwell", display: "Колодец звёзд", level: 2, name: "Хвост", price: 150, since: "2026-08-22T17:55:00" },
+      riverink: { slug: "riverink", display: "Речные чернила", level: 1, name: "Лиса", price: 50, since: "2026-08-25T12:12:00" },
+      duskbell: { slug: "duskbell", display: "Вечерний колокол", level: 3, name: "Костёр", price: 400, since: "2026-08-27T21:08:00" },
+      paleoak: { slug: "paleoak", display: "Бледный дуб", level: 1, name: "Лиса", price: 50, since: "2026-08-28T09:16:00" },
+      softloom: { slug: "softloom", display: "Мягкий стан", level: 2, name: "Хвост", price: 150, since: "2026-08-29T18:40:00" },
+      lanternjay: { slug: "lanternjay", display: "Фонарный сой", level: 1, name: "Лиса", price: 50, since: "2026-08-30T07:28:00" },
+      copperash: { slug: "copperash", display: "Медная зола", level: 2, name: "Хвост", price: 150, since: "2026-08-30T15:03:00" },
+      wildhearth: { slug: "wildhearth", display: "Дикий очаг", level: 3, name: "Костёр", price: 400, since: "2026-08-31T11:20:00" },
+      maplesong: { slug: "maplesong", display: "Кленовый мотив", level: 1, name: "Лиса", price: 50, since: "2026-08-31T16:45:00" },
+    };
+    const events = [
+      { id: "ev-18", kind: "subscribe", slug: "maplesong", display: "Кленовый мотив", price: 50, net: 45, name: "Лиса", at: "2026-08-31T16:45:00" },
+      { id: "ev-17", kind: "gift", slug: "emberkin", display: "Уголёк", price: 199, net: 159, title: "Лисья свеча", at: "2026-08-31T13:10:00" },
+      { id: "ev-16", kind: "subscribe", slug: "wildhearth", display: "Дикий очаг", price: 400, net: 360, name: "Костёр", at: "2026-08-31T11:20:00" },
+      { id: "ev-15", kind: "renew", slug: "tealeaf", display: "Чайный лист", price: 400, net: 360, name: "Костёр", at: "2026-08-30T19:00:00" },
+      { id: "ev-14", kind: "subscribe", slug: "copperash", display: "Медная зола", price: 150, net: 135, name: "Хвост", at: "2026-08-30T15:03:00" },
+      { id: "ev-13", kind: "cancel", slug: "oldpine", display: "Старая сосна", price: 50, net: 0, name: "Лиса", at: "2026-08-30T12:22:00" },
+      { id: "ev-12", kind: "subscribe", slug: "lanternjay", display: "Фонарный сой", price: 50, net: 45, name: "Лиса", at: "2026-08-30T07:28:00" },
+      { id: "ev-11", kind: "gift", slug: "nightowl", display: "Ночная сова", price: 99, net: 79, title: "Чашка какао", at: "2026-08-29T21:14:00" },
+      { id: "ev-10", kind: "subscribe", slug: "softloom", display: "Мягкий стан", price: 150, net: 135, name: "Хвост", at: "2026-08-29T18:40:00" },
+      { id: "ev-9", kind: "renew", slug: "paperfox", display: "Бумажная лиса", price: 150, net: 135, name: "Хвост", at: "2026-08-28T18:00:00" },
+      { id: "ev-8", kind: "subscribe", slug: "paleoak", display: "Бледный дуб", price: 50, net: 45, name: "Лиса", at: "2026-08-28T09:16:00" },
+      { id: "ev-7", kind: "subscribe", slug: "duskbell", display: "Вечерний колокол", price: 400, net: 360, name: "Костёр", at: "2026-08-27T21:08:00" },
+      { id: "ev-6", kind: "gift", slug: "ivyreads", display: "Плющ", price: 349, net: 279, title: "Золотой листок", at: "2026-08-26T16:40:00" },
+      { id: "ev-5", kind: "subscribe", slug: "riverink", display: "Речные чернила", price: 50, net: 45, name: "Лиса", at: "2026-08-25T12:12:00" },
+      { id: "ev-4", kind: "cancel", slug: "drywell", display: "Сухой колодец", price: 150, net: 0, name: "Хвост", at: "2026-08-24T10:05:00" },
+      { id: "ev-3", kind: "renew", slug: "nightowl", display: "Ночная сова", price: 150, net: 135, name: "Хвост", at: "2026-08-18T19:10:00" },
+      { id: "ev-2", kind: "subscribe", slug: "goldthread", display: "Золотая нить", price: 150, net: 135, name: "Хвост", at: "2026-08-14T20:02:00" },
+      { id: "ev-1", kind: "subscribe", slug: "quietbay", display: "Тихая бухта", price: 50, net: 45, name: "Лиса", at: "2026-08-08T14:18:00" },
+    ];
+    return { fans, events };
+  }
+
+  function loadMoney(handle) {
+    const all = loadJson(MONEY_KEY, {});
+    const key = nick(handle);
+    if (!key) return emptyMoney();
+    if (all[key] && typeof all[key] === "object") {
+      return {
+        fans: all[key].fans && typeof all[key].fans === "object" ? all[key].fans : {},
+        events: Array.isArray(all[key].events) ? all[key].events : [],
+      };
+    }
+    const pack = key === "moonwander" ? demoMoney() : emptyMoney();
+    all[key] = pack;
+    saveJson(MONEY_KEY, all);
+    return pack;
+  }
+
+  function saveMoney(handle, pack) {
+    const all = loadJson(MONEY_KEY, {});
+    all[nick(handle)] = pack;
+    saveJson(MONEY_KEY, all);
+  }
+
+  function logAuthorEvent(handle, row) {
+    const key = nick(handle);
+    if (!key || !row) return;
+    const pack = loadMoney(key);
+    pack.events = [row, ...(pack.events || [])].slice(0, 80);
+    saveMoney(key, pack);
+  }
+
+  function eventWhen(iso) {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function eventLabel(kind) {
+    if (kind === "gift") return "Новый подарок";
+    if (kind === "cancel") return "Отмена подписки";
+    if (kind === "renew") return "Продление подписки";
+    return "Новая подписка";
+  }
+
+  function paidSubscriberCount(handle) {
+    return Object.keys(loadMoney(handle).fans || {}).length;
+  }
+
+  function authorEvents(handle) {
+    return loadMoney(handle).events || [];
+  }
+
+  function authorEarnings(handle) {
+    const pack = loadMoney(handle);
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    let total = 0;
+    let monthTotal = 0;
+    let subs = 0;
+    let gifts = 0;
+    (pack.events || []).forEach((row) => {
+      if (row.kind === "cancel") return;
+      const net = Math.max(0, Math.round(Number(row.net) || 0));
+      total += net;
+      const at = new Date(row.at);
+      if (!Number.isNaN(at.getTime()) && at.getMonth() === month && at.getFullYear() === year) monthTotal += net;
+      if (row.kind === "gift") gifts += net;
+      else subs += net;
+    });
+    return { total, month: monthTotal, subs, gifts, paid: Object.keys(pack.fans || {}).length };
+  }
+
   function subscribe(handle, tier) {
     if (!tier) return false;
     const money = authorNet(tier.price);
+    const prev = subTo(handle);
     const map = mySubs();
     map[nick(handle)] = { level: Number(tier.level) || 1, name: tier.name, price: money.gross };
     saveJson(SUBS_KEY, map);
     chargeWallet(-money.gross, `Подписка · ${tier.name}`, "sub");
+    const who = actor();
+    const pack = loadMoney(handle);
+    pack.fans = pack.fans || {};
+    pack.fans[who.slug] = {
+      slug: who.slug,
+      display: who.display,
+      level: Number(tier.level) || 1,
+      name: tier.name,
+      price: money.gross,
+      since: prev ? pack.fans[who.slug]?.since || new Date().toISOString() : new Date().toISOString(),
+    };
+    saveMoney(handle, pack);
+    logAuthorEvent(handle, {
+      id: `ev-${Date.now().toString(36)}`,
+      kind: prev ? "renew" : "subscribe",
+      slug: who.slug,
+      display: who.display,
+      price: money.gross,
+      net: money.net,
+      name: tier.name,
+      at: new Date().toISOString(),
+    });
     return true;
   }
 
-  function payGift(amount, title) {
+  function payGift(amount, title, authorHandle) {
     const money = giftNet(amount);
     chargeWallet(-money.gross, title || "Подарок", "gift");
+    if (authorHandle) {
+      const who = actor();
+      logAuthorEvent(authorHandle, {
+        id: `ev-${Date.now().toString(36)}`,
+        kind: "gift",
+        slug: who.slug,
+        display: who.display,
+        price: money.gross,
+        net: money.net,
+        title: title || "Подарок",
+        at: new Date().toISOString(),
+      });
+    }
     return money;
   }
 
   function unsubscribe(handle) {
+    const prev = subTo(handle);
+    const who = actor();
     const map = mySubs();
     delete map[nick(handle)];
     saveJson(SUBS_KEY, map);
+    const pack = loadMoney(handle);
+    const fan = pack.fans?.[who.slug];
+    if (pack.fans) delete pack.fans[who.slug];
+    saveMoney(handle, pack);
+    const price = Number(prev?.price || fan?.price) || 0;
+    logAuthorEvent(handle, {
+      id: `ev-${Date.now().toString(36)}`,
+      kind: "cancel",
+      slug: who.slug,
+      display: who.display,
+      price,
+      net: 0,
+      name: prev?.name || fan?.name || "",
+      at: new Date().toISOString(),
+    });
   }
 
   function accessSlugs(work) {
@@ -1237,6 +1417,11 @@ window.FoxPay = (function foxPay() {
     subscribe,
     payGift,
     unsubscribe,
+    paidSubscriberCount,
+    authorEvents,
+    authorEarnings,
+    eventLabel,
+    eventWhen,
     accessSlugs,
     isPaid,
     minLevel,
@@ -1503,12 +1688,12 @@ function headerMarkup() {
             <a href="reviews.html"${ddOn("reviews.html")}><img src="assets/svg/коммент.svg" alt=""> Отзывы</a>
             <a href="changes.html"${ddOn("changes.html")}><img src="assets/deco/календарь.svg" alt=""> Изменения</a>
             <a href="limits.html"${ddOn("limits.html")}><img src="assets/svg/память.svg" alt=""> Мои лимиты</a>
-            <a href="admin.html"${ddOnAdmin()} data-admin-link hidden><img src="assets/deco/настройки.svg" alt=""> Кабинет администратора</a>
             <span class="dd-sep"></span>
             <a href="library.html?tab=likes"${ddOnLibrary(["likes", "read", "follows"])}><img src="assets/svg/bookmark2.svg" alt=""> Закладки</a>
             <a href="collections.html"${ddOn("collections.html")}><img src="assets/deco/сборник.svg" alt=""> Сборники</a>
           </div>
           <div class="account-dd-foot">
+            <a href="admin.html"${ddOnAdmin()} data-admin-link hidden><img src="assets/deco/настройки.svg" alt=""> Кабинет администратора</a>
             <a href="support.html"${ddOn("support.html")}><img src="assets/svg/info.svg" alt=""> Помощь</a>
             <a href="wallet.html"${ddOn("wallet.html")}><img src="assets/svg/кошелек.svg" alt=""> Кошелёк</a>
             <a href="settings.html"${ddOn("settings.html")}><img src="assets/deco/настройки.svg" alt=""> Настройки</a>
@@ -1933,17 +2118,22 @@ document.addEventListener("DOMContentLoaded", function messagesPage() {
     hydrateUiIcons(btn);
   }
 
-  function bubbleMenuHTML() {
+  function bubbleMenuHTML(mine) {
+    const own = `
+          <button type="button" data-msg-bubble-act="edit"><img src="assets/svg/редактировать.svg" alt=""> Редактировать</button>
+          <button type="button" data-msg-bubble-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
+          <button type="button" data-msg-bubble-act="select"><img src="assets/svg/okay.svg" alt=""> Выбрать</button>
+          <button type="button" data-msg-bubble-act="reply"><img src="assets/svg/коммент.svg" alt=""> Ответить</button>
+          <button type="button" class="is-danger" data-msg-bubble-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>`;
+    const other = `
+          <button type="button" data-msg-bubble-act="reply"><img src="assets/svg/коммент.svg" alt=""> Ответить</button>
+          <button type="button" data-msg-bubble-act="report"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>`;
     return `<div class="msg-menu msg-bubble-menu">
         <button type="button" class="msg-menu-btn" data-msg-menu aria-label="Ещё" aria-expanded="false">
           <img src="assets/ornaments/03_more.svg?v=3" alt="">
         </button>
         <div class="msg-menu-dd" hidden>
-          <button type="button" data-msg-bubble-act="edit"><img src="assets/svg/редактировать.svg" alt=""> Редактировать</button>
-          <button type="button" data-msg-bubble-act="pin"><img src="assets/svg/кнопка.svg" alt=""> Закрепить</button>
-          <button type="button" data-msg-bubble-act="select"><img src="assets/svg/okay.svg" alt=""> Выбрать</button>
-          <button type="button" data-msg-bubble-act="reply"><img src="assets/svg/коммент.svg" alt=""> Ответить</button>
-          <button type="button" class="is-danger" data-msg-bubble-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
+          ${mine ? own : other}
         </div>
       </div>`;
   }
@@ -1958,7 +2148,7 @@ document.addEventListener("DOMContentLoaded", function messagesPage() {
       }
       const bubble = row.querySelector(".msg-bubble");
       if (!bubble || bubble.querySelector(".msg-bubble-menu")) return;
-      bubble.insertAdjacentHTML("beforeend", bubbleMenuHTML());
+      bubble.insertAdjacentHTML("beforeend", bubbleMenuHTML(row.classList.contains("is-mine") || bubble.classList.contains("mine")));
       hydrateUiIcons(row);
     });
   }
@@ -2127,6 +2317,8 @@ document.addEventListener("DOMContentLoaded", function messagesPage() {
       if (textEl) textEl.textContent = rowText(row) || "Вложение";
       if (bar) bar.hidden = false;
       thread.querySelector("textarea")?.focus();
+    } else if (act === "report") {
+      return false;
     } else if (act === "delete") {
       if (!confirm("Удалить это сообщение?")) return false;
       const wasPinned = row.classList.contains("is-pinned");
@@ -2422,7 +2614,9 @@ document.addEventListener("DOMContentLoaded", function accountTabs() {
       }
     }
     const fromUrl = syncUrl ? new URLSearchParams(location.search).get("tab") : "";
-    const initial = names.includes(fromUrl) ? fromUrl : names[0];
+    const hash = (location.hash || "").replace(/^#/, "");
+    const fromHash = hash.startsWith("faq-") ? "faq" : hash.startsWith("rule-") ? "docs" : "";
+    const initial = names.includes(fromUrl) ? fromUrl : names.includes(fromHash) ? fromHash : names[0];
     show(initial, false);
     tabs.forEach((btn) => {
       btn.addEventListener("click", () => show(btn.getAttribute("data-tab"), true));
@@ -2497,20 +2691,58 @@ document.addEventListener("DOMContentLoaded", function helpDocs() {
   if (!root) return;
   const buttons = [...root.querySelectorAll("[data-doc]")];
   const panels = [...root.querySelectorAll("[data-doc-panel]")];
+  const ALIAS = { publish: "rules" };
+  const SECTION = { publish: "rule-2" };
+
+  function panelId(id) {
+    return ALIAS[id] || id;
+  }
+
   function show(id) {
+    const mapped = panelId(id);
     buttons.forEach((btn) => btn.classList.toggle("active", btn.getAttribute("data-doc") === id));
     panels.forEach((panel) => {
-      panel.hidden = panel.getAttribute("data-doc-panel") !== id;
+      panel.hidden = panel.getAttribute("data-doc-panel") !== mapped;
     });
+    const jump = SECTION[id] || (location.hash || "").replace(/^#/, "");
+    if (mapped === "rules" && jump) {
+      requestAnimationFrame(() => {
+        document.getElementById(jump)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }
+
   buttons.forEach((btn) => {
-    btn.addEventListener("click", () => show(btn.getAttribute("data-doc")));
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-doc");
+      const url = new URL(location.href);
+      url.searchParams.set("tab", "docs");
+      url.searchParams.set("doc", id);
+      url.hash = SECTION[id] ? SECTION[id] : "";
+      history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+      show(id);
+    });
   });
   const fromUrl = new URLSearchParams(location.search).get("doc");
   const initial = buttons.some((btn) => btn.getAttribute("data-doc") === fromUrl)
     ? fromUrl
     : buttons[0]?.getAttribute("data-doc");
   if (initial) show(initial);
+});
+
+document.addEventListener("DOMContentLoaded", function helpSectionToc() {
+  document.querySelectorAll(".rules-toc").forEach((toc) => {
+    toc.addEventListener("click", (event) => {
+      const link = event.target.closest("a[href^='#']");
+      if (!link) return;
+      const id = link.getAttribute("href").slice(1);
+      const target = document.getElementById(id);
+      if (!target) return;
+      event.preventDefault();
+      history.replaceState({}, "", `${location.pathname}${location.search}#${id}`);
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 });
 
 const READER_KEY = "foxtoria-reader";
@@ -2655,11 +2887,47 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
     const workId = wrap.getAttribute("data-work-id") || currentPage();
     if (!toggle || !menu) return;
 
-    function close() {
+    function closeSplit() {
       wrap.classList.remove("open");
       toggle.setAttribute("aria-expanded", "false");
       menu.hidden = true;
     }
+
+    function bindToggle() {
+      toggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const open = menu.hidden;
+        document.querySelectorAll(".work-split-btn.open").forEach((other) => {
+          if (other === wrap) return;
+          other.classList.remove("open");
+          other.querySelector(".work-split-btn-toggle")?.setAttribute("aria-expanded", "false");
+          const otherMenu = other.querySelector(".work-split-menu");
+          if (otherMenu) otherMenu.hidden = true;
+        });
+        wrap.classList.toggle("open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        menu.hidden = !open;
+      });
+      document.addEventListener("click", (event) => {
+        if (!wrap.contains(event.target) && !event.target.closest(".work-dialog")) closeSplit();
+      });
+    }
+
+    if (wrap.hasAttribute("data-cabinet-new")) {
+      bindToggle();
+      menu.querySelector("[data-ficbook-import]")?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        closeSplit();
+        if (window.FoxFicbook) FoxFicbook.openDialog();
+      });
+      return;
+    }
+
+    function close() {
+      closeSplit();
+    }
+
+    bindToggle();
 
     function paint() {
       const lib = loadReaderLibrary();
@@ -2773,21 +3041,6 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       }
     }
 
-    toggle.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const open = menu.hidden;
-      document.querySelectorAll(".work-split-btn.open").forEach((other) => {
-        if (other === wrap) return;
-        other.classList.remove("open");
-        other.querySelector(".work-split-btn-toggle")?.setAttribute("aria-expanded", "false");
-        const otherMenu = other.querySelector(".work-split-menu");
-        if (otherMenu) otherMenu.hidden = true;
-      });
-      wrap.classList.toggle("open", open);
-      toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      menu.hidden = !open;
-    });
-
     main?.addEventListener("click", (event) => {
       event.stopPropagation();
       close();
@@ -2813,10 +3066,6 @@ document.addEventListener("DOMContentLoaded", function workPageControls() {
       if (window.FoxStore) FoxStore.progress({ story_id: workId, completed: on });
       paint();
       close();
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!wrap.contains(event.target) && !event.target.closest(".work-dialog")) close();
     });
 
     paint();
@@ -2990,15 +3239,47 @@ window.FoxApi = {
 
 window.FoxRules = {
   FORBIDDEN: [
-    { id: "minors", label: "Сексуальный контент с участием несовершеннолетних" },
-    { id: "real-harm", label: "Призывы к насилию, экстремизм, реальные угрозы" },
-    { id: "doxxing", label: "Персональные данные, деанон, травля" },
-    { id: "stolen", label: "Чужой текст или украденная работа" },
-    { id: "spam", label: "Спам, реклама, вреносные ссылки" },
-    { id: "rating", label: "Неверная возрастная метка или скрытые предупреждения" },
-    { id: "illegal", label: "Иной запрещённый законом контент" },
-    { id: "other", label: "Другое — напишу сам" },
+    { id: "abuse", group: "Поведение", label: "Оскорбления, травля, преследование" },
+    { id: "threats", group: "Поведение", label: "Угрозы и призывы к насилию" },
+    { id: "impersonation", group: "Поведение", label: "Выдача себя за другого или за администрацию" },
+    { id: "scam", group: "Безопасность", label: "Мошенничество, фишинг, запрос паролей" },
+    { id: "ban-evasion", group: "Безопасность", label: "Обход блокировок" },
+    { id: "exploit", group: "Безопасность", label: "Эксплуатация ошибок сайта" },
+    { id: "malware", group: "Безопасность", label: "Вредоносные файлы и ссылки" },
+    { id: "minors", group: "Контент", label: "Сексуальный контент с несовершеннолетними" },
+    { id: "extremism", group: "Контент", label: "Экстремизм" },
+    { id: "crime", group: "Контент", label: "Инструкции для преступлений" },
+    { id: "illegal", group: "Контент", label: "Запрещено законом РФ" },
+    { id: "privacy", group: "Данные и права", label: "Чужие персональные данные, деанон" },
+    { id: "stolen", group: "Данные и права", label: "Чужая работа, перевод или медиа" },
+    { id: "rating", group: "Данные и права", label: "Неверный рейтинг или метки" },
+    { id: "spam", group: "Площадка", label: "Спам и навязчивая реклама" },
+    { id: "stats", group: "Площадка", label: "Накрутка статистики" },
+    { id: "false-report", group: "Площадка", label: "Ложные или массовые жалобы" },
+    { id: "other", group: "Другое", label: "Другое — опишу сам" },
   ],
+  reasonsHTML() {
+    const groups = [];
+    this.FORBIDDEN.forEach((item) => {
+      const name = item.group || "";
+      if (!groups.length || groups[groups.length - 1].name !== name) groups.push({ name, items: [] });
+      groups[groups.length - 1].items.push(item);
+    });
+    let index = 0;
+    return groups
+      .map(
+        (group) => `<fieldset class="report-reason-group">
+        <legend>${group.name}</legend>
+        <div class="report-reason-chips">${group.items
+          .map((item) => {
+            const required = index++ === 0 ? " required" : "";
+            return `<label class="report-chip"><input type="radio" name="reason_code" value="${item.id}"${required}><span>${item.label}</span></label>`;
+          })
+          .join("")}</div>
+      </fieldset>`
+      )
+      .join("");
+  },
 };
 
 window.FoxReport = {
@@ -3011,9 +3292,7 @@ window.FoxReport = {
     box.innerHTML = `<form method="dialog" class="report-form">
       <h2>Пожаловаться</h2>
       <p class="profile-meta" data-report-target></p>
-      <div class="report-reasons">${FoxRules.FORBIDDEN.map(
-        (item, index) => `<label><input type="radio" name="reason_code" value="${item.id}" ${index === 0 ? "required" : ""}> ${item.label}</label>`
-      ).join("")}</div>
+      <div class="report-reasons">${FoxRules.reasonsHTML()}</div>
       <textarea name="reason" rows="3" placeholder="Если выбрали «Другое» — опишите коротко"></textarea>
       <div class="admin-reason-acts">
         <button type="submit" class="btn btn-primary" value="ok">Отправить</button>
@@ -3023,6 +3302,85 @@ window.FoxReport = {
     document.body.appendChild(box);
     box.querySelector("[data-report-cancel]")?.addEventListener("click", () => box.close());
     return box;
+  },
+  isControl(el) {
+    if (!el || el.closest("#report-dialog, [data-skip-report], [data-report-done], [data-report-cancel]")) return false;
+    if (el.matches?.("[data-report-done], [data-report-cancel]")) return false;
+    const aria = (el.getAttribute("aria-label") || "").trim();
+    if (aria === "Пожаловаться") return true;
+    if (el.classList.contains("linear-read-report")) return true;
+    if (el.hasAttribute("data-reply-report")) return true;
+    if (el.hasAttribute("data-report") && el.getAttribute("data-report") !== "done") return true;
+    const named =
+      el.getAttribute("data-review-act") ||
+      el.getAttribute("data-pack-act") ||
+      el.getAttribute("data-comment-act") ||
+      el.getAttribute("data-act") ||
+      el.getAttribute("data-msg-bubble-act") ||
+      el.getAttribute("data-msg-act");
+    if (named === "report") return true;
+    const text = (el.textContent || "").replace(/\s+/g, " ").trim();
+    return text === "Пожаловаться";
+  },
+  payload(btn) {
+    const comment = btn.closest("[data-comment-id], .linear-comment, .news-comment");
+    const review = btn.closest(".review-card");
+    const pack = btn.closest(".pack-card, [data-pack-id]");
+    const reply = btn.closest(".reply-card, [data-reply-id]");
+    const post = btn.closest(".blog-post, .news-post");
+    const msg = btn.closest(".msg-row");
+    const workNode = btn.closest("[data-work-id]") || document.querySelector("[data-work-id]");
+    const workId =
+      workNode?.getAttribute("data-work-id") || new URLSearchParams(location.search).get("id") || "";
+    const href = location.pathname + location.search;
+    if (comment) {
+      const id = comment.getAttribute("data-comment-id") || comment.getAttribute("data-id") || "";
+      const who = comment.querySelector(".user-link, strong, a")?.textContent?.trim() || "Комментарий";
+      return { type: "comment", key: id || href, title: `Комментарий · ${who}`, href };
+    }
+    if (review) {
+      const name = review.querySelector("[data-user-name], strong")?.textContent?.trim() || "Отзыв";
+      return { type: "review", key: review.getAttribute("data-id") || href, title: `Отзыв · ${name}`, href };
+    }
+    if (pack) {
+      const title = pack.querySelector("h2, h3, .pack-card-title")?.textContent?.trim() || "Сборник";
+      return { type: "collection", key: pack.getAttribute("data-pack-id") || pack.dataset.id || href, title, href };
+    }
+    if (reply) {
+      return { type: "reply", key: reply.getAttribute("data-reply-id") || href, title: "Обсуждение", href };
+    }
+    if (post) {
+      const title = post.querySelector("h2")?.textContent?.trim() || "Запись";
+      const kind = post.classList.contains("news-post") ? "news" : "blog";
+      return { type: kind, key: post.getAttribute("data-id") || post.id || href, title, href };
+    }
+    if (msg) {
+      const preview = (msg.querySelector("p")?.textContent || "").trim().slice(0, 80) || "Сообщение";
+      return { type: "message", key: msg.getAttribute("data-msg-id") || href, title: preview, href };
+    }
+    if (btn.hasAttribute("data-report") && btn.getAttribute("data-report") === "user") {
+      const handle =
+        document.querySelector(".profile-handle")?.textContent?.replace(/^@/, "").trim() ||
+        new URLSearchParams(location.search).get("u") ||
+        "";
+      const name = document.querySelector(".profile-name")?.textContent?.trim() || handle;
+      return { type: "profile", key: handle, title: name, href: handle ? `profile.html?u=${encodeURIComponent(handle)}` : href };
+    }
+    if (workId) {
+      return { type: "work", key: workId, title: document.getElementById("work-title")?.textContent || document.title, href };
+    }
+    return { type: "page", key: href, title: document.title, href };
+  },
+  mark(btn) {
+    if (!btn) return;
+    btn.classList.add("is-reported");
+    btn.disabled = true;
+    const card = btn.closest(".review-card, .pack-card, .reply-card, .linear-comment, .news-comment");
+    card?.classList.add("is-reported");
+    if (btn.matches("[data-review-act], [data-pack-act], [data-reply-report], [data-comment-act], [data-act], [data-msg-bubble-act]")) {
+      btn.innerHTML = `<img src="assets/svg/флаг.svg" alt=""> Жалоба отправлена`;
+      if (typeof hydrateUiIcons === "function") hydrateUiIcons(btn);
+    }
   },
   open(payload) {
     const box = this.ensure();
@@ -3129,22 +3487,19 @@ document.addEventListener("DOMContentLoaded", function foxAdminChrome() {
       body: JSON.stringify({ path: location.pathname || "/" }),
     }).catch(() => {});
   }
-  document.addEventListener("click", (event) => {
-    const btn = event.target.closest(
-      '[aria-label="Пожаловаться"], [data-review-act="report"], [data-reply-report], .linear-read-report, [data-pack-act="report"]'
-    );
-    if (!btn || btn.closest("[data-skip-report]")) return;
-    event.preventDefault();
-    const page = document.querySelector("[data-work-id]");
-    const workId = page?.getAttribute("data-work-id") || new URLSearchParams(location.search).get("id") || "";
-    const type = btn.getAttribute("data-review-act") === "report" ? "review" : btn.hasAttribute("data-pack-act") ? "collection" : workId ? "work" : "page";
-    FoxReport.open({
-      type,
-      key: workId || location.pathname,
-      title: document.title,
-      href: location.pathname + location.search,
-    });
-  });
+  document.addEventListener(
+    "click",
+    (event) => {
+      const btn = event.target.closest("button, a, [role='menuitem']");
+      if (!btn || !FoxReport.isControl(btn) || btn.classList.contains("is-reported")) return;
+      event.preventDefault();
+      const payload = FoxReport.payload(btn);
+      FoxReport.open(payload).then((ok) => {
+        if (ok) FoxReport.mark(btn);
+      });
+    },
+    true
+  );
 });
 
 window.FoxIdentity = {
@@ -3769,6 +4124,266 @@ window.FoxWorks = {
       publishedAt: listed ? prev.publishedAt || new Date().toISOString() : prev.publishedAt || "",
       updatedAt: new Date().toISOString(),
     };
+  },
+};
+
+window.FoxFicbook = {
+  fold(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/ё/g, "е")
+      .replace(/[«»""]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  },
+  itemKeys(item) {
+    const keys = [item?.name, item?.slug, ...(item?.synonyms || [])];
+    String(item?.name || "")
+      .split(/\s*[\/|]\s*/)
+      .forEach((part) => keys.push(part));
+    return keys.map((key) => this.fold(key)).filter(Boolean);
+  },
+  matchOne(items, label) {
+    const q = this.fold(label);
+    if (!q) return null;
+    const exact = items.find((item) => this.itemKeys(item).includes(q));
+    if (exact) return exact;
+    if (q.startsWith("ориджинал") || q.startsWith("оригинал")) {
+      return items.find((item) => item.slug === "original") || null;
+    }
+    if (q.length < 4) return null;
+    return (
+      items.find((item) =>
+        this.itemKeys(item).some((key) => {
+          if (key === q) return true;
+          if (q.length >= 6 && (key.includes(q) || q.includes(key) && key.length >= 6)) return true;
+          return false;
+        })
+      ) || null
+    );
+  },
+  charSlug(fandomSlug, name) {
+    const base = String(name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/ё/g, "е")
+      .replace(/[^a-zа-я0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "");
+    return `${fandomSlug || "char"}-${base || "name"}`;
+  },
+  async loadTax() {
+    if (this._tax) return this._tax;
+    const [tax, fandoms, chars] = await Promise.all([
+      fetch("taxonomy.json").then((res) => (res.ok ? res.json() : {})),
+      fetch("fandoms.json").then((res) => (res.ok ? res.json() : [])),
+      fetch("characters-by-fandom.json").then((res) => (res.ok ? res.json() : {})),
+    ]);
+    const list = Array.isArray(fandoms) ? fandoms : [];
+    if (!list.some((item) => item.slug === "original")) {
+      list.unshift({ name: "Ориджинал", slug: "original", synonyms: ["оригинал", "ориджиналы", "свой мир"] });
+    }
+    this._tax = {
+      genres: tax.genres || [],
+      formats: tax.formats || [],
+      warnings: tax.warnings || [],
+      kinks: tax.kinks || [],
+      fandoms: list,
+      characters: chars && typeof chars === "object" ? chars : {},
+    };
+    return this._tax;
+  },
+  mapCard(data, tax) {
+    const unmatched = [];
+    const buckets = { genres: [], formats: [], warnings: [], kinks: [] };
+    const used = new Set();
+    function take(kind, item) {
+      if (!item || used.has(`${kind}:${item.slug}`)) return;
+      used.add(`${kind}:${item.slug}`);
+      buckets[kind].push(item.slug);
+    }
+    (data.tags || []).forEach((tag) => {
+      const warn = this.matchOne(tax.warnings, tag);
+      if (warn) {
+        take("warnings", warn);
+        return;
+      }
+      const kink = this.matchOne(tax.kinks, tag);
+      if (kink) {
+        take("kinks", kink);
+        return;
+      }
+      const genre = this.matchOne(tax.genres, tag);
+      if (genre) {
+        take("genres", genre);
+        return;
+      }
+      const format = this.matchOne(tax.formats, tag);
+      if (format) {
+        take("formats", format);
+        return;
+      }
+      unmatched.push(tag);
+    });
+    if ((data.fandoms || []).length > 1) {
+      const cross = this.matchOne(tax.genres, "Кроссовер");
+      if (cross) take("genres", cross);
+      else {
+        const crossFmt = this.matchOne(tax.formats, "Кроссовер");
+        if (crossFmt) take("formats", crossFmt);
+      }
+    }
+    const fandomItems = [];
+    (data.fandoms || []).forEach((name) => {
+      const item = this.matchOne(tax.fandoms, name);
+      if (item) fandomItems.push(item);
+      else unmatched.push(name);
+    });
+    if (!fandomItems.length) {
+      const original = tax.fandoms.find((item) => item.slug === "original");
+      if (original) fandomItems.push(original);
+    }
+    const fandomSlugs = fandomItems.map((item) => item.slug);
+    const charNames = [];
+    const charSlugs = [];
+    (data.characters || []).forEach((name) => {
+      let slug = "";
+      for (const fan of fandomSlugs) {
+        const list = tax.characters[fan] || [];
+        const hit = list.find((item) => this.fold(item) === this.fold(name) || this.fold(item).includes(this.fold(name)));
+        if (hit) {
+          slug = this.charSlug(fan, typeof hit === "string" ? hit : hit.name);
+          charNames.push(typeof hit === "string" ? hit : hit.name);
+          break;
+        }
+      }
+      if (!slug) {
+        charNames.push(name);
+        slug = this.charSlug(fandomSlugs[0] || "original", name);
+      }
+      charSlugs.push(slug);
+    });
+    const notes = [
+      data.author_notes,
+      data.fb_author ? `Автор на ФБ: ${data.fb_author}` : "",
+      data.url ? `Импорт с ФБ: ${data.url}` : "",
+      unmatched.length ? `Метки с ФБ без точного совпадения: ${unmatched.join(", ")}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+    return {
+      title: data.title || "Без названия",
+      story_type: "linear",
+      romance: data.romance || "gen",
+      age: data.age || "0+",
+      description: data.description || "",
+      author_notes: notes,
+      status: "draft",
+      listed: false,
+      fandoms: fandomSlugs,
+      fandom_names: fandomItems.map((item) => item.name),
+      fandom: fandomItems[0]?.name || "",
+      genres: buckets.genres,
+      formats: buckets.formats,
+      warnings: buckets.warnings,
+      kinks: data.age === "18+" ? buckets.kinks : [],
+      characters: charSlugs,
+      character_names: [...new Set(charNames)],
+      pairings: (data.pairings || []).join("\n"),
+    };
+  },
+  openDialog() {
+    let dialog = document.querySelector(".work-dialog");
+    if (!dialog) {
+      dialog = document.createElement("div");
+      dialog.className = "work-dialog";
+      dialog.hidden = true;
+      document.body.append(dialog);
+    }
+    dialog.innerHTML = `
+      <form class="work-dialog-card work-dialog-card--import" data-ficbook-form>
+        <h2>Импорт с ФБ</h2>
+        <p class="work-dialog-lead">Вставьте ссылку на свою работу на ficbook.net. Мы заберём шапку и главы в линейный черновик и разложим совпавшие метки.</p>
+        <label class="work-dialog-field">
+          <span>Ссылка</span>
+          <input type="url" name="url" required placeholder="https://ficbook.net/readfic/…">
+        </label>
+        <label class="work-dialog-check">
+          <input type="checkbox" name="confirm_author" required>
+          <span>Подтверждаю, что я автор этой работы</span>
+        </label>
+        <p class="work-dialog-error" data-ficbook-error hidden></p>
+        <div class="work-dialog-actions">
+          <button type="button" class="btn btn-outline" data-ficbook-cancel>Отмена</button>
+          <button type="submit" class="btn btn-primary" data-ficbook-submit>Импортировать</button>
+        </div>
+      </form>`;
+    const form = dialog.querySelector("[data-ficbook-form]");
+    const errorEl = dialog.querySelector("[data-ficbook-error]");
+    const submit = dialog.querySelector("[data-ficbook-submit]");
+    const hide = () => {
+      dialog.hidden = true;
+    };
+    dialog.querySelector("[data-ficbook-cancel]")?.addEventListener("click", hide);
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) hide();
+    });
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const url = String(new FormData(form).get("url") || "").trim();
+      const confirmAuthor = form.querySelector('[name="confirm_author"]')?.checked;
+      errorEl.hidden = true;
+      if (!confirmAuthor) {
+        errorEl.hidden = false;
+        errorEl.textContent = "Нужно подтверждение авторства.";
+        return;
+      }
+      submit.disabled = true;
+      submit.textContent = "Загружаем…";
+      try {
+        const data = await FoxApi.request("/api/import/ficbook", {
+          method: "POST",
+          body: JSON.stringify({ url, confirm_author: true }),
+        });
+        const tax = await this.loadTax();
+        const card = this.mapCard(data, tax);
+        const saved = await FoxWorks.upsert(card);
+        const chapters = (data.chapters || []).map((chap, index) => ({
+          id: `ch-${Date.now().toString(36)}-${index}`,
+          title: chap.title || `Глава ${index + 1}`,
+          summary: "",
+          notes: chap.notes || "",
+          status: "draft",
+          html: chap.html || "",
+          cover: "",
+          audioKey: "",
+          audioName: "",
+          audioEmbed: "",
+          isEnding: false,
+        }));
+        if (!chapters.length) {
+          const empty = FoxWorks.emptyLinear(saved);
+          chapters.push(empty.chapters[0]);
+        }
+        const linear = {
+          workId: saved.id,
+          title: saved.title,
+          selectedId: chapters[0].id,
+          characters: [],
+          notes: [],
+          chapters,
+        };
+        localStorage.setItem(FoxWorks.linearStore(saved.id), JSON.stringify(linear));
+        FoxWorks.pushContent(saved.id, linear);
+        location.href = FoxWorks.urls(saved).editor;
+      } catch (err) {
+        errorEl.hidden = false;
+        errorEl.textContent = err.message || "Не получилось импортировать.";
+        submit.disabled = false;
+        submit.textContent = "Импортировать";
+      }
+    });
+    dialog.hidden = false;
+    form.querySelector("input[name=url]")?.focus();
   },
 };
 

@@ -392,6 +392,66 @@ function renderAuthorHome(works) {
   if (pager) pager.hidden = !all.length;
   bindCabinetChrome();
   bindAuthorTiers();
+  paintAuthorMoney();
+}
+
+function paintAuthorMoney() {
+  if (!window.FoxPay) return;
+  const handle = typeof ownerHandle === "function" ? ownerHandle() : "";
+  const stats = document.getElementById("author-earn-stats");
+  const history = document.getElementById("author-sub-history");
+  if (stats) {
+    const earn = FoxPay.authorEarnings(handle);
+    stats.innerHTML = `
+      <article class="monetize-tile">
+        <p class="monetize-tile-label">Всего</p>
+        <p class="monetize-tile-value">${escapeHtml(FoxPay.formatRub(earn.total))}</p>
+      </article>
+      <article class="monetize-tile">
+        <p class="monetize-tile-label">В этом месяце</p>
+        <p class="monetize-tile-value">${escapeHtml(FoxPay.formatRub(earn.month))}</p>
+      </article>
+      <article class="monetize-tile">
+        <p class="monetize-tile-label">С подписок</p>
+        <p class="monetize-tile-value">${escapeHtml(FoxPay.formatRub(earn.subs))}</p>
+      </article>
+      <article class="monetize-tile">
+        <p class="monetize-tile-label">С подарков</p>
+        <p class="monetize-tile-value">${escapeHtml(FoxPay.formatRub(earn.gifts))}</p>
+      </article>
+      <article class="monetize-tile">
+        <p class="monetize-tile-label">Платных подписчиков</p>
+        <p class="monetize-tile-value">${escapeHtml(String(earn.paid))}</p>
+      </article>`;
+  }
+  if (history) {
+    const rows = FoxPay.authorEvents(handle);
+    history.innerHTML = rows.length
+      ? rows
+          .map((row) => {
+            const whoName = escapeHtml(row.display || "Читатель");
+            const slug = String(row.slug || "").replace(/^@/, "");
+            const href = slug ? `profile.html?u=${encodeURIComponent(slug)}` : "";
+            const nick = slug ? `@${escapeHtml(slug)}` : "";
+            const name = href
+              ? `${whoName} · <a href="${href}">${nick}</a>`
+              : `${whoName}${nick ? ` · ${nick}` : ""}`;
+            const extra = row.kind === "gift" && row.title ? ` · ${escapeHtml(String(row.title).replace(/^Подарок · /, ""))}` : row.name ? ` · ${escapeHtml(row.name)}` : "";
+            const when = escapeHtml(FoxPay.eventWhen(row.at));
+            const price = escapeHtml(FoxPay.formatRub(row.price));
+            const income = row.kind !== "cancel";
+            return `<article class="monetize-op${income ? " is-in" : ""}">
+              <div>
+                <b>${escapeHtml(FoxPay.eventLabel(row.kind))}</b>
+                <p>${name}${extra}</p>
+                <span>${when}</span>
+              </div>
+              <strong>${income ? "+" : ""}${price}</strong>
+            </article>`;
+          })
+          .join("")
+      : `<p class="author-tiers-lead">Здесь появятся новые подписки, продления, отмены и подарки.</p>`;
+  }
 }
 
 function bindAuthorTiers() {
@@ -418,6 +478,7 @@ function bindAuthorTiers() {
       .join("");
     const add = document.getElementById("author-tier-add");
     if (add) add.disabled = tiers.length >= FoxPay.MAX_TIERS;
+    paintAuthorMoney();
   }
 
   function collect() {

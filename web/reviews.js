@@ -201,9 +201,8 @@
         card.remove();
       }
       else if (kind === "report") {
-        card.classList.add("is-reported");
-        act.innerHTML = `<img src="assets/svg/флаг.svg" alt=""> Жалоба отправлена`;
-        act.disabled = true;
+        closeReviewMenus();
+        return;
       } else if (kind === "reward") {
         card.classList.add("is-rewarded");
         act.innerHTML = `<img src="assets/deco/present.svg" alt=""> Награждено`;

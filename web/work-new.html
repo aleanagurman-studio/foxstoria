@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=209">
-  <link rel="stylesheet" href="studio.css?v=101">
-  <script src="site.js?v=91"></script>
+  <link rel="stylesheet" href="styles.css?v=218">
+  <link rel="stylesheet" href="studio.css?v=103">
+  <script src="site.js?v=100"></script>
 </head>
 <body class="cabinet-page work-new-page">
   <header class="header"></header>
@@ -106,6 +106,7 @@
               <label class="studio-label">Формат работы</label>
               <div class="tax-picker tax-picker-compact" data-tax-picker="formats" data-name="formats" data-placeholder="Найти формат…" data-tax-quotes></div>
               <p class="studio-hint">Необязательно. Стихи, письма, чаты и другие формы текста.</p>
+              <p class="studio-flag" data-translation-hint hidden role="status">Вставьте ссылку на оригинальную работу в примечание автора.</p>
             </div>
           </div>
           <div class="studio-form-row studio-form-row-kinks">
@@ -166,6 +167,7 @@
           <div>
             <label class="studio-label" for="work-notes">Примечание автора</label>
             <textarea id="work-notes" name="author_notes" placeholder="Необязательно"></textarea>
+            <p class="studio-flag" data-translation-hint hidden role="status">Для перевода вставьте сюда ссылку на оригинальную работу.</p>
           </div>
           <div class="studio-form-row" data-paid-fields>
             <div>
@@ -204,7 +206,7 @@
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
-  <script src="taxonomy.js?v=29"></script>
+  <script src="taxonomy.js?v=30"></script>
   <script src="work-new.js?v=4"></script>
 </body>
 </html>

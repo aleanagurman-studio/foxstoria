@@ -279,6 +279,7 @@
   function commentTools(item) {
     const buttons = [];
     if (signed()) buttons.push(`<button type="button" data-comment-reply>Ответить</button>`);
+    buttons.push(`<button type="button" data-report="comment"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>`);
     if (isOwnComment(item)) {
       buttons.push(`<button type="button" data-comment-edit>Изменить</button>`);
     }
@@ -432,6 +433,7 @@
             <div class="news-foot-actions">
               ${collapsible ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
               <button type="button" class="news-more" data-open-comments>Комментировать</button>
+              <button type="button" class="news-more" data-report="news"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
             </div>
           </div>
           ${
@@ -571,6 +573,7 @@
         event.target.closest("[data-save]").classList.toggle("is-on");
         return;
       }
+      if (event.target.closest("[data-report]")) return;
       if (event.target.closest("[data-expand]")) {
         const btn = event.target.closest("[data-expand]");
         if (btn.hasAttribute("data-collapse")) collapseCard(card);

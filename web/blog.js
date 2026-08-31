@@ -267,17 +267,19 @@
 
   function renderCommentItem(item) {
     const own = Boolean(item.own) || item.author === "Вы";
-    const tools =
-      signed() && (own || (typeof isSiteAdmin === "function" && isSiteAdmin()))
-        ? `<span class="news-comment-tools"><button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button></span>`
-        : "";
+    const tools = [];
+    tools.push(`<button type="button" data-report="comment"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>`);
+    if (signed() && (own || (typeof isSiteAdmin === "function" && isSiteAdmin()))) {
+      tools.push(`<button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button>`);
+    }
+    const toolsHtml = tools.length ? `<span class="news-comment-tools">${tools.join("")}</span>` : "";
     return `
       <article class="news-comment${own ? " is-own" : ""}" data-comment-id="${escapeHtml(item.id)}">
         <img class="news-comment-ava" src="${escapeHtml(item.avatar || "assets/deco/fox.svg")}" alt="">
         <div class="news-comment-bubble">
           <div class="news-comment-head">
             ${authorLabel(item.author || "Читатель")}
-            ${tools}
+            ${toolsHtml}
           </div>
           <p>${typeof mentionHtml === "function" ? mentionHtml(item.text) : escapeHtml(item.text)}</p>
           <time>${escapeHtml(item.when || "")}</time>
@@ -346,6 +348,7 @@
           <div class="blog-post-actions">
             ${long ? `<button type="button" class="news-more" data-expand>Читать далее →</button>` : ""}
             <button type="button" class="news-more" data-open-comments>Комментировать</button>
+            <button type="button" class="news-more" data-report="blog"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
           </div>
         </div>
         <div class="news-comments" hidden>
@@ -396,6 +399,7 @@
       if (!card) return;
       if (event.target.closest("a.user-link")) return;
       const id = card.getAttribute("data-id");
+      if (event.target.closest("[data-report]")) return;
       if (event.target.closest("[data-like]")) {
         toggleLike(id);
         const post = allPosts().find((item) => item.id === id);

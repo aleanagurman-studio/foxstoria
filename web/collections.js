@@ -350,8 +350,6 @@
         return;
       }
       if (kind === "report") {
-        act.innerHTML = `<img src="assets/svg/флаг.svg" alt=""> Жалоба отправлена`;
-        if (typeof hydrateUiIcons === "function") hydrateUiIcons(act);
         closeMenus();
         return;
       }

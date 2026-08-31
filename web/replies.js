@@ -105,7 +105,6 @@
       return;
     }
     if (event.target.closest("[data-reply-report]")) {
-      card.classList.add("is-reported");
       closeMenus();
     }
   });

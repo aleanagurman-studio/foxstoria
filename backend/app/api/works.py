@@ -9,12 +9,14 @@ from typing import Any
 from urllib.parse import unquote
 
 from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from slugify import slugify
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
+from app.ficbook import FicbookError, scrape_ficbook
 from app.staff import STAFF_USERS
 from app.models.entities import StoryFormat, StoryGenre, StoryKink, StoryWarning
 from app.models import (
@@ -277,6 +279,23 @@ async def resolve_labels(db: AsyncSession, model, values: list | None):
     if missing:
         by_name = (await db.execute(select(model).where(model.name.in_(missing)))).scalars().all()
         found = list(found) + list(by_name)
+        have = {item.slug for item in found}
+        still = [item for item in slugs if item not in have]
+        if still and model is WorkFormat:
+            known = {
+                "perevod-raboty-s-inostrannogo-yazyka": (
+                    "Перевод работы с иностранного языка",
+                    "Работа является переводом. В примечании автора укажите ссылку на оригинальную работу.",
+                )
+            }
+            for slug in still:
+                name, desc = known.get(slug, (None, None))
+                if not name:
+                    continue
+                row = WorkFormat(name=name, slug=slug, description=desc)
+                db.add(row)
+                found.append(row)
+            await db.flush()
     return list(found)
 
 
@@ -506,3 +525,21 @@ async def put_content(
     story.content_json = json.dumps(payload, ensure_ascii=False)
     await db.commit()
     return {"ok": True}
+
+
+@router.post("/import/ficbook")
+async def import_ficbook(
+    payload: dict[str, Any],
+    db: AsyncSession = Depends(get_db),
+    x_fox_author: str | None = Header(None),
+    x_fox_name: str | None = Header(None),
+):
+    author = await get_author(db, x_fox_author, x_fox_name)
+    deny_if_blocked(author)
+    if not payload.get("confirm_author"):
+        raise HTTPException(status_code=400, detail="Подтвердите, что вы автор этой работы")
+    try:
+        data = await run_in_threadpool(scrape_ficbook, str(payload.get("url") or ""))
+    except FicbookError as err:
+        raise HTTPException(status_code=err.status, detail=str(err)) from err
+    return data

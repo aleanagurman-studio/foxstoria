@@ -238,7 +238,7 @@
               <img src="assets/ornaments/03_more.svg?v=3" alt="">
             </button>
             <div class="review-menu-dd" hidden>
-              <button type="button"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
+              <button type="button" data-report="comment"><img src="assets/svg/флаг.svg" alt=""> Пожаловаться</button>
               ${canDelete ? `<button type="button" class="is-danger" data-comment-act="delete"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>` : ""}
             </div>
           </div>

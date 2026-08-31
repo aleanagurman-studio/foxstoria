@@ -2697,6 +2697,17 @@ body.studio-page {
   color: var(--warm-brown);
   margin: 4px 0 0;
 }
+.studio-flag {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--chestnut-dark, #5c2e1a);
+  background: color-mix(in srgb, var(--fox, #c45c26) 16%, var(--cream, #f7f0e6));
+  border: 1px solid color-mix(in srgb, var(--fox, #c45c26) 28%, transparent);
+}
 .studio-radios {
   display: flex;
   flex-wrap: wrap;

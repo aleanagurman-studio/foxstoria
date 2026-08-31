@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=211">
-  <script src="site.js?v=92"></script>
+  <link rel="stylesheet" href="styles.css?v=218">
+  <script src="site.js?v=100"></script>
 </head>
 <body class="cabinet-page">
   <header class="header"></header>
@@ -37,14 +37,22 @@
               <p>Ваши истории и проекты, над которыми вы работаете.</p>
             </div>
           </header>
-          <a href="work-new.html" class="btn btn-primary cabinet-new">+ Новая история</a>
+          <div class="work-split-btn cabinet-new" data-cabinet-new>
+            <a href="work-new.html" class="work-split-btn-main">+ Новая история</a>
+            <button type="button" class="work-split-btn-toggle" aria-expanded="false" aria-label="Другие способы создать историю">
+              <svg class="work-icon" aria-hidden="true"><use href="icons.svg#i-chevron-down"></use></svg>
+            </button>
+            <div class="work-split-menu" hidden>
+              <button type="button" data-ficbook-import>Импорт с ФБ</button>
+            </div>
+          </div>
         </div>
         <div class="account-tabs cabinet-tabs" data-account-tabs>
           <button type="button" class="active" data-tab="all"><img src="assets/deco/paw.svg" alt=""> Все работы <span data-cabinet-count="all">0</span></button>
           <button type="button" data-tab="author"><img src="assets/svg/profile.svg" alt=""> Автор <span data-cabinet-count="author">0</span></button>
           <button type="button" data-tab="coauthor"><img src="assets/svg/пейринг.svg" alt=""> Соавтор <span data-cabinet-count="coauthor">0</span></button>
           <button type="button" data-tab="editor"><img src="assets/svg/редактировать.svg" alt=""> Редактор <span data-cabinet-count="editor">0</span></button>
-          <button type="button" data-tab="subs"><img src="assets/svg/деньга.svg" alt=""> Подписки</button>
+          <button type="button" data-tab="subs"><img src="assets/svg/деньга.svg" alt=""> Монетизация</button>
         </div>
       </div>
       <div class="cabinet-body">
@@ -87,12 +95,25 @@
         <div class="cabinet-grid" data-feed="author-home-editor"></div>
       </section>
       <section id="tab-subs" hidden>
-        <p class="author-tiers-lead">До пяти платных уровней. Название и цену задаёте вы. Минимум 50 ₽ в месяц, комиссия сервиса — 10% с каждой оплаты (без комиссии платёжки). Высший уровень открывает все платные работы и записи.</p>
-        <div class="sub-tier-list" id="author-tiers"></div>
-        <div class="work-new-actions" style="margin-top:16px">
-          <button type="button" class="btn btn-outline" id="author-tier-add">+ Уровень</button>
-          <button type="button" class="btn btn-primary" id="author-tier-save">Сохранить уровни</button>
+        <div class="monetize-grid">
+          <div>
+            <h2 class="monetize-h">Уровни подписки</h2>
+            <p class="author-tiers-lead">До пяти платных уровней. Название и цену задаёте вы. Минимум 50 ₽ в месяц, комиссия сервиса — 10% с каждой оплаты (без комиссии платёжки). Высший уровень открывает все платные работы и записи.</p>
+            <div class="sub-tier-list" id="author-tiers"></div>
+            <div class="work-new-actions" style="margin-top:16px">
+              <button type="button" class="btn btn-outline" id="author-tier-add">+ Уровень</button>
+              <button type="button" class="btn btn-primary" id="author-tier-save">Сохранить уровни</button>
+            </div>
+          </div>
+          <aside class="monetize-stat" aria-labelledby="monetize-stat-title">
+            <h2 id="monetize-stat-title">Заработок</h2>
+            <div id="author-earn-stats"></div>
+          </aside>
         </div>
+        <section class="monetize-history" aria-labelledby="monetize-history-title">
+          <h2 id="monetize-history-title">История подписок</h2>
+          <div id="author-sub-history"></div>
+        </section>
       </section>
       <nav class="cabinet-pager" aria-label="Страницы">
         <button type="button" disabled aria-label="Назад">‹</button>
@@ -112,6 +133,6 @@
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
-  <script src="catalog.js?v=44" defer></script>
+  <script src="catalog.js?v=45" defer></script>
 </body>
 </html>
