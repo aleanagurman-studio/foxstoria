@@ -126,7 +126,7 @@ function isUiIconImg(img) {
   }
   if (
     img.closest(
-      ".logo, .profile-ava, .header-avatar, .sidebar-ornament, .studio-nav-art, .feed-corner, .work-cover, .story-cover, .cabinet-cover-frame, .cabinet-fox, .blog-post-cover, .news-cover, .news-hero-art, .tile-image, .collection-cover, .featured-cover, .author-avatar, .cover-fallback, .footer-art, .news-editor, .news-comment-ava, .lost-art, .lost-art-wrap, .msg-ava, .help-msg-ava, .help-chat-head, .help-ava, .linear-inline-art"
+      ".logo, .profile-ava, .header-avatar, .sidebar-ornament, .studio-nav-art, .feed-corner, .work-cover, .story-cover, .linear-work-cover, .cabinet-cover-frame, .cabinet-fox, .blog-post-cover, .news-cover, .news-hero-art, .tile-image, .collection-cover, .featured-cover, .author-avatar, .cover-fallback, .footer-art, .news-editor, .news-comment-ava, .lost-art, .lost-art-wrap, .msg-ava, .help-msg-ava, .help-chat-head, .help-ava, .linear-inline-art"
     )
   ) {
     return false;
@@ -1890,6 +1890,7 @@ window.FoxApi = {
 window.FoxWorks = {
   KEY: FOX_WORKS_KEY,
   publicWorks: [],
+  fileWorks: [],
   _hydrate: null,
   load() {
     try {
@@ -1989,6 +1990,7 @@ window.FoxWorks = {
     return (
       this.load().find((work) => this.sameId(work.id, id)) ||
       this.publicWorks.find((work) => this.sameId(work.id, id)) ||
+      this.fileWorks.find((work) => this.sameId(work.id, id)) ||
       null
     );
   },
@@ -2038,6 +2040,17 @@ window.FoxWorks = {
       } catch {
         this.publicWorks = [];
       }
+      try {
+        const res = await fetch("works.json", { cache: "no-store" });
+        const data = res.ok ? await res.json() : { works: [] };
+        this.fileWorks = Array.isArray(data.works) ? data.works : [];
+      } catch {
+        this.fileWorks = [];
+      }
+      const byId = new Map();
+      this.fileWorks.forEach((work) => byId.set(String(work.id), work));
+      this.publicWorks.forEach((work) => byId.set(String(work.id), work));
+      this.publicWorks = [...byId.values()];
       return true;
     })();
     return this._hydrate;
@@ -2194,7 +2207,33 @@ window.FoxWorks = {
       ],
     };
   },
+  messengerDemo(work) {
+    if (String(work?.id || "") !== "kinder-locker") return null;
+    const images = Array.from({ length: 10 }, (_, i) => `assets/test/messenger/${String(i + 1).padStart(2, "0")}.jpg`);
+    const ch = "ch-kinder-1";
+    return {
+      workId: work.id,
+      title: work.title || "Без названия",
+      selectedId: ch,
+      characters: [],
+      notes: [],
+      chapters: [
+        {
+          id: ch,
+          title: "24–25 марта",
+          summary: "",
+          notes: "",
+          status: "published",
+          images,
+          cover: images[0],
+          isEnding: true,
+        },
+      ],
+    };
+  },
   emptyMessenger(work) {
+    const demo = this.messengerDemo(work);
+    if (demo) return demo;
     const ch = `ch-${Date.now().toString(36)}`;
     return {
       workId: work?.id || "",
@@ -2253,7 +2292,17 @@ window.FoxWorks = {
           if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(this.emptyLinear(work)));
         } else if (type === "messenger") {
           const key = this.messengerStore(work.id);
-          if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(this.emptyMessenger(work)));
+          const demo = this.messengerDemo(work);
+          let existing = null;
+          try {
+            existing = JSON.parse(localStorage.getItem(key) || "null");
+          } catch {
+            existing = null;
+          }
+          const empty =
+            !existing ||
+            !(existing.chapters || []).some((chapter) => (chapter.images || []).length);
+          if (empty) localStorage.setItem(key, JSON.stringify(demo || this.emptyMessenger(work)));
         } else {
           const key = this.mapStore(work.id);
           if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(this.emptyInteractive(work)));

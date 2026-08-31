@@ -81,6 +81,23 @@
       "is_completed": false,
       "plays": 756,
       "description": "Смешанные линии в мире Jujutsu Kaisen."
+    },
+    {
+      "id": "kinder-locker",
+      "title": "Шкафчик благородного кота",
+      "author": "Лунный странник",
+      "author_slug": "moonwander",
+      "href": "story.html?id=kinder-locker",
+      "cover": "assets/test/messenger/01.jpg",
+      "fandom": "Bangtan Boys (BTS)",
+      "romance": "slash",
+      "age": "18+",
+      "story_type": "messenger",
+      "work_size": "mini",
+      "likes": 512,
+      "is_completed": true,
+      "plays": 512,
+      "description": "Твиты и переписки: киндеры, шкафчик и слишком много котов."
     }
   ],
   "authors": [
@@ -90,8 +107,8 @@
       "slug": "moonwander",
       "avatar": "assets/test/avatar-1.png",
       "bio": "Пишу ветвящиеся новеллы о памяти и выборе.",
-      "works": 5,
-      "story_count": 5,
+      "works": 6,
+      "story_count": 6,
       "followers": 3642,
       "updatedAt": "2026-08-28T14:20:00"
     },

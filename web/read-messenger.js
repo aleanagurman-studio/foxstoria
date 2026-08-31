@@ -42,10 +42,25 @@
   }
 
   const urls = FoxWorks.urls(work);
-  document.getElementById("work-card").href = urls.public;
-  document.getElementById("work-card-title").textContent = work.title || "Без названия";
-  document.getElementById("work-card-author").textContent = work.author || "";
-  if (work.cover) document.getElementById("work-card-cover").src = work.cover;
+  const workCard = document.getElementById("work-card");
+  if (workCard) workCard.href = urls.public;
+  const cardTitle = document.getElementById("work-card-title");
+  if (cardTitle) cardTitle.textContent = work.title || "Без названия";
+  const cardAuthor = document.getElementById("work-card-author");
+  if (cardAuthor) cardAuthor.textContent = work.author || "";
+  const coverSlot = document.querySelector(".linear-work-cover");
+  const coverImg = document.getElementById("work-card-cover");
+  if (work.cover && coverSlot) {
+    if (coverImg) {
+      coverImg.src = work.cover;
+    } else {
+      const img = document.createElement("img");
+      img.id = "work-card-cover";
+      img.alt = "";
+      img.src = work.cover;
+      coverSlot.replaceChildren(img);
+    }
+  }
   document.getElementById("crumb-work").textContent = work.title || "Работа";
   document.getElementById("crumb-work").href = urls.public;
   document.getElementById("edit-chapter").href = `${urls.editor}${urls.editor.includes("?") ? "&" : "?"}chapter=1`;
