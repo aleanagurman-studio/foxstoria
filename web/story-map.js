@@ -139,6 +139,10 @@ window.FoxStoryMap = (function foxStoryMap() {
 
   function isPublished(scene) {
     if (!scene) return false;
+    if (window.FoxChapterStatus) {
+      const workId = new URLSearchParams(location.search).get("id") || "";
+      return FoxChapterStatus.isLive(scene, workId);
+    }
     if (typeof scene.published === "boolean") return scene.published;
     return !scene.isEnding;
   }
@@ -414,7 +418,7 @@ window.FoxStoryMap = (function foxStoryMap() {
         : seen
           ? `<img class="story-nav-lock" src="assets/svg/unlocked.svg" alt="" aria-hidden="true">`
           : `<img class="story-nav-lock" src="assets/svg/locked.svg" alt="" aria-hidden="true">`;
-      const label = `<span class="story-nav-num">${node.n}</span><span class="story-nav-title">${escapeNav(node.title)}</span>${mark}`;
+      const label = `<span class="story-nav-title">${escapeNav(node.title)}</span>${mark}`;
       const link = seen
         ? `<a class="story-nav-link${here ? " is-current" : ""}${readSet.has(node.id) ? " is-read" : ""}" href="${hrefOf(node)}" data-scene="${escapeNav(node.id)}"${here ? " aria-current=\"page\"" : ""}>${label}</a>`
         : `<span class="story-nav-link is-locked">${label}</span>`;

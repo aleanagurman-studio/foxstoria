@@ -106,6 +106,12 @@
           data.characters = data.characters || [];
           data.notes = data.notes || [];
           if (work?.title) data.title = work.title;
+          (data.scenes || []).forEach((scene) => {
+            if (window.FoxChapterStatus) FoxChapterStatus.applyDue(scene, workId, "published");
+            scene.audioKey = scene.audioKey || "";
+            scene.audioName = scene.audioName || "";
+            scene.audioEmbed = scene.audioEmbed || "";
+          });
           return data;
         }
       }
@@ -142,6 +148,7 @@
     return sceneById(story.selectedId) || story.scenes[0];
   }
 
+  let chapterStatus;
   let workspaceOpen = false;
   let fnTarget = null;
   let fnHideTimer = 0;
@@ -292,11 +299,33 @@
     if ($("scene-word-count")) $("scene-word-count").textContent = `${count} ${pluralWords(count)}`;
     $("scene-end-toggle")?.classList.toggle("on", scene.isEnding);
     syncWorkspaceCover(scene);
+    syncSceneAudioBtn(scene);
+    chapterStatus?.paint();
   }
+
+  chapterStatus = window.FoxChapterStatus?.bind({
+    getPart: selected,
+    workId,
+    fallback: "published",
+    onChange() {
+      const scene = selected();
+      if (scene) scene.published = scene.status === "published";
+      persist(true);
+      renderMap();
+      renderTree();
+    },
+    onSave() {
+      saveSceneHtml(true);
+      persist(true);
+    },
+  });
 
   function persist(force) {
     if (!force && foxPref("autosave") === false) return;
     try {
+      if (window.FoxChapterStatus) {
+        (story.scenes || []).forEach((scene) => FoxChapterStatus.applyDue(scene, workId, "published"));
+      }
       localStorage.setItem(STORE, JSON.stringify(story));
       if (window.FoxWorks) FoxWorks.pushContent(workId, story);
     } catch {
@@ -345,6 +374,11 @@
       isEnding: false,
       blocks: [],
       html: "",
+      audioKey: "",
+      audioName: "",
+      audioEmbed: "",
+      status: "draft",
+      published: false,
       choices: [],
     };
     story.scenes.push(scene);
@@ -383,8 +417,10 @@
 
   function deleteScene(id) {
     if (story.scenes.length === 1) return;
+    if (!window.confirm("Удалить сцену безвозвратно?")) return;
     const scene = sceneById(id);
     if (!scene) return;
+    if (scene?.audioKey && window.FoxAudio) FoxAudio.remove(scene.audioKey);
     story.scenes = story.scenes.filter((item) => item.id !== id);
     story.scenes.forEach((item) => {
       item.choices = item.choices.filter((choice) => choice.targetId !== id);
@@ -1076,6 +1112,8 @@
       if (workspaceOpen && value === "preview") closeSettings();
       document.querySelectorAll(".mode-tab").forEach((tab) => tab.classList.toggle("active", tab.getAttribute("data-mode") === value));
       $("preview").hidden = value !== "preview";
+      const mapSave = $("editor-save-map");
+      if (mapSave) mapSave.hidden = value === "preview";
       if (value === "preview") {
         previewPath = [selected()?.id].filter(Boolean);
         renderPreview();
@@ -1232,35 +1270,49 @@
     snapshot("graph");
   }
 
-  function insertSceneImage(file) {
+  async function insertSceneImage(file) {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const editor = $("scene-editor");
-      editor.focus();
-      const img = document.createElement("img");
-      img.src = String(reader.result);
-      img.alt = "";
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0);
-        range.collapse(false);
-        range.insertNode(img);
-        const spacer = document.createElement("p");
-        spacer.innerHTML = "<br>";
-        img.after(spacer);
-        range.setStart(spacer, 0);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      } else {
-        editor.appendChild(img);
-        editor.appendChild(document.createElement("p"));
+    saveSceneHtml();
+    const scene = selected();
+    const count = window.FoxQuota ? FoxQuota.chapterImageCount("interactive", scene, story) : 0;
+    let src = "";
+    if (window.FoxQuota) {
+      const res = await FoxQuota.take(file, { role: "art", currentCount: count });
+      if (!res.ok) {
+        window.alert(res.error);
+        return;
       }
-      saveSceneHtml();
-      snapshot("graph");
-    };
-    reader.readAsDataURL(file);
+      src = res.data;
+    } else {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.readAsDataURL(file);
+      });
+    }
+    const editor = $("scene-editor");
+    editor.focus();
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "";
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      range.collapse(false);
+      range.insertNode(img);
+      const spacer = document.createElement("p");
+      spacer.innerHTML = "<br>";
+      img.after(spacer);
+      range.setStart(spacer, 0);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      editor.appendChild(img);
+      editor.appendChild(document.createElement("p"));
+    }
+    saveSceneHtml();
+    snapshot("graph");
   }
 
   $("scene-workspace-close")?.addEventListener("click", closeSettings);
@@ -1273,17 +1325,32 @@
     snapshot("graph");
   });
   $("scene-cover-btn")?.addEventListener("click", () => $("scene-cover-file").click());
-  $("scene-cover-file")?.addEventListener("change", (event) => {
+  $("scene-cover-file")?.addEventListener("change", async (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      selected().background = String(reader.result);
-      snapshot("graph");
-      syncWorkspaceCover(selected());
-    };
-    reader.readAsDataURL(file);
+    const scene = selected();
+    const count = window.FoxQuota ? FoxQuota.chapterImageCount("interactive", scene, story) : 0;
+    if (window.FoxQuota) {
+      const res = await FoxQuota.take(file, {
+        role: "chapter-cover",
+        currentCount: count,
+        replaceSrc: scene.background || "",
+      });
+      if (!res.ok) {
+        window.alert(res.error);
+        return;
+      }
+      scene.background = res.data;
+    } else {
+      scene.background = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.readAsDataURL(file);
+      });
+    }
+    snapshot("graph");
+    syncWorkspaceCover(scene);
   });
   $("scene-cover-remove")?.addEventListener("click", () => {
     selected().background = "";
@@ -1344,6 +1411,62 @@
   $("scene-insert-image")?.addEventListener("click", () => $("scene-image-file").click());
   $("scene-image-file")?.addEventListener("change", (event) => {
     insertSceneImage(event.target.files?.[0]);
+    event.target.value = "";
+  });
+
+  function syncSceneAudioBtn(scene) {
+    const btn = $("scene-insert-audio");
+    if (!btn) return;
+    const on = Boolean(scene?.audioKey || scene?.audioEmbed);
+    btn.classList.toggle("has-audio", on);
+    btn.title = on ? "Музыка сцены — изменить или убрать" : "Музыка сцены";
+  }
+
+  async function assignSceneAudio(file) {
+    const scene = selected();
+    if (!file || !scene || !window.FoxAudio) return;
+    let replaceBytes = 0;
+    if (scene.audioKey) {
+      const prev = await FoxAudio.get(scene.audioKey);
+      replaceBytes = prev?.blob?.size || 0;
+    }
+    const check = window.FoxQuota ? await FoxQuota.takeAudio(file, replaceBytes) : FoxAudio.validate(file);
+    if (!check.ok) {
+      window.alert(check.error);
+      return;
+    }
+    const key = FoxAudio.key(workId || "map", scene.id);
+    try {
+      await FoxAudio.put(key, file);
+    } catch {
+      window.alert("Не удалось сохранить файл.");
+      return;
+    }
+    scene.audioKey = key;
+    scene.audioName = file.name;
+    scene.audioEmbed = "";
+    snapshot();
+    syncSceneAudioBtn(scene);
+  }
+
+  $("scene-insert-audio")?.addEventListener("click", async () => {
+    const scene = selected();
+    if (!scene) return;
+    if (!window.FoxMusicLink) {
+      $("scene-audio-file").click();
+      return;
+    }
+    const result = await FoxMusicLink.ask(scene, { title: "Музыка сцены" });
+    const applied = await FoxMusicLink.apply(scene, result, {
+      onChange() {
+        snapshot();
+        syncSceneAudioBtn(scene);
+      },
+    });
+    if (applied === "file") $("scene-audio-file").click();
+  });
+  $("scene-audio-file")?.addEventListener("change", (event) => {
+    assignSceneAudio(event.target.files?.[0]);
     event.target.value = "";
   });
   $("scene-editor")?.addEventListener("input", () => saveSceneHtml());
@@ -1448,17 +1571,37 @@
     if (block) block.text = event.target.value;
     persist();
   });
-  $("right-blocks")?.addEventListener("change", (event) => {
+  $("right-blocks")?.addEventListener("change", async (event) => {
     const id = event.target.getAttribute("data-block-image");
     const file = event.target.files?.[0];
     if (!id || !file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const block = selected().blocks.find((item) => item.id === id);
-      if (block) block.image = String(reader.result);
-      snapshot();
-    };
-    reader.readAsDataURL(file);
+    const scene = selected();
+    const block = scene.blocks.find((item) => item.id === id);
+    const count = window.FoxQuota ? FoxQuota.chapterImageCount("interactive", scene, story) : 0;
+    if (window.FoxQuota) {
+      const res = await FoxQuota.take(file, {
+        role: "art",
+        currentCount: count,
+        replaceSrc: block?.image || "",
+      });
+      if (!res.ok) {
+        window.alert(res.error);
+        event.target.value = "";
+        return;
+      }
+      if (block) block.image = res.data;
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const live = selected().blocks.find((item) => item.id === id);
+        if (live) live.image = String(reader.result);
+        snapshot();
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+    event.target.value = "";
+    snapshot();
   });
 
   let panning = false;

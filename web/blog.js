@@ -53,6 +53,8 @@
       comments: 4,
       likes: 19,
       views: 260,
+      paid: true,
+      paid_min_level: 1,
     },
     {
       id: "letter-2019",
@@ -181,6 +183,17 @@
     return Boolean(document.querySelector("#blog-stream[data-blog-public]"));
   }
 
+  function streamAuthor() {
+    return (
+      document.querySelector("[data-feed='profile-works']")?.getAttribute("data-author") ||
+      (typeof ownerHandle === "function" ? ownerHandle() : "moonwander")
+    );
+  }
+
+  function postLocked(post) {
+    return window.FoxPay ? !FoxPay.postUnlocked(streamAuthor(), post) : false;
+  }
+
   function signed() {
     return typeof isSignedIn === "function" && isSignedIn();
   }
@@ -255,7 +268,7 @@
   function renderCommentItem(item) {
     const own = Boolean(item.own) || item.author === "Вы";
     const tools =
-      signed() && own
+      signed() && (own || (typeof isSiteAdmin === "function" && isSiteAdmin()))
         ? `<span class="news-comment-tools"><button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button></span>`
         : "";
     return `
@@ -301,22 +314,27 @@
   }
 
   function publicPostHTML(post) {
+    const locked = postLocked(post);
     const text = String(post.text || "");
     const long = text.length > COLLAPSE_AT;
     const excerpt = long ? `${text.slice(0, COLLAPSE_AT).trim()}…` : text;
     const liked = isLiked(post.id);
+    const mark = window.FoxPay ? FoxPay.markHTML(post) : "";
     return `
-      <article class="blog-post is-public${long ? " is-collapsible" : ""}${post.pinned ? " is-pinned" : ""}" data-id="${escapeHtml(post.id)}">
+      <article class="blog-post is-public${long ? " is-collapsible" : ""}${post.pinned ? " is-pinned" : ""}${locked ? " is-paid-locked" : ""}" data-id="${escapeHtml(post.id)}">
         <button type="button" class="blog-post-cover" data-expand aria-label="Открыть запись">
+          ${mark}
           <img src="${escapeHtml(post.cover)}" alt="">
         </button>
         <div class="blog-post-body">
           <time datetime="${escapeHtml(post.date)}">${escapeHtml(formatDate(post.date))}</time>
           <h2><button type="button" data-expand>${escapeHtml(post.title)}</button></h2>
           ${
-            long
-              ? `<p class="blog-excerpt">${escapeHtml(excerpt)}</p><p class="blog-full" hidden>${escapeHtml(text)}</p>`
-              : `<p>${escapeHtml(text)}</p>`
+            locked
+              ? (window.FoxPay ? FoxPay.postGateHTML(streamAuthor(), post) : "<p>Только для подписчиков.</p>")
+              : long
+                ? `<p class="blog-excerpt">${escapeHtml(excerpt)}</p><p class="blog-full" hidden>${escapeHtml(text)}</p>`
+                : `<p>${escapeHtml(text)}</p>`
           }
         </div>
         <div class="blog-post-tools">
@@ -338,6 +356,7 @@
   }
 
   function expandPost(card, withComments) {
+    if (card.classList.contains("is-paid-locked")) return;
     card.classList.add("is-expanded");
     const full = card.querySelector(".blog-full");
     const excerpt = card.querySelector(".blog-excerpt");
@@ -491,6 +510,7 @@
     return `
       <article class="blog-post${post.pinned ? " is-pinned" : ""}" data-id="${escapeHtml(post.id)}">
         <a class="blog-post-cover" href="${href}">
+          ${window.FoxPay ? FoxPay.markHTML(post) : ""}
           <img src="${escapeHtml(post.cover)}" alt="">
         </a>
         <div class="blog-post-body">
@@ -598,6 +618,11 @@
     form.text.value = post?.text || "";
     form.cover.value = post?.cover || "assets/test/cover-1.png";
     form.status.value = post?.status === "archived" ? "published" : post?.status || "published";
+    if (form.elements.paid) form.elements.paid.checked = Boolean(post?.paid);
+    if (window.FoxPay) {
+      FoxPay.fillLevelSelect(form.elements.paid_min_level, streamAuthor(), post?.paid_min_level);
+      FoxPay.bindPaidFields(form, streamAuthor());
+    }
     box.hidden = false;
     form.title.focus();
   }
@@ -658,6 +683,8 @@
         title: form.title.value.trim(),
         text: form.text.value.trim(),
         cover: form.cover.value.trim() || "assets/test/cover-1.png",
+        paid: Boolean(form.elements.paid?.checked),
+        paid_min_level: Math.max(1, Number(form.elements.paid_min_level?.value) || 1),
         comments: 0,
         likes: 0,
         views: 0,

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мои лимиты — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=213">
+  <script src="site.js?v=95"></script>
+</head>
+<body class="cabinet-page limits-page">
+  <header class="header"></header>
+  <div class="layout page">
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
+        <a href="catalog.html"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
+        <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
+        <a href="profile.html"><img src="assets/deco/fox.svg" alt=""> Мой профиль</a>
+        <a href="author-home.html"><img src="assets/deco/upload.svg" alt=""> Кабинет автора</a>
+        <a href="library.html"><img src="assets/deco/bookmark.svg" alt=""> Кабинет читателя</a>
+      </nav>
+      <div class="sidebar-ornament" aria-hidden="true">
+        <img src="assets/deco/уголок.svg" alt="">
+      </div>
+    </aside>
+    <main class="main page-main">
+      <header class="page-header">
+        <h1>Мои лимиты <img class="title-leaf" src="assets/svg/память.svg" alt=""></h1>
+        <p id="limits-plan-lead">Хранилище и число изображений на главу зависят от тарифа.</p>
+      </header>
+
+      <section class="settings-block limits-block" id="limits-usage">
+        <div class="limits-usage-head">
+          <h2 id="limits-plan-name">FoxStoria Free</h2>
+          <p class="profile-meta" id="limits-used-label">0 Б из 500 МБ</p>
+        </div>
+        <div class="limits-bar" role="img" aria-label="Заполненность хранилища" id="limits-bar">
+          <span class="limits-seg is-covers" id="limits-seg-covers"></span>
+          <span class="limits-seg is-art" id="limits-seg-art"></span>
+          <span class="limits-seg is-music" id="limits-seg-music"></span>
+        </div>
+        <ul class="limits-legend">
+          <li><span class="limits-dot is-covers"></span> Обложки <b id="limits-pct-covers">0%</b> <span id="limits-bytes-covers"></span></li>
+          <li><span class="limits-dot is-art"></span> Иллюстрации <b id="limits-pct-art">0%</b> <span id="limits-bytes-art"></span></li>
+          <li><span class="limits-dot is-music"></span> Музыка к работам <b id="limits-pct-music">0%</b> <span id="limits-bytes-music"></span></li>
+        </ul>
+      </section>
+
+      <section class="settings-block limits-block">
+        <h2>Изображения</h2>
+        <ul class="limits-rules" id="limits-rules">
+          <li>Обложка произведения — 1 шт.</li>
+          <li>Внутри главы — до 5 изображений вместе с обложкой главы.</li>
+          <li>Максимальный размер одного файла — 8 МБ. FoxStoria сжимает картинки автоматически.</li>
+        </ul>
+      </section>
+
+      <section class="settings-block limits-block">
+        <h2>Тарифы</h2>
+        <div class="limits-plans" id="limits-plans"></div>
+      </section>
+    </main>
+  </div>
+  <script src="limits.js?v=2"></script>
+</body>
+</html>

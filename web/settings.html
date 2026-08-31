@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=180">
-  <script src="site.js?v=62"></script>
+  <link rel="stylesheet" href="styles.css?v=209">
+  <script src="site.js?v=91"></script>
 </head>
 <body class="cabinet-page settings-page">
   <header class="header"></header>
@@ -56,6 +56,7 @@
         <label class="settings-field">
           <span>Имя автора</span>
           <input type="text" data-profile-name maxlength="48" autocomplete="nickname" placeholder="Как вас видят читатели">
+          <p class="settings-field-status" data-name-status></p>
         </label>
         <label class="settings-field">
           <span>Юзернейм</span>
@@ -63,6 +64,7 @@
             <span>@</span>
             <input type="text" data-profile-handle maxlength="24" autocomplete="username" spellcheck="false" placeholder="moonwander">
           </div>
+          <p class="settings-field-status" data-handle-status></p>
         </label>
         <h2>Пароль и вход</h2>
         <label class="settings-field">
@@ -215,6 +217,6 @@
     })();
   </script>
   <script src="taxonomy.js?v=27"></script>
-  <script src="settings.js?v=8" defer></script>
+  <script src="settings.js?v=9" defer></script>
 </body>
 </html>

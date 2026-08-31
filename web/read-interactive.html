@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=198">
+  <link rel="stylesheet" href="styles.css?v=213">
 </head>
 <body class="linear-read-page">
   <header class="header"></header>
@@ -25,6 +25,21 @@
           <span class="linear-work-card-meta">Ориджинал · Джен · 16+ · в процессе</span>
         </span>
       </a>
+      <div class="chapter-player" id="chapter-player" hidden>
+        <audio id="chapter-audio" loop></audio>
+        <div class="chapter-player-acts">
+          <button type="button" class="chapter-player-btn" data-player-play aria-label="Играть">
+            <img src="assets/svg/play.svg" alt="">
+          </button>
+          <button type="button" class="chapter-player-btn" data-player-pause hidden aria-label="Пауза">
+            <img src="assets/svg/pause.svg" alt="">
+          </button>
+          <button type="button" class="chapter-player-btn" data-player-stop aria-label="Стоп">
+            <img src="assets/svg/stop.svg" alt="">
+          </button>
+        </div>
+        <span class="chapter-player-name" data-player-name></span>
+      </div>
       <div class="linear-side-split" aria-hidden="true"></div>
       <div class="linear-side-stats" aria-label="Статистика истории">
         <div class="linear-side-stat">
@@ -164,8 +179,8 @@
     </article>
   </div>
 
-  <script src="site.js?v=68"></script>
-  <script src="story-map.js?v=5"></script>
+  <script src="site.js?v=95"></script>
+  <script src="story-map.js?v=10"></script>
   <script>
     const WORK_ID = "shadows";
     const CHAPTER_READ_KEY = "foxtoria-chapter-read:" + WORK_ID;
@@ -254,7 +269,9 @@
       document.getElementById("stat-endings").textContent = String(endings);
     }
 
+    let payWork = null;
     let story = FoxStoryMap.getStory();
+    if (window.FoxChapterPlayer) FoxChapterPlayer.bind(document.getElementById("chapter-player"));
     let current = startScene().id;
     let path = [current];
     const TOC_FOLD_KEY = "foxtoria-nav-fold:" + WORK_ID;
@@ -412,13 +429,20 @@
       document.title = `${title} — ${story.title || "Тени прошлого"} — FoxStoria`;
       document.getElementById("chapter-title").textContent = title;
       document.getElementById("crumb-chapter").textContent = title;
-      document.getElementById("chapter-text").innerHTML = sceneHtml(scene);
+      const locked = payWork && window.FoxPay && !FoxPay.sceneUnlocked(payWork, scene, startScene());
+      document.getElementById("chapter-text").innerHTML = locked ? FoxPay.gateHTML(payWork) : sceneHtml(scene);
       document.getElementById("chapter-hero").style.setProperty("--chapter-cover", `url("${COVERS[index % COVERS.length]}")`);
-      renderChoices();
+      if (locked) {
+        const block = document.getElementById("choice-block");
+        if (block) block.hidden = true;
+      } else {
+        renderChoices();
+      }
       renderMap();
       renderToc();
       paintRead();
       paintStats();
+      if (window.FoxChapterPlayer) FoxChapterPlayer.load(scene.audioKey, scene.audioName, scene.audioEmbed);
       history.replaceState(null, "", `read-interactive.html?scene=${encodeURIComponent(current)}`);
     }
 
@@ -489,7 +513,13 @@
       const del = event.target.closest("[data-comment-act=\"delete\"]");
       if (del) {
         event.preventDefault();
-        del.closest(".linear-comment")?.remove();
+        if (!window.confirm("Удалить комментарий? После обновления страницы его не будет.")) return;
+        const card = del.closest(".linear-comment");
+        const id = card?.getAttribute("data-comment-id") || card?.dataset.id;
+        if (id && window.FoxApi && /^\d+$/.test(String(id))) {
+          FoxApi.request(`/api/comments/${id}`, { method: "DELETE" }).catch(() => {});
+        }
+        card?.remove();
         return;
       }
       const btn = event.target.closest(".linear-comment-menu .review-menu-btn");
@@ -507,6 +537,15 @@
       });
     });
     paintFollow();
+    (async function loadPayWork() {
+      if (window.FoxWorks) {
+        await FoxWorks.hydrate();
+        const id = FoxWorks.idFromUrl() || WORK_ID;
+        if (id && !FoxWorks.get(id)) await FoxWorks.fetchOne(id);
+        payWork = FoxWorks.get(id) || null;
+      }
+      render();
+    })();
     render();
     const pathMap = document.getElementById("path-map");
     if (window.ResizeObserver) {

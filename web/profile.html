@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=181">
-  <script src="site.js?v=84"></script>
-  <script src="blog.js?v=12"></script>
+  <link rel="stylesheet" href="styles.css?v=209">
+  <script src="site.js?v=91"></script>
+  <script src="blog.js?v=13"></script>
 </head>
 <body>
   <header class="header"></header>
@@ -45,6 +45,7 @@
               Редактировать профиль
             </button>
           </div>
+          <div class="profile-subs" id="profile-subs"></div>
 
           <section class="profile-edit" id="profile-edit" hidden>
             <h2>Редактировать профиль</h2>
@@ -112,6 +113,7 @@
             <button type="button" data-tab="editor"><img src="assets/svg/редактировать.svg" alt=""> Редактор</button>
             <button type="button" data-tab="packs"><img src="assets/deco/сборник.svg" alt=""> Сборники</button>
             <button type="button" data-tab="blog"><img src="assets/deco/блог.svg" alt=""> Блог</button>
+            <button type="button" data-tab="gifts"><img src="assets/svg/present.svg" alt=""> Подарки</button>
           </div>
           <section id="tab-works">
             <div class="stories-grid" data-feed="profile-works" data-author="moonwander"></div>
@@ -131,12 +133,25 @@
               <button type="button" class="blog-more" id="blog-more" hidden>Загрузить ещё</button>
             </p>
           </section>
+          <section id="tab-gifts" hidden>
+            <div class="profile-gifts" id="profile-gifts"></div>
+          </section>
         </div>
       </div>
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
-  <script src="catalog.js?v=42" defer></script>
-  <script src="profile.js?v=7"></script>
+  <script src="catalog.js?v=43" defer></script>
+  <div class="work-dialog" id="profile-gift-dialog" hidden>
+    <div class="work-dialog-card">
+      <h2>Подарок</h2>
+      <p class="profile-gift-hint">Комиссия сайта — 20% от стоимости подарка (без комиссии платёжной системы). Подарок появится в разделе «Подарки».</p>
+      <div class="profile-gift-picks" id="profile-gift-picks"></div>
+      <div class="work-dialog-actions">
+        <button type="button" class="btn btn-outline" id="profile-gift-cancel">Отмена</button>
+      </div>
+    </div>
+  </div>
+  <script src="profile.js?v=9"></script>
 </body>
 </html>

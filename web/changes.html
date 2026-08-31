@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=178">
-  <script src="site.js?v=62"></script>
+  <link rel="stylesheet" href="styles.css?v=209">
+  <script src="site.js?v=91"></script>
 </head>
 <body class="changes-page">
   <header class="header"></header>
@@ -147,5 +147,33 @@
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const feed = document.querySelector(".changes-feed");
+      const rows = window.FoxPay?.cardChanges?.() || [];
+      if (!feed || !rows.length) return;
+      rows.forEach((row) => {
+        const when = row.at ? new Date(row.at) : new Date();
+        const time = Number.isNaN(when.getTime())
+          ? ""
+          : when.toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+        const href = row.workId ? `studio.html?id=${encodeURIComponent(row.workId)}` : "author-home.html";
+        feed.insertAdjacentHTML(
+          "afterbegin",
+          `<article class="change-card is-new" data-kind="edit">
+            <div class="change-body">
+              <header class="change-top">
+                <p class="change-who"><b>${(row.who || "Соавтор").replace(/</g, "")}</b> <span class="change-kind">Карточка</span></p>
+                <time>${time}</time>
+              </header>
+              <p class="change-place"><a href="${href}">${(row.title || "Работа").replace(/</g, "")}</a></p>
+              <p class="change-text">${(row.text || "Изменена карточка работы.").replace(/</g, "")}</p>
+              <a class="change-open" href="${href}">Открыть карточку</a>
+            </div>
+          </article>`
+        );
+      });
+    });
+  </script>
 </body>
 </html>

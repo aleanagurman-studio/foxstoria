@@ -16,7 +16,7 @@
     FoxWorks.seed(work);
   }
   const STORE = window.FoxWorks ? FoxWorks.messengerStore(workId) : "foxtoria-editor-messenger";
-  const MAX = window.FoxWorks?.MESSENGER_MAX_IMAGES || 15;
+  const chapterCap = () => (window.FoxQuota ? FoxQuota.limits().chapterImages : 5);
   const $ = (id) => document.getElementById(id);
 
   function uid(prefix) {
@@ -45,8 +45,9 @@
 
   function normalizeChapter(chapter) {
     if (!Array.isArray(chapter.images)) chapter.images = [];
-    chapter.images = chapter.images.filter(Boolean).slice(0, MAX);
-    if (chapter.status === "hidden" || chapter.status !== "published") chapter.status = "draft";
+    chapter.images = chapter.images.filter(Boolean);
+    if (window.FoxChapterStatus) FoxChapterStatus.applyDue(chapter, workId);
+    else if (chapter.status === "hidden" || chapter.status !== "published") chapter.status = "draft";
     chapter.isEnding = Boolean(chapter.isEnding);
     return chapter;
   }
@@ -99,6 +100,9 @@
 
   function persist(force) {
     if (!force && foxPref("autosave") === false) return;
+    if (window.FoxChapterStatus) {
+      story.chapters.forEach((chapter) => FoxChapterStatus.applyDue(chapter, workId));
+    }
     syncWorkStatus();
     localStorage.setItem(STORE, JSON.stringify(story));
     if (window.FoxWorks) FoxWorks.pushContent(workId, story);
@@ -326,8 +330,9 @@
   function renderSlots() {
     const chapter = selected();
     const images = chapter.images || [];
-    $("image-count").textContent = `${images.length} / ${MAX}`;
-    $("add-images-btn").disabled = images.length >= MAX;
+    const used = (chapter.cover ? 1 : 0) + images.length;
+    $("image-count").textContent = `${used} / ${chapterCap()}`;
+    $("add-images-btn").disabled = used >= chapterCap();
     $("image-slots").innerHTML = images
       .map(
         (src, index) => `
@@ -349,7 +354,7 @@
     $("sheet-title").textContent = chapter.title || "";
     $("story-title").textContent = (story.title || "").trim() || "Без названия";
     renderSlots();
-    syncStatus(chapter.status === "published" ? "published" : "draft");
+    chapterStatus?.paint();
     const box = $("chapter-ending");
     if (box) box.checked = Boolean(chapter.isEnding);
   }
@@ -371,7 +376,6 @@
     previewIndex = Math.max(0, story.chapters.findIndex((ch) => ch.id === story.selectedId));
     const chapter = story.chapters[previewIndex];
     if (!chapter) return;
-    $("preview-title").textContent = chapter.title.trim() || "Без названия";
     $("preview-prev").disabled = previewIndex === 0;
     $("preview-prev-name").textContent =
       previewIndex === 0 ? "" : story.chapters[previewIndex - 1].title.trim() || "Без названия";
@@ -412,6 +416,7 @@
 
   function deleteChapter(id) {
     if (story.chapters.length <= 1) return;
+    if (!window.confirm("Удалить главу безвозвратно?")) return;
     const index = story.chapters.findIndex((ch) => ch.id === id);
     if (index < 0) return;
     story.chapters.splice(index, 1);
@@ -422,10 +427,18 @@
   async function addFiles(files) {
     const chapter = selected();
     chapter.images = chapter.images || [];
-    const room = MAX - chapter.images.length;
-    const batch = [...files].filter((file) => file?.type?.startsWith("image/")).slice(0, room);
-    for (const file of batch) {
-      chapter.images.push(await readImageFile(file));
+    for (const file of [...files].filter((item) => item?.type?.startsWith("image/"))) {
+      const count = (chapter.cover ? 1 : 0) + chapter.images.length;
+      if (window.FoxQuota) {
+        const res = await FoxQuota.take(file, { role: "art", currentCount: count });
+        if (!res.ok) {
+          window.alert(res.error);
+          break;
+        }
+        chapter.images.push(res.data);
+      } else {
+        chapter.images.push(await readImageFile(file));
+      }
     }
     snapshot();
   }
@@ -444,25 +457,9 @@
     }
   }
 
-  function syncStatus(status) {
-    const live = status === "published";
-    const btn = $("chapter-status-btn");
-    if (!btn) return;
-    btn.textContent = live ? "Скрыть" : "Опубликовать";
-    btn.classList.toggle("linear-pub-btn--hide", live);
-    btn.classList.toggle("linear-pub-btn--publish", !live);
-    btn.setAttribute("aria-pressed", live ? "true" : "false");
-  }
-
-  function setStatus(status) {
-    selected().status = status === "published" ? "published" : "draft";
-    syncStatus(selected().status);
-    persist(true);
-  }
-
   function syncWorkStatus() {
     const status = window.FoxWorkStatus
-      ? FoxWorkStatus.fromChapters(story.chapters)
+      ? FoxWorkStatus.fromChapters(story.chapters, workId)
       : selected()?.status === "published"
         ? "in_progress"
         : "draft";
@@ -593,12 +590,35 @@
     }
   });
 
-  $("chapter-status-btn").addEventListener("click", () => {
-    if (selected().status !== "published" && !(selected().images || []).length) {
+  const previewGallery = $("preview-gallery");
+  const previewFit = $("preview-fit");
+  function previewFitOn() {
+    return previewGallery.classList.contains("is-fit-screen");
+  }
+  function setPreviewFit(on) {
+    previewGallery.classList.toggle("is-fit-screen", on);
+    document.body.classList.toggle("messenger-fit-open", on);
+    if (on) previewGallery.scrollTop = 0;
+    previewFit?.setAttribute("aria-pressed", on ? "true" : "false");
+    previewFit?.setAttribute("aria-label", on ? "Свернуть" : "Растянуть картинку");
+  }
+  previewFit?.addEventListener("click", () => setPreviewFit(!previewFitOn()));
+
+  const chapterStatus = window.FoxChapterStatus?.bind({
+    getPart: selected,
+    workId,
+    canPublish(part, next) {
+      if (next !== "published") return true;
+      if ((part.images || []).length) return true;
       window.alert("В главу нужно добавить хотя бы одну картинку.");
-      return;
-    }
-    setStatus(selected().status === "published" ? "draft" : "published");
+      return false;
+    },
+    onChange() {
+      persist(true);
+    },
+    onSave() {
+      persist(true);
+    },
   });
 
   $("chapter-ending").addEventListener("change", (event) => {
@@ -610,6 +630,7 @@
     if (event.key === "Escape") {
       closePeek();
       closeLibModal();
+      if (previewFitOn()) setPreviewFit(false);
     }
     if ($("preview").hidden) return;
     if (event.key === "ArrowLeft") $("preview-img-prev").click();

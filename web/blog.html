@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=156">
-  <script src="site.js?v=62"></script>
-  <script src="blog.js?v=12"></script>
+  <link rel="stylesheet" href="styles.css?v=209">
+  <script src="site.js?v=96"></script>
+  <script src="blog.js?v=14"></script>
 </head>
 <body class="blog-page">
   <header class="header"></header>
@@ -88,6 +88,15 @@
               <div class="filter-group">
                 <label for="blog-cover">Обложка</label>
                 <input id="blog-cover" name="cover" type="text" placeholder="assets/test/cover-1.png">
+              </div>
+              <div class="studio-form-row" data-paid-fields>
+                <div>
+                  <label class="studio-label" for="blog-paid"><input type="checkbox" name="paid" id="blog-paid"> Платная запись</label>
+                </div>
+                <div>
+                  <label class="studio-label" for="blog-paid-level">Минимальный уровень</label>
+                  <select id="blog-paid-level" name="paid_min_level"></select>
+                </div>
               </div>
               <div class="filter-actions">
                 <button type="submit" class="btn btn-primary">Сохранить</button>

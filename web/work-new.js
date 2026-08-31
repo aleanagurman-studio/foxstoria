@@ -2,19 +2,31 @@
   const form = document.getElementById("work-card-form");
   if (!form || !window.FoxWorks) return;
   await FoxWorks.hydrate();
+  if (window.FoxPay) FoxPay.bindPaidFields(form, typeof ownerHandle === "function" ? ownerHandle() : "");
 
   const preview = document.getElementById("work-cover-preview");
   let cover = "";
 
-  document.getElementById("work-cover-input")?.addEventListener("change", (event) => {
+  document.getElementById("work-cover-input")?.addEventListener("change", async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      cover = String(reader.result || "");
+    if (window.FoxQuota) {
+      const res = await FoxQuota.take(file, { role: "work-cover", replaceSrc: cover });
+      if (!res.ok) {
+        window.alert(res.error);
+        event.target.value = "";
+        return;
+      }
+      cover = res.data;
       if (preview) preview.src = cover;
-    };
-    reader.readAsDataURL(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        cover = String(reader.result || "");
+        if (preview) preview.src = cover;
+      };
+      reader.readAsDataURL(file);
+    }
   });
 
   async function save(intent) {

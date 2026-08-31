@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=199">
-  <script src="site.js?v=86"></script>
+  <link rel="stylesheet" href="styles.css?v=209">
+  <script src="site.js?v=96"></script>
 </head>
 <body class="linear-read-page messenger-read-page">
   <header class="header"></header>
@@ -51,8 +51,11 @@
       </div>
 
       <div class="linear-read-body">
-        <h1 class="linear-read-title" id="chapter-title"></h1>
+        <h1 class="linear-read-title" id="chapter-title" hidden></h1>
         <div class="messenger-gallery" id="gallery">
+          <button type="button" class="linear-edit-btn messenger-expand-btn" id="fit-screen" aria-label="Растянуть картинку" aria-pressed="false">
+            <img src="assets/svg/hfcibhbnm.svg" alt="">
+          </button>
           <div class="messenger-gallery-frame" id="gallery-frame">
             <img id="gallery-image" alt="">
             <button type="button" class="messenger-hit messenger-hit--left" id="img-prev" aria-label="Предыдущая картинка"></button>
@@ -60,6 +63,7 @@
           </div>
           <p class="messenger-gallery-empty" id="gallery-empty" hidden>В этой главе нет картинок.</p>
         </div>
+        <div id="paid-gate" hidden></div>
 
         <nav class="linear-chap-nav messenger-chap-nav" aria-label="Главы">
           <button type="button" class="linear-chap-btn" id="prev">
@@ -98,10 +102,35 @@
             </button>
           </div>
         </div>
+
+        <section class="linear-comments" id="chapter-comments" aria-labelledby="comments-heading">
+          <div class="linear-comments-head">
+            <h2 id="comments-heading">Комментарии <span id="comments-count">0</span></h2>
+            <label class="linear-comments-sort">
+              <span class="visually-hidden">Сортировка</span>
+              <select id="comments-sort">
+                <option value="new">Сначала новые</option>
+                <option value="old">Сначала старые</option>
+              </select>
+            </label>
+          </div>
+          <form class="linear-comment-form" id="comment-form">
+            <img class="linear-comment-ava" id="comment-ava" src="assets/test/avatar-1.png" alt="">
+            <label class="linear-comment-field">
+              <span class="visually-hidden">Комментарий</span>
+              <textarea id="comment-text" rows="2" placeholder="Напишите комментарий..."></textarea>
+              <button type="submit" class="linear-comment-send" aria-label="Отправить">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </label>
+          </form>
+          <p class="linear-comment-reply-hint" id="comment-reply-hint" hidden>Ответ для <strong></strong> <button type="button" id="comment-reply-cancel">Отмена</button></p>
+          <div id="comments-list"></div>
+        </section>
       </div>
     </article>
   </div>
 
-  <script src="read-messenger.js?v=2"></script>
+  <script src="read-messenger.js?v=11"></script>
 </body>
 </html>

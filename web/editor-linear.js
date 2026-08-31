@@ -62,6 +62,9 @@
           status: "draft",
           html: "",
           cover: "",
+          audioKey: "",
+          audioName: "",
+          audioEmbed: "",
           isEnding: false,
         },
       ],
@@ -75,8 +78,12 @@
       const parsed = JSON.parse(raw);
       if (!parsed?.chapters?.length) return emptyStory();
       parsed.chapters.forEach((chapter) => {
-        if (chapter.status === "hidden" || chapter.status !== "published") chapter.status = "draft";
+        if (window.FoxChapterStatus) FoxChapterStatus.applyDue(chapter, workId);
+        else if (chapter.status === "hidden" || chapter.status !== "published") chapter.status = "draft";
         chapter.isEnding = Boolean(chapter.isEnding);
+        chapter.audioKey = chapter.audioKey || "";
+        chapter.audioName = chapter.audioName || "";
+        chapter.audioEmbed = chapter.audioEmbed || "";
       });
       if (!Array.isArray(parsed.characters)) {
         parsed.characters = demoLibrary().characters;
@@ -125,6 +132,9 @@
 
   function persist(force) {
     if (!force && foxPref("autosave") === false) return;
+    if (window.FoxChapterStatus) {
+      story.chapters.forEach((chapter) => FoxChapterStatus.applyDue(chapter, workId));
+    }
     syncWorkStatus();
     localStorage.setItem(STORE, JSON.stringify(story));
     if (window.FoxWorks) FoxWorks.pushContent(workId, story);
@@ -418,7 +428,8 @@
     $("word-count").textContent = `${wordCount(chapter.html || "")} ${pluralWords(wordCount(chapter.html || ""))}`;
     $("story-title").textContent = (story.title || "").trim() || "Письма из прошлого";
     syncCoverPreview(chapter);
-    syncStatus(chapter.status === "published" ? "published" : "draft");
+    syncAudioBtn(chapter);
+    chapterStatus?.paint();
     syncEnding(chapter);
   }
 
@@ -490,6 +501,9 @@
       status: "draft",
       html: "<p></p>",
       cover: "",
+      audioKey: "",
+      audioName: "",
+      audioEmbed: "",
       isEnding: false,
     };
     story.chapters.push(chapter);
@@ -499,8 +513,11 @@
 
   function deleteChapter(id) {
     if (story.chapters.length <= 1) return;
+    if (!window.confirm("Удалить главу безвозвратно?")) return;
     const index = story.chapters.findIndex((ch) => ch.id === id);
     if (index < 0) return;
+    const gone = story.chapters[index];
+    if (gone?.audioKey && window.FoxAudio) FoxAudio.remove(gone.audioKey);
     story.chapters.splice(index, 1);
     if (story.selectedId === id) {
       story.selectedId = story.chapters[Math.max(0, index - 1)].id;
@@ -508,35 +525,49 @@
     snapshot();
   }
 
-  function insertImage(file) {
+  async function insertImage(file) {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const editor = $("chapter-editor");
-      editor.focus();
-      const img = document.createElement("img");
-      img.src = String(reader.result);
-      img.alt = "";
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0);
-        range.collapse(false);
-        range.insertNode(img);
-        const spacer = document.createElement("p");
-        spacer.innerHTML = "<br>";
-        img.after(spacer);
-        range.setStart(spacer, 0);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      } else {
-        editor.appendChild(img);
-        editor.appendChild(document.createElement("p"));
+    saveEditorHtml();
+    const chapter = selected();
+    const count = window.FoxQuota ? FoxQuota.chapterImageCount("linear", chapter) : 0;
+    let src = "";
+    if (window.FoxQuota) {
+      const res = await FoxQuota.take(file, { role: "art", currentCount: count });
+      if (!res.ok) {
+        window.alert(res.error);
+        return;
       }
-      saveEditorHtml();
-      snapshot();
-    };
-    reader.readAsDataURL(file);
+      src = res.data;
+    } else {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.readAsDataURL(file);
+      });
+    }
+    const editor = $("chapter-editor");
+    editor.focus();
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "";
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      range.collapse(false);
+      range.insertNode(img);
+      const spacer = document.createElement("p");
+      spacer.innerHTML = "<br>";
+      img.after(spacer);
+      range.setStart(spacer, 0);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      editor.appendChild(img);
+      editor.appendChild(document.createElement("p"));
+    }
+    saveEditorHtml();
+    snapshot();
   }
 
   function setMode(mode) {
@@ -557,22 +588,6 @@
     if (!edit) renderPreview();
   }
 
-  function syncStatus(status) {
-    const live = status === "published";
-    const btn = $("chapter-status-btn");
-    if (!btn) return;
-    btn.textContent = live ? "Скрыть" : "Опубликовать";
-    btn.classList.toggle("linear-pub-btn--hide", live);
-    btn.classList.toggle("linear-pub-btn--publish", !live);
-    btn.setAttribute("aria-pressed", live ? "true" : "false");
-  }
-
-  function setStatus(status) {
-    selected().status = status === "published" ? "published" : "draft";
-    syncStatus(selected().status);
-    persist(true);
-  }
-
   function syncEnding(chapter) {
     const box = $("chapter-ending");
     if (!box) return;
@@ -586,7 +601,7 @@
 
   function syncWorkStatus() {
     const status = window.FoxWorkStatus
-      ? FoxWorkStatus.fromChapters(story.chapters)
+      ? FoxWorkStatus.fromChapters(story.chapters, workId)
       : selected()?.status === "published"
         ? "in_progress"
         : "draft";
@@ -843,17 +858,83 @@
     event.target.value = "";
   });
 
+  function syncAudioBtn(chapter) {
+    const btn = $("insert-audio");
+    if (!btn) return;
+    const on = Boolean(chapter?.audioKey || chapter?.audioEmbed);
+    btn.classList.toggle("has-audio", on);
+    btn.title = on ? "Музыка главы — изменить или убрать" : "Музыка главы";
+  }
+
+  async function assignChapterAudio(file) {
+    const chapter = selected();
+    if (!file || !chapter || !window.FoxAudio) return;
+    let replaceBytes = 0;
+    if (chapter.audioKey) {
+      const prev = await FoxAudio.get(chapter.audioKey);
+      replaceBytes = prev?.blob?.size || 0;
+    }
+    const check = window.FoxQuota ? await FoxQuota.takeAudio(file, replaceBytes) : FoxAudio.validate(file);
+    if (!check.ok) {
+      window.alert(check.error);
+      return;
+    }
+    const key = FoxAudio.key(workId || "linear", chapter.id);
+    try {
+      await FoxAudio.put(key, file);
+    } catch {
+      window.alert("Не удалось сохранить файл.");
+      return;
+    }
+    chapter.audioKey = key;
+    chapter.audioName = file.name;
+    chapter.audioEmbed = "";
+    snapshot();
+  }
+
+  $("insert-audio")?.addEventListener("click", async () => {
+    const chapter = selected();
+    if (!chapter) return;
+    if (!window.FoxMusicLink) {
+      $("audio-file").click();
+      return;
+    }
+    const result = await FoxMusicLink.ask(chapter);
+    const applied = await FoxMusicLink.apply(chapter, result, { onChange: () => snapshot() });
+    if (applied === "file") $("audio-file").click();
+  });
+  $("audio-file")?.addEventListener("change", (event) => {
+    assignChapterAudio(event.target.files?.[0]);
+    event.target.value = "";
+  });
+
   $("cover-upload-btn").addEventListener("click", () => $("cover-file").click());
-  $("cover-file").addEventListener("change", (event) => {
+  $("cover-file").addEventListener("change", async (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      selected().cover = String(reader.result);
-      snapshot();
-    };
-    reader.readAsDataURL(file);
+    saveEditorHtml();
+    const chapter = selected();
+    const count = window.FoxQuota ? FoxQuota.chapterImageCount("linear", chapter) : 0;
+    if (window.FoxQuota) {
+      const res = await FoxQuota.take(file, {
+        role: "chapter-cover",
+        currentCount: count,
+        replaceSrc: chapter.cover || "",
+      });
+      if (!res.ok) {
+        window.alert(res.error);
+        return;
+      }
+      chapter.cover = res.data;
+    } else {
+      chapter.cover = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.readAsDataURL(file);
+      });
+    }
+    snapshot();
   });
   $("cover-remove-btn").addEventListener("click", () => {
     selected().cover = "";
@@ -896,8 +977,15 @@
     renderAll();
   });
 
-  $("chapter-status-btn").addEventListener("click", () => {
-    setStatus(selected().status === "published" ? "draft" : "published");
+  const chapterStatus = window.FoxChapterStatus?.bind({
+    getPart: selected,
+    workId,
+    onChange() {
+      persist(true);
+    },
+    onSave() {
+      saveEditorHtml(true);
+    },
   });
 
   $("chapter-ending").addEventListener("change", (event) => {

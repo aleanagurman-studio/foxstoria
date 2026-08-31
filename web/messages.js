@@ -13,6 +13,66 @@
       .replace(/"/g, "&quot;");
   }
 
+  function defaultInbox() {
+    return [
+      {
+        id: "system",
+        kind: "system",
+        title: "Системная рассылка",
+        peer: { username: "foxstoria", display_name: "FoxStoria", avatar: "assets/brand/лисичка.png" },
+        preview: "Добро пожаловать в FoxStoria.",
+        updated_at: "",
+        time: "",
+        can_reply: false,
+        messages: [
+          {
+            id: "sys-welcome",
+            body: "Добро пожаловать в FoxStoria. Здесь появляются системные письма: объявления, напоминания и ответы поддержки — вопросы пишите в чат «Поддержка».",
+            time: "",
+            mine: false,
+            sender: { avatar: "assets/brand/лисичка.png", display_name: "FoxStoria" },
+          },
+        ],
+      },
+      {
+        id: "support",
+        kind: "support",
+        title: "Поддержка",
+        peer: { username: "foxstoria-support", display_name: "Поддержка", avatar: "assets/brand/помощник.png" },
+        preview: "Это чат с поддержкой.",
+        updated_at: "",
+        time: "",
+        can_reply: true,
+        messages: [
+          {
+            id: "sup-welcome",
+            body: "Это чат с поддержкой. Напишите сюда, если нужна помощь.",
+            time: "",
+            mine: false,
+            sender: { avatar: "assets/brand/помощник.png", display_name: "Поддержка" },
+          },
+        ],
+      },
+    ];
+  }
+
+  function mergeInbox(threads) {
+    const list = Array.isArray(threads) ? [...threads] : [];
+    defaultInbox().forEach((fallback) => {
+      if (!list.some((thread) => thread.kind === fallback.kind)) list.push(fallback);
+    });
+    const pin = { system: 0, support: 1 };
+    const pinned = list.filter((thread) => thread.kind in pin);
+    const rest = list.filter((thread) => !(thread.kind in pin));
+    pinned.sort((a, b) => pin[a.kind] - pin[b.kind]);
+    rest.sort((a, b) => String(b.updated_at || "").localeCompare(String(a.updated_at || "")));
+    return pinned.concat(rest);
+  }
+
+  function isStubThread(thread) {
+    return String(thread?.id || "") === "system" || String(thread?.id || "") === "support";
+  }
+
   function rowHTML(msg) {
     const ava = esc(msg.sender?.avatar || "assets/deco/fox.svg");
     const body = `<p>${esc(msg.body).replace(/\n/g, "<br>")}</p>`;
@@ -131,14 +191,17 @@
     try {
       data = await loadList();
     } catch {
-      if (empty) empty.textContent = "Не удалось открыть сообщения. Запустите backend: cd backend && ./run.sh";
-      return;
+      data = { threads: [] };
     }
-    const threads = Array.isArray(data.threads) ? data.threads : [];
+    const threads = mergeInbox(Array.isArray(data.threads) ? data.threads : []);
     const open = pickOpen(threads);
     if (list) list.innerHTML = threads.map((thread) => itemHTML(thread, open?.id)).join("");
     const details = [];
     for (const thread of threads) {
+      if (isStubThread(thread)) {
+        details.push(thread);
+        continue;
+      }
       try {
         details.push(await loadOne(thread.id));
       } catch {

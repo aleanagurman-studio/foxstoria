@@ -10,11 +10,12 @@ from urllib.parse import unquote
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 from slugify import slugify
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
+from app.staff import STAFF_USERS
 from app.models.entities import StoryFormat, StoryGenre, StoryKink, StoryWarning
 from app.models import (
     AgeRating,
@@ -37,6 +38,7 @@ from app.models import (
 router = APIRouter()
 
 DEFAULT_AUTHOR = "moonwander"
+RESERVED_USERNAMES = {"foxstoria", "foxstoria-support", "admin", "support", "moderator", "help"}
 
 
 def _story_load():
@@ -181,18 +183,61 @@ def authors_from_works(works: list[dict]) -> list[dict]:
     return list(by_slug.values())
 
 
+def norm_username(value: str | None) -> str:
+    return unquote(str(value or "")).lstrip("@").strip().lower()
+
+
+def norm_display_name(value: str | None) -> str:
+    return " ".join(unquote(str(value or "")).split())
+
+
+async def find_author_by_username(db: AsyncSession, handle: str | None) -> Author | None:
+    username = norm_username(handle)
+    if not username:
+        return None
+    return (
+        await db.execute(select(Author).where(func.lower(Author.username) == username))
+    ).scalar_one_or_none()
+
+
+async def username_taken(db: AsyncSession, handle: str, exclude_id: int | None = None) -> bool:
+    username = norm_username(handle)
+    if not username:
+        return True
+    rows = (await db.execute(select(Author.id, Author.username))).all()
+    for author_id, value in rows:
+        if exclude_id is not None and author_id == exclude_id:
+            continue
+        if norm_username(value) == username:
+            return True
+    return False
+
+
+async def display_name_taken(db: AsyncSession, name: str, exclude_id: int | None = None) -> bool:
+    label = norm_display_name(name).lower()
+    if not label:
+        return True
+    rows = (await db.execute(select(Author.id, Author.display_name))).all()
+    for author_id, value in rows:
+        if exclude_id is not None and author_id == exclude_id:
+            continue
+        if norm_display_name(value).lower() == label:
+            return True
+    return False
+
+
 async def get_author(
     db: AsyncSession,
     handle: str | None,
     display_name: str | None = None,
 ) -> Author:
-    username = unquote(str(handle or DEFAULT_AUTHOR)).lstrip("@").strip() or DEFAULT_AUTHOR
-    author = (await db.execute(select(Author).where(Author.username == username))).scalar_one_or_none()
+    username = norm_username(handle) or DEFAULT_AUTHOR
+    author = await find_author_by_username(db, username)
     if author:
         return author
     author = Author(
         username=username,
-        display_name=unquote(display_name or "") or "Вы",
+        display_name=norm_display_name(display_name) or "Вы",
         story_count=0,
         follower_count=0,
     )
@@ -304,10 +349,18 @@ async def replace_m2m(db: AsyncSession, story: Story, card: dict, age: AgeRating
         db.add(StoryKink(story_id=story.id, kink_id=item.id))
 
 
+def deny_if_blocked(author: Author) -> None:
+    if author.blocked_at and author.username not in STAFF_USERS:
+        raise HTTPException(
+            status_code=403,
+            detail="Профиль заблокирован. Работы сохранены. Напишите в поддержку, чтобы обжаловать.",
+        )
+
+
 async def load_story(db: AsyncSession, story_id: int) -> Story:
     loaded = await db.execute(select(Story).where(Story.id == story_id).options(*_story_load()))
     story = loaded.scalar_one_or_none()
-    if not story:
+    if not story or story.deleted_at:
         raise HTTPException(status_code=404, detail="Work not found")
     return story
 
@@ -331,7 +384,7 @@ async def me(
 async def catalog(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(Story)
-        .where(Story.status == StoryStatus.PUBLISHED)
+        .where(Story.status == StoryStatus.PUBLISHED, Story.deleted_at.is_(None))
         .options(*_story_load())
         .order_by(Story.published_at.desc().nullslast())
     )
@@ -348,7 +401,7 @@ async def list_mine(
     author = await get_author(db, x_fox_author, x_fox_name)
     result = await db.execute(
         select(Story)
-        .where(Story.author_id == author.id)
+        .where(Story.author_id == author.id, Story.deleted_at.is_(None))
         .options(*_story_load())
         .order_by(Story.id.desc())
     )
@@ -368,6 +421,7 @@ async def create_work(
     x_fox_name: str | None = Header(None),
 ):
     author = await get_author(db, x_fox_author or payload.get("author_slug"), x_fox_name or payload.get("author"))
+    deny_if_blocked(author)
     story = Story(
         title=str(payload.get("title") or "").strip() or "Без названия",
         slug=await unique_slug(db, str(payload.get("title") or "untitled")),
@@ -400,6 +454,7 @@ async def update_work(
     x_fox_name: str | None = Header(None),
 ):
     author = await get_author(db, x_fox_author or payload.get("author_slug"), x_fox_name or payload.get("author"))
+    deny_if_blocked(author)
     story = await load_story(db, work_id)
     was_listed = story.status == StoryStatus.PUBLISHED
     await apply_card(db, story, payload, author)
@@ -415,12 +470,13 @@ async def update_work(
 @router.delete("/works/{work_id}", status_code=204)
 async def delete_work(work_id: int, db: AsyncSession = Depends(get_db)):
     story = await db.get(Story, work_id)
-    if not story:
+    if not story or story.deleted_at:
         raise HTTPException(status_code=404, detail="Work not found")
     author = await db.get(Author, story.author_id)
     if author and story.status == StoryStatus.PUBLISHED:
         author.story_count = max(0, int(author.story_count or 0) - 1)
-    await db.delete(story)
+    story.status = StoryStatus.DRAFT
+    story.deleted_at = datetime.now(timezone.utc)
     await db.commit()
     return None
 
@@ -428,16 +484,24 @@ async def delete_work(work_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/works/{work_id}/content")
 async def get_content(work_id: int, db: AsyncSession = Depends(get_db)):
     story = await db.get(Story, work_id)
-    if not story:
+    if not story or story.deleted_at:
         raise HTTPException(status_code=404, detail="Work not found")
     data = _parse_card_json(story.content_json)
     return data
 
 
 @router.put("/works/{work_id}/content")
-async def put_content(work_id: int, payload: dict[str, Any], db: AsyncSession = Depends(get_db)):
+async def put_content(
+    work_id: int,
+    payload: dict[str, Any],
+    db: AsyncSession = Depends(get_db),
+    x_fox_author: str | None = Header(None),
+    x_fox_name: str | None = Header(None),
+):
+    author = await get_author(db, x_fox_author, x_fox_name)
+    deny_if_blocked(author)
     story = await db.get(Story, work_id)
-    if not story:
+    if not story or story.deleted_at:
         raise HTTPException(status_code=404, detail="Work not found")
     story.content_json = json.dumps(payload, ensure_ascii=False)
     await db.commit()

@@ -136,10 +136,50 @@
   }
 
   function cleanHandle(value) {
+    if (window.FoxIdentity) return FoxIdentity.cleanHandle(value);
     return String(value || "")
       .replace(/^@/, "")
       .replace(/[^a-zA-Z0-9_]/g, "")
       .slice(0, 24);
+  }
+
+  function paintStatus(el, ok, message) {
+    if (!el) return;
+    el.textContent = message || "";
+    el.classList.toggle("is-bad", Boolean(message) && !ok);
+    el.classList.toggle("is-ok", Boolean(message) && ok);
+  }
+
+  function extraTaken(handle, name) {
+    const mineH = cleanHandle(loadIdentity().handle);
+    const mineN = String(loadIdentity().name || "").trim().toLowerCase();
+    const nick = cleanHandle(handle);
+    const label = String(name || "").trim().toLowerCase();
+    const handleBusy = PEOPLE.some((person) => person.handle.toLowerCase() === nick && nick !== mineH);
+    const nameBusy = PEOPLE.some((person) => person.name.toLowerCase() === label && label !== mineN);
+    return { handleBusy, nameBusy };
+  }
+
+  async function checkIdentity(handle, name) {
+    const extra = extraTaken(handle, name);
+    if (window.FoxIdentity) {
+      const result = await FoxIdentity.available(handle, name);
+      if (extra.handleBusy) {
+        result.username = false;
+        result.username_error = "Такой юзернейм уже занят.";
+      }
+      if (extra.nameBusy) {
+        result.name = false;
+        result.name_error = "Такое имя уже занято.";
+      }
+      return result;
+    }
+    return {
+      username: !extra.handleBusy,
+      name: !extra.nameBusy,
+      username_error: extra.handleBusy ? "Такой юзернейм уже занят." : "",
+      name_error: extra.nameBusy ? "Такое имя уже занято." : "",
+    };
   }
 
   const nameInput = document.querySelector("[data-profile-name]");
@@ -147,10 +187,27 @@
   const identity = loadIdentity();
   if (nameInput) nameInput.value = identity.name;
   if (handleInput) handleInput.value = identity.handle;
+  const nameStatus = document.querySelector("[data-name-status]");
+  const handleStatus = document.querySelector("[data-handle-status]");
+  let identityTimer = 0;
+
+  async function commitIdentity() {
+    const name = (window.FoxIdentity ? FoxIdentity.cleanName(nameInput?.value) : nameInput?.value.trim()) || IDENTITY.name;
+    const handle = cleanHandle(handleInput?.value) || IDENTITY.handle;
+    if (nameInput) nameInput.value = name;
+    if (handleInput) handleInput.value = handle;
+    const check = await checkIdentity(handle, name);
+    paintStatus(nameStatus, check.name, check.name ? "" : check.name_error);
+    paintStatus(handleStatus, check.username, check.username ? "" : check.username_error);
+    if (!check.name || !check.username) return false;
+    saveIdentity({ name, handle });
+    if (window.FoxIdentity) FoxIdentity.persist({ name, handle });
+    if (typeof fillNotifFeed === "function") fillNotifFeed();
+    return true;
+  }
+
   nameInput?.addEventListener("change", () => {
-    const name = nameInput.value.trim() || IDENTITY.name;
-    nameInput.value = name;
-    saveIdentity({ name });
+    commitIdentity();
   });
   handleInput?.addEventListener("input", () => {
     const caret = handleInput.selectionStart;
@@ -160,12 +217,11 @@
       const pos = Math.min(caret, cleaned.length);
       handleInput.setSelectionRange(pos, pos);
     }
+    clearTimeout(identityTimer);
+    identityTimer = setTimeout(() => commitIdentity(), 320);
   });
   handleInput?.addEventListener("change", () => {
-    const handle = cleanHandle(handleInput.value) || IDENTITY.handle;
-    handleInput.value = handle;
-    saveIdentity({ handle });
-    if (typeof fillNotifFeed === "function") fillNotifFeed();
+    commitIdentity();
   });
 
   const avatarPreview = document.querySelector("[data-settings-avatar]");

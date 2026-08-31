@@ -9,8 +9,31 @@ function isSignedIn() {
   return localStorage.getItem("foxtoria-signed-in") === "1";
 }
 
-function isSiteOwner() {
-  return isSignedIn();
+function isSiteAdmin() {
+  if (!isSignedIn()) return false;
+  try {
+    const raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
+    if (raw.is_staff) return true;
+  } catch {
+    /* ignore */
+  }
+  return ["moonwander", "foxstoria", "foxstoria-support"].includes(ownerHandle());
+}
+
+function canDeletePostedItem(item) {
+  if (typeof isSiteAdmin === "function" && isSiteAdmin()) return true;
+  if (item?.own) return true;
+  const id = String(item?.id || "");
+  if (id.startsWith("local-") || id.startsWith("demo-")) return true;
+  const handle = String(item?.username || item?.handle || "")
+    .replace(/^@/, "")
+    .toLowerCase();
+  const name = String(item?.author || "").trim().toLowerCase();
+  const meH = String(typeof ownerHandle === "function" ? ownerHandle() : "").toLowerCase();
+  const meN = String(typeof ownerDisplayName === "function" ? ownerDisplayName() : "").toLowerCase();
+  if (handle && handle === meH) return true;
+  if (name && (name === meN || name === "вы")) return true;
+  return false;
 }
 
 const FOX_PREFS_KEY = "foxtoria-prefs";
@@ -121,7 +144,7 @@ function isUiIconImg(img) {
   if (/уголок|corner\.svg|ramka|разделитель1|hfpltkbntkm|дуфа2|lupa\.svg|lupa1/.test(src)) {
     return false;
   }
-  if (/flower\.svg|present\.svg|книга\.svg/.test(src) && !img.closest(".feature-item")) {
+  if (/flower\.svg|книга\.svg/.test(src) && !img.closest(".feature-item")) {
     return false;
   }
   if (
@@ -134,7 +157,7 @@ function isUiIconImg(img) {
   return true;
 }
 
-const ICON_CACHE = "97";
+const ICON_CACHE = "99";
 
 function paintUiIcon(img) {
   const src = (img.getAttribute("src") || "").split("?")[0];
@@ -176,6 +199,1063 @@ document.addEventListener("DOMContentLoaded", function paintIcons() {
     });
   }).observe(document.body, { childList: true, subtree: true });
 });
+
+window.FoxAudio = (function foxAudio() {
+  const DB_NAME = "foxstoria-audio";
+  const STORE = "tracks";
+  const MAX_BYTES = 8 * 1024 * 1024;
+
+  function openDb() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function withStore(mode, fn) {
+    return openDb().then(
+      (db) =>
+        new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE, mode);
+          const store = tx.objectStore(STORE);
+          const req = fn(store);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        })
+    );
+  }
+
+  function key(workId, partId) {
+    return `${String(workId || "local")}:${String(partId || "")}`;
+  }
+
+  function validate(file) {
+    if (!file) return { ok: false, error: "Выберите аудиофайл." };
+    const name = String(file.name || "");
+    const type = String(file.type || "");
+    const byExt = /\.(mp3|ogg|oga|m4a|aac)$/i.test(name);
+    if (!byExt && !/^audio\//i.test(type)) {
+      return { ok: false, error: "Подходят MP3, OGG, M4A или AAC." };
+    }
+    if (file.size > MAX_BYTES) {
+      return { ok: false, error: "Файл больше 8 МБ. Сожмите трек или выберите другой." };
+    }
+    return { ok: true };
+  }
+
+  function put(id, file) {
+    return withStore("readwrite", (store) =>
+      store.put({ name: file.name, type: file.type, blob: file }, id)
+    );
+  }
+
+  function get(id) {
+    if (!id) return Promise.resolve(null);
+    return withStore("readonly", (store) => store.get(id)).then((row) => row || null);
+  }
+
+  function remove(id) {
+    if (!id) return Promise.resolve();
+    return withStore("readwrite", (store) => store.delete(id));
+  }
+
+  function listAll() {
+    return openDb().then(
+      (db) =>
+        new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE, "readonly");
+          const store = tx.objectStore(STORE);
+          const out = [];
+          const req = store.openCursor();
+          req.onsuccess = () => {
+            const cursor = req.result;
+            if (cursor) {
+              const row = cursor.value || {};
+              out.push({
+                id: String(cursor.key || ""),
+                name: row.name || "",
+                bytes: row.blob && typeof row.blob.size === "number" ? row.blob.size : 0,
+              });
+              cursor.continue();
+            } else resolve(out);
+          };
+          req.onerror = () => reject(req.error);
+        })
+    );
+  }
+
+  return { MAX_BYTES, key, validate, put, get, remove, listAll };
+})();
+
+window.FoxMusicLink = (function foxMusicLink() {
+  function parse(raw) {
+    const text = String(raw || "").trim();
+    if (!text) return null;
+    const fromIframe = text.match(/\bsrc=["']([^"']+)["']/i);
+    let href = fromIframe ? fromIframe[1] : text;
+    if (href.startsWith("//")) href = "https:" + href;
+    if (/^spotify:/i.test(href)) {
+      const spot = href.match(/^spotify:(track|album|playlist|episode|show|artist):([a-zA-Z0-9]+)/i);
+      if (!spot) return null;
+      href = `https://open.spotify.com/${spot[1]}/${spot[2]}`;
+    }
+    let url;
+    try {
+      url = new URL(href.includes("://") ? href : `https://${href}`);
+    } catch {
+      return null;
+    }
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+
+    if (host.endsWith("spotify.com")) {
+      const match = url.pathname.match(/(?:intl-[a-z]{2}\/)?(?:embed\/)?(track|album|playlist|episode|show|artist)\/([a-zA-Z0-9]+)/i);
+      if (!match) return null;
+      const kind = match[1].toLowerCase();
+      return {
+        provider: "spotify",
+        label: "Spotify",
+        kind,
+        href: url.href,
+        embed: `https://open.spotify.com/embed/${kind}/${match[2]}?utm_source=generator`,
+        height: kind === "track" || kind === "episode" ? 152 : 352,
+      };
+    }
+
+    if (host === "vk.com" || host === "m.vk.com" || host === "vk.ru") {
+      const path = url.pathname.match(/\/music\/(playlist|album)\/(-?\d+)_(\d+)/);
+      const z = url.searchParams.get("z") || "";
+      const zList = z.match(/audio_playlist(-?\d+)_(\d+)/);
+      const zTrack = z.match(/^audio(-?\d+)_(\d+)$/);
+      if (path || zList) {
+        const oid = path ? path[2] : zList[1];
+        const pid = path ? path[3] : zList[2];
+        return {
+          provider: "vk",
+          label: "ВКонтакте",
+          kind: path ? path[1] : "playlist",
+          href: url.href,
+          embed: `https://vk.com/widget_playlist.php?oid=${oid}&pid=${pid}`,
+          height: 360,
+        };
+      }
+      if (zTrack) {
+        return {
+          provider: "vk",
+          label: "ВКонтакте",
+          kind: "track",
+          href: `https://vk.com/audio?z=audio${zTrack[1]}_${zTrack[2]}`,
+          embed: "",
+          height: 72,
+          external: true,
+        };
+      }
+      return null;
+    }
+
+    if (host.includes("music.yandex")) {
+      const albumTrack = url.pathname.match(/\/album\/(\d+)(?:\/track\/(\d+))?/);
+      if (albumTrack?.[2]) {
+        return {
+          provider: "yandex",
+          label: "Яндекс Музыка",
+          kind: "track",
+          href: url.href,
+          embed: `https://music.yandex.ru/iframe/#track/${albumTrack[2]}/${albumTrack[1]}`,
+          height: 180,
+        };
+      }
+      if (albumTrack?.[1]) {
+        return {
+          provider: "yandex",
+          label: "Яндекс Музыка",
+          kind: "album",
+          href: url.href,
+          embed: `https://music.yandex.ru/iframe/#album/${albumTrack[1]}`,
+          height: 400,
+        };
+      }
+      const list = url.pathname.match(/\/users\/([^/]+)\/playlists\/(\d+)/);
+      if (list) {
+        return {
+          provider: "yandex",
+          label: "Яндекс Музыка",
+          kind: "playlist",
+          href: url.href,
+          embed: `https://music.yandex.ru/iframe/#playlist/${list[1]}/${list[2]}`,
+          height: 400,
+        };
+      }
+    }
+    return null;
+  }
+
+  function ensureDialog() {
+    let box = document.getElementById("music-link-dialog");
+    if (box) return box;
+    box = document.createElement("dialog");
+    box.id = "music-link-dialog";
+    box.className = "music-link-dialog";
+    box.innerHTML = `<form method="dialog" class="music-link-form">
+      <h2>Музыка главы</h2>
+      <p>Файл занимает лимит кабинета. Ссылка на Spotify, ВКонтакте или Яндекс Музыку — нет, можно целый плейлист.</p>
+      <label>Ссылка на трек, альбом или плейлист
+        <input type="url" name="embed" placeholder="https://open.spotify.com/playlist/…">
+      </label>
+      <p class="music-link-status profile-meta" data-music-status></p>
+      <div class="admin-reason-acts">
+        <button type="submit" class="btn btn-primary" value="link">Подключить</button>
+        <button type="submit" class="btn btn-outline" value="file">Файл с компьютера</button>
+        <button type="submit" class="btn btn-ghost" value="clear">Убрать</button>
+        <button type="button" class="btn btn-ghost" data-music-cancel>Отмена</button>
+      </div>
+    </form>`;
+    document.body.appendChild(box);
+    box.querySelector("[data-music-cancel]")?.addEventListener("click", () => box.close());
+    return box;
+  }
+
+  function ask(part, opts) {
+    const box = ensureDialog();
+    const form = box.querySelector("form");
+    const status = box.querySelector("[data-music-status]");
+    const heading = form.querySelector("h2");
+    const field = form.embed;
+    if (heading) heading.textContent = opts?.title || "Музыка главы";
+    field.value = part?.audioEmbed || "";
+    const bits = [];
+    if (part?.audioEmbed) {
+      const info = parse(part.audioEmbed);
+      bits.push(info ? `${info.label}: ${info.kind}` : "Внешний плеер подключён");
+    }
+    if (part?.audioKey) bits.push(part.audioName ? `Файл: ${part.audioName}` : "Загружен файл");
+    if (status) status.textContent = bits.join(" · ") || "Пока ничего не прикреплено.";
+    return new Promise((resolve) => {
+      const onClose = () => {
+        box.removeEventListener("close", onClose);
+        resolve(box.returnValue || "cancel");
+      };
+      box.addEventListener("close", onClose);
+      form.onsubmit = (event) => {
+        const submitter = event.submitter;
+        const action = submitter?.value || "link";
+        if (action === "link") {
+          event.preventDefault();
+          const info = parse(field.value);
+          if (!info) {
+            window.alert("Нужна ссылка Spotify, ВКонтакте или Яндекс Музыки.");
+            return;
+          }
+          box._picked = field.value.trim();
+          box.returnValue = "link";
+          box.close();
+          return;
+        }
+        box.returnValue = action;
+      };
+      box._picked = "";
+      box.returnValue = "cancel";
+      if (typeof box.showModal === "function") box.showModal();
+      else resolve("cancel");
+    }).then((action) => ({ action, url: box._picked || field.value.trim() }));
+  }
+
+  async function apply(part, result, opts) {
+    if (!part || !result) return false;
+    if (result.action === "cancel") return false;
+    if (result.action === "file") return "file";
+    if (result.action === "clear") {
+      if (part.audioKey && window.FoxAudio) FoxAudio.remove(part.audioKey);
+      part.audioKey = "";
+      part.audioName = "";
+      part.audioEmbed = "";
+      opts?.onChange?.();
+      return true;
+    }
+    if (result.action === "link") {
+      const info = parse(result.url);
+      if (!info) return false;
+      if (part.audioKey && window.FoxAudio) {
+        const drop = window.confirm("Файл в кабинете больше не нужен — удалить его и освободить место?");
+        if (drop) {
+          FoxAudio.remove(part.audioKey);
+          part.audioKey = "";
+        }
+      }
+      part.audioEmbed = info.href;
+      part.audioName = info.label + (info.kind ? ` · ${info.kind}` : "");
+      opts?.onChange?.();
+      return true;
+    }
+    return false;
+  }
+
+  return { parse, ask, apply };
+})();
+
+window.FoxQuota = (function foxQuota() {
+  const FILE_MAX = 8 * 1024 * 1024;
+  const PLANS = {
+    free: {
+      id: "free",
+      name: "FoxStoria Free",
+      storage: 500 * 1024 * 1024,
+      chapterImages: 5,
+      workCovers: 1,
+    },
+    plus: {
+      id: "plus",
+      name: "FoxStoria+",
+      storage: 5 * 1024 * 1024 * 1024,
+      chapterImages: 10,
+      workCovers: 1,
+    },
+    pro: {
+      id: "pro",
+      name: "FoxStoria Pro",
+      storage: 10 * 1024 * 1024 * 1024,
+      chapterImages: 20,
+      workCovers: 1,
+    },
+  };
+
+  function planId() {
+    try {
+      const profile = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
+      const id = String(profile.plan || "free").toLowerCase();
+      return PLANS[id] ? id : "free";
+    } catch {
+      return "free";
+    }
+  }
+
+  function limits() {
+    return PLANS[planId()];
+  }
+
+  function allPlans() {
+    return [PLANS.free, PLANS.plus, PLANS.pro];
+  }
+
+  function formatBytes(n) {
+    const value = Math.max(0, Number(n) || 0);
+    if (value < 1024) return `${Math.round(value)} Б`;
+    if (value < 1024 * 1024) return `${(value / 1024).toFixed(1).replace(".0", "")} КБ`;
+    if (value < 1024 * 1024 * 1024) return `${(value / (1024 * 1024)).toFixed(1).replace(".0", "")} МБ`;
+    return `${(value / (1024 * 1024 * 1024)).toFixed(2).replace(/\.?0+$/, "")} ГБ`;
+  }
+
+  function dataUrlBytes(src) {
+    const text = String(src || "");
+    if (!text.startsWith("data:")) return 0;
+    const b64 = text.split(",")[1] || "";
+    const pad = b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0;
+    return Math.max(0, Math.floor((b64.length * 3) / 4) - pad);
+  }
+
+  function imgsInHtml(html) {
+    const match = String(html || "").match(/<img\b/gi);
+    return match ? match.length : 0;
+  }
+
+  function eachDataUrl(src, visit) {
+    const text = String(src || "");
+    if (text.startsWith("data:")) visit(text);
+  }
+
+  function eachHtmlDataUrls(html, visit) {
+    String(html || "").replace(/<img\b[^>]*src=["']([^"']+)["']/gi, (_, src) => {
+      eachDataUrl(src, visit);
+      return "";
+    });
+  }
+
+  function chapterImageCount(kind, part, story) {
+    if (kind === "messenger") {
+      return (part?.cover ? 1 : 0) + (Array.isArray(part?.images) ? part.images.length : 0);
+    }
+    if (kind === "linear") {
+      return (part?.cover ? 1 : 0) + imgsInHtml(part?.html);
+    }
+    const scene = part;
+    if (!scene) return 0;
+    const cid = scene.chapterId;
+    const scenes = (story?.scenes || []).filter((item) =>
+      cid ? item.chapterId === cid : item.id === scene.id
+    );
+    return scenes.reduce((sum, item) => {
+      const blocks = Array.isArray(item.blocks) ? item.blocks : [];
+      const blockImgs = blocks.filter((block) => block.image || block.type === "image").length;
+      return sum + (item.background ? 1 : 0) + imgsInHtml(item.html) + blockImgs;
+    }, 0);
+  }
+
+  function parseJson(raw) {
+    try {
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function usage() {
+    const covers = { bytes: 0 };
+    const art = { bytes: 0 };
+    const music = { bytes: 0 };
+    const mine = window.FoxWorks ? FoxWorks.load() : [];
+    const ids = new Set(mine.map((work) => String(work.id || "")));
+
+    function addCover(src) {
+      covers.bytes += dataUrlBytes(src);
+    }
+    function addArt(src) {
+      art.bytes += dataUrlBytes(src);
+    }
+
+    for (const work of mine) {
+      addCover(work.cover);
+      const type = window.FoxWorks
+        ? FoxWorks.normalizeStoryType(work.story_type)
+        : String(work.story_type || "");
+      let store = null;
+      try {
+        if (type === "linear") store = parseJson(localStorage.getItem(FoxWorks.linearStore(work.id)));
+        else if (type === "messenger") store = parseJson(localStorage.getItem(FoxWorks.messengerStore(work.id)));
+        else store = parseJson(localStorage.getItem(FoxWorks.mapStore(work.id)));
+      } catch {
+        store = null;
+      }
+      if (!store) continue;
+      if (type === "linear") {
+        (store.chapters || []).forEach((chapter) => {
+          addCover(chapter.cover);
+          eachHtmlDataUrls(chapter.html, addArt);
+        });
+      } else if (type === "messenger") {
+        (store.chapters || []).forEach((chapter) => {
+          addCover(chapter.cover);
+          (chapter.images || []).forEach(addArt);
+        });
+      } else {
+        (store.scenes || []).forEach((scene) => {
+          addCover(scene.background);
+          eachHtmlDataUrls(scene.html, addArt);
+          (scene.blocks || []).forEach((block) => addArt(block.image));
+        });
+      }
+    }
+
+    if (window.FoxAudio?.listAll) {
+      try {
+        const tracks = await FoxAudio.listAll();
+        tracks.forEach((track) => {
+          const workId = String(track.id || "").split(":")[0];
+          if (ids.has(workId)) music.bytes += track.bytes || 0;
+        });
+      } catch {
+        /* ignore */
+      }
+    }
+
+    const total = covers.bytes + art.bytes + music.bytes;
+    const cap = limits().storage;
+    return {
+      covers: covers.bytes,
+      art: art.bytes,
+      music: music.bytes,
+      total,
+      cap,
+      pct: cap ? Math.min(100, (total / cap) * 100) : 0,
+      share: {
+        covers: total ? (covers.bytes / total) * 100 : 0,
+        art: total ? (art.bytes / total) * 100 : 0,
+        music: total ? (music.bytes / total) * 100 : 0,
+      },
+      ofCap: {
+        covers: cap ? (covers.bytes / cap) * 100 : 0,
+        art: cap ? (art.bytes / cap) * 100 : 0,
+        music: cap ? (music.bytes / cap) * 100 : 0,
+      },
+    };
+  }
+
+  function checkFile(file) {
+    if (!file) return { ok: false, error: "Выберите файл." };
+    if (file.size > FILE_MAX) {
+      return { ok: false, error: "Файл больше 8 МБ. Сожмите его или выберите другой." };
+    }
+    return { ok: true };
+  }
+
+  function compress(file, role) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onerror = () => resolve("");
+      reader.onload = () => {
+        const fallback = String(reader.result || "");
+        const img = new Image();
+        img.onload = () => {
+          const maxEdge = role === "art" ? 1400 : 1600;
+          const scale = Math.min(1, maxEdge / img.width, maxEdge / img.height);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+          try {
+            resolve(canvas.toDataURL("image/jpeg", 0.82));
+          } catch {
+            resolve(fallback);
+          }
+        };
+        img.onerror = () => resolve(fallback);
+        img.src = fallback;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function ensureStorage(addBytes, replaceBytes) {
+    const used = await usage();
+    const next = used.total - (replaceBytes || 0) + (addBytes || 0);
+    if (next > used.cap) {
+      return {
+        ok: false,
+        error: `Не хватает места в хранилище автора (${formatBytes(used.cap)} на тарифе ${limits().name}).`,
+      };
+    }
+    return { ok: true };
+  }
+
+  async function take(file, opts) {
+    const options = opts || {};
+    const role = options.role || "art";
+    const lim = limits();
+    if (!file || !String(file.type || "").startsWith("image/")) {
+      return { ok: false, error: "Нужно изображение." };
+    }
+    const fileCheck = checkFile(file);
+    if (!fileCheck.ok) return fileCheck;
+    const replacing = Boolean(options.replaceSrc);
+    if (role !== "work-cover" && !replacing && (options.currentCount || 0) >= lim.chapterImages) {
+      return {
+        ok: false,
+        error: `На главу можно до ${lim.chapterImages} изображений вместе с обложкой главы (${lim.name}).`,
+      };
+    }
+    const data = await compress(file, role);
+    if (!data) return { ok: false, error: "Не удалось обработать изображение." };
+    const space = await ensureStorage(dataUrlBytes(data), dataUrlBytes(options.replaceSrc));
+    if (!space.ok) return space;
+    return { ok: true, data };
+  }
+
+  async function takeAudio(file, replaceBytes) {
+    if (!window.FoxAudio) return { ok: false, error: "Аудио недоступно." };
+    const check = FoxAudio.validate(file);
+    if (!check.ok) return check;
+    return ensureStorage(file.size, replaceBytes || 0);
+  }
+
+  return {
+    FILE_MAX,
+    PLANS,
+    planId,
+    limits,
+    allPlans,
+    formatBytes,
+    dataUrlBytes,
+    chapterImageCount,
+    usage,
+    take,
+    takeAudio,
+  };
+})();
+
+window.FoxChapterPlayer = (function foxChapterPlayer() {
+  let root = null;
+  let audio = null;
+  let objectUrl = "";
+
+  function els() {
+    if (!root) return {};
+    return {
+      play: root.querySelector("[data-player-play]"),
+      pause: root.querySelector("[data-player-pause]"),
+      stop: root.querySelector("[data-player-stop]"),
+      name: root.querySelector("[data-player-name]"),
+      acts: root.querySelector(".chapter-player-acts"),
+      embed: root.querySelector("[data-player-embed]"),
+    };
+  }
+
+  function paint() {
+    if (!root || !audio) return;
+    const playing = !audio.paused && !audio.ended;
+    const { play, pause } = els();
+    if (play) play.hidden = playing;
+    if (pause) pause.hidden = !playing;
+  }
+
+  function showNative(on) {
+    const { acts, embed, name } = els();
+    if (acts) acts.hidden = !on;
+    if (name) name.hidden = !on;
+    if (embed) {
+      embed.hidden = on;
+      if (on) embed.innerHTML = "";
+    }
+    root?.classList.toggle("is-embed", !on);
+  }
+
+  function clear() {
+    if (audio) {
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+    }
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+      objectUrl = "";
+    }
+    if (root) root.hidden = true;
+    showNative(true);
+    const { name } = els();
+    if (name) name.textContent = "";
+    paint();
+  }
+
+  function bind(node) {
+    root = node;
+    if (!root) return;
+    audio = root.querySelector("audio");
+    if (!root.querySelector("[data-player-embed]")) {
+      const box = document.createElement("div");
+      box.className = "chapter-player-embed";
+      box.setAttribute("data-player-embed", "");
+      box.hidden = true;
+      root.appendChild(box);
+    }
+    if (!audio) return;
+    audio.loop = true;
+    const { play, pause, stop } = els();
+    play?.addEventListener("click", () => audio.play().catch(() => {}));
+    pause?.addEventListener("click", () => audio.pause());
+    stop?.addEventListener("click", () => {
+      audio.pause();
+      audio.currentTime = 0;
+      paint();
+    });
+    audio.addEventListener("play", paint);
+    audio.addEventListener("pause", paint);
+    audio.addEventListener("ended", paint);
+    paint();
+  }
+
+  function loadEmbed(info, label) {
+    if (audio) {
+      audio.pause();
+      audio.removeAttribute("src");
+    }
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+      objectUrl = "";
+    }
+    showNative(false);
+    root.hidden = false;
+    const { embed, name } = els();
+    if (name) name.textContent = label || info.label;
+    if (!embed) return;
+    embed.replaceChildren();
+    if (info.external || !info.embed) {
+      const link = document.createElement("a");
+      link.className = "chapter-player-ext";
+      link.href = info.href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = `Слушать ${info.label}`;
+      embed.appendChild(link);
+      return;
+    }
+    const frame = document.createElement("iframe");
+    frame.title = info.label;
+    frame.src = info.embed;
+    frame.height = String(info.height || 152);
+    frame.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+    frame.loading = "lazy";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    embed.appendChild(frame);
+  }
+
+  async function load(key, label, embedUrl) {
+    if (!root) return;
+    const info = window.FoxMusicLink ? FoxMusicLink.parse(embedUrl) : null;
+    if (info) {
+      loadEmbed(info, label);
+      return;
+    }
+    if (!audio || !window.FoxAudio) {
+      if (!key) clear();
+      return;
+    }
+    if (!key) {
+      clear();
+      return;
+    }
+    const row = await FoxAudio.get(key);
+    if (!row?.blob) {
+      clear();
+      return;
+    }
+    showNative(true);
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    objectUrl = URL.createObjectURL(row.blob);
+    const wasPlaying = !audio.paused && audio.src;
+    audio.src = objectUrl;
+    audio.loop = true;
+    root.hidden = false;
+    const { name } = els();
+    if (name) name.textContent = label || row.name || "Музыка главы";
+    if (wasPlaying) audio.play().catch(() => {});
+    else {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    paint();
+  }
+
+  return { bind, load, clear };
+})();
+
+window.FoxPay = (function foxPay() {
+  const TIERS_KEY = "foxtoria-sub-tiers";
+  const SUBS_KEY = "foxtoria-my-subs";
+  const CHANGES_KEY = "foxtoria-card-changes";
+  const WALLET_KEY = "foxtoria-wallet";
+  const MAX_TIERS = 5;
+  const MIN_RUB = 50;
+  const SUB_FEE = 0.1;
+  const GIFT_FEE = 0.2;
+
+  function nick(value) {
+    return String(value || "")
+      .replace(/^@/, "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function splitSlugs(value) {
+    return String(value || "")
+      .split(",")
+      .map(nick)
+      .filter(Boolean);
+  }
+
+  function loadJson(key, fallback) {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(key) || "null");
+      return parsed ?? fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function saveJson(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function demoTiers(handle) {
+    if (nick(handle) !== "moonwander") return [];
+    return [
+      { id: "t1", name: "Лиса", price: 50 },
+      { id: "t2", name: "Хвост", price: 150 },
+      { id: "t3", name: "Костёр", price: 400 },
+    ];
+  }
+
+  function loadTiers(handle) {
+    const map = loadJson(TIERS_KEY, {});
+    const saved = Array.isArray(map[nick(handle)]) ? map[nick(handle)] : [];
+    const list = saved.length ? saved : demoTiers(handle);
+    return list.slice(0, MAX_TIERS).map((tier, index) => ({
+      id: String(tier.id || `t${index + 1}`),
+      name: String(tier.name || `Уровень ${index + 1}`).trim() || `Уровень ${index + 1}`,
+      price: Math.max(MIN_RUB, Math.round(Number(tier.price) || MIN_RUB)),
+      level: index + 1,
+    }));
+  }
+
+  function saveTiers(handle, tiers) {
+    const map = loadJson(TIERS_KEY, {});
+    map[nick(handle)] = (tiers || []).slice(0, MAX_TIERS).map((tier, index) => ({
+      id: String(tier.id || `t${Date.now().toString(36)}${index}`),
+      name: String(tier.name || "").trim() || `Уровень ${index + 1}`,
+      price: Math.max(MIN_RUB, Math.round(Number(tier.price) || MIN_RUB)),
+    }));
+    saveJson(TIERS_KEY, map);
+    return loadTiers(handle);
+  }
+
+  function mySubs() {
+    const map = loadJson(SUBS_KEY, {});
+    return map && typeof map === "object" ? map : {};
+  }
+
+  function subTo(handle) {
+    const row = mySubs()[nick(handle)];
+    if (!row) return null;
+    return { level: Number(row.level) || 0, name: row.name || "", price: Number(row.price) || 0 };
+  }
+
+  function levelOn(handle) {
+    return subTo(handle)?.level || 0;
+  }
+
+  function authorNet(price) {
+    const gross = Math.max(MIN_RUB, Math.round(Number(price) || 0));
+    const fee = Math.round(gross * SUB_FEE);
+    return { gross, fee, net: gross - fee };
+  }
+
+  function giftNet(price) {
+    const gross = Math.max(0, Math.round(Number(price) || 0));
+    const fee = Math.round(gross * GIFT_FEE);
+    return { gross, fee, net: gross - fee };
+  }
+
+  function chargeWallet(amount, title, kind) {
+    const data = loadJson(WALLET_KEY, null) || { balance: 0, ops: [], methods: [] };
+    const n = Math.round(Number(amount) || 0);
+    data.balance = (Number(data.balance) || 0) + n;
+    data.ops = [
+      {
+        id: `op-${Date.now().toString(36)}`,
+        kind: kind || (n < 0 ? "buy" : "topup"),
+        title,
+        when: new Date().toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }),
+        at: new Date().toISOString(),
+        amount: n,
+      },
+      ...(Array.isArray(data.ops) ? data.ops : []),
+    ];
+    saveJson(WALLET_KEY, data);
+    return data.balance;
+  }
+
+  function subscribe(handle, tier) {
+    if (!tier) return false;
+    const money = authorNet(tier.price);
+    const map = mySubs();
+    map[nick(handle)] = { level: Number(tier.level) || 1, name: tier.name, price: money.gross };
+    saveJson(SUBS_KEY, map);
+    chargeWallet(-money.gross, `Подписка · ${tier.name}`, "sub");
+    return true;
+  }
+
+  function payGift(amount, title) {
+    const money = giftNet(amount);
+    chargeWallet(-money.gross, title || "Подарок", "gift");
+    return money;
+  }
+
+  function unsubscribe(handle) {
+    const map = mySubs();
+    delete map[nick(handle)];
+    saveJson(SUBS_KEY, map);
+  }
+
+  function accessSlugs(work) {
+    const slugs = [nick(work?.author_slug), ...splitSlugs(work?.coauthor)];
+    return [...new Set(slugs.filter(Boolean))];
+  }
+
+  function isPaid(work) {
+    return Boolean(work?.paid);
+  }
+
+  function minLevel(work) {
+    const n = Math.round(Number(work?.paid_min_level) || 1);
+    return Math.min(MAX_TIERS, Math.max(1, n));
+  }
+
+  function bestLevelFor(work) {
+    return Math.max(0, ...accessSlugs(work).map(levelOn));
+  }
+
+  function canReadPaid(work) {
+    if (!isPaid(work)) return true;
+    const me = nick(typeof ownerHandle === "function" ? ownerHandle() : "");
+    if (me && (accessSlugs(work).includes(me) || splitSlugs(work?.editor).includes(me))) return true;
+    return bestLevelFor(work) >= minLevel(work);
+  }
+
+  function chapterUnlocked(work, index) {
+    if (!isPaid(work) || Number(index) === 0) return true;
+    return canReadPaid(work);
+  }
+
+  function sceneUnlocked(work, scene, start) {
+    if (!isPaid(work)) return true;
+    if (!scene) return canReadPaid(work);
+    if (scene.isStart) return true;
+    if (start && scene.chapterId && scene.chapterId === start.chapterId) return true;
+    return canReadPaid(work);
+  }
+
+  function postUnlocked(authorHandle, post) {
+    if (!post?.paid) return true;
+    const me = nick(typeof ownerHandle === "function" ? ownerHandle() : "");
+    if (me && me === nick(authorHandle)) return true;
+    return levelOn(authorHandle) >= (Number(post.paid_min_level) || 1);
+  }
+
+  function markHTML(item) {
+    if (!item?.paid && !item?.is_paid) return "";
+    return `<span class="paid-mark" title="Платный доступ"><img src="assets/svg/деньга.svg" alt=""></span>`;
+  }
+
+  function logCardChange(work, text) {
+    const rows = loadJson(CHANGES_KEY, []);
+    rows.unshift({
+      id: `chg-${Date.now().toString(36)}`,
+      workId: work?.id || "",
+      title: work?.title || "Работа",
+      who: typeof ownerDisplayName === "function" ? ownerDisplayName() : "Соавтор",
+      text: text || "Изменена карточка работы.",
+      at: new Date().toISOString(),
+    });
+    saveJson(CHANGES_KEY, rows.slice(0, 40));
+  }
+
+  function cardChanges() {
+    return loadJson(CHANGES_KEY, []);
+  }
+
+  function canEditCard(work) {
+    if (!work) return false;
+    if (typeof isSiteAdmin === "function" && isSiteAdmin()) return true;
+    const me = nick(typeof ownerHandle === "function" ? ownerHandle() : "");
+    if (!me) return false;
+    if (nick(work.author_slug) === me) return true;
+    if (splitSlugs(work.coauthor).includes(me)) return true;
+    return false;
+  }
+
+  function canEditChapters(work) {
+    if (!work) return false;
+    if (typeof isSiteAdmin === "function" && isSiteAdmin()) return true;
+    const me = nick(typeof ownerHandle === "function" ? ownerHandle() : "");
+    if (!me) return false;
+    if (canEditCard(work)) return true;
+    return splitSlugs(work.editor).includes(me);
+  }
+
+  function formatRub(value) {
+    return `${new Intl.NumberFormat("ru-RU").format(Math.round(Number(value) || 0))} ₽`;
+  }
+
+  function esc(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  function fillLevelSelect(select, handle, selected) {
+    if (!select) return;
+    const tiers = loadTiers(handle);
+    const max = Math.max(1, tiers.length || MAX_TIERS);
+    const sel = Math.min(max, Math.max(1, Number(selected) || 1));
+    select.innerHTML = Array.from({ length: max }, (_, index) => {
+      const n = index + 1;
+      const name = tiers[index]?.name || `Уровень ${n}`;
+      return `<option value="${n}"${n === sel ? " selected" : ""}>${n} и выше · ${esc(name)}</option>`;
+    }).join("");
+  }
+
+  function bindPaidFields(root, handle) {
+    const form = root?.elements ? root : root?.querySelector?.("form") || root;
+    if (!form) return;
+    const paid = form.querySelector?.('[name="paid"]') || form.elements?.paid;
+    const level = form.querySelector?.('[name="paid_min_level"]') || form.elements?.paid_min_level;
+    fillLevelSelect(level, handle, level?.value);
+    if (form.dataset && form.dataset.paidBound === "1") {
+      if (level) level.disabled = !paid?.checked;
+      return;
+    }
+    if (form.dataset) form.dataset.paidBound = "1";
+    function sync() {
+      if (level) level.disabled = !paid?.checked;
+    }
+    paid?.addEventListener("change", sync);
+    sync();
+  }
+
+  function gateHTML(work) {
+    const handle = accessSlugs(work)[0] || "";
+    const min = minLevel(work);
+    const tier = loadTiers(handle)[min - 1];
+    const label = tier?.name || `уровень ${min}`;
+    const href = handle ? `profile.html?u=${encodeURIComponent(handle)}` : "profile.html";
+    return `<div class="paid-gate">
+      ${markHTML({ paid: true })}
+      <h2>Доступ по подписке</h2>
+      <p>Карточка и первая глава открыты всем. Дальше нужен уровень «${esc(label)}» или выше. Подписка на редактора работу не открывает — достаточно автора или соавтора.</p>
+      <a class="btn btn-primary" href="${esc(href)}">Выбрать подписку</a>
+    </div>`;
+  }
+
+  function postGateHTML(authorHandle, post) {
+    const min = Math.max(1, Number(post?.paid_min_level) || 1);
+    const tier = loadTiers(authorHandle)[min - 1];
+    const label = tier?.name || `уровень ${min}`;
+    const href = authorHandle ? `profile.html?u=${encodeURIComponent(nick(authorHandle))}` : "profile.html";
+    return `<div class="paid-gate">
+      ${markHTML({ paid: true })}
+      <h2>Запись для подписчиков</h2>
+      <p>Текст откроется с уровня «${esc(label)}» и выше.</p>
+      <a class="btn btn-primary" href="${esc(href)}">Оформить подписку</a>
+    </div>`;
+  }
+
+  return {
+    MAX_TIERS,
+    MIN_RUB,
+    SUB_FEE,
+    GIFT_FEE,
+    nick,
+    splitSlugs,
+    loadTiers,
+    saveTiers,
+    subTo,
+    levelOn,
+    authorNet,
+    giftNet,
+    subscribe,
+    payGift,
+    unsubscribe,
+    accessSlugs,
+    isPaid,
+    minLevel,
+    canReadPaid,
+    chapterUnlocked,
+    sceneUnlocked,
+    postUnlocked,
+    markHTML,
+    logCardChange,
+    cardChanges,
+    canEditCard,
+    canEditChapters,
+    formatRub,
+    fillLevelSelect,
+    bindPaidFields,
+    gateHTML,
+    postGateHTML,
+  };
+})();
 
 function profileSlug(name) {
   return (
@@ -351,6 +1431,10 @@ function ddOnLibrary(tabs) {
   return tabs.includes(currentTab("library.html")) ? " class=\"active\"" : "";
 }
 
+function ddOnAdmin() {
+  return String(currentPage() || "").startsWith("admin") ? " class=\"active\"" : "";
+}
+
 function navOn(href) {
   const page = currentPage();
   if (href === "catalog.html") {
@@ -418,6 +1502,8 @@ function headerMarkup() {
             <a href="author-home.html"${ddOn("author-home.html")}><img src="assets/svg/читать.svg" alt=""> Мои истории</a>
             <a href="reviews.html"${ddOn("reviews.html")}><img src="assets/svg/коммент.svg" alt=""> Отзывы</a>
             <a href="changes.html"${ddOn("changes.html")}><img src="assets/deco/календарь.svg" alt=""> Изменения</a>
+            <a href="limits.html"${ddOn("limits.html")}><img src="assets/svg/память.svg" alt=""> Мои лимиты</a>
+            <a href="admin.html"${ddOnAdmin()} data-admin-link hidden><img src="assets/deco/настройки.svg" alt=""> Кабинет администратора</a>
             <span class="dd-sep"></span>
             <a href="library.html?tab=likes"${ddOnLibrary(["likes", "read", "follows"])}><img src="assets/svg/bookmark2.svg" alt=""> Закладки</a>
             <a href="collections.html"${ddOn("collections.html")}><img src="assets/deco/сборник.svg" alt=""> Сборники</a>
@@ -752,6 +1838,9 @@ function syncAuthChrome() {
   if (welcome) welcome.hidden = signed;
   document.querySelectorAll("[data-owner-only]").forEach((el) => {
     el.hidden = !isSiteOwner();
+  });
+  document.querySelectorAll("[data-admin-link]").forEach((el) => {
+    el.hidden = !isSiteAdmin();
   });
   applyOwnerAvatar();
   syncInboxDots();
@@ -1483,9 +2572,19 @@ window.FoxStore = {
             handle: state.profile.username || prev.handle,
             avatar: state.profile.avatar || prev.avatar || "",
             bio: state.profile.bio || prev.bio || "",
+            plan: state.profile.plan || prev.plan || "free",
+            is_staff: Boolean(state.profile.is_staff),
             links: state.profile.links || prev.links || [],
           })
         );
+        if (state.profile.blocked && !document.getElementById("blocked-banner")) {
+          const bar = document.createElement("p");
+          bar.id = "blocked-banner";
+          bar.className = "blocked-banner";
+          bar.innerHTML =
+            "Профиль заблокирован после предупреждений. Работы не удалены. Обжаловать можно в <a href=\"support.html\">поддержке</a>.";
+          document.body.prepend(bar);
+        }
       }
       if (state.library) {
         const followIds = (state.library.follows || [])
@@ -1881,9 +2980,263 @@ window.FoxApi = {
     }
     if (!response.ok) {
       const detail = data?.detail || response.statusText;
-      throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+      const err = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+      err.status = response.status;
+      throw err;
     }
     return data;
+  },
+};
+
+window.FoxRules = {
+  FORBIDDEN: [
+    { id: "minors", label: "Сексуальный контент с участием несовершеннолетних" },
+    { id: "real-harm", label: "Призывы к насилию, экстремизм, реальные угрозы" },
+    { id: "doxxing", label: "Персональные данные, деанон, травля" },
+    { id: "stolen", label: "Чужой текст или украденная работа" },
+    { id: "spam", label: "Спам, реклама, вреносные ссылки" },
+    { id: "rating", label: "Неверная возрастная метка или скрытые предупреждения" },
+    { id: "illegal", label: "Иной запрещённый законом контент" },
+    { id: "other", label: "Другое — напишу сам" },
+  ],
+};
+
+window.FoxReport = {
+  ensure() {
+    let box = document.getElementById("report-dialog");
+    if (box) return box;
+    box = document.createElement("dialog");
+    box.id = "report-dialog";
+    box.className = "report-dialog";
+    box.innerHTML = `<form method="dialog" class="report-form">
+      <h2>Пожаловаться</h2>
+      <p class="profile-meta" data-report-target></p>
+      <div class="report-reasons">${FoxRules.FORBIDDEN.map(
+        (item, index) => `<label><input type="radio" name="reason_code" value="${item.id}" ${index === 0 ? "required" : ""}> ${item.label}</label>`
+      ).join("")}</div>
+      <textarea name="reason" rows="3" placeholder="Если выбрали «Другое» — опишите коротко"></textarea>
+      <div class="admin-reason-acts">
+        <button type="submit" class="btn btn-primary" value="ok">Отправить</button>
+        <button type="button" class="btn btn-outline" data-report-cancel>Отмена</button>
+      </div>
+    </form>`;
+    document.body.appendChild(box);
+    box.querySelector("[data-report-cancel]")?.addEventListener("click", () => box.close());
+    return box;
+  },
+  open(payload) {
+    const box = this.ensure();
+    const form = box.querySelector("form");
+    const target = box.querySelector("[data-report-target]");
+    if (target) target.textContent = payload.title || document.title || "Объект жалобы";
+    form.reason.value = "";
+    const first = form.querySelector('input[name="reason_code"]');
+    if (first) first.checked = true;
+    return new Promise((resolve) => {
+      const onClose = () => {
+        box.removeEventListener("close", onClose);
+        resolve(box.returnValue === "ok");
+      };
+      box.addEventListener("close", onClose);
+      form.onsubmit = (event) => {
+        event.preventDefault();
+        const code = form.reason_code.value;
+        const custom = String(form.reason.value || "").trim();
+        const item = FoxRules.FORBIDDEN.find((row) => row.id === code);
+        const reason = code === "other" ? custom || "Другое" : [item?.label, custom].filter(Boolean).join(". ");
+        if (window.FoxApi) {
+          FoxApi.request("/api/reports", {
+            method: "POST",
+            body: JSON.stringify({
+              target_type: payload.type || "page",
+              target_key: payload.key || "",
+              target_title: payload.title || document.title,
+              target_url: payload.href || location.pathname + location.search,
+              reason_code: code,
+              reason,
+            }),
+          }).catch(() => {});
+        }
+        box.returnValue = "ok";
+        box.close();
+      };
+      box.returnValue = "";
+      if (typeof box.showModal === "function") box.showModal();
+      else box.close();
+    });
+  },
+};
+
+window.FoxAdmin = {
+  isAdmin() {
+    return typeof isSiteAdmin === "function" ? isSiteAdmin() : false;
+  },
+  ensureDialog() {
+    let box = document.getElementById("admin-reason-dialog");
+    if (box) return box;
+    box = document.createElement("dialog");
+    box.id = "admin-reason-dialog";
+    box.className = "admin-reason-dialog";
+    box.innerHTML = `
+      <form method="dialog" class="admin-reason-form">
+        <h2 id="admin-reason-title">Причина удаления</h2>
+        <p>Автор получит это в личные сообщения от поддержки.</p>
+        <textarea id="admin-reason-text" required minlength="3" rows="5" placeholder="Почему контент удаляется"></textarea>
+        <div class="admin-reason-acts">
+          <button type="submit" class="btn btn-primary" value="ok">Удалить</button>
+          <button type="button" class="btn btn-outline" data-admin-reason-cancel>Отмена</button>
+        </div>
+      </form>`;
+    document.body.appendChild(box);
+    box.querySelector("[data-admin-reason-cancel]")?.addEventListener("click", () => box.close());
+    return box;
+  },
+  promptReason(title) {
+    const box = this.ensureDialog();
+    const heading = box.querySelector("#admin-reason-title");
+    const field = box.querySelector("#admin-reason-text");
+    if (heading) heading.textContent = title || "Причина удаления";
+    if (field) field.value = "";
+    return new Promise((resolve) => {
+      const onClose = () => {
+        box.removeEventListener("close", onClose);
+        if (box.returnValue === "ok") resolve(String(field?.value || "").trim());
+        else resolve("");
+      };
+      box.addEventListener("close", onClose);
+      box.returnValue = "";
+      if (typeof box.showModal === "function") box.showModal();
+      else {
+        const text = window.prompt(title || "Причина удаления", "");
+        resolve(String(text || "").trim());
+      }
+    });
+  },
+  async remove(payload) {
+    const reason = await this.promptReason(payload.title || "Причина удаления");
+    if (!reason) return null;
+    return FoxApi.request("/api/admin/remove", {
+      method: "POST",
+      body: JSON.stringify({ ...payload, reason }),
+    });
+  },
+};
+
+document.addEventListener("DOMContentLoaded", function foxAdminChrome() {
+  if (window.FoxApi) {
+    FoxApi.request("/api/stats/hit", {
+      method: "POST",
+      body: JSON.stringify({ path: location.pathname || "/" }),
+    }).catch(() => {});
+  }
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest(
+      '[aria-label="Пожаловаться"], [data-review-act="report"], [data-reply-report], .linear-read-report, [data-pack-act="report"]'
+    );
+    if (!btn || btn.closest("[data-skip-report]")) return;
+    event.preventDefault();
+    const page = document.querySelector("[data-work-id]");
+    const workId = page?.getAttribute("data-work-id") || new URLSearchParams(location.search).get("id") || "";
+    const type = btn.getAttribute("data-review-act") === "report" ? "review" : btn.hasAttribute("data-pack-act") ? "collection" : workId ? "work" : "page";
+    FoxReport.open({
+      type,
+      key: workId || location.pathname,
+      title: document.title,
+      href: location.pathname + location.search,
+    });
+  });
+});
+
+window.FoxIdentity = {
+  RESERVED: ["foxstoria", "foxstoria-support", "admin", "support", "moderator", "help"],
+  cleanHandle(value) {
+    return String(value || "")
+      .replace(/^@/, "")
+      .replace(/[^a-zA-Z0-9_]/g, "")
+      .slice(0, 24)
+      .toLowerCase();
+  },
+  cleanName(value) {
+    return String(value || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .slice(0, 48);
+  },
+  _localPeople() {
+    const rows = [];
+    const seen = new Set();
+    const push = (handle, name) => {
+      const nick = this.cleanHandle(handle);
+      const label = this.cleanName(name);
+      const key = `${nick}|${label.toLowerCase()}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      rows.push({ handle: nick, name: label });
+    };
+    const bags = [];
+    if (window.FoxWorks) bags.push(FoxWorks.load(), FoxWorks.publicWorks || [], FoxWorks.fileWorks || []);
+    bags.flat().forEach((work) => {
+      if (work?.author_slug || work?.author) push(work.author_slug, work.author);
+    });
+    return rows;
+  },
+  async available(handle, name) {
+    const mineHandle = this.cleanHandle(typeof ownerHandle === "function" ? ownerHandle() : "");
+    const mineName = this.cleanName(typeof ownerDisplayName === "function" ? ownerDisplayName() : "");
+    const nick = handle == null ? "" : this.cleanHandle(handle);
+    const label = name == null ? "" : this.cleanName(name);
+    try {
+      const params = new URLSearchParams();
+      if (handle != null) params.set("username", nick);
+      if (name != null) params.set("name", label);
+      return await FoxApi.request(`/api/identity/available?${params}`);
+    } catch {
+      const people = this._localPeople();
+      const usernameOk =
+        handle == null ||
+        (nick.length >= 3 &&
+          !this.RESERVED.includes(nick) &&
+          (nick === mineHandle || !people.some((row) => row.handle && row.handle === nick)));
+      const nameOk =
+        name == null ||
+        (Boolean(label) && (label.toLowerCase() === mineName.toLowerCase() || !people.some((row) => row.name.toLowerCase() === label.toLowerCase())));
+      return {
+        username: usernameOk,
+        name: nameOk,
+        username_error: usernameOk
+          ? ""
+          : nick.length < 3
+            ? "Юзернейм от 3 символов: латиница, цифры и _."
+            : this.RESERVED.includes(nick)
+              ? "Этот юзернейм зарезервирован."
+              : "Такой юзернейм уже занят.",
+        name_error: nameOk ? "" : label ? "Такое имя уже занято." : "Введите имя.",
+      };
+    }
+  },
+  persist(patch) {
+    let raw = {};
+    try {
+      raw = JSON.parse(localStorage.getItem("foxtoria-profile") || "{}") || {};
+    } catch {
+      raw = {};
+    }
+    const next = { ...raw, ...patch };
+    localStorage.setItem("foxtoria-profile", JSON.stringify(next));
+    if (window.FoxApi) {
+      FoxApi.request("/api/me/profile", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: next.name,
+          display_name: next.name,
+          username: next.handle,
+          handle: next.handle,
+          bio: next.bio,
+          avatar: next.avatar,
+          links: next.links,
+        }),
+      }).catch(() => {});
+    }
   },
 };
 
@@ -2013,6 +3366,10 @@ window.FoxWorks = {
       if (linear && !localStorage.getItem(this.linearStore(toId))) {
         localStorage.setItem(this.linearStore(toId), linear);
       }
+      const messenger = localStorage.getItem(this.messengerStore(fromId));
+      if (messenger && !localStorage.getItem(this.messengerStore(toId))) {
+        localStorage.setItem(this.messengerStore(toId), messenger);
+      }
       const map = localStorage.getItem(this.mapStore(fromId));
       if (map && !localStorage.getItem(this.mapStore(toId))) {
         localStorage.setItem(this.mapStore(toId), map);
@@ -2069,15 +3426,26 @@ window.FoxWorks = {
     if (!work) return work;
     if (work.id) this.upsertLocal(work);
     this.seed(work);
+    const createBody = { ...work, id: undefined, created_local: undefined };
     try {
-      const saved = this.isServerId(work.id)
-        ? await FoxApi.request(`/api/works/${encodeURIComponent(work.id)}`, {
+      let saved = null;
+      const canPut = this.isServerId(work.id) && !work.created_local;
+      if (canPut) {
+        try {
+          saved = await FoxApi.request(`/api/works/${encodeURIComponent(work.id)}`, {
             method: "PUT",
             body: JSON.stringify(work),
-          })
-        : await FoxApi.request("/api/works", { method: "POST", body: JSON.stringify({ ...work, id: undefined }) });
+          });
+        } catch (err) {
+          if (err.status !== 404) throw err;
+        }
+      }
+      if (!saved) {
+        saved = await FoxApi.request("/api/works", { method: "POST", body: JSON.stringify(createBody) });
+      }
       if (saved?.id) {
         if (work.id && !this.sameId(work.id, saved.id)) this.migrateId(work.id, saved.id);
+        delete saved.created_local;
         this.upsertLocal(saved);
         this.seed(saved);
         return saved;
@@ -2085,9 +3453,19 @@ window.FoxWorks = {
     } catch {
       /* keep local copy */
     }
+    if (!work.id) {
+      work.id = this.newId();
+      work.created_local = true;
+      work.href = `story.html?id=${encodeURIComponent(work.id)}`;
+      this.upsertLocal(work);
+      this.seed(work);
+    }
     return work;
   },
   async remove(id) {
+    if (!window.confirm("Удалить работу? Она сразу исчезнет с сайта. Файлы на сервере хранятся ещё 3 дня, потом стираются без восстановления.")) {
+      return;
+    }
     this.save(this.load().filter((work) => !this.sameId(work.id, id)));
     if (!this.isServerId(id)) return;
     try {
@@ -2118,7 +3496,14 @@ window.FoxWorks = {
     }).catch(() => {});
   },
   newId() {
-    return `w-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const key = "foxtoria-work-seq";
+    const nums = [...this.load(), ...(this.publicWorks || []), ...(this.fileWorks || [])]
+      .map((work) => Number(work.id))
+      .filter((n) => Number.isInteger(n) && n > 0 && n < 1e9);
+    const stored = Number(localStorage.getItem(key) || 0);
+    const next = Math.max(stored, ...nums, 0) + 1;
+    localStorage.setItem(key, String(next));
+    return String(next);
   },
   isListed(work) {
     if (!work) return false;
@@ -2130,7 +3515,7 @@ window.FoxWorks = {
   EDITOR_LINEAR: "foxtoria-editor-linear",
   EDITOR_MESSENGER: "foxtoria-editor-messenger",
   EDITOR_MAP: "foxtoria-editor",
-  MESSENGER_MAX_IMAGES: 15,
+  MESSENGER_MAX_IMAGES: 20,
   idFromUrl() {
     return String(new URLSearchParams(location.search).get("id") || "").trim();
   },
@@ -2202,6 +3587,9 @@ window.FoxWorks = {
           status: "draft",
           html: "",
           cover: "",
+          audioKey: "",
+          audioName: "",
+          audioEmbed: "",
           isEnding: false,
         },
       ],
@@ -2273,6 +3661,9 @@ window.FoxWorks = {
           isStart: true,
           isEnding: false,
           published: false,
+          audioKey: "",
+          audioName: "",
+          audioEmbed: "",
           blocks: [],
           choices: [],
         },
@@ -2338,7 +3729,7 @@ window.FoxWorks = {
     const listed = publish || (status !== "draft" && intent !== "draft");
     const fandoms = this.csv(form, "fandoms");
     const fandomNames = this.pickerNames(form, "fandoms");
-    const id = prev.id || this.newId();
+    const id = prev.id || "";
     const fandomLabel = fandomNames[0] || (fandoms.includes("original") || fandoms[0] === "original" ? "Ориджинал" : prev.fandom || "");
     return {
       ...prev,
@@ -2367,7 +3758,11 @@ window.FoxWorks = {
       cover: prev.cover || "",
       author: prev.author || ownerDisplayName(),
       author_slug: prev.author_slug || ownerHandle(),
-      href: `story.html?id=${encodeURIComponent(id)}`,
+      coauthor: String(form.elements.coauthor?.value || prev.coauthor || "").trim(),
+      editor: String(form.elements.editor?.value || prev.editor || "").trim(),
+      paid: Boolean(form.elements.paid?.checked),
+      paid_min_level: Math.max(1, Math.round(Number(form.elements.paid_min_level?.value) || prev.paid_min_level || 1)),
+      href: id ? `story.html?id=${encodeURIComponent(id)}` : "story.html",
       likes: Number(prev.likes) || 0,
       plays: Number(prev.plays) || 0,
       role: prev.role || "author",
@@ -2406,10 +3801,173 @@ window.FoxWorkStatus = {
     map[id || "letters"] = status;
     localStorage.setItem(FOX_WORK_STATUS_KEY, JSON.stringify(map));
   },
-  fromChapters(chapters) {
+  fromChapters(chapters, workId) {
     const list = Array.isArray(chapters) ? chapters : [];
-    if (list.some((ch) => ch.isEnding && ch.status === "published")) return "completed";
-    if (list.some((ch) => ch.status === "published")) return "in_progress";
+    const live = (ch) =>
+      window.FoxChapterStatus ? FoxChapterStatus.isLive(ch, workId) : ch.status === "published";
+    if (list.some((ch) => ch.isEnding && live(ch))) return "completed";
+    if (list.some((ch) => live(ch))) return "in_progress";
     return "draft";
+  },
+};
+
+window.FoxChapterStatus = {
+  OPTIONS: [
+    { id: "published", label: "Опубликовано" },
+    { id: "draft", label: "Черновик" },
+    { id: "scheduled", label: "Отложить" },
+  ],
+  label(status) {
+    return this.OPTIONS.find((item) => item.id === status)?.label || "Черновик";
+  },
+  toLocalInput(iso) {
+    if (!iso) return "";
+    const date = new Date(iso);
+    if (!Number.isFinite(date.getTime())) return "";
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  },
+  fromLocalInput(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    return Number.isFinite(date.getTime()) ? date.toISOString() : "";
+  },
+  waitCount(workId, partId) {
+    const waits = loadBranchWaits(workId);
+    if (partId) {
+      const matched = waits.filter((wait) => wait.next === partId);
+      if (matched.length) return matched.length;
+    }
+    if (waits.length) return waits.length;
+    return localStorage.getItem("foxtoria-wait-work:" + workId) === "1" ? 1 : 0;
+  },
+  normalize(part, fallback) {
+    if (!part) return part;
+    if (part.status === "hidden") part.status = "draft";
+    if (!["published", "draft", "scheduled"].includes(part.status)) {
+      if (typeof part.published === "boolean") part.status = part.published ? "published" : "draft";
+      else part.status = fallback || "draft";
+    }
+    if (part.scheduleMode !== "wait") part.scheduleMode = "date";
+    part.publishAt = part.publishAt || "";
+    const need = Number(part.publishWait);
+    part.publishWait = Number.isFinite(need) && need > 0 ? Math.floor(need) : 10;
+    part.published = part.status === "published";
+    return part;
+  },
+  isDue(part, workId) {
+    if (!part || part.status !== "scheduled") return false;
+    if (part.scheduleMode === "wait") {
+      const need = Number(part.publishWait) || 0;
+      return need > 0 && this.waitCount(workId, part.id) >= need;
+    }
+    if (!part.publishAt) return false;
+    const at = Date.parse(part.publishAt);
+    return Number.isFinite(at) && Date.now() >= at;
+  },
+  applyDue(part, workId, fallback) {
+    this.normalize(part, fallback);
+    if (this.isDue(part, workId)) {
+      part.status = "published";
+      part.published = true;
+    }
+    return part;
+  },
+  isLive(part, workId) {
+    if (!part) return false;
+    const status = part.status === "hidden" ? "draft" : part.status;
+    if (status === "published") return true;
+    if (status === "scheduled") return this.isDue(part, workId);
+    if (!status && typeof part.published === "boolean") return part.published;
+    return false;
+  },
+  bind(opts) {
+    const btn = document.getElementById("chapter-status-btn");
+    const menu = document.getElementById("chapter-status-menu");
+    const label = document.getElementById("chapter-status-label");
+    const schedule = document.getElementById("chapter-status-schedule");
+    const saveBtns = [...document.querySelectorAll(".editor-save-btn")];
+    if (!btn || !menu || !opts?.getPart) return { paint() {} };
+    const close = () => {
+      menu.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+    };
+    const paint = () => {
+      const part = opts.getPart();
+      if (!part) return;
+      this.normalize(part, opts.fallback);
+      const status = part.status || "draft";
+      if (label) label.textContent = "Статус: " + this.label(status);
+      menu.querySelectorAll("[data-status]").forEach((item) => {
+        const on = item.getAttribute("data-status") === status;
+        item.setAttribute("aria-checked", on ? "true" : "false");
+      });
+      if (schedule) {
+        schedule.hidden = status !== "scheduled";
+        schedule.querySelectorAll('input[name="chapter-sched-mode"]').forEach((radio) => {
+          radio.checked = radio.value === (part.scheduleMode || "date");
+        });
+        const at = document.getElementById("chapter-publish-at");
+        const wait = document.getElementById("chapter-publish-wait");
+        const hint = document.getElementById("chapter-wait-now");
+        if (at && document.activeElement !== at) at.value = this.toLocalInput(part.publishAt);
+        if (wait && document.activeElement !== wait) wait.value = String(part.publishWait || 10);
+        if (hint) hint.textContent = "Сейчас ждут: " + this.waitCount(opts.workId, part.id);
+      }
+    };
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = menu.hidden;
+      menu.hidden = !open;
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    menu.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-status]");
+      if (!item) return;
+      const part = opts.getPart();
+      const next = item.getAttribute("data-status");
+      if (opts.canPublish && opts.canPublish(part, next) === false) {
+        close();
+        return;
+      }
+      this.normalize(part, opts.fallback);
+      part.status = next;
+      part.published = next === "published";
+      close();
+      paint();
+      opts.onChange?.(part);
+    });
+    const fromLocal = (value) => this.fromLocalInput(value);
+    schedule?.addEventListener("change", (event) => {
+      const part = opts.getPart();
+      if (!part || part.status !== "scheduled") return;
+      const target = event.target;
+      if (target.name === "chapter-sched-mode") part.scheduleMode = target.value === "wait" ? "wait" : "date";
+      if (target.id === "chapter-publish-at") part.publishAt = fromLocal(target.value);
+      if (target.id === "chapter-publish-wait") {
+        const n = Number(target.value);
+        part.publishWait = Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+      }
+      paint();
+      opts.onChange?.(part);
+    });
+    document.addEventListener("click", (event) => {
+      if (event.target.closest("#chapter-status")) return;
+      close();
+    });
+    saveBtns.forEach((saveBtn) => {
+      saveBtn.addEventListener("click", () => {
+        opts.onSave?.();
+        const prev = saveBtn.textContent;
+        saveBtn.textContent = "Сохранено";
+        saveBtn.classList.add("is-saved");
+        window.setTimeout(() => {
+          saveBtn.textContent = prev || "Сохранить";
+          saveBtn.classList.remove("is-saved");
+        }, 1200);
+      });
+    });
+    paint();
+    return { paint };
   },
 };

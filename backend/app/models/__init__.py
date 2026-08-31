@@ -26,6 +26,7 @@ from app.models.activity import (
     DeviceSession,
     Notification,
     NotificationKind,
+    PageHit,
     ReadingProgress,
     UserCounters,
 )
@@ -35,6 +36,7 @@ from app.models.entities import (
     AuthorPlan,
     ContentWarning,
     Fandom,
+    FandomCharacter,
     Genre,
     Kink,
     RomanceOrientation,
@@ -46,7 +48,7 @@ from app.models.entities import (
     WorkSize,
     work_size_for_chapters,
 )
-from app.models.social import Comment, CommentTarget, Review
+from app.models.social import AuthorStrike, Comment, CommentTarget, ContentReport, ReportStatus, Review
 from app.models.studio import (
     AiJob,
     AiJobKind,
@@ -69,6 +71,7 @@ __all__ = [
     "CollectionItem",
     "DirectMessage",
     "Fandom",
+    "FandomCharacter",
     "Follow",
     "FollowTarget",
     "MessageParticipant",
@@ -115,15 +118,19 @@ __all__ = [
     "CollectionFollow",
     "Comment",
     "CommentTarget",
+    "ContentReport",
+    "AuthorStrike",
     "DailyCounter",
     "DeviceSession",
     "LedgerEntry",
     "LedgerKind",
     "Notification",
     "NotificationKind",
+    "PageHit",
     "PaymentKind",
     "PaymentMethod",
     "ReadingProgress",
+    "ReportStatus",
     "Review",
     "UserCounters",
     "Wallet",

@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from app.api.account import router as account_router
+from app.api.admin import router as admin_router
 from app.api.messages import router as messages_router
 from app.api.routes import router
 from app.api.works import router as works_router
@@ -75,6 +76,36 @@ def _sqlite_migrate(sync_conn) -> None:
         for name, spec in alters.items():
             if name not in set_cols:
                 sync_conn.execute(text(f"ALTER TABLE user_settings ADD COLUMN {name} {spec}"))
+    try:
+        fan_cols = {row[1] for row in sync_conn.execute(text("PRAGMA table_info(fandoms)")).fetchall()}
+    except Exception:
+        fan_cols = set()
+    if fan_cols and "category" not in fan_cols:
+        sync_conn.execute(text("ALTER TABLE fandoms ADD COLUMN category VARCHAR(64) DEFAULT ''"))
+    try:
+        author_cols = {row[1] for row in sync_conn.execute(text("PRAGMA table_info(authors)")).fetchall()}
+    except Exception:
+        author_cols = set()
+    if author_cols:
+        if "last_seen_at" not in author_cols:
+            sync_conn.execute(text("ALTER TABLE authors ADD COLUMN last_seen_at DATETIME"))
+        if "blocked_at" not in author_cols:
+            sync_conn.execute(text("ALTER TABLE authors ADD COLUMN blocked_at DATETIME"))
+    try:
+        story_cols = {row[1] for row in sync_conn.execute(text("PRAGMA table_info(stories)")).fetchall()}
+    except Exception:
+        story_cols = set()
+    if story_cols and "deleted_at" not in story_cols:
+        sync_conn.execute(text("ALTER TABLE stories ADD COLUMN deleted_at DATETIME"))
+    try:
+        report_cols = {row[1] for row in sync_conn.execute(text("PRAGMA table_info(content_reports)")).fetchall()}
+    except Exception:
+        report_cols = set()
+    if report_cols:
+        if "target_url" not in report_cols:
+            sync_conn.execute(text("ALTER TABLE content_reports ADD COLUMN target_url VARCHAR(512) DEFAULT ''"))
+        if "reason_code" not in report_cols:
+            sync_conn.execute(text("ALTER TABLE content_reports ADD COLUMN reason_code VARCHAR(64) DEFAULT ''"))
 
 
 @asynccontextmanager
@@ -101,6 +132,7 @@ app.include_router(router)
 app.include_router(works_router, prefix="/api")
 app.include_router(messages_router, prefix="/api")
 app.include_router(account_router, prefix="/api")
+app.include_router(admin_router, prefix="/api")
 
 if WEB_DIR.is_dir():
     app.mount("/", StaticFiles(directory=str(WEB_DIR), html=True), name="web")

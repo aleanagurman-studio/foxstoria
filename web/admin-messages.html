@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Сообщения пользователей — Админ — FoxStoria</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=212">
+  <script src="site.js?v=94"></script>
+</head>
+<body class="cabinet-page admin-page" data-admin="messages">
+  <header class="header"></header>
+  <div class="layout page">
+    <aside class="sidebar-left">
+      <nav class="sidebar-nav">
+        <a href="index.html"><img src="assets/deco/paw.svg" alt=""> Главное</a>
+        <a href="catalog.html"><img src="assets/deco/sparcle.svg" alt=""> Каталог</a>
+        <a href="authors.html"><img src="assets/deco/leaf.svg" alt=""> Авторы</a>
+        <a href="profile.html"><img src="assets/deco/fox.svg" alt=""> Мой профиль</a>
+        <a href="author-home.html"><img src="assets/deco/upload.svg" alt=""> Кабинет автора</a>
+        <a href="library.html"><img src="assets/deco/bookmark.svg" alt=""> Кабинет читателя</a>
+      </nav>
+      <div class="sidebar-ornament" aria-hidden="true"><img src="assets/deco/уголок.svg" alt=""></div>
+    </aside>
+    <main class="main page-main" data-admin-root>
+      <header class="page-header">
+        <h1>Сообщения пользователей <img class="title-leaf" src="assets/svg/mail.svg" alt=""></h1>
+        <p>Личка и обращения в поддержку по всему сайту.</p>
+      </header>
+      <div data-admin-nav></div>
+      <div id="admin-messages"></div>
+    </main>
+  </div>
+  <script src="admin.js?v=4"></script>
+</body>
+</html>

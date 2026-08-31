@@ -124,3 +124,15 @@ class CollectionFollow(Base):
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"), index=True)
     collection_id: Mapped[int] = mapped_column(ForeignKey("collections.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PageHit(Base):
+    """Anonymous page views for admin traffic charts."""
+
+    __tablename__ = "page_hits"
+    __table_args__ = (UniqueConstraint("path", "day"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    path: Mapped[str] = mapped_column(String(256), index=True)
+    day: Mapped[date] = mapped_column(Date, index=True)
+    hits: Mapped[int] = mapped_column(Integer, default=0)

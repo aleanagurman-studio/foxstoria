@@ -281,6 +281,8 @@
     if (signed()) buttons.push(`<button type="button" data-comment-reply>Ответить</button>`);
     if (isOwnComment(item)) {
       buttons.push(`<button type="button" data-comment-edit>Изменить</button>`);
+    }
+    if (isOwnComment(item) || (typeof isSiteAdmin === "function" && isSiteAdmin())) {
       buttons.push(`<button type="button" data-comment-delete><img src="assets/svg/удалить.svg" alt=""> Удалить</button>`);
     }
     return buttons.length ? `<span class="news-comment-tools">${buttons.join("")}</span>` : "";

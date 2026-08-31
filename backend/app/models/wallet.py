@@ -21,6 +21,8 @@ class PaymentKind(str, enum.Enum):
 class LedgerKind(str, enum.Enum):
     TOPUP = "topup"
     BUY = "buy"
+    SUB = "sub"
+    GIFT = "gift"
     REFUND = "refund"
     PAYOUT = "payout"
 

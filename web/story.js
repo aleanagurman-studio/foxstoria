@@ -104,7 +104,10 @@
     document.getElementById("work-notes").textContent = work.author_notes;
   }
   const cover = document.getElementById("work-cover");
-  if (cover && work.cover) cover.innerHTML = `<img src="${work.cover.replace(/"/g, "")}" alt="">`;
+  if (cover) {
+    if (work.cover) cover.innerHTML = `<img src="${work.cover.replace(/"/g, "")}" alt="">`;
+    if (window.FoxPay) cover.insertAdjacentHTML("afterbegin", FoxPay.markHTML(work));
+  }
 
   const badges = [];
   if (romanceMeta) {
@@ -119,6 +122,11 @@
     }">${completed ? "Завершена" : "В процессе"}</a>`
   );
   badges.push(`<span class="work-badge work-badge--likes"><img src="assets/svg/heart.svg" class="work-icon" alt=""> ${formatCount(likes)}</span>`);
+  if (work.paid) {
+    badges.push(
+      `<span class="work-badge work-badge--paid"><img src="assets/svg/деньга.svg" class="work-badge-icon" alt=""> Платная</span>`
+    );
+  }
   document.getElementById("work-badges").innerHTML = badges.join("");
 
   const authorName = work.author || "Автор";
@@ -167,9 +175,10 @@
   FoxWorks.remember(work.id);
   await FoxWorks.seed(work);
   const urls = FoxWorks.urls(work);
+  const manage = (window.FoxPay && FoxPay.canEditCard(work)) || own;
   const studio = document.getElementById("work-studio");
   if (studio) {
-    studio.hidden = !own;
+    studio.hidden = !manage;
     studio.href = urls.studio;
   }
   const read = document.getElementById("work-read");
@@ -191,6 +200,7 @@
     if (type === "linear" || type === "messenger") {
       const data = JSON.parse(localStorage.getItem(FoxWorks.contentStore(work)) || "null");
       chapters = (data?.chapters || []).map((chapter, index) => ({
+        id: chapter.id || "",
         n: index + 1,
         title: chapter.title || `Глава ${index + 1}`,
         href: `${urls.read}${urls.read.includes("?") ? "&" : "?"}chapter=${index + 1}`,
@@ -198,6 +208,7 @@
     } else {
       const data = JSON.parse(localStorage.getItem(FoxWorks.mapStore(work.id)) || "null");
       chapters = (data?.scenes || []).map((scene, index) => ({
+        id: scene.id || "",
         n: index + 1,
         title: scene.title || `Сцена ${index + 1}`,
         href: urls.read,
@@ -226,13 +237,15 @@
     nav.innerHTML = chapters.length
       ? chapters
           .map(
-            (chapter) => `<li class="story-nav-node">
+            (chapter, index) => {
+              const locked = window.FoxPay && !FoxPay.chapterUnlocked(work, index);
+              return `<li class="story-nav-node">
               <button type="button" class="story-nav-fold is-empty" aria-hidden="true">${chevron}</button>
-              <a class="story-nav-link" href="${chapter.href.replace(/"/g, "")}">
-                <span class="story-nav-num">${chapter.n}</span>
+              <a class="story-nav-link${locked ? " is-paid-lock" : ""}" href="${chapter.href.replace(/"/g, "")}">
                 <span class="story-nav-title"></span>
               </a>
-            </li>`
+            </li>`;
+            }
           )
           .join("")
       : `<li class="story-nav-node"><span class="story-nav-link is-locked"><span class="story-nav-title">Глав пока нет</span></span></li>`;

@@ -355,7 +355,10 @@
         closeMenus();
         return;
       }
-      if (kind === "delete") card.remove();
+      if (kind === "delete") {
+        if (!window.confirm("Удалить сборник безвозвратно?")) return;
+        card.remove();
+      }
       if (kind === "follow") {
         const on = card.dataset.following !== "1";
         card.dataset.following = on ? "1" : "0";

@@ -8,11 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=199">
+  <link rel="stylesheet" href="styles.css?v=209">
   <link rel="stylesheet" href="editor.css?v=44">
-  <link rel="stylesheet" href="editor-linear.css?v=48">
-  <link rel="stylesheet" href="editor-messenger.css?v=1">
-  <script src="site.js?v=84"></script>
+  <link rel="stylesheet" href="editor-linear.css?v=50">
+  <link rel="stylesheet" href="editor-messenger.css?v=2">
+  <script src="site.js?v=93"></script>
 </head>
 <body class="editor-page editor-linear-page editor-messenger-page">
   <header class="editor-header">
@@ -90,14 +90,42 @@
             <input type="checkbox" id="chapter-ending">
             Конец
           </label>
-          <button type="button" class="linear-pub-btn linear-pub-btn--publish" id="chapter-status-btn">Опубликовать</button>
+          <div class="chapter-status" id="chapter-status">
+            <button type="button" class="chapter-status-btn" id="chapter-status-btn" aria-expanded="false" aria-haspopup="listbox">
+              <span id="chapter-status-label">Статус: Черновик</span>
+              <svg class="chapter-status-chevron" width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 6.2 8 10.5l4.5-4.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="chapter-status-menu" id="chapter-status-menu" hidden role="listbox">
+              <button type="button" role="option" data-status="published" aria-checked="false">Опубликовано<span class="chapter-status-check"></span></button>
+              <button type="button" role="option" data-status="draft" aria-checked="false">Черновик<span class="chapter-status-check"></span></button>
+              <button type="button" role="option" data-status="scheduled" aria-checked="false">Отложить<span class="chapter-status-check"></span></button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary editor-save-btn" id="editor-save-btn">Сохранить</button>
+          <div class="chapter-status-schedule" id="chapter-status-schedule" hidden>
+            <label class="chapter-status-opt">
+              <input type="radio" name="chapter-sched-mode" value="date">
+              Дата публикации
+            </label>
+            <input type="datetime-local" id="chapter-publish-at">
+            <label class="chapter-status-opt">
+              <input type="radio" name="chapter-sched-mode" value="wait">
+              Когда ждущих наберётся
+            </label>
+            <div class="chapter-status-wait-row">
+              <input type="number" id="chapter-publish-wait" min="1" step="1" inputmode="numeric">
+              <span class="chapter-status-wait-hint" id="chapter-wait-now"></span>
+            </div>
+          </div>
         </div>
       </div>
 
       <article class="linear-preview messenger-preview" id="preview" hidden>
         <div class="linear-read-body linear-preview-inner">
-          <h1 class="linear-read-title" id="preview-title"></h1>
           <div class="messenger-gallery" id="preview-gallery">
+            <button type="button" class="linear-edit-btn messenger-expand-btn" id="preview-fit" aria-label="Растянуть картинку" aria-pressed="false">
+              <img src="assets/svg/hfcibhbnm.svg" alt="">
+            </button>
             <div class="messenger-gallery-frame" id="preview-frame">
               <img id="preview-image" alt="">
               <button type="button" class="messenger-hit messenger-hit--left" id="preview-img-prev" aria-label="Предыдущая картинка"></button>
@@ -167,6 +195,6 @@
     </form>
   </div>
 
-  <script src="editor-messenger.js?v=1"></script>
+  <script src="editor-messenger.js?v=6"></script>
 </body>
 </html>

@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=152">
-  <script src="site.js?v=84"></script>
+  <link rel="stylesheet" href="styles.css?v=211">
+  <script src="site.js?v=92"></script>
 </head>
 <body class="cabinet-page">
   <header class="header"></header>
@@ -44,6 +44,7 @@
           <button type="button" data-tab="author"><img src="assets/svg/profile.svg" alt=""> Автор <span data-cabinet-count="author">0</span></button>
           <button type="button" data-tab="coauthor"><img src="assets/svg/пейринг.svg" alt=""> Соавтор <span data-cabinet-count="coauthor">0</span></button>
           <button type="button" data-tab="editor"><img src="assets/svg/редактировать.svg" alt=""> Редактор <span data-cabinet-count="editor">0</span></button>
+          <button type="button" data-tab="subs"><img src="assets/svg/деньга.svg" alt=""> Подписки</button>
         </div>
       </div>
       <div class="cabinet-body">
@@ -85,6 +86,14 @@
       <section id="tab-editor" hidden>
         <div class="cabinet-grid" data-feed="author-home-editor"></div>
       </section>
+      <section id="tab-subs" hidden>
+        <p class="author-tiers-lead">До пяти платных уровней. Название и цену задаёте вы. Минимум 50 ₽ в месяц, комиссия сервиса — 10% с каждой оплаты (без комиссии платёжки). Высший уровень открывает все платные работы и записи.</p>
+        <div class="sub-tier-list" id="author-tiers"></div>
+        <div class="work-new-actions" style="margin-top:16px">
+          <button type="button" class="btn btn-outline" id="author-tier-add">+ Уровень</button>
+          <button type="button" class="btn btn-primary" id="author-tier-save">Сохранить уровни</button>
+        </div>
+      </section>
       <nav class="cabinet-pager" aria-label="Страницы">
         <button type="button" disabled aria-label="Назад">‹</button>
         <button type="button" class="is-current">1</button>
@@ -103,6 +112,6 @@
     </main>
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
-  <script src="catalog.js?v=42" defer></script>
+  <script src="catalog.js?v=44" defer></script>
 </body>
 </html>

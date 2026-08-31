@@ -249,6 +249,13 @@ body.studio-page {
   width: 16px;
   height: 16px;
 }
+.work-dash-title .cabinet-more-wrap {
+  position: relative;
+  top: auto;
+  right: auto;
+  margin-top: 0.28em;
+  flex-shrink: 0;
+}
 .work-dash-badge {
   display: inline-flex;
   align-items: center;

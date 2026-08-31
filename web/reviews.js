@@ -196,7 +196,10 @@
       const card = act.closest(".review-card");
       if (!card) return;
       const kind = act.getAttribute("data-review-act");
-      if (kind === "delete") card.remove();
+      if (kind === "delete") {
+        if (!window.confirm("Удалить отзыв безвозвратно?")) return;
+        card.remove();
+      }
       else if (kind === "report") {
         card.classList.add("is-reported");
         act.innerHTML = `<img src="assets/svg/флаг.svg" alt=""> Жалоба отправлена`;

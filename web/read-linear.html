@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=198">
+  <link rel="stylesheet" href="styles.css?v=213">
 </head>
 <body class="linear-read-page">
   <header class="header"></header>
@@ -25,6 +25,21 @@
           <span class="linear-work-card-meta">Ориджинал · Гет · 16+ · мини</span>
         </span>
       </a>
+      <div class="chapter-player" id="chapter-player" hidden>
+        <audio id="chapter-audio" loop></audio>
+        <div class="chapter-player-acts">
+          <button type="button" class="chapter-player-btn" data-player-play aria-label="Играть">
+            <img src="assets/svg/play.svg" alt="">
+          </button>
+          <button type="button" class="chapter-player-btn" data-player-pause hidden aria-label="Пауза">
+            <img src="assets/svg/pause.svg" alt="">
+          </button>
+          <button type="button" class="chapter-player-btn" data-player-stop aria-label="Стоп">
+            <img src="assets/svg/stop.svg" alt="">
+          </button>
+        </div>
+        <span class="chapter-player-name" data-player-name></span>
+      </div>
       <div class="linear-side-split" aria-hidden="true"></div>
       <h2 class="linear-toc-title">Оглавление</h2>
       <ol class="linear-toc story-nav" id="toc"></ol>
@@ -150,12 +165,15 @@
     </article>
   </div>
 
-  <script src="site.js?v=68"></script>
+  <script src="site.js?v=95"></script>
   <script>
-    const WORK_ID = "letters";
-    const CHAPTER_READ_KEY = "foxtoria-chapter-read:" + WORK_ID;
-    const WAIT_KEY = "foxtoria-wait-work:" + WORK_ID;
-    const chapters = [
+    (async function linearReader() {
+    if (window.FoxWorks) await FoxWorks.hydrate();
+    const params = new URLSearchParams(location.search);
+    const workIdFromUrl = window.FoxWorks ? FoxWorks.idFromUrl() : params.get("id") || "";
+    if (window.FoxWorks && workIdFromUrl && !FoxWorks.get(workIdFromUrl)) await FoxWorks.fetchOne(workIdFromUrl);
+    const work = window.FoxWorks && workIdFromUrl ? FoxWorks.get(workIdFromUrl) : null;
+    const DEMO_CHAPTERS = [
       {
         title: "Конверт",
         cover: "assets/brand/banner-footer.jpg",
@@ -179,9 +197,33 @@
 <p>Вы гасите лампу. Письма остаются. Ветер за стеклом шевелит листву так тихо, что это почти можно принять за чужой голос.</p>`
       }
     ];
+    let WORK_ID = work?.id || "letters";
+    let chapters = DEMO_CHAPTERS;
+    if (work && window.FoxWorks && FoxWorks.normalizeStoryType(work.story_type) === "linear") {
+      FoxWorks.seed(work);
+      try {
+        const story = JSON.parse(localStorage.getItem(FoxWorks.linearStore(work.id)) || "null");
+        if (story?.chapters?.length) {
+          chapters = window.FoxChapterStatus
+            ? story.chapters.filter((chapter) => FoxChapterStatus.isLive(chapter, WORK_ID))
+            : story.chapters;
+        }
+      } catch {
+        /* demo */
+      }
+      const cardTitle = document.querySelector(".linear-work-card-title");
+      const cardAuthor = document.querySelector(".linear-work-card-author");
+      const cardLink = document.querySelector(".linear-work-card");
+      if (cardTitle) cardTitle.textContent = work.title || "Работа";
+      if (cardAuthor) cardAuthor.textContent = work.author || "";
+      if (cardLink) cardLink.href = FoxWorks.urls(work).public;
+    }
+    const CHAPTER_READ_KEY = "foxtoria-chapter-read:" + WORK_ID;
+    const WAIT_KEY = "foxtoria-wait-work:" + WORK_ID;
+    if (window.FoxChapterPlayer) FoxChapterPlayer.bind(document.getElementById("chapter-player"));
     let i = 0;
     const requested = Number(new URLSearchParams(location.search).get("chapter"));
-    if (Number.isFinite(requested) && requested >= 1) {
+    if (Number.isFinite(requested) && requested >= 1 && chapters.length) {
       i = Math.min(chapters.length, Math.floor(requested)) - 1;
     }
 
@@ -238,8 +280,7 @@
       toc.innerHTML = chapters.map((chapter, index) =>
         `<li class="story-nav-node">
           <button type="button" class="story-nav-fold is-empty" aria-hidden="true">${chevron}</button>
-          <a class="story-nav-link${index === i ? " is-current" : ""}${chapterRead(index) ? " is-read" : ""}" href="read-linear.html?chapter=${index + 1}" data-chapter="${index}"${index === i ? " aria-current=\"page\"" : ""}>
-            <span class="story-nav-num">${index + 1}</span>
+          <a class="story-nav-link${index === i ? " is-current" : ""}${chapterRead(index) ? " is-read" : ""}${work && window.FoxPay && !FoxPay.chapterUnlocked(work, index) ? " is-paid-lock" : ""}" href="read-linear.html?chapter=${index + 1}" data-chapter="${index}"${index === i ? " aria-current=\"page\"" : ""}>
             <span class="story-nav-title">${chapter.title}</span>
             <img class="linear-toc-check" src="assets/svg/okay.svg" alt="">
           </a>
@@ -249,10 +290,16 @@
 
     function render() {
       const c = chapters[i];
+      if (!c) {
+        document.getElementById("chapter-title").textContent = "Глав пока нет";
+        document.getElementById("chapter-text").innerHTML = "<p>Опубликованных глав пока нет.</p>";
+        return;
+      }
       document.title = `${c.title} — Письма из прошлого — FoxStoria`;
       document.getElementById("chapter-title").textContent = c.title;
       document.getElementById("crumb-chapter").textContent = c.title;
-      document.getElementById("chapter-text").innerHTML = c.html;
+      const locked = work && window.FoxPay && !FoxPay.chapterUnlocked(work, i);
+      document.getElementById("chapter-text").innerHTML = locked ? FoxPay.gateHTML(work) : c.html;
       document.getElementById("chapter-hero").style.setProperty("--chapter-cover", `url("${c.cover}")`);
       toc.querySelectorAll(".story-nav-link").forEach((link, index) => {
         link.classList.toggle("is-current", index === i);
@@ -272,6 +319,7 @@
       }
       paintWait();
       paintRead();
+      if (window.FoxChapterPlayer) FoxChapterPlayer.load(c.audioKey, c.audioName, c.audioEmbed);
       const edit = document.getElementById("edit-chapter");
       if (edit) edit.href = `editor-linear.html?chapter=${i + 1}`;
       history.replaceState(null, "", `read-linear.html?chapter=${i + 1}`);
@@ -314,7 +362,13 @@
       const del = event.target.closest("[data-comment-act=\"delete\"]");
       if (del) {
         event.preventDefault();
-        del.closest(".linear-comment")?.remove();
+        if (!window.confirm("Удалить комментарий? После обновления страницы его не будет.")) return;
+        const card = del.closest(".linear-comment");
+        const id = card?.getAttribute("data-comment-id") || card?.dataset.id;
+        if (id && window.FoxApi && /^\d+$/.test(String(id))) {
+          FoxApi.request(`/api/comments/${id}`, { method: "DELETE" }).catch(() => {});
+        }
+        card?.remove();
         return;
       }
       const btn = event.target.closest(".linear-comment-menu .review-menu-btn");
@@ -334,6 +388,7 @@
     paintFollow();
     paintWait();
     render();
+    })();
   </script>
 </body>
 </html>

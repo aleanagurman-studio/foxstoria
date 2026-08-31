@@ -69,10 +69,11 @@ def work_size_for_chapters(chapter_count: int | None) -> WorkSize | None:
 
 
 class AuthorPlan(str, enum.Enum):
-    """Plus unlocks AI chapter summaries and character extraction."""
+    """Free / Plus / Pro: storage and chapter image caps. Plus also unlocks AI helpers."""
 
     FREE = "free"
     PLUS = "plus"
+    PRO = "pro"
 
 
 class Author(Base):
@@ -90,6 +91,8 @@ class Author(Base):
         Enum(AuthorPlan, native_enum=False), default=AuthorPlan.FREE
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    blocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     stories: Mapped[list["Story"]] = relationship(back_populates="author")
 
@@ -186,10 +189,28 @@ class Fandom(Base):
     __tablename__ = "fandoms"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(128), unique=True)
-    slug: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(256), unique=True)
+    slug: Mapped[str] = mapped_column(String(256), unique=True, index=True)
+    category: Mapped[str] = mapped_column(String(64), default="", index=True)
 
     stories: Mapped[list["Story"]] = relationship(back_populates="fandom")
+    characters: Mapped[list["FandomCharacter"]] = relationship(
+        back_populates="fandom", cascade="all, delete-orphan"
+    )
+
+
+class FandomCharacter(Base):
+    """Public character of a fandom (catalog), not the author's private bible."""
+
+    __tablename__ = "fandom_characters"
+    __table_args__ = (UniqueConstraint("fandom_id", "slug"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    fandom_id: Mapped[int] = mapped_column(ForeignKey("fandoms.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(512))
+    slug: Mapped[str] = mapped_column(String(256), index=True)
+
+    fandom: Mapped["Fandom"] = relationship(back_populates="characters")
 
 
 class Story(Base):
@@ -234,6 +255,7 @@ class Story(Base):
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
 
     author: Mapped["Author"] = relationship(back_populates="stories")
     fandom: Mapped["Fandom"] = relationship(back_populates="stories")

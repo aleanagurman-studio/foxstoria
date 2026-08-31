@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=198">
+  <link rel="stylesheet" href="styles.css?v=209">
   <link rel="stylesheet" href="studio.css?v=101">
-  <script src="site.js?v=85"></script>
+  <script src="site.js?v=91"></script>
 </head>
 <body class="cabinet-page work-new-page">
   <header class="header"></header>
@@ -167,6 +167,16 @@
             <label class="studio-label" for="work-notes">Примечание автора</label>
             <textarea id="work-notes" name="author_notes" placeholder="Необязательно"></textarea>
           </div>
+          <div class="studio-form-row" data-paid-fields>
+            <div>
+              <label class="studio-label" for="work-paid"><input type="checkbox" name="paid" id="work-paid"> Платная работа</label>
+              <p class="studio-hint">Карточка и первая глава всегда бесплатны. Остальное открывается с выбранного уровня подписки и выше. Подписка на редактора доступ не даёт.</p>
+            </div>
+            <div>
+              <label class="studio-label" for="work-paid-level">Минимальный уровень</label>
+              <select id="work-paid-level" class="studio-control" name="paid_min_level"></select>
+            </div>
+          </div>
           <div class="studio-form-row">
             <div>
               <label class="studio-label" for="work-status">Статус</label>
@@ -195,6 +205,6 @@
   </div>
   <footer class="page-footer"><img class="footer-art-img" src="assets/brand/footer-corner.jpg" alt=""></footer>
   <script src="taxonomy.js?v=29"></script>
-  <script src="work-new.js?v=3"></script>
+  <script src="work-new.js?v=4"></script>
 </body>
 </html>

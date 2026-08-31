@@ -173,7 +173,7 @@ async def list_stories(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
 ):
-    query = select(Story).where(Story.status == StoryStatus.PUBLISHED).options(*_story_load())
+    query = select(Story).where(Story.status == StoryStatus.PUBLISHED, Story.deleted_at.is_(None)).options(*_story_load())
 
     if story_type:
         query = query.where(Story.story_type == story_type)

@@ -6,12 +6,20 @@ import json
 from datetime import date, datetime, timezone
 from typing import Any
 
-from fastapi import APIRouter, Depends, Header, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.works import get_author
+from app.api.works import (
+    RESERVED_USERNAMES,
+    deny_if_blocked,
+    display_name_taken,
+    get_author,
+    norm_display_name,
+    norm_username,
+    username_taken,
+)
 from app.database import get_db
 from app.models import (
     Author,
@@ -30,10 +38,9 @@ from app.models.activity import (
     ReadingProgress,
     UserCounters,
 )
-from app.models.social import Comment, CommentTarget, Review
+from app.models.social import AuthorStrike, Comment, CommentTarget, Review
 from app.models.wallet import LedgerEntry, LedgerKind, PaymentKind, PaymentMethod, Wallet
-from app.models.social import Comment, CommentTarget, Review
-from app.models.wallet import LedgerEntry, LedgerKind, PaymentKind, PaymentMethod, Wallet
+from app.staff import STAFF_USERS
 from app.stores import STORES
 
 router = APIRouter()
@@ -147,6 +154,15 @@ async def me_state(
             "display_name": me.display_name,
             "avatar": me.avatar_url or "",
             "bio": me.bio or "",
+            "plan": me.plan.value if hasattr(me.plan, "value") else (me.plan or "free"),
+            "is_staff": me.username in STAFF_USERS,
+            "blocked": bool(me.blocked_at),
+            "strikes": int(
+                (
+                    await db.execute(select(func.count(AuthorStrike.id)).where(AuthorStrike.author_id == me.id))
+                ).scalar_one()
+                or 0
+            ),
             "links": [{"title": item.label, "url": item.url} for item in links],
         },
         "settings": _settings_json(settings),
@@ -219,8 +235,22 @@ async def save_profile(
     x_fox_name: str | None = Header(None),
 ):
     me = await get_author(db, x_fox_author, x_fox_name)
+    if "username" in payload or "handle" in payload:
+        handle = norm_username(payload.get("username") or payload.get("handle"))
+        if not handle or len(handle) < 3:
+            raise HTTPException(status_code=400, detail="Юзернейм от 3 символов: латиница, цифры и _.")
+        if handle in RESERVED_USERNAMES:
+            raise HTTPException(status_code=409, detail="Этот юзернейм зарезервирован.")
+        if await username_taken(db, handle, exclude_id=me.id):
+            raise HTTPException(status_code=409, detail="Такой юзернейм уже занят.")
+        me.username = handle
     if payload.get("display_name") or payload.get("name"):
-        me.display_name = str(payload.get("display_name") or payload.get("name") or me.display_name).strip() or me.display_name
+        label = norm_display_name(payload.get("display_name") or payload.get("name"))
+        if not label:
+            raise HTTPException(status_code=400, detail="Введите имя.")
+        if await display_name_taken(db, label, exclude_id=me.id):
+            raise HTTPException(status_code=409, detail="Такое имя уже занято.")
+        me.display_name = label
     if "bio" in payload:
         me.bio = str(payload.get("bio") or "")
     if "avatar" in payload:
@@ -238,6 +268,46 @@ async def save_profile(
                 db.add(SocialLink(author_id=me.id, label=label, url=url, sort_index=index))
     await db.commit()
     return {"ok": True}
+
+
+@router.get("/identity/available")
+async def identity_available(
+    db: AsyncSession = Depends(get_db),
+    x_fox_author: str | None = Header(None),
+    x_fox_name: str | None = Header(None),
+    username: str | None = Query(None),
+    name: str | None = Query(None),
+):
+    me = await get_author(db, x_fox_author, x_fox_name)
+    handle = norm_username(username) if username is not None else ""
+    label = norm_display_name(name) if name is not None else ""
+    username_ok = True
+    name_ok = True
+    username_error = ""
+    name_error = ""
+    if username is not None:
+        if not handle or len(handle) < 3:
+            username_ok = False
+            username_error = "Юзернейм от 3 символов: латиница, цифры и _."
+        elif handle in RESERVED_USERNAMES:
+            username_ok = False
+            username_error = "Этот юзернейм зарезервирован."
+        elif await username_taken(db, handle, exclude_id=me.id):
+            username_ok = False
+            username_error = "Такой юзернейм уже занят."
+    if name is not None:
+        if not label:
+            name_ok = False
+            name_error = "Введите имя."
+        elif await display_name_taken(db, label, exclude_id=me.id):
+            name_ok = False
+            name_error = "Такое имя уже занято."
+    return {
+        "username": username_ok,
+        "name": name_ok,
+        "username_error": username_error,
+        "name_error": name_error,
+    }
 
 
 @router.put("/me/settings")
@@ -527,6 +597,7 @@ async def add_comment(
     x_fox_name: str | None = Header(None),
 ):
     me = await get_author(db, x_fox_author, x_fox_name)
+    deny_if_blocked(me)
     mapping = {item.value: item for item in CommentTarget}
     kind = mapping.get(str(payload.get("target_type") or "story"))
     if not kind:
@@ -548,6 +619,25 @@ async def add_comment(
     await db.commit()
     await db.refresh(row)
     return {"id": str(row.id)}
+
+
+@router.delete("/comments/{comment_id}")
+async def delete_comment(
+    comment_id: int,
+    db: AsyncSession = Depends(get_db),
+    x_fox_author: str | None = Header(None),
+    x_fox_name: str | None = Header(None),
+):
+    me = await get_author(db, x_fox_author, x_fox_name)
+    row = await db.get(Comment, comment_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Комментарий не найден")
+    if row.author_id != me.id and me.username not in STAFF_USERS:
+        raise HTTPException(status_code=403, detail="Нельзя удалить чужой комментарий")
+    await db.execute(delete(Comment).where(Comment.parent_id == row.id))
+    await db.delete(row)
+    await db.commit()
+    return {"ok": True}
 
 
 @router.post("/reviews")

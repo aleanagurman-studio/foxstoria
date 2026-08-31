@@ -124,16 +124,27 @@
     return typeSelects().find((el) => el.value)?.value || "interactive";
   }
 
-  function setStoryType(value) {
+  function persistStoryType(type) {
+    if (!window.FoxWorks || !workId) return;
+    const existing = FoxWorks.get(workId);
+    if (!existing) return;
+    if (window.FoxPay && !FoxPay.canEditCard(existing)) return;
+    if (FoxWorks.normalizeStoryType(existing.story_type) === type) return;
+    existing.story_type = type;
+    FoxWorks.upsert(existing);
+  }
+
+  function setStoryType(value, persist) {
     const next = window.FoxWorks ? FoxWorks.normalizeStoryType(value) : value === "linear" || value === "messenger" ? value : "interactive";
     typeSelects().forEach((el) => {
       el.value = next;
     });
     applyStoryType(next);
+    if (persist) persistStoryType(next);
   }
 
   document.addEventListener("change", (event) => {
-    if (event.target.matches?.("[data-story-type]")) setStoryType(event.target.value);
+    if (event.target.matches?.("[data-story-type]")) setStoryType(event.target.value, true);
   });
 
   applyStoryType(storyTypeValue());
@@ -165,6 +176,22 @@
     if (desc) desc.value = work.description || "";
     const notes = document.getElementById("work-notes");
     if (notes) notes.value = work.author_notes || "";
+    const paid = document.getElementById("work-paid");
+    if (paid) paid.checked = Boolean(work.paid);
+    if (window.FoxPay) {
+      const handle = work.author_slug || (typeof ownerHandle === "function" ? ownerHandle() : "");
+      FoxPay.fillLevelSelect(document.getElementById("work-paid-level"), handle, work.paid_min_level);
+      FoxPay.bindPaidFields(document.getElementById("work-card-form"), handle);
+      const canCard = FoxPay.canEditCard(work);
+      const lockNote = document.getElementById("studio-card-lock");
+      if (lockNote) lockNote.hidden = canCard;
+      const cardForm = document.getElementById("work-card-form");
+      if (cardForm) {
+        if (canCard) cardForm.removeAttribute("data-card-locked");
+        else cardForm.setAttribute("data-card-locked", "");
+      }
+      document.getElementById("studio-type")?.toggleAttribute("disabled", !canCard);
+    }
     setStoryType(work.story_type);
     const storedStatus = window.FoxWorkStatus ? FoxWorkStatus.get(work.id) : "";
     applyWorkStatus(storedStatus || work.status || (work.is_completed ? "completed" : "draft"));
@@ -205,10 +232,14 @@
     event.preventDefault();
     if (!window.FoxWorks) return;
     const existing = FoxWorks.get(workId) || { id: workId };
+    if (window.FoxPay && !FoxPay.canEditCard(existing)) return;
     const preview = document.getElementById("work-cover-preview");
     if (preview?.src && preview.src.startsWith("data:")) existing.cover = preview.src;
     const work = FoxWorks.fromForm(form, existing);
     const saved = await FoxWorks.upsert(work);
+    if (window.FoxPay && FoxPay.nick(saved.author_slug) !== FoxPay.nick(typeof ownerHandle === "function" ? ownerHandle() : "")) {
+      FoxPay.logCardChange(saved, "Соавтор обновил карточку работы.");
+    }
     fillStudioWork(saved);
   });
 
@@ -522,6 +553,7 @@
     event.preventDefault();
     const item = remove.closest(".work-chapter");
     if (!item || !chapterList) return;
+    if (!window.confirm("Удалить главу? После подтверждения её не вернуть.")) return;
     item.remove();
     renumberChapters(chapterList);
   });
@@ -1390,15 +1422,47 @@
     }
   }
 
-  document.getElementById("work-cover-input")?.addEventListener("change", (event) => {
+  document.getElementById("work-cover-input")?.addEventListener("change", async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const data = String(reader.result || "");
-      applyCover(data);
-    };
-    reader.readAsDataURL(file);
+    const existing = window.FoxWorks && workId ? FoxWorks.get(workId) : null;
+    if (window.FoxQuota) {
+      const res = await FoxQuota.take(file, { role: "work-cover", replaceSrc: existing?.cover || "" });
+      if (!res.ok) {
+        window.alert(res.error);
+        event.target.value = "";
+        return;
+      }
+      applyCover(res.data);
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => {
+        applyCover(String(reader.result || ""));
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  const studioMore = document.querySelector(".work-dash-title .cabinet-more");
+  const studioMenu = document.querySelector(".work-dash-title .cabinet-menu");
+  studioMore?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!studioMenu) return;
+    const open = studioMenu.hidden;
+    studioMenu.hidden = !open;
+    studioMore.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  document.addEventListener("click", (event) => {
+    if (!studioMenu || studioMenu.hidden) return;
+    if (event.target.closest(".work-dash-title .cabinet-more-wrap")) return;
+    studioMenu.hidden = true;
+    studioMore?.setAttribute("aria-expanded", "false");
+  });
+  document.getElementById("studio-delete-work")?.addEventListener("click", async () => {
+    if (!window.FoxWorks) return;
+    await FoxWorks.remove(workId);
+    if (!FoxWorks.get(workId)) location.href = "author-home.html";
   });
 
   (function bindWorkStats() {

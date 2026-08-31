@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=147">
-  <link rel="stylesheet" href="studio.css?v=101">
-  <script src="site.js?v=85"></script>
+  <link rel="stylesheet" href="styles.css?v=214">
+  <link rel="stylesheet" href="studio.css?v=102">
+  <script src="site.js?v=96"></script>
 </head>
 <body class="studio-page">
   <header class="header"></header>
@@ -48,6 +48,12 @@
               <button type="button" class="work-dash-edit" data-view="settings" aria-label="Изменить название">
                 <img src="assets/svg/редактировать.svg" alt="">
               </button>
+              <div class="cabinet-more-wrap">
+                <button type="button" class="cabinet-more" aria-label="Ещё" aria-haspopup="menu" aria-expanded="false"><img src="assets/ornaments/03_more_card.svg?v=1" alt=""></button>
+                <div class="cabinet-menu" hidden role="menu">
+                  <button type="button" role="menuitem" id="studio-delete-work"><img src="assets/svg/удалить.svg" alt=""> Удалить</button>
+                </div>
+              </div>
             </div>
             <span class="work-dash-badge">Черновик</span>
             <label class="studio-type-wrap">
@@ -928,6 +934,17 @@
             <label class="studio-label" for="work-notes">Примечание автора</label>
             <textarea id="work-notes" name="author_notes" placeholder="Необязательно"></textarea>
           </div>
+          <p class="studio-card-lock" id="studio-card-lock" hidden>Редактор правит только главы. Карточку могут менять автор и соавтор; правки соавтора появятся в «Изменениях».</p>
+          <div class="studio-form-row" data-paid-fields>
+            <div>
+              <label class="studio-label" for="work-paid"><input type="checkbox" name="paid" id="work-paid"> Платная работа</label>
+              <p class="studio-hint">Карточка и первая глава всегда бесплатны. Остальное — от выбранного уровня подписки и выше. Подписка на редактора доступ не даёт.</p>
+            </div>
+            <div>
+              <label class="studio-label" for="work-paid-level">Минимальный уровень</label>
+              <select id="work-paid-level" class="studio-control" name="paid_min_level"></select>
+            </div>
+          </div>
           <div class="studio-form-row">
             <div>
               <label class="studio-label" for="work-status">Статус</label>
@@ -956,6 +973,6 @@
     </div>
   </div>
   <script src="taxonomy.js?v=29"></script>
-  <script src="studio.js?v=57"></script>
+  <script src="studio.js?v=61"></script>
 </body>
 </html>

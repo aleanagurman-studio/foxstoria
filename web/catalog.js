@@ -69,7 +69,7 @@ function cardHTML(work, rank, isNew) {
   return `
     <article class="story-card" data-title="${escapeHtml(work.title)}" data-updated="${escapeHtml(cabinetMeta(work).updatedAt)}">
       <a href="${escapeHtml(workHref(work))}">
-        <div class="story-cover">${rankBadge}${newBadge}${cover}</div>
+        <div class="story-cover">${rankBadge}${newBadge}${window.FoxPay ? FoxPay.markHTML(work) : ""}${cover}</div>
         <h3 class="story-title">${escapeHtml(work.title)}</h3>
         <p class="story-kicker">${
           [typeLabel, romanceLabel]
@@ -193,7 +193,7 @@ function cabinetCardHTML(work, role) {
   return `
     <article class="cabinet-card" data-work-id="${escapeHtml(work.id)}" data-status="${escapeHtml(meta.status)}" data-work-status="${workState}" data-completed="${completed ? "1" : "0"}" data-title="${escapeHtml(work.title)}" data-updated="${escapeHtml(meta.updatedAt)}">
       <div class="cabinet-cover">
-        <div class="cabinet-cover-frame">${cover}</div>
+        <div class="cabinet-cover-frame">${window.FoxPay ? FoxPay.markHTML(work) : ""}${cover}</div>
         <div class="cabinet-more-wrap">
           <button type="button" class="cabinet-more" aria-label="Ещё" aria-haspopup="menu" aria-expanded="false"><img src="assets/ornaments/03_more_card.svg?v=1" alt=""></button>
           <div class="cabinet-menu" hidden role="menu">
@@ -391,13 +391,87 @@ function renderAuthorHome(works) {
   const pager = document.querySelector(".cabinet-pager");
   if (pager) pager.hidden = !all.length;
   bindCabinetChrome();
+  bindAuthorTiers();
+}
+
+function bindAuthorTiers() {
+  const list = document.getElementById("author-tiers");
+  if (!list || !window.FoxPay || list.dataset.bound === "1") return;
+  list.dataset.bound = "1";
+  const handle = typeof ownerHandle === "function" ? ownerHandle() : "";
+  let tiers = FoxPay.loadTiers(handle);
+
+  function paint() {
+    list.innerHTML = tiers
+      .map((tier, index) => {
+        const money = FoxPay.authorNet(tier.price);
+        return `<div class="sub-tier-row" data-tier-index="${index}">
+          <input type="text" data-tier-name maxlength="40" value="${escapeHtml(tier.name)}" placeholder="Название уровня">
+          <label class="sub-tier-price">
+            <input type="number" data-tier-price min="${FoxPay.MIN_RUB}" step="1" inputmode="numeric" value="${tier.price}" aria-label="Цена в рублях за месяц">
+            <span>₽ / мес</span>
+          </label>
+          <button type="button" class="btn btn-outline" data-tier-remove ${tiers.length <= 1 ? "disabled" : ""}>Убрать</button>
+          <p class="studio-hint" style="grid-column:1/-1;margin:0">Уровень ${index + 1}. Комиссия сайта ${Math.round(FoxPay.SUB_FEE * 100)}%: вам ${FoxPay.formatRub(money.net)}</p>
+        </div>`;
+      })
+      .join("");
+    const add = document.getElementById("author-tier-add");
+    if (add) add.disabled = tiers.length >= FoxPay.MAX_TIERS;
+  }
+
+  function collect() {
+    tiers = [...list.querySelectorAll(".sub-tier-row")].map((row, index) => ({
+      id: tiers[index]?.id || `t${index + 1}`,
+      name: row.querySelector("[data-tier-name]")?.value.trim() || `Уровень ${index + 1}`,
+      price: Number(row.querySelector("[data-tier-price]")?.value) || FoxPay.MIN_RUB,
+    }));
+  }
+
+  paint();
+  document.getElementById("author-tier-add")?.addEventListener("click", () => {
+    collect();
+    if (tiers.length >= FoxPay.MAX_TIERS) return;
+    tiers.push({ id: `t${Date.now().toString(36)}`, name: `Уровень ${tiers.length + 1}`, price: FoxPay.MIN_RUB });
+    paint();
+  });
+  list.addEventListener("click", (event) => {
+    if (!event.target.closest("[data-tier-remove]")) return;
+    collect();
+    const row = event.target.closest("[data-tier-index]");
+    const i = Number(row?.getAttribute("data-tier-index"));
+    if (!Number.isFinite(i) || tiers.length <= 1) return;
+    tiers.splice(i, 1);
+    paint();
+  });
+  list.addEventListener("input", (event) => {
+    if (!event.target.matches("[data-tier-price]")) return;
+    const row = event.target.closest(".sub-tier-row");
+    const hint = row?.querySelector(".studio-hint");
+    if (!hint) return;
+    const price = Number(event.target.value) || FoxPay.MIN_RUB;
+    const money = FoxPay.authorNet(price);
+    const n = Number(row.getAttribute("data-tier-index") || 0) + 1;
+    hint.textContent = `Уровень ${n}. Комиссия сайта ${Math.round(FoxPay.SUB_FEE * 100)}%: вам ${FoxPay.formatRub(money.net)}`;
+  });
+  document.getElementById("author-tier-save")?.addEventListener("click", () => {
+    collect();
+    tiers = FoxPay.saveTiers(handle, tiers);
+    paint();
+  });
 }
 
 function renderProfileWorks(works) {
   const root = document.querySelector('[data-feed="profile-works"]');
   if (!root) return;
-  const slug = root.getAttribute("data-author") || "moonwander";
-  const items = works.filter((work) => work.author_slug === slug);
+  const slug = (root.getAttribute("data-author") || "moonwander").toLowerCase();
+  const items = works.filter((work) => {
+    if (String(work.author_slug || "").toLowerCase() === slug) return true;
+    return String(work.coauthor || "")
+      .split(",")
+      .map((item) => item.trim().toLowerCase())
+      .includes(slug);
+  });
   if (!items.length) {
     root.innerHTML = emptyHTML("Работы появятся на профиле после публикации.");
     return;
@@ -418,7 +492,7 @@ function renderFeatured(works) {
   const meta = [typeLabel, romanceLabel, work.fandom].filter(Boolean).join(" · ");
   root.innerHTML = `
     <a class="featured-card" href="${escapeHtml(workHref(work))}">
-      <div class="featured-cover">${work.cover ? `<img src="${escapeHtml(work.cover)}" alt="">` : ""}</div>
+      <div class="featured-cover">${window.FoxPay ? FoxPay.markHTML(work) : ""}${work.cover ? `<img src="${escapeHtml(work.cover)}" alt="">` : ""}</div>
       <div class="featured-info">
         <h3>${escapeHtml(work.title)}</h3>
         <p>${escapeHtml(work.description || meta)}</p>
@@ -938,6 +1012,7 @@ function renderAuthorsGrid(authors) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  bindAuthorTiers();
   loadCatalog();
   document.querySelectorAll(".sort-bar .sort-btn").forEach((btn) => {
     btn.addEventListener("click", (event) => {

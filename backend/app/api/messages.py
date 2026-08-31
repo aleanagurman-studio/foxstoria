@@ -13,12 +13,12 @@ from sqlalchemy.orm import selectinload
 from app.api.works import get_author
 from app.database import get_db
 from app.models import Author, DirectMessage, MessageParticipant, MessageThread, ThreadKind
+from app.staff import STAFF_USERS
 
 router = APIRouter()
 
 SYSTEM_USER = "foxstoria"
 SUPPORT_USER = "foxstoria-support"
-STAFF_USERS = {SYSTEM_USER, SUPPORT_USER, "moonwander"}
 
 SYSTEM_AVATAR = "assets/brand/лисичка.png"
 SUPPORT_AVATAR = "assets/brand/помощник.png"
@@ -85,9 +85,16 @@ def _peer(thread: MessageThread, me: Author) -> Author | None:
     return others[0] if others else None
 
 
+SYSTEM_WELCOME = (
+    "Добро пожаловать в FoxStoria. Здесь появляются системные письма: "
+    "объявления, напоминания и ответы поддержки — вопросы пишите в чат «Поддержка»."
+)
+SUPPORT_WELCOME = "Это чат с поддержкой. Напишите сюда, если нужна помощь."
+
+
 def _title(thread: MessageThread, me: Author) -> str:
     if thread.kind == ThreadKind.SYSTEM:
-        return "FoxStoria"
+        return "Системная рассылка"
     if thread.kind == ThreadKind.SUPPORT:
         if me.username == SUPPORT_USER:
             peer = _peer(thread, me)
@@ -191,6 +198,32 @@ async def _ensure_pair_thread(
     return await _get_thread(db, thread.id)
 
 
+async def _ensure_welcome(db: AsyncSession, thread: MessageThread, sender: Author, body: str) -> None:
+    if thread.messages:
+        return
+    await _post(db, thread, sender, body)
+
+
+async def _ensure_inbox(db: AsyncSession, me: Author) -> None:
+    sys = await system_author(db)
+    support = await support_author(db)
+    if me.id in (sys.id, support.id):
+        return
+    system_thread = await _ensure_pair_thread(db, me, sys, ThreadKind.SYSTEM)
+    support_thread = await _ensure_pair_thread(db, me, support, ThreadKind.SUPPORT)
+    await _ensure_welcome(db, system_thread, sys, SYSTEM_WELCOME)
+    await _ensure_welcome(db, support_thread, support, SUPPORT_WELCOME)
+
+
+def _sort_threads(items: list[dict]) -> list[dict]:
+    pin = {"system": 0, "support": 1}
+    pinned = [item for item in items if (item.get("kind") or "") in pin]
+    rest = [item for item in items if (item.get("kind") or "") not in pin]
+    pinned.sort(key=lambda item: pin.get(item.get("kind") or "", 9))
+    rest.sort(key=lambda item: item.get("updated_at") or "", reverse=True)
+    return pinned + rest
+
+
 async def _post(db: AsyncSession, thread: MessageThread, sender: Author, body: str) -> DirectMessage:
     text = str(body or "").strip()
     if not text:
@@ -209,11 +242,7 @@ async def list_threads(
     x_fox_name: str | None = Header(None),
 ):
     me = await get_author(db, x_fox_author, x_fox_name)
-    sys = await system_author(db)
-    support = await support_author(db)
-    if me.id not in (sys.id, support.id):
-        await _ensure_pair_thread(db, me, sys, ThreadKind.SYSTEM)
-        await _ensure_pair_thread(db, me, support, ThreadKind.SUPPORT)
+    await _ensure_inbox(db, me)
     await db.commit()
 
     ids = select(MessageParticipant.thread_id).where(MessageParticipant.author_id == me.id)
@@ -221,8 +250,7 @@ async def list_threads(
         select(MessageThread).where(MessageThread.id.in_(ids)).options(*_load_thread())
     )
     threads = result.scalars().unique().all()
-    items = [thread_json(thread, me) for thread in threads]
-    items.sort(key=lambda item: item.get("updated_at") or "", reverse=True)
+    items = _sort_threads([thread_json(thread, me) for thread in threads])
     return {"me": {"username": me.username, "display_name": me.display_name}, "threads": items}
 
 
@@ -343,3 +371,18 @@ async def broadcast(
     count = await _broadcast(db, payload.get("body") or "")
     await db.commit()
     return {"ok": True, "sent": count}
+
+
+async def send_support_notice(db: AsyncSession, author: Author, body: str) -> None:
+    support = await support_author(db)
+    if not author or author.id == support.id:
+        return
+    thread = await _ensure_pair_thread(db, author, support, ThreadKind.SUPPORT)
+    await _post(db, thread, support, body)
+
+
+async def staff_reply(db: AsyncSession, thread: MessageThread, staff: Author, body: str) -> MessageThread:
+    await _add_part(db, thread, staff.id)
+    await _post(db, thread, staff, body)
+    await db.commit()
+    return await _get_thread(db, thread.id)
